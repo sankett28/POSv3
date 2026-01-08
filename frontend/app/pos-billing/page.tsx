@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { api } from '@/lib/api'
-import { Search, Plus, Minus, Trash2, CheckCircle } from 'lucide-react'
+import { Search, Plus, Minus, Trash2, CheckCircle, Wallet, Smartphone, CreditCard, PackageOpen } from 'lucide-react'
 
 interface Product {
   id: string
@@ -123,14 +123,17 @@ export default function PosBillingPage() {
     }
   }
 
-  const filteredProducts = products.filter(
-    (p) =>
-      p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.barcode?.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  const filteredProducts =
+    searchTerm.length > 0
+      ? products.filter(
+          (p) =>
+            p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            p.barcode?.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+      : products
 
   return (
-    <div className="p-8">
+    <div className="p-8 bg-gray-50 min-h-screen">
       <div className="max-w-7xl mx-auto">
         <h1 className="text-3xl font-bold text-black mb-6">Quick Billing</h1>
 
@@ -157,7 +160,7 @@ export default function PosBillingPage() {
                   <button
                     key={product.id}
                     onClick={() => addToBill(product)}
-                    className="bg-gray-50 border border-gray-200 rounded-md p-4 text-center hover:bg-black hover:text-white transition-colors"
+                    className="bg-gray-50 border border-gray-200 rounded-md p-4 text-center hover:bg-black hover:text-white transition-colors flex flex-col items-center justify-center"
                   >
                     <div className="w-12 h-12 bg-black text-white rounded-md flex items-center justify-center mx-auto mb-2 font-bold">
                       {product.name.charAt(0).toUpperCase()}
@@ -172,10 +175,10 @@ export default function PosBillingPage() {
 
           <div className="bg-white rounded-lg shadow p-6 sticky top-4 h-fit">
             <div className="flex justify-between items-center mb-4 pb-4 border-b border-gray-200">
-              <h3 className="text-lg font-semibold text-black">Current Bill</h3>
+              <h3 className="text-xl font-bold text-black">Current Bill</h3>
               <button
                 onClick={() => setBillItems([])}
-                className="text-sm text-gray-600 hover:text-black"
+                className="text-sm bg-black text-white hover:bg-black hover:text-white rounded-md p-2"
               >
                 Clear All
               </button>
@@ -184,37 +187,38 @@ export default function PosBillingPage() {
             <div className="mb-4 max-h-64 overflow-y-auto">
               {billItems.length === 0 ? (
                 <div className="text-center text-gray-400 py-8">
-                  <p>Add products to start billing</p>
+                  <PackageOpen className="w-12 h-12 mx-auto mb-4" />
+                  <p className="text-lg">Add products to start billing</p>
                 </div>
               ) : (
                 <div className="space-y-2">
                   {billItems.map((item) => (
-                    <div key={item.product_id} className="flex justify-between items-center py-2 border-b border-gray-200">
+                    <div key={item.product_id} className="flex justify-between items-center py-2 border-b border-gray-200 last:border-b-0">
                       <div className="flex-1">
-                        <div className="font-semibold text-sm text-gray-900">{item.product_name}</div>
+                        <div className="font-semibold text-base text-gray-900">{item.product_name}</div>
                         <div className="text-xs text-gray-500">
-                          Qty: {item.quantity} × ₹{item.unit_price.toFixed(2)}
+                          ₹{item.unit_price.toFixed(2)} x {item.quantity}
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => updateQuantity(item.product_id, -1)}
-                          className="text-gray-600 hover:text-black"
+                          className="p-1 rounded-full hover:bg-gray-100 transition-colors"
                         >
-                          <Minus className="w-4 h-4" />
+                          <Minus className="w-4 h-4 text-gray-600" />
                         </button>
-                        <span className="font-bold text-black">₹{item.total_price.toFixed(2)}</span>
+                        <span className="font-bold text-base text-black">₹{item.total_price.toFixed(2)}</span>
                         <button
                           onClick={() => updateQuantity(item.product_id, 1)}
-                          className="text-gray-600 hover:text-black"
+                          className="p-1 rounded-full hover:bg-gray-100 transition-colors"
                         >
-                          <Plus className="w-4 h-4" />
+                          <Plus className="w-4 h-4 text-gray-600" />
                         </button>
                         <button
                           onClick={() => removeItem(item.product_id)}
-                          className="text-red-600 hover:text-red-800 ml-2"
+                          className="p-1 rounded-full hover:bg-red-100 transition-colors"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Trash2 className="w-4 h-4 text-red-600" />
                         </button>
                       </div>
                     </div>
@@ -223,37 +227,58 @@ export default function PosBillingPage() {
               )}
             </div>
 
-            <div className="mb-4 pb-4 border-t-2 border-gray-200 pt-4">
-              <div className="flex justify-between mb-2 text-sm">
-                <span className="text-gray-600">Subtotal</span>
-                <span className="font-semibold">₹{subtotal.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between text-lg font-bold">
-                <span>Total</span>
-                <span>₹{total.toFixed(2)}</span>
+            <div className="space-y-2 mb-4 pt-4 border-t border-gray-200">
+              <div className="flex justify-between text-base text-gray-700">
+                <span>Subtotal</span>
+                <span>₹{subtotal.toFixed(2)}</span>
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-2 mb-4">
-              {(['CASH', 'UPI', 'CARD'] as const).map((method) => (
-                <button
-                  key={method}
-                  onClick={() => setPaymentMethod(method)}
-                  className={`px-3 py-2 border rounded-md text-sm font-medium transition-colors ${
-                    paymentMethod === method
-                      ? 'bg-black text-white border-black'
-                      : 'bg-white text-gray-700 border-gray-300 hover:border-black'
-                  }`}
-                >
-                  {method}
-                </button>
-              ))}
+            <div className="flex justify-between items-center mb-6 pt-4 border-t-2 border-black">
+              <span className="text-2xl font-bold text-black">Total</span>
+              <span className="text-2xl font-bold text-black">₹{total.toFixed(2)}</span>
+            </div>
+
+            <div className="grid grid-cols-3 gap-3 mb-6">
+              <button
+                onClick={() => setPaymentMethod('CASH')}
+                className={`flex flex-col items-center justify-center p-4 rounded-lg border transition-colors ${
+                  paymentMethod === 'CASH'
+                    ? 'bg-black text-white border-black'
+                    : 'bg-white text-gray-700 border-gray-300 hover:border-black hover:text-black'
+                }`}
+              >
+                <Wallet className="w-6 h-6 mb-1" />
+                <span className="text-sm font-medium">Cash</span>
+              </button>
+              <button
+                onClick={() => setPaymentMethod('UPI')}
+                className={`flex flex-col items-center justify-center p-4 rounded-lg border transition-colors ${
+                  paymentMethod === 'UPI'
+                    ? 'bg-black text-white border-black'
+                    : 'bg-white text-gray-700 border-gray-300 hover:border-black hover:text-black'
+                }`}
+              >
+                <Smartphone className="w-6 h-6 mb-1" />
+                <span className="text-sm font-medium">UPI</span>
+              </button>
+              <button
+                onClick={() => setPaymentMethod('CARD')}
+                className={`flex flex-col items-center justify-center p-4 rounded-lg border transition-colors ${
+                  paymentMethod === 'CARD'
+                    ? 'bg-black text-white border-black'
+                    : 'bg-white text-gray-700 border-gray-300 hover:border-black hover:text-black'
+                }`}
+              >
+                <CreditCard className="w-6 h-6 mb-1" />
+                <span className="text-sm font-medium">Card</span>
+              </button>
             </div>
 
             <button
               onClick={handleCompleteBill}
               disabled={billItems.length === 0}
-              className="w-full bg-black text-white py-3 px-4 rounded-md font-semibold hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full bg-black text-white py-3 px-4 rounded-lg font-semibold hover:bg-black transition-colors flex items-center justify-center gap-2"
             >
               <CheckCircle className="w-5 h-5" />
               Complete & Print

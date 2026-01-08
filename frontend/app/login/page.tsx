@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { login } from '@/lib/auth'
-import { Store } from 'lucide-react'
+import { Store, Mail, Lock } from 'lucide-react'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -53,14 +53,16 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8">
-        <div className="flex items-center justify-center mb-8">
-          <Store className="w-8 h-8 text-black mr-2" />
-          <h1 className="text-2xl font-bold text-black">Retail Boss</h1>
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8">
+        <div className="flex flex-col items-center mb-8">
+          <div className="flex items-center mb-4">
+            <Store className="w-8 h-8 text-black mr-2" />
+            <h1 className="text-2xl font-bold text-black">Retail Boss</h1>
+          </div>
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h2>
+          <p className="text-gray-600">Log in to your account</p>
         </div>
-
-        <h2 className="text-xl font-semibold text-gray-900 mb-6 text-center">Login</h2>
 
         {error && (
           <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-md">
@@ -68,33 +70,40 @@ export default function LoginPage() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-              Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
-            />
+            <label htmlFor="email" className="sr-only">Email</label>
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                placeholder="user@example.com"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+              />
+            </div>
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-              Password
-            </label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
-            />
+            <label htmlFor="password" className="sr-only">Password</label>
+            <div className="relative">
+              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                placeholder=".Password"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+              />
+            </div>
+            <div className="text-right mt-2">
+              <a href="#" className="text-sm text-blue-600 hover:underline">Forgot password?</a>
+            </div>
           </div>
 
           <button
@@ -102,9 +111,13 @@ export default function LoginPage() {
             disabled={loading}
             className="w-full bg-black text-white py-2 px-4 rounded-md font-semibold hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? 'Logging in...' : 'Login'}
+            {loading ? 'Logging in...' : 'Log In'}
           </button>
         </form>
+
+        <div className="mt-6 text-center text-gray-600">
+          Don't have an account? <a href="#" className="text-blue-600 hover:underline font-semibold">Sign Up</a>
+        </div>
       </div>
     </div>
   )
