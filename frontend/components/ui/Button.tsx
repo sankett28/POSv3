@@ -6,7 +6,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 export default function Button({ variant = 'primary', children, className = '', ...props }: ButtonProps) {
-  const baseClasses = 'px-4 py-2 rounded-md font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
+  const baseClasses = 'px-4 py-2 rounded-md text-sm sm:text-base font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
   
   const variantClasses = {
     primary: 'bg-black text-white hover:bg-gray-800',

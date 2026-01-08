@@ -16,7 +16,7 @@ export default function Sidebar() {
   const pathname = usePathname()
 
   return (
-    <div className="w-64 bg-white border-r border-gray-200 h-screen sticky top-0">
+    <div className="hidden md:block w-64 bg-white border-r border-gray-200 h-screen sticky top-0">
       <div className="p-6 border-b border-gray-200">
         <div className="flex items-center gap-2">
           <Store className="w-6 h-6 text-black" />
