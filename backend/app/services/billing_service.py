@@ -33,12 +33,12 @@ class BillingService:
         # Step 1: Validate all products exist and get current prices
         product_data = {}
         for item in bill_data.items:
-            product = await self.product_repo.get_product(item.product_id, user_id)
+            product = await self.product_repo.get_product(item.product_id)
             if not product:
                 raise ValueError(f"Product {item.product_id} not found")
             
             # Use current product price if not specified
-            unit_price = item.unit_price if item.unit_price > 0 else float(product["price"])
+            unit_price = item.unit_price if item.unit_price > 0 else float(product["selling_price"])
             product_data[item.product_id] = {
                 "product": product,
                 "unit_price": unit_price,
@@ -47,7 +47,7 @@ class BillingService:
         
         # Step 2: Validate stock availability for all items
         for product_id, data in product_data.items():
-            current_stock = await self.inventory_service.get_current_stock(product_id, user_id)
+            current_stock = await self.inventory_service.get_current_stock(product_id)
             if current_stock < data["quantity"]:
                 raise ValueError(
                     f"Insufficient stock for product {data['product']['name']}. "
@@ -89,10 +89,8 @@ class BillingService:
             # Deduct stock (create outgoing ledger entry)
             await self.inventory_service.deduct_stock(
                 product_id=item.product_id,
-                user_id=user_id,
                 quantity=quantity,
-                reference_id=bill_id,
-                notes=f"Sale via bill {bill['bill_number']}"
+                reference_id=bill_id
             )
         
         # Step 6: Build response
