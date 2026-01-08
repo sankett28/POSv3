@@ -41,7 +41,8 @@ export default function LoginPage() {
         errorMessage = err.response.data?.detail || err.response.statusText || errorMessage
       } else if (err.request) {
         // Request was made but no response (network error, backend not running)
-        errorMessage = 'Cannot connect to server. Please ensure the backend is running on http://localhost:8000'
+        const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'
+        errorMessage = `Cannot connect to server. Please ensure the backend is running on ${apiUrl}`
       } else if (err.message) {
         errorMessage = err.message
       }
