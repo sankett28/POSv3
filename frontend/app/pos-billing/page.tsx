@@ -2,13 +2,16 @@
 
 import { useState, useEffect } from 'react'
 import { api } from '@/lib/api'
-import { Search, Plus, Minus, Trash2, CheckCircle, Wallet, Smartphone, CreditCard, PackageOpen } from 'lucide-react'
+import { Search, Plus, Minus, Trash2, CheckCircle, Wallet, Smartphone, CreditCard, PackageOpen, AlertCircle } from 'lucide-react'
 
 interface Product {
   id: string
   name: string
+  sku: string
   barcode?: string
-  price: number
+  selling_price: number
+  unit: 'pcs' | 'kg' | 'litre'
+  is_active: boolean
 }
 
 interface BillItem {
@@ -21,6 +24,7 @@ interface BillItem {
 
 export default function PosBillingPage() {
   const [products, setProducts] = useState<Product[]>([])
+  const [stocks, setStocks] = useState<Record<string, number>>({})
   const [billItems, setBillItems] = useState<BillItem[]>([])
   const [searchTerm, setSearchTerm] = useState('')
   const [loading, setLoading] = useState(true)
@@ -29,12 +33,14 @@ export default function PosBillingPage() {
 
   useEffect(() => {
     loadProducts()
+    loadStocks()
   }, [])
 
   const loadProducts = async () => {
     try {
       const data = await api.getProducts()
-      setProducts(data)
+      // Filter only active products
+      setProducts(data.filter((p: Product) => p.is_active))
     } catch (error) {
       console.error('Error loading products:', error)
     } finally {
@@ -42,42 +48,70 @@ export default function PosBillingPage() {
     }
   }
 
+  const loadStocks = async () => {
+    try {
+      const stockData = await api.getStocks()
+      const stockMap: Record<string, number> = {}
+      stockData.forEach((stock: { product_id: string; current_stock: number }) => {
+        stockMap[stock.product_id] = stock.current_stock
+      })
+      setStocks(stockMap)
+    } catch (error) {
+      console.error('Error loading stocks:', error)
+    }
+  }
+
   const addToBill = (product: Product) => {
+    const currentStock = stocks[product.id] || 0
     const existingItem = billItems.find((item) => item.product_id === product.id)
 
     if (existingItem) {
+      const newQuantity = existingItem.quantity + 1
+      if (newQuantity > currentStock) {
+        alert(`Insufficient stock! Available: ${currentStock}`)
+        return
+      }
       setBillItems(
         billItems.map((item) =>
           item.product_id === product.id
             ? {
                 ...item,
-                quantity: item.quantity + 1,
-                total_price: (item.quantity + 1) * item.unit_price,
+                quantity: newQuantity,
+                total_price: newQuantity * item.unit_price,
               }
             : item
         )
       )
     } else {
+      if (currentStock < 1) {
+        alert(`Insufficient stock! Available: ${currentStock}`)
+        return
+      }
       setBillItems([
         ...billItems,
         {
           product_id: product.id,
           product_name: product.name,
           quantity: 1,
-          unit_price: product.price,
-          total_price: product.price,
+          unit_price: product.selling_price,
+          total_price: product.selling_price,
         },
       ])
     }
   }
 
   const updateQuantity = (productId: string, delta: number) => {
+    const currentStock = stocks[productId] || 0
     setBillItems(
       billItems
         .map((item) => {
           if (item.product_id === productId) {
             const newQuantity = item.quantity + delta
             if (newQuantity <= 0) return null
+            if (newQuantity > currentStock) {
+              alert(`Insufficient stock! Available: ${currentStock}`)
+              return item
+            }
             return {
               ...item,
               quantity: newQuantity,
@@ -103,6 +137,15 @@ export default function PosBillingPage() {
       return
     }
 
+    // Validate stock one more time before submitting
+    for (const item of billItems) {
+      const currentStock = stocks[item.product_id] || 0
+      if (item.quantity > currentStock) {
+        alert(`Insufficient stock for ${item.product_name}! Available: ${currentStock}, Requested: ${item.quantity}`)
+        return
+      }
+    }
+
     try {
       await api.createBill({
         items: billItems.map((item) => ({
@@ -115,6 +158,7 @@ export default function PosBillingPage() {
 
       setShowSuccess(true)
       setBillItems([])
+      loadStocks() // Reload stocks after bill creation
       setTimeout(() => {
         setShowSuccess(false)
       }, 3000)
@@ -128,6 +172,7 @@ export default function PosBillingPage() {
       ? products.filter(
           (p) =>
             p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            p.sku.toLowerCase().includes(searchTerm.toLowerCase()) ||
             p.barcode?.toLowerCase().includes(searchTerm.toLowerCase())
         )
       : products
@@ -156,19 +201,40 @@ export default function PosBillingPage() {
               <div className="text-center text-gray-500 py-8">Loading products...</div>
             ) : (
               <div className="grid grid-cols-4 gap-4">
-                {filteredProducts.map((product) => (
-                  <button
-                    key={product.id}
-                    onClick={() => addToBill(product)}
-                    className="bg-gray-50 border border-gray-200 rounded-md p-4 text-center hover:bg-black hover:text-white transition-colors flex flex-col items-center justify-center"
-                  >
-                    <div className="w-12 h-12 bg-black text-white rounded-md flex items-center justify-center mx-auto mb-2 font-bold">
-                      {product.name.charAt(0).toUpperCase()}
-                    </div>
-                    <div className="font-semibold text-sm mb-1">{product.name}</div>
-                    <div className="font-bold">₹{product.price.toFixed(2)}</div>
-                  </button>
-                ))}
+                {filteredProducts.map((product) => {
+                  const currentStock = stocks[product.id] || 0
+                  const isOutOfStock = currentStock <= 0
+                  return (
+                    <button
+                      key={product.id}
+                      onClick={() => !isOutOfStock && addToBill(product)}
+                      disabled={isOutOfStock}
+                      className={`border rounded-md p-4 text-center transition-colors flex flex-col items-center justify-center ${
+                        isOutOfStock
+                          ? 'bg-gray-100 border-gray-200 opacity-50 cursor-not-allowed'
+                          : 'bg-gray-50 border-gray-200 hover:bg-black hover:text-white'
+                      }`}
+                    >
+                      <div className={`w-12 h-12 rounded-md flex items-center justify-center mx-auto mb-2 font-bold ${
+                        isOutOfStock ? 'bg-gray-300 text-gray-500' : 'bg-black text-white'
+                      }`}>
+                        {product.name.charAt(0).toUpperCase()}
+                      </div>
+                      <div className="font-semibold text-sm mb-1">{product.name}</div>
+                      <div className="font-bold mb-1">₹{product.selling_price.toFixed(2)}</div>
+                      <div className={`text-xs ${isOutOfStock ? 'text-red-600' : currentStock < 10 ? 'text-orange-600' : 'text-gray-600'}`}>
+                        {isOutOfStock ? (
+                          <span className="flex items-center gap-1">
+                            <AlertCircle className="w-3 h-3" />
+                            Out of Stock
+                          </span>
+                        ) : (
+                          `Stock: ${currentStock} ${product.unit}`
+                        )}
+                      </div>
+                    </button>
+                  )
+                })}
               </div>
             )}
           </div>
@@ -192,37 +258,46 @@ export default function PosBillingPage() {
                 </div>
               ) : (
                 <div className="space-y-2">
-                  {billItems.map((item) => (
-                    <div key={item.product_id} className="flex justify-between items-center py-2 border-b border-gray-200 last:border-b-0">
-                      <div className="flex-1">
-                        <div className="font-semibold text-base text-gray-900">{item.product_name}</div>
-                        <div className="text-xs text-gray-500">
-                          ₹{item.unit_price.toFixed(2)} x {item.quantity}
+                  {billItems.map((item) => {
+                    const currentStock = stocks[item.product_id] || 0
+                    return (
+                      <div key={item.product_id} className="flex justify-between items-center py-2 border-b border-gray-200 last:border-b-0">
+                        <div className="flex-1">
+                          <div className="font-semibold text-base text-gray-900">{item.product_name}</div>
+                          <div className="text-xs text-gray-500">
+                            ₹{item.unit_price.toFixed(2)} x {item.quantity}
+                          </div>
+                          {item.quantity > currentStock && (
+                            <div className="text-xs text-red-600 flex items-center gap-1 mt-1">
+                              <AlertCircle className="w-3 h-3" />
+                              Low stock: {currentStock} available
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => updateQuantity(item.product_id, -1)}
+                            className="p-1 rounded-full hover:bg-gray-100 transition-colors"
+                          >
+                            <Minus className="w-4 h-4 text-gray-600" />
+                          </button>
+                          <span className="font-bold text-base text-black">₹{item.total_price.toFixed(2)}</span>
+                          <button
+                            onClick={() => updateQuantity(item.product_id, 1)}
+                            className="p-1 rounded-full hover:bg-gray-100 transition-colors"
+                          >
+                            <Plus className="w-4 h-4 text-gray-600" />
+                          </button>
+                          <button
+                            onClick={() => removeItem(item.product_id)}
+                            className="p-1 rounded-full hover:bg-red-100 transition-colors"
+                          >
+                            <Trash2 className="w-4 h-4 text-red-600" />
+                          </button>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => updateQuantity(item.product_id, -1)}
-                          className="p-1 rounded-full hover:bg-gray-100 transition-colors"
-                        >
-                          <Minus className="w-4 h-4 text-gray-600" />
-                        </button>
-                        <span className="font-bold text-base text-black">₹{item.total_price.toFixed(2)}</span>
-                        <button
-                          onClick={() => updateQuantity(item.product_id, 1)}
-                          className="p-1 rounded-full hover:bg-gray-100 transition-colors"
-                        >
-                          <Plus className="w-4 h-4 text-gray-600" />
-                        </button>
-                        <button
-                          onClick={() => removeItem(item.product_id)}
-                          className="p-1 rounded-full hover:bg-red-100 transition-colors"
-                        >
-                          <Trash2 className="w-4 h-4 text-red-600" />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               )}
             </div>
@@ -278,7 +353,7 @@ export default function PosBillingPage() {
             <button
               onClick={handleCompleteBill}
               disabled={billItems.length === 0}
-              className="w-full bg-black text-white py-3 px-4 rounded-lg font-semibold hover:bg-black transition-colors flex items-center justify-center gap-2"
+              className="w-full bg-black text-white py-3 px-4 rounded-lg font-semibold hover:bg-black transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <CheckCircle className="w-5 h-5" />
               Complete & Print

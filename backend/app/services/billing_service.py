@@ -97,6 +97,7 @@ class BillingService:
         items_response = []
         for item in bill_items:
             product = product_data[UUID(item["product_id"])]["product"]
+            # Handle both field names for compatibility (repository maps DB fields)
             items_response.append(
                 BillItemResponse(
                     id=UUID(item["id"]),
@@ -104,15 +105,15 @@ class BillingService:
                     product_id=UUID(item["product_id"]),
                     product_name=product["name"],
                     quantity=item["quantity"],
-                    unit_price=float(item["unit_price"]),
-                    total_price=float(item["total_price"]),
+                    unit_price=float(item.get("selling_price") or item.get("unit_price", 0)),
+                    total_price=float(item.get("line_total") or item.get("total_price", 0)),
                     created_at=item["created_at"]
                 )
             )
         
         return BillResponse(
             id=UUID(bill["id"]),
-            user_id=UUID(bill["user_id"]),
+            user_id=None,  # Schema doesn't have user_id, set to None
             bill_number=bill["bill_number"],
             total_amount=float(bill["total_amount"]),
             payment_method=bill["payment_method"],
@@ -142,7 +143,7 @@ class BillingService:
         
         return BillResponse(
             id=UUID(bill["id"]),
-            user_id=UUID(bill["user_id"]),
+            user_id=None,  # Schema doesn't have user_id, set to None
             bill_number=bill["bill_number"],
             total_amount=float(bill["total_amount"]),
             payment_method=bill["payment_method"],
@@ -156,7 +157,7 @@ class BillingService:
         return [
             BillResponse(
                 id=UUID(bill["id"]),
-                user_id=UUID(bill["user_id"]),
+                user_id=None,  # Schema doesn't have user_id, set to None
                 bill_number=bill["bill_number"],
                 total_amount=float(bill["total_amount"]),
                 payment_method=bill["payment_method"],
