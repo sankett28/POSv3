@@ -7,8 +7,12 @@ import { Plus, Edit, Trash2, Search } from 'lucide-react'
 interface Product {
   id: string
   name: string
+  sku: string
   barcode?: string
-  price: number
+  selling_price: number
+  unit: 'pcs' | 'kg' | 'litre'
+  is_active: boolean
+  created_at: string
 }
 
 export default function ProductsPage() {
@@ -17,7 +21,14 @@ export default function ProductsPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [showModal, setShowModal] = useState(false)
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
-  const [formData, setFormData] = useState({ name: '', barcode: '', price: '' })
+  const [formData, setFormData] = useState({ 
+    name: '', 
+    sku: '', 
+    barcode: '', 
+    selling_price: '', 
+    unit: 'pcs' as 'pcs' | 'kg' | 'litre',
+    is_active: true
+  })
 
   useEffect(() => {
     loadProducts()
@@ -36,27 +47,55 @@ export default function ProductsPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    console.log('Form submitted!', formData)
     try {
       if (editingProduct) {
+        console.log('Updating product:', editingProduct.id)
         await api.updateProduct(editingProduct.id, {
           name: formData.name,
+          sku: formData.sku,
           barcode: formData.barcode || undefined,
-          price: parseFloat(formData.price),
+          selling_price: parseFloat(formData.selling_price),
+          unit: formData.unit,
+          is_active: formData.is_active,
         })
       } else {
-        await api.createProduct({
+        console.log('Creating product with data:', {
           name: formData.name,
+          sku: formData.sku,
           barcode: formData.barcode || undefined,
-          price: parseFloat(formData.price),
+          selling_price: parseFloat(formData.selling_price),
+          unit: formData.unit,
+          is_active: formData.is_active,
         })
+        const result = await api.createProduct({
+          name: formData.name,
+          sku: formData.sku,
+          barcode: formData.barcode || undefined,
+          selling_price: parseFloat(formData.selling_price),
+          unit: formData.unit,
+          is_active: formData.is_active,
+        })
+        console.log('Product created successfully:', result)
       }
       setShowModal(false)
       setEditingProduct(null)
-      setFormData({ name: '', barcode: '', price: '' })
+      setFormData({ 
+        name: '', 
+        sku: '', 
+        barcode: '', 
+        selling_price: '', 
+        unit: 'pcs',
+        is_active: true
+      })
       loadProducts()
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving product:', error)
-      alert('Failed to save product')
+      console.error('Error details:', error)
+      console.error('Error response:', error?.response)
+      console.error('Error response data:', error?.response?.data)
+      const errorMessage = error?.response?.data?.detail || error?.message || 'Unknown error occurred'
+      alert(`Failed to save product: ${errorMessage}`)
     }
   }
 
@@ -64,25 +103,29 @@ export default function ProductsPage() {
     setEditingProduct(product)
     setFormData({
       name: product.name,
+      sku: product.sku,
       barcode: product.barcode || '',
-      price: product.price.toString(),
+      selling_price: product.selling_price.toString(),
+      unit: product.unit,
+      is_active: product.is_active,
     })
     setShowModal(true)
   }
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this product?')) return
+  const handleDeactivate = async (id: string) => {
+    if (!confirm('Are you sure you want to deactivate this product?')) return
     try {
       await api.deleteProduct(id)
       loadProducts()
     } catch (error) {
-      console.error('Error deleting product:', error)
-      alert('Failed to delete product')
+      console.error('Error deactivating product:', error)
+      alert('Failed to deactivate product')
     }
   }
 
   const filteredProducts = products.filter((p) =>
     p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    p.sku.toLowerCase().includes(searchTerm.toLowerCase()) ||
     p.barcode?.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
@@ -91,10 +134,17 @@ export default function ProductsPage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-black">Products</h1>
-          <button
+            <button
             onClick={() => {
               setEditingProduct(null)
-              setFormData({ name: '', barcode: '', price: '' })
+              setFormData({ 
+                name: '', 
+                sku: '', 
+                barcode: '', 
+                selling_price: '', 
+                unit: 'pcs',
+                is_active: true
+              })
               setShowModal(true)
             }}
             className="bg-black text-white px-4 py-2 rounded-md font-semibold hover:bg-gray-800 flex items-center gap-2"
@@ -125,8 +175,11 @@ export default function ProductsPage() {
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Product</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">SKU</th>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Barcode</th>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Price</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Unit</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Status</th>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Actions</th>
                 </tr>
               </thead>
@@ -134,8 +187,19 @@ export default function ProductsPage() {
                 {filteredProducts.map((product) => (
                   <tr key={product.id} className="border-t border-gray-200 hover:bg-gray-50">
                     <td className="px-4 py-3 font-medium text-gray-900">{product.name}</td>
+                    <td className="px-4 py-3 text-gray-600">{product.sku}</td>
                     <td className="px-4 py-3 text-gray-600">{product.barcode || '-'}</td>
-                    <td className="px-4 py-3 text-gray-900">₹{product.price.toFixed(2)}</td>
+                    <td className="px-4 py-3 text-gray-900">₹{product.selling_price.toFixed(2)}</td>
+                    <td className="px-4 py-3 text-gray-600">{product.unit}</td>
+                    <td className="px-4 py-3">
+                      <span className={`px-2 py-1 text-xs rounded-full ${
+                        product.is_active 
+                          ? 'bg-green-100 text-green-800' 
+                          : 'bg-red-100 text-red-800'
+                      }`}>
+                        {product.is_active ? 'Active' : 'Inactive'}
+                      </span>
+                    </td>
                     <td className="px-4 py-3">
                       <div className="flex gap-2">
                         <button
@@ -144,12 +208,15 @@ export default function ProductsPage() {
                         >
                           <Edit className="w-4 h-4" />
                         </button>
-                        <button
-                          onClick={() => handleDelete(product.id)}
-                          className="text-red-600 hover:text-red-800"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        {product.is_active && (
+                          <button
+                            onClick={() => handleDeactivate(product.id)}
+                            className="text-red-600 hover:text-red-800"
+                            title="Deactivate"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -165,13 +232,29 @@ export default function ProductsPage() {
               <h2 className="text-xl font-bold text-black mb-4">
                 {editingProduct ? 'Edit Product' : 'Add Product'}
               </h2>
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form 
+                onSubmit={(e) => {
+                  console.log('Form onSubmit triggered')
+                  handleSubmit(e)
+                }} 
+                className="space-y-4"
+              >
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Name *</label>
                   <input
                     type="text"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    required
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">SKU *</label>
+                  <input
+                    type="text"
+                    value={formData.sku}
+                    onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
                     required
                     className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
                   />
@@ -186,16 +269,40 @@ export default function ProductsPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Price</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Selling Price *</label>
                   <input
                     type="number"
                     step="0.01"
-                    min="0"
-                    value={formData.price}
-                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                    min="0.01"
+                    value={formData.selling_price}
+                    onChange={(e) => setFormData({ ...formData, selling_price: e.target.value })}
                     required
                     className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
                   />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Unit *</label>
+                  <select
+                    value={formData.unit}
+                    onChange={(e) => setFormData({ ...formData, unit: e.target.value as 'pcs' | 'kg' | 'litre' })}
+                    required
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+                  >
+                    <option value="pcs">Pieces (pcs)</option>
+                    <option value="kg">Kilogram (kg)</option>
+                    <option value="litre">Litre</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={formData.is_active}
+                      onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+                      className="w-4 h-4 border border-gray-300 rounded focus:ring-2 focus:ring-black"
+                    />
+                    <span className="text-sm font-medium text-gray-700">Active</span>
+                  </label>
                 </div>
                 <div className="flex gap-2 justify-end">
                   <button
@@ -203,15 +310,38 @@ export default function ProductsPage() {
                     onClick={() => {
                       setShowModal(false)
                       setEditingProduct(null)
-                      setFormData({ name: '', barcode: '', price: '' })
+                      setFormData({ 
+                        name: '', 
+                        sku: '', 
+                        barcode: '', 
+                        selling_price: '', 
+                        unit: 'pcs',
+                        is_active: true
+                      })
                     }}
                     className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
                   >
                     Cancel
                   </button>
                   <button
-                    type="submit"
-                    className="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800"
+                    type="button"
+                    onClick={async (e) => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      console.log('Button clicked directly!', formData)
+                      // Validate required fields
+                      if (!formData.name || !formData.sku || !formData.selling_price) {
+                        alert('Please fill in all required fields (Name, SKU, Selling Price)')
+                        return
+                      }
+                      // Call handleSubmit manually
+                      const fakeEvent = {
+                        preventDefault: () => {},
+                      } as React.FormEvent
+                      await handleSubmit(fakeEvent)
+                    }}
+                    className="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={!formData.name || !formData.sku || !formData.selling_price}
                   >
                     {editingProduct ? 'Update' : 'Create'}
                   </button>
