@@ -133,12 +133,12 @@ export default function PosBillingPage() {
       : products
 
   return (
-    <div className="p-8 bg-gray-50 min-h-screen">
+    <div className="p-4 sm:p-8 bg-gray-50 min-h-screen">
       <div className="max-w-7xl mx-auto">
         <h1 className="text-3xl font-bold text-black mb-6">Quick Billing</h1>
 
-        <div className="grid grid-cols-3 gap-6">
-          <div className="col-span-2 bg-white rounded-lg shadow p-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="col-span-1 md:col-span-1 lg:col-span-2 bg-white rounded-lg shadow p-6">
             <div className="mb-6">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -155,7 +155,7 @@ export default function PosBillingPage() {
             {loading ? (
               <div className="text-center text-gray-500 py-8">Loading products...</div>
             ) : (
-              <div className="grid grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                 {filteredProducts.map((product) => (
                   <button
                     key={product.id}
@@ -184,7 +184,7 @@ export default function PosBillingPage() {
               </button>
             </div>
 
-            <div className="mb-4 max-h-64 overflow-y-auto">
+            <div className="mb-4 max-h-64 overflow-y-auto overflow-x-auto">
               {billItems.length === 0 ? (
                 <div className="text-center text-gray-400 py-8">
                   <PackageOpen className="w-12 h-12 mx-auto mb-4" />
@@ -239,7 +239,7 @@ export default function PosBillingPage() {
               <span className="text-2xl font-bold text-black">₹{total.toFixed(2)}</span>
             </div>
 
-            <div className="grid grid-cols-3 gap-3 mb-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-6">
               <button
                 onClick={() => setPaymentMethod('CASH')}
                 className={`flex flex-col items-center justify-center p-4 rounded-lg border transition-colors ${

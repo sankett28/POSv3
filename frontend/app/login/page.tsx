@@ -53,15 +53,15 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8">
-        <div className="flex flex-col items-center mb-8">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12">
+      <div className="max-w-md w-full bg-white rounded-lg shadow-xl p-10 border border-gray-200">
+          <div className="flex flex-col items-center mb-10">
           <div className="flex items-center mb-4">
             <Store className="w-8 h-8 text-black mr-2" />
             <h1 className="text-2xl font-bold text-black">Retail Boss</h1>
           </div>
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h2>
-          <p className="text-gray-600">Log in to your account</p>
+          <h2 className="text-4xl font-bold text-gray-900 mb-2">Welcome Back</h2>
+          <p className="text-gray-500">Log in to your account</p>
         </div>
 
         {error && (
@@ -82,7 +82,7 @@ export default function LoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 placeholder="user@example.com"
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+                className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-black"
               />
             </div>
           </div>
@@ -98,25 +98,25 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 placeholder=".Password"
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+                className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-black"
               />
             </div>
             <div className="text-right mt-2">
-              <a href="#" className="text-sm text-blue-600 hover:underline">Forgot password?</a>
+              <a href="#" className="text-sm font-medium text-black hover:underline">Forgot password?</a>
             </div>
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-black text-white py-2 px-4 rounded-md font-semibold hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-black text-white py-2.5 px-4 rounded-md font-semibold hover:bg-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? 'Logging in...' : 'Log In'}
           </button>
         </form>
 
         <div className="mt-6 text-center text-gray-600">
-          Don't have an account? <a href="#" className="text-blue-600 hover:underline font-semibold">Sign Up</a>
+          Don't have an account? <a href="#" className="text-black hover:underline font-semibold">Sign Up</a>
         </div>
       </div>
     </div>

@@ -56,11 +56,11 @@ export default function InventoryPage() {
   }
 
   return (
-    <div className="p-8">
+    <div className="p-4 sm:p-8">
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-black">Inventory Management</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-black">Inventory Management</h1>
             <p className="text-gray-600 mt-1">Ledger-based stock tracking</p>
           </div>
           <button
@@ -71,7 +71,7 @@ export default function InventoryPage() {
           </button>
         </div>
 
-        <div className="grid grid-cols-4 gap-6 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center gap-3 mb-2">
               <Package className="w-8 h-8 text-black" />
@@ -117,7 +117,8 @@ export default function InventoryPage() {
           {loading ? (
             <div className="p-8 text-center text-gray-500">Loading...</div>
           ) : (
-            <table className="w-full">
+            <div className="overflow-x-auto">
+              <table className="w-full">
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Product</th>
@@ -166,13 +167,14 @@ export default function InventoryPage() {
                   </tr>
                 ))}
               </tbody>
-            </table>
+              </table>
+            </div>
           )}
         </div>
 
         {showAddStockModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 max-w-md w-full">
+            <div className="bg-white rounded-lg p-4 sm:p-6 max-w-md w-full">
               <h2 className="text-xl font-bold text-black mb-4">Add Stock</h2>
               <form onSubmit={handleAddStock} className="space-y-4">
                 <div>
@@ -181,7 +183,7 @@ export default function InventoryPage() {
                     value={selectedProduct}
                     onChange={(e) => setSelectedProduct(e.target.value)}
                     required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
                   >
                     <option value="">Select a product</option>
                     {stocks.map((stock) => (
@@ -199,7 +201,7 @@ export default function InventoryPage() {
                     value={quantity}
                     onChange={(e) => setQuantity(e.target.value)}
                     required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
                   />
                 </div>
                 <div>
@@ -207,7 +209,7 @@ export default function InventoryPage() {
                   <textarea
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
                     rows={3}
                   />
                 </div>
