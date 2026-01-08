@@ -43,10 +43,10 @@ def calculate_stock(ledger_entries: List[dict]) -> int:
     Calculate current stock from ledger entries.
     
     Args:
-        ledger_entries: List of ledger entries with 'quantity_change'
+        ledger_entries: List of ledger entries with 'quantity'
     
     Returns:
         Current stock as integer
     """
-    return sum(entry.get("quantity_change", 0) for entry in ledger_entries)
+    return sum(entry.get("quantity", 0) for entry in ledger_entries)
 

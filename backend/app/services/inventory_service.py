@@ -4,7 +4,7 @@ from uuid import UUID
 from supabase import Client
 from app.repositories.inventory_ledger_repo import InventoryLedgerRepository
 from app.repositories.product_repo import ProductRepository
-from app.schemas.inventory import StockMovement, MovementType, StockResponse, InventoryLedgerEntry
+from app.schemas.inventory import StockResponse, InventoryLedgerEntry
 from app.core.logging import logger
 
 
@@ -18,23 +18,23 @@ class InventoryService:
     async def add_stock(
         self,
         product_id: UUID,
-        user_id: UUID,
-        quantity: int,
-        notes: Optional[str] = None
+        quantity: int
     ) -> InventoryLedgerEntry:
         """Add stock (incoming movement)."""
+        # Validate quantity
+        if quantity <= 0:
+            raise ValueError("Quantity must be positive")
+        
         # Validate product exists
-        product = await self.product_repo.get_product(product_id, user_id)
+        product = await self.product_repo.get_product(product_id)
         if not product:
             raise ValueError(f"Product {product_id} not found")
         
-        # Create incoming ledger entry
+        # Create incoming ledger entry with positive quantity
         result = await self.ledger_repo.create_ledger_entry(
             product_id=product_id,
-            user_id=user_id,
-            quantity_change=quantity,
-            movement_type=MovementType.INCOMING,
-            notes=notes
+            quantity=quantity,
+            reference_type="STOCK_ADD"
         )
         
         return InventoryLedgerEntry(**result)
@@ -42,41 +42,41 @@ class InventoryService:
     async def deduct_stock(
         self,
         product_id: UUID,
-        user_id: UUID,
         quantity: int,
-        reference_id: Optional[UUID] = None,
-        notes: Optional[str] = None
+        reference_id: Optional[UUID] = None
     ) -> InventoryLedgerEntry:
         """Deduct stock (outgoing movement) with validation."""
+        # Validate quantity
+        if quantity <= 0:
+            raise ValueError("Quantity must be positive")
+        
         # Validate product exists
-        product = await self.product_repo.get_product(product_id, user_id)
+        product = await self.product_repo.get_product(product_id)
         if not product:
             raise ValueError(f"Product {product_id} not found")
         
         # Check current stock
-        current_stock = await self.ledger_repo.get_product_stock(product_id, user_id)
+        current_stock = await self.ledger_repo.get_product_stock(product_id)
         if current_stock < quantity:
             raise ValueError(f"Insufficient stock. Available: {current_stock}, Requested: {quantity}")
         
         # Create outgoing ledger entry (negative quantity)
         result = await self.ledger_repo.create_ledger_entry(
             product_id=product_id,
-            user_id=user_id,
-            quantity_change=-quantity,
-            movement_type=MovementType.OUTGOING,
-            reference_id=reference_id,
-            notes=notes
+            quantity=-quantity,
+            reference_type="SALE",
+            reference_id=reference_id
         )
         
         return InventoryLedgerEntry(**result)
     
-    async def get_current_stock(self, product_id: UUID, user_id: UUID) -> int:
+    async def get_current_stock(self, product_id: UUID) -> int:
         """Get current stock for a product."""
-        return await self.ledger_repo.get_product_stock(product_id, user_id)
+        return await self.ledger_repo.get_product_stock(product_id)
     
-    async def get_all_stocks(self, user_id: UUID) -> List[StockResponse]:
+    async def get_all_stocks(self) -> List[StockResponse]:
         """Get current stock for all products."""
-        results = await self.ledger_repo.get_all_stocks(user_id)
+        results = await self.ledger_repo.get_all_stocks()
         return [
             StockResponse(
                 product_id=UUID(r["product_id"]),
@@ -87,8 +87,8 @@ class InventoryService:
             for r in results
         ]
     
-    async def get_stock_history(self, product_id: UUID, user_id: UUID, limit: int = 100) -> List[InventoryLedgerEntry]:
+    async def get_stock_history(self, product_id: UUID, limit: int = 100) -> List[InventoryLedgerEntry]:
         """Get stock movement history for a product."""
-        results = await self.ledger_repo.get_ledger_history(product_id, user_id, limit)
+        results = await self.ledger_repo.get_ledger_history(product_id, limit)
         return [InventoryLedgerEntry(**r) for r in results]
 
