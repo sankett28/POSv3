@@ -57,7 +57,7 @@ class BillItemResponse(BaseModel):
 class BillResponse(BaseModel):
     """Schema for bill response."""
     id: UUID
-    user_id: UUID
+    user_id: Optional[UUID] = None  # Made optional since schema doesn't have user_id
     bill_number: str
     total_amount: float
     payment_method: str
