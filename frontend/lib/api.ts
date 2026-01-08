@@ -164,20 +164,18 @@ class ApiClient {
     return response.data
   }
 
-  async addStock(productId: string, quantity: number, notes?: string) {
+  async addStock(productId: string, quantity: number) {
     const response = await this.client.post('/inventory/add-stock', {
       product_id: productId,
       quantity,
-      notes,
     })
     return response.data
   }
 
-  async deductStock(productId: string, quantity: number, notes?: string) {
+  async deductStock(productId: string, quantity: number) {
     const response = await this.client.post('/inventory/deduct-stock', {
       product_id: productId,
       quantity,
-      notes,
     })
     return response.data
   }

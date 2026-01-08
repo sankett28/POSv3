@@ -11,24 +11,40 @@ interface Stock {
   last_movement_at?: string
 }
 
+interface Product {
+  id: string
+  name: string
+  sku: string
+  unit: 'pcs' | 'kg' | 'litre'
+  is_active: boolean
+}
+
 export default function InventoryPage() {
   const [stocks, setStocks] = useState<Stock[]>([])
+  const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [showAddStockModal, setShowAddStockModal] = useState(false)
   const [selectedProduct, setSelectedProduct] = useState<string>('')
   const [quantity, setQuantity] = useState('')
-  const [notes, setNotes] = useState('')
+  const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
-    loadStocks()
+    loadData()
   }, [])
 
-  const loadStocks = async () => {
+  const loadData = async () => {
     try {
-      const data = await api.getStocks()
-      setStocks(data)
+      setLoading(true)
+      const [stocksData, productsData] = await Promise.all([
+        api.getStocks(),
+        api.getProducts()
+      ])
+      setStocks(stocksData)
+      // Filter only active products for the dropdown
+      setProducts(productsData.filter((p: Product) => p.is_active))
     } catch (error) {
-      console.error('Error loading stocks:', error)
+      console.error('Error loading data:', error)
+      alert('Failed to load inventory data')
     } finally {
       setLoading(false)
     }
@@ -36,15 +52,24 @@ export default function InventoryPage() {
 
   const handleAddStock = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    if (!selectedProduct || !quantity || parseInt(quantity) <= 0) {
+      alert('Please select a product and enter a valid quantity')
+      return
+    }
+
     try {
-      await api.addStock(selectedProduct, parseInt(quantity), notes)
+      setSubmitting(true)
+      await api.addStock(selectedProduct, parseInt(quantity))
       setShowAddStockModal(false)
       setSelectedProduct('')
       setQuantity('')
-      setNotes('')
-      loadStocks()
+      loadData() // Reload stocks after adding
     } catch (error: any) {
+      console.error('Error adding stock:', error)
       alert(error.response?.data?.detail || 'Failed to add stock')
+    } finally {
+      setSubmitting(false)
     }
   }
 
@@ -116,6 +141,8 @@ export default function InventoryPage() {
         <div className="bg-white rounded-lg shadow">
           {loading ? (
             <div className="p-8 text-center text-gray-500">Loading...</div>
+          ) : stocks.length === 0 ? (
+            <div className="p-8 text-center text-gray-500">No products found</div>
           ) : (
             <table className="w-full">
               <thead className="bg-gray-50">
@@ -176,39 +203,38 @@ export default function InventoryPage() {
               <h2 className="text-xl font-bold text-black mb-4">Add Stock</h2>
               <form onSubmit={handleAddStock} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Product</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Product <span className="text-red-500">*</span>
+                  </label>
                   <select
                     value={selectedProduct}
                     onChange={(e) => setSelectedProduct(e.target.value)}
                     required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+                    disabled={submitting}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black disabled:bg-gray-100"
                   >
                     <option value="">Select a product</option>
-                    {stocks.map((stock) => (
-                      <option key={stock.product_id} value={stock.product_id}>
-                        {stock.product_name}
+                    {products.map((product) => (
+                      <option key={product.id} value={product.id}>
+                        {product.name} ({product.sku}) - {product.unit}
                       </option>
                     ))}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Quantity <span className="text-red-500">*</span>
+                  </label>
                   <input
                     type="number"
                     min="1"
+                    step="1"
                     value={quantity}
                     onChange={(e) => setQuantity(e.target.value)}
                     required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Notes (optional)</label>
-                  <textarea
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
-                    rows={3}
+                    disabled={submitting}
+                    placeholder="Enter quantity to add"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black disabled:bg-gray-100"
                   />
                 </div>
                 <div className="flex gap-2 justify-end">
@@ -218,14 +244,18 @@ export default function InventoryPage() {
                       setShowAddStockModal(false)
                       setSelectedProduct('')
                       setQuantity('')
-                      setNotes('')
                     }}
-                    className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
+                    disabled={submitting}
+                    className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50"
                   >
                     Cancel
                   </button>
-                  <button type="submit" className="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800">
-                    Add Stock
+                  <button 
+                    type="submit" 
+                    disabled={submitting}
+                    className="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {submitting ? 'Adding...' : 'Add Stock'}
                   </button>
                 </div>
               </form>
