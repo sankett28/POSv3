@@ -1,0 +1,716 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Helium AI">
+    <meta name="description" content="AI-Powered Retail Boss - Smart Management System for Indian Kirana Stores & Cafes">
+    <meta name="keywords" content="retail management, kirana store, cafe management, AI inventory, billing software, India">
+    <title>Retail Boss - AI-Powered Management for Kirana & Cafes</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <i data-lucide="store" class="brand-icon"></i>
+                <span class="brand-name">Retail Boss</span>
+                <span class="beta-badge">AI-Powered</span>
+            </div>
+            <div class="nav-menu">
+                <a href="#dashboard" class="nav-link active">
+                    <i data-lucide="layout-dashboard"></i>
+                    Dashboard
+                </a>
+                <a href="#inventory" class="nav-link">
+                    <i data-lucide="package"></i>
+                    Inventory
+                </a>
+                <a href="#billing" class="nav-link">
+                    <i data-lucide="receipt"></i>
+                    Billing
+                </a>
+                <a href="#voice" class="nav-link">
+                    <i data-lucide="mic"></i>
+                    Voice AI
+                </a>
+                <a href="#analytics" class="nav-link">
+                    <i data-lucide="trending-up"></i>
+                    Analytics
+                </a>
+            </div>
+            <div class="nav-actions">
+                <button class="btn-icon" id="notificationBtn">
+                    <i data-lucide="bell"></i>
+                    <span class="notification-badge">3</span>
+                </button>
+                <button class="btn-icon">
+                    <i data-lucide="user-circle"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="section active">
+            <div class="section-header">
+                <div>
+                    <h1 class="section-title">Dashboard Overview</h1>
+                    <p class="section-subtitle">Real-time insights for your business</p>
+                </div>
+                <div class="header-actions">
+                    <select class="select-input">
+                        <option>Today</option>
+                        <option>This Week</option>
+                        <option>This Month</option>
+                    </select>
+                    <button class="btn-primary">
+                        <i data-lucide="download"></i>
+                        Export Report
+                    </button>
+                </div>
+            </div>
+
+            <!-- KPI Cards -->
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-header">
+                        <div class="kpi-icon" style="background: #000;">
+                            <i data-lucide="indian-rupee"></i>
+                        </div>
+                        <span class="kpi-trend positive">
+                            <i data-lucide="trending-up"></i>
+                            +12.5%
+                        </span>
+                    </div>
+                    <div class="kpi-value">₹45,280</div>
+                    <div class="kpi-label">Today's Sales</div>
+                    <div class="kpi-footer">vs ₹40,250 yesterday</div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-header">
+                        <div class="kpi-icon" style="background: #000;">
+                            <i data-lucide="package"></i>
+                        </div>
+                        <span class="kpi-trend warning">
+                            <i data-lucide="alert-triangle"></i>
+                            12 Low
+                        </span>
+                    </div>
+                    <div class="kpi-value">248</div>
+                    <div class="kpi-label">Total Products</div>
+                    <div class="kpi-footer">12 items need reorder</div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-header">
+                        <div class="kpi-icon" style="background: #000;">
+                            <i data-lucide="users"></i>
+                        </div>
+                        <span class="kpi-trend positive">
+                            <i data-lucide="trending-up"></i>
+                            +8.2%
+                        </span>
+                    </div>
+                    <div class="kpi-value">1,247</div>
+                    <div class="kpi-label">Active Customers</div>
+                    <div class="kpi-footer">89 new this week</div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-header">
+                        <div class="kpi-icon" style="background: #000;">
+                            <i data-lucide="trending-up"></i>
+                        </div>
+                        <span class="kpi-trend positive">
+                            <i data-lucide="trending-up"></i>
+                            +15.3%
+                        </span>
+                    </div>
+                    <div class="kpi-value">₹8.2L</div>
+                    <div class="kpi-label">Monthly Revenue</div>
+                    <div class="kpi-footer">Target: ₹10L</div>
+                </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="charts-row">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Sales Trend (Last 7 Days)</h3>
+                        <button class="btn-icon-sm">
+                            <i data-lucide="more-vertical"></i>
+                        </button>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="salesChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Top Selling Categories</h3>
+                        <button class="btn-icon-sm">
+                            <i data-lucide="more-vertical"></i>
+                        </button>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Insights -->
+            <div class="insights-section">
+                <h3 class="insights-title">
+                    <i data-lucide="sparkles"></i>
+                    AI-Powered Insights
+                </h3>
+                <div class="insights-grid">
+                    <div class="insight-card">
+                        <div class="insight-icon" style="background: #000;">
+                            <i data-lucide="trending-up"></i>
+                        </div>
+                        <div class="insight-content">
+                            <h4>High Demand Alert</h4>
+                            <p>Maggi noodles sales up 45% this week. Consider increasing stock by 30 units.</p>
+                        </div>
+                        <button class="btn-sm">Act Now</button>
+                    </div>
+
+                    <div class="insight-card">
+                        <div class="insight-icon" style="background: #000;">
+                            <i data-lucide="alert-circle"></i>
+                        </div>
+                        <div class="insight-content">
+                            <h4>Low Stock Warning</h4>
+                            <p>12 products below minimum level. Estimated stockout in 2-3 days.</p>
+                        </div>
+                        <button class="btn-sm">View Items</button>
+                    </div>
+
+                    <div class="insight-card">
+                        <div class="insight-icon" style="background: #000;">
+                            <i data-lucide="calendar"></i>
+                        </div>
+                        <div class="insight-content">
+                            <h4>Festival Forecast</h4>
+                            <p>Diwali in 15 days. AI predicts 60% increase in sweets & snacks demand.</p>
+                        </div>
+                        <button class="btn-sm">Prepare</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Inventory Section -->
+        <section id="inventory" class="section">
+            <div class="section-header">
+                <div>
+                    <h1 class="section-title">Smart Inventory Management</h1>
+                    <p class="section-subtitle">AI-powered stock tracking & forecasting</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn-secondary">
+                        <i data-lucide="scan"></i>
+                        Scan Barcode
+                    </button>
+                    <button class="btn-primary">
+                        <i data-lucide="plus"></i>
+                        Add Product
+                    </button>
+                </div>
+            </div>
+
+            <!-- Inventory Stats -->
+            <div class="inventory-stats">
+                <div class="stat-card">
+                    <i data-lucide="package-check"></i>
+                    <div>
+                        <div class="stat-value">236</div>
+                        <div class="stat-label">In Stock</div>
+                    </div>
+                </div>
+                <div class="stat-card alert">
+                    <i data-lucide="alert-triangle"></i>
+                    <div>
+                        <div class="stat-value">12</div>
+                        <div class="stat-label">Low Stock</div>
+                    </div>
+                </div>
+                <div class="stat-card warning">
+                    <i data-lucide="package-x"></i>
+                    <div>
+                        <div class="stat-value">8</div>
+                        <div class="stat-label">Expiring Soon</div>
+                    </div>
+                </div>
+                <div class="stat-card success">
+                    <i data-lucide="trending-up"></i>
+                    <div>
+                        <div class="stat-value">₹2.4L</div>
+                        <div class="stat-label">Stock Value</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Inventory Table -->
+            <div class="table-card">
+                <div class="table-header">
+                    <div class="search-box">
+                        <i data-lucide="search"></i>
+                        <input type="text" placeholder="Search products..." id="inventorySearch">
+                    </div>
+                    <div class="table-filters">
+                        <button class="filter-btn active">All</button>
+                        <button class="filter-btn">Low Stock</button>
+                        <button class="filter-btn">Expiring</button>
+                    </div>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Category</th>
+                            <th>Stock</th>
+                            <th>Min Level</th>
+                            <th>Status</th>
+                            <th>AI Forecast</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventoryTableBody">
+                        <tr>
+                            <td>
+                                <div class="product-cell">
+                                    <div class="product-img">M</div>
+                                    <div>
+                                        <div class="product-name">Maggi Noodles 2-Min</div>
+                                        <div class="product-sku">SKU: MAG001</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>Instant Food</td>
+                            <td><span class="stock-qty">45</span></td>
+                            <td>20</td>
+                            <td><span class="badge badge-success">Good Stock</span></td>
+                            <td>
+                                <div class="forecast">
+                                    <i data-lucide="trending-up"></i>
+                                    High demand
+                                </div>
+                            </td>
+                            <td>
+                                <button class="btn-icon-sm">
+                                    <i data-lucide="edit"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="product-cell">
+                                    <div class="product-img">P</div>
+                                    <div>
+                                        <div class="product-name">Parle-G Biscuits</div>
+                                        <div class="product-sku">SKU: PAR002</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>Biscuits</td>
+                            <td><span class="stock-qty warning">8</span></td>
+                            <td>15</td>
+                            <td><span class="badge badge-warning">Low Stock</span></td>
+                            <td>
+                                <div class="forecast">
+                                    <i data-lucide="alert-circle"></i>
+                                    Reorder now
+                                </div>
+                            </td>
+                            <td>
+                                <button class="btn-icon-sm">
+                                    <i data-lucide="shopping-cart"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="product-cell">
+                                    <div class="product-img">T</div>
+                                    <div>
+                                        <div class="product-name">Tata Tea Gold</div>
+                                        <div class="product-sku">SKU: TEA003</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>Beverages</td>
+                            <td><span class="stock-qty">32</span></td>
+                            <td>25</td>
+                            <td><span class="badge badge-success">Good Stock</span></td>
+                            <td>
+                                <div class="forecast">
+                                    <i data-lucide="minus"></i>
+                                    Stable
+                                </div>
+                            </td>
+                            <td>
+                                <button class="btn-icon-sm">
+                                    <i data-lucide="edit"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="product-cell">
+                                    <div class="product-img">A</div>
+                                    <div>
+                                        <div class="product-name">Amul Butter 500g</div>
+                                        <div class="product-sku">SKU: AMU004</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>Dairy</td>
+                            <td><span class="stock-qty danger">3</span></td>
+                            <td>10</td>
+                            <td><span class="badge badge-danger">Critical</span></td>
+                            <td>
+                                <div class="forecast">
+                                    <i data-lucide="alert-triangle"></i>
+                                    Urgent!
+                                </div>
+                            </td>
+                            <td>
+                                <button class="btn-icon-sm">
+                                    <i data-lucide="shopping-cart"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Billing Section -->
+        <section id="billing" class="section">
+            <div class="section-header">
+                <div>
+                    <h1 class="section-title">Quick Billing</h1>
+                    <p class="section-subtitle">GST-compliant instant invoicing</p>
+                </div>
+            </div>
+
+            <div class="billing-container">
+                <div class="billing-left">
+                    <div class="search-product">
+                        <i data-lucide="search"></i>
+                        <input type="text" placeholder="Search or scan product..." id="productSearch">
+                        <button class="btn-icon">
+                            <i data-lucide="scan"></i>
+                        </button>
+                    </div>
+
+                    <div class="product-grid">
+                        <div class="product-card" onclick="addToBill('Maggi Noodles', 12)">
+                            <div class="product-card-img">M</div>
+                            <div class="product-card-name">Maggi Noodles</div>
+                            <div class="product-card-price">₹12</div>
+                        </div>
+                        <div class="product-card" onclick="addToBill('Parle-G', 10)">
+                            <div class="product-card-img">P</div>
+                            <div class="product-card-name">Parle-G</div>
+                            <div class="product-card-price">₹10</div>
+                        </div>
+                        <div class="product-card" onclick="addToBill('Tata Tea', 250)">
+                            <div class="product-card-img">T</div>
+                            <div class="product-card-name">Tata Tea</div>
+                            <div class="product-card-price">₹250</div>
+                        </div>
+                        <div class="product-card" onclick="addToBill('Amul Butter', 55)">
+                            <div class="product-card-img">A</div>
+                            <div class="product-card-name">Amul Butter</div>
+                            <div class="product-card-price">₹55</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="billing-right">
+                    <div class="bill-card">
+                        <div class="bill-header">
+                            <h3>Current Bill</h3>
+                            <button class="btn-text" onclick="clearBill()">Clear All</button>
+                        </div>
+
+                        <div class="bill-items" id="billItems">
+                            <div class="empty-state">
+                                <i data-lucide="shopping-bag"></i>
+                                <p>Add products to start billing</p>
+                            </div>
+                        </div>
+
+                        <div class="bill-summary">
+                            <div class="summary-row">
+                                <span>Subtotal</span>
+                                <span id="subtotal">₹0</span>
+                            </div>
+                            <div class="summary-row">
+                                <span>GST (5%)</span>
+                                <span id="gst">₹0</span>
+                            </div>
+                            <div class="summary-row total">
+                                <span>Total</span>
+                                <span id="total">₹0</span>
+                            </div>
+                        </div>
+
+                        <div class="payment-methods">
+                            <button class="payment-btn active">
+                                <i data-lucide="wallet"></i>
+                                Cash
+                            </button>
+                            <button class="payment-btn">
+                                <i data-lucide="smartphone"></i>
+                                UPI
+                            </button>
+                            <button class="payment-btn">
+                                <i data-lucide="credit-card"></i>
+                                Card
+                            </button>
+                        </div>
+
+                        <button class="btn-primary btn-block" onclick="completeBilling()">
+                            <i data-lucide="check-circle"></i>
+                            Complete & Print
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Voice Assistant Section -->
+        <section id="voice" class="section">
+            <div class="section-header">
+                <div>
+                    <h1 class="section-title">Voice AI Assistant</h1>
+                    <p class="section-subtitle">Speak in Hindi, Tamil, or Telugu</p>
+                </div>
+            </div>
+
+            <div class="voice-container">
+                <div class="voice-card">
+                    <div class="voice-visual">
+                        <div class="voice-circle" id="voiceCircle">
+                            <i data-lucide="mic" class="voice-icon"></i>
+                        </div>
+                        <div class="voice-waves">
+                            <div class="wave"></div>
+                            <div class="wave"></div>
+                            <div class="wave"></div>
+                        </div>
+                    </div>
+
+                    <div class="voice-status" id="voiceStatus">
+                        <h3>Tap to speak</h3>
+                        <p>Try: "Maggi ka stock kitna hai?" or "Today's sales batao"</p>
+                    </div>
+
+                    <button class="btn-voice" id="voiceBtn" onclick="toggleVoice()">
+                        <i data-lucide="mic"></i>
+                        Start Listening
+                    </button>
+
+                    <div class="language-selector">
+                        <button class="lang-btn active">हिंदी</button>
+                        <button class="lang-btn">தமிழ்</button>
+                        <button class="lang-btn">తెలుగు</button>
+                        <button class="lang-btn">English</button>
+                    </div>
+                </div>
+
+                <div class="voice-examples">
+                    <h3>Try These Commands</h3>
+                    <div class="example-grid">
+                        <div class="example-card" onclick="simulateVoiceCommand('stock')">
+                            <i data-lucide="package"></i>
+                            <p>"Maggi ka stock kitna hai?"</p>
+                            <span class="example-lang">Hindi</span>
+                        </div>
+                        <div class="example-card" onclick="simulateVoiceCommand('sales')">
+                            <i data-lucide="indian-rupee"></i>
+                            <p>"Today's total sales batao"</p>
+                            <span class="example-lang">Hinglish</span>
+                        </div>
+                        <div class="example-card" onclick="simulateVoiceCommand('customer')">
+                            <i data-lucide="user"></i>
+                            <p>"Ravi ko ₹200 udhar de do"</p>
+                            <span class="example-lang">Hindi</span>
+                        </div>
+                        <div class="example-card" onclick="simulateVoiceCommand('bill')">
+                            <i data-lucide="receipt"></i>
+                            <p>"₹500 ka bill banao"</p>
+                            <span class="example-lang">Hindi</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Analytics Section -->
+        <section id="analytics" class="section">
+            <div class="section-header">
+                <div>
+                    <h1 class="section-title">AI-Powered Analytics</h1>
+                    <p class="section-subtitle">Demand forecasting & business insights</p>
+                </div>
+            </div>
+
+            <!-- Forecast Card -->
+            <div class="forecast-card">
+                <div class="forecast-header">
+                    <div>
+                        <h3>7-Day Demand Forecast</h3>
+                        <p>AI predicts sales based on historical data & trends</p>
+                    </div>
+                    <div class="forecast-accuracy">
+                        <span class="accuracy-badge">92% Accurate</span>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="forecastChart"></canvas>
+                </div>
+                <div class="forecast-insights">
+                    <div class="forecast-insight">
+                        <i data-lucide="trending-up"></i>
+                        <span>Expected 18% increase on Saturday (weekend rush)</span>
+                    </div>
+                    <div class="forecast-insight">
+                        <i data-lucide="calendar"></i>
+                        <span>Stock up 30% more for upcoming festival week</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Customer Insights -->
+            <div class="analytics-grid">
+                <div class="analytics-card">
+                    <h3 class="analytics-title">Top Customers</h3>
+                    <div class="customer-list">
+                        <div class="customer-item">
+                            <div class="customer-avatar">R</div>
+                            <div class="customer-info">
+                                <div class="customer-name">Ravi Kumar</div>
+                                <div class="customer-meta">42 purchases • ₹12,450</div>
+                            </div>
+                            <span class="badge badge-gold">VIP</span>
+                        </div>
+                        <div class="customer-item">
+                            <div class="customer-avatar">P</div>
+                            <div class="customer-info">
+                                <div class="customer-name">Priya Sharma</div>
+                                <div class="customer-meta">38 purchases • ₹10,200</div>
+                            </div>
+                            <span class="badge badge-silver">Regular</span>
+                        </div>
+                        <div class="customer-item">
+                            <div class="customer-avatar">A</div>
+                            <div class="customer-info">
+                                <div class="customer-name">Amit Patel</div>
+                                <div class="customer-meta">35 purchases • ₹9,800</div>
+                            </div>
+                            <span class="badge badge-silver">Regular</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="analytics-card">
+                    <h3 class="analytics-title">Peak Hours</h3>
+                    <div class="chart-container">
+                        <canvas id="peakHoursChart"></canvas>
+                    </div>
+                    <div class="peak-insights">
+                        <div class="peak-insight">
+                            <i data-lucide="sunrise"></i>
+                            <span>Morning: 8-10 AM (₹8,500 avg)</span>
+                        </div>
+                        <div class="peak-insight">
+                            <i data-lucide="sunset"></i>
+                            <span>Evening: 6-8 PM (₹15,200 avg)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Notification Panel -->
+    <div class="notification-panel" id="notificationPanel">
+        <div class="notification-header">
+            <h3>Notifications</h3>
+            <button class="btn-text" onclick="closeNotifications()">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
+        <div class="notification-list">
+            <div class="notification-item unread">
+                <div class="notification-icon" style="background: #000;">
+                    <i data-lucide="alert-triangle"></i>
+                </div>
+                <div class="notification-content">
+                    <div class="notification-title">Low Stock Alert</div>
+                    <div class="notification-text">Parle-G Biscuits: Only 8 units left</div>
+                    <div class="notification-time">2 minutes ago</div>
+                </div>
+            </div>
+            <div class="notification-item unread">
+                <div class="notification-icon" style="background: #000;">
+                    <i data-lucide="trending-up"></i>
+                </div>
+                <div class="notification-content">
+                    <div class="notification-title">High Demand Detected</div>
+                    <div class="notification-text">Maggi sales up 45% - consider restocking</div>
+                    <div class="notification-time">1 hour ago</div>
+                </div>
+            </div>
+            <div class="notification-item">
+                <div class="notification-icon" style="background: #000;">
+                    <i data-lucide="calendar"></i>
+                </div>
+                <div class="notification-content">
+                    <div class="notification-title">Festival Reminder</div>
+                    <div class="notification-text">Diwali in 15 days - prepare inventory</div>
+                    <div class="notification-time">3 hours ago</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="modal" id="successModal">
+        <div class="modal-content">
+            <div class="modal-icon success">
+                <i data-lucide="check-circle"></i>
+            </div>
+            <h3>Bill Generated Successfully!</h3>
+            <p>Invoice #INV-2025-001 created</p>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeModal()">Close</button>
+                <button class="btn-primary">
+                    <i data-lucide="printer"></i>
+                    Print Invoice
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>
+```
