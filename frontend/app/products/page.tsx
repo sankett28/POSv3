@@ -130,10 +130,10 @@ export default function ProductsPage() {
   )
 
   return (
-    <div className="p-4 sm:p-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-black">Products</h1>
+    <div className="min-h-screen bg-gray-50 p-4 pb-16 sm:p-8 overflow-x-hidden">
+      <div className="max-w-7xl mx-auto w-full">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6">
+          <h1 className="text-2xl sm:text-3xl font-bold text-black mb-4 sm:mb-0">Products</h1>
             <button
             onClick={() => {
               setEditingProduct(null)
@@ -147,15 +147,14 @@ export default function ProductsPage() {
               })
               setShowModal(true)
             }}
-            className="bg-black text-white px-4 py-2 rounded-md font-semibold hover:bg-gray-800 flex items-center gap-2"
+            className="w-full sm:w-auto bg-black text-white px-4 py-3 rounded-md font-semibold hover:bg-gray-800 flex items-center justify-center gap-2 text-base min-h-[44px]"
           >
             <Plus className="w-4 h-4" />
             Add Product
           </button>
         </div>
 
-        <div className="bg-white rounded-lg shadow mb-6">
-          <div className="p-4 border-b border-gray-200">
+          <div className="bg-white rounded-lg shadow mb-6 p-4">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
@@ -163,7 +162,7 @@ export default function ProductsPage() {
                 placeholder="Search products..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+                className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black min-h-[44px]"
               />
             </div>
           </div>
