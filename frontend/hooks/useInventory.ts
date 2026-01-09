@@ -30,18 +30,18 @@ export function useInventory() {
     loadStocks()
   }, [])
 
-  const addStock = async (productId: string, quantity: number, notes?: string) => {
+  const addStock = async (productId: string, quantity: number) => {
     try {
-      await api.addStock(productId, quantity, notes)
+      await api.addStock(productId, quantity)
       await loadStocks()
     } catch (err: any) {
       throw new Error(err.response?.data?.detail || 'Failed to add stock')
     }
   }
 
-  const deductStock = async (productId: string, quantity: number, notes?: string) => {
+  const deductStock = async (productId: string, quantity: number) => {
     try {
-      await api.deductStock(productId, quantity, notes)
+      await api.deductStock(productId, quantity)
       await loadStocks()
     } catch (err: any) {
       throw new Error(err.response?.data?.detail || 'Failed to deduct stock')

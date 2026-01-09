@@ -32,7 +32,14 @@ export function useProducts() {
     loadProducts()
   }, [])
 
-  const createProduct = async (data: { name: string; barcode?: string; price: number }) => {
+  const createProduct = async (data: {
+    name: string
+    sku: string
+    barcode?: string
+    selling_price: number
+    unit: 'pcs' | 'kg' | 'litre'
+    is_active?: boolean
+  }) => {
     try {
       const newProduct = await api.createProduct(data)
       setProducts([newProduct, ...products])

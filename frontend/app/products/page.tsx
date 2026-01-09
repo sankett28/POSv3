@@ -123,25 +123,25 @@ export default function ProductsPage() {
     }
   }
 
-  const filteredProducts = products.filter((p) =>
-    p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.sku.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.barcode?.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  const filteredProducts = products.filter((p) => {
+    return p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      p.sku.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      p.barcode?.toLowerCase().includes(searchTerm.toLowerCase());
+  });
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 pb-16 sm:p-8 overflow-x-hidden">
       <div className="max-w-7xl mx-auto w-full">
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6">
           <h1 className="text-2xl sm:text-3xl font-bold text-black mb-4 sm:mb-0">Products</h1>
-            <button
+          <button
             onClick={() => {
               setEditingProduct(null)
-              setFormData({ 
-                name: '', 
-                sku: '', 
-                barcode: '', 
-                selling_price: '', 
+              setFormData({
+                name: '',
+                sku: '',
+                barcode: '',
+                selling_price: '',
                 unit: 'pcs',
                 is_active: true
               })
@@ -154,24 +154,24 @@ export default function ProductsPage() {
           </button>
         </div>
 
-          <div className="bg-white rounded-lg shadow mb-6 p-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input
-                type="text"
-                placeholder="Search products..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black min-h-[44px]"
-              />
-            </div>
+        <div className="bg-white rounded-lg shadow mb-6 p-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <input
+              type="text"
+              placeholder="Search products..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black min-h-[44px]"
+            />
           </div>
+        </div>
 
-          {loading ? (
-            <div className="p-8 text-center text-gray-500">Loading...</div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
+        {loading ? (
+          <div className="p-8 text-center text-gray-500">Loading...</div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full">
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Product</th>
@@ -193,8 +193,8 @@ export default function ProductsPage() {
                     <td className="px-4 py-3 text-gray-600">{product.unit}</td>
                     <td className="px-4 py-3">
                       <span className={`px-2 py-1 text-xs rounded-full ${
-                        product.is_active 
-                          ? 'bg-green-100 text-green-800' 
+                        product.is_active
+                          ? 'bg-green-100 text-green-800'
                           : 'bg-red-100 text-red-800'
                       }`}>
                         {product.is_active ? 'Active' : 'Inactive'}
@@ -222,146 +222,135 @@ export default function ProductsPage() {
                   </tr>
                 ))}
               </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-
-        {showModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-4 sm:p-6 max-w-md w-full">
-              <h2 className="text-xl font-bold text-black mb-4">
-                {editingProduct ? 'Edit Product' : 'Add Product'}
-              </h2>
-              <form 
-                onSubmit={(e) => {
-                  console.log('Form onSubmit triggered')
-                  handleSubmit(e)
-                }} 
-                className="space-y-4"
-              >
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Name *</label>
-                  <input
-                    type="text"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    required
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">SKU *</label>
-                  <input
-                    type="text"
-                    value={formData.sku}
-                    onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
-                    required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">SKU *</label>
-                  <input
-                    type="text"
-                    value={formData.sku}
-                    onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
-                    required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Barcode (optional)</label>
-                  <input
-                    type="text"
-                    value={formData.barcode}
-                    onChange={(e) => setFormData({ ...formData, barcode: e.target.value })}
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Selling Price *</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    min="0.01"
-                    value={formData.selling_price}
-                    onChange={(e) => setFormData({ ...formData, selling_price: e.target.value })}
-                    required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Unit *</label>
-                  <select
-                    value={formData.unit}
-                    onChange={(e) => setFormData({ ...formData, unit: e.target.value as 'pcs' | 'kg' | 'litre' })}
-                    required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
-                  >
-                    <option value="pcs">Pieces (pcs)</option>
-                    <option value="kg">Kilogram (kg)</option>
-                    <option value="litre">Litre</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={formData.is_active}
-                      onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-                      className="w-4 h-4 border border-gray-300 rounded focus:ring-2 focus:ring-black"
-                    />
-                    <span className="text-sm font-medium text-gray-700">Active</span>
-                  </label>
-                </div>
-                <div className="flex gap-2 justify-end">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowModal(false)
-                      setEditingProduct(null)
-                      setFormData({ 
-                        name: '', 
-                        sku: '', 
-                        barcode: '', 
-                        selling_price: '', 
-                        unit: 'pcs',
-                        is_active: true
-                      })
-                    }}
-                    className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="button"
-                    onClick={async (e) => {
-                      e.preventDefault()
-                      e.stopPropagation()
-                      console.log('Button clicked directly!', formData)
-                      // Validate required fields
-                      if (!formData.name || !formData.sku || !formData.selling_price) {
-                        alert('Please fill in all required fields (Name, SKU, Selling Price)')
-                        return
-                      }
-                      // Call handleSubmit manually
-                      const fakeEvent = {
-                        preventDefault: () => {},
-                      } as React.FormEvent
-                      await handleSubmit(fakeEvent)
-                    }}
-                    className="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
-                    disabled={!formData.name || !formData.sku || !formData.selling_price}
-                  >
-                    {editingProduct ? 'Update' : 'Create'}
-                  </button>
-                </div>
-              </form>
-            </div>
+            </table>
           </div>
         )}
       </div>
+
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-4 sm:p-6 max-w-md w-full">
+            <h2 className="text-xl font-bold text-black mb-4">
+              {editingProduct ? 'Edit Product' : 'Add Product'}
+            </h2>
+            <form
+              onSubmit={(e) => {
+                console.log('Form onSubmit triggered')
+                handleSubmit(e)
+              }}
+              className="space-y-4"
+            >
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Name *</label>
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  required
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">SKU *</label>
+                <input
+                  type="text"
+                  value={formData.sku}
+                  onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
+                  required
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Barcode (optional)</label>
+                <input
+                  type="text"
+                  value={formData.barcode}
+                  onChange={(e) => setFormData({ ...formData, barcode: e.target.value })}
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Selling Price *</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0.01"
+                  value={formData.selling_price}
+                  onChange={(e) => setFormData({ ...formData, selling_price: e.target.value })}
+                  required
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Unit *</label>
+                <select
+                  value={formData.unit}
+                  onChange={(e) => setFormData({ ...formData, unit: e.target.value as 'pcs' | 'kg' | 'litre' })}
+                  required
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+                >
+                  <option value="pcs">Pieces (pcs)</option>
+                  <option value="kg">Kilogram (kg)</option>
+                  <option value="litre">Litre</option>
+                </select>
+              </div>
+              <div>
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={formData.is_active}
+                    onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+                    className="w-4 h-4 border border-gray-300 rounded focus:ring-2 focus:ring-black"
+                  />
+                  <span className="text-sm font-medium text-gray-700">Active</span>
+                </label>
+              </div>
+              <div className="flex gap-2 justify-end">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowModal(false)
+                    setEditingProduct(null)
+                    setFormData({
+                      name: '',
+                      sku: '',
+                      barcode: '',
+                      selling_price: '',
+                      unit: 'pcs',
+                      is_active: true
+                    })
+                  }}
+                  className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={async (e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    console.log('Button clicked directly!', formData)
+                    // Validate required fields
+                    if (!formData.name || !formData.sku || !formData.selling_price) {
+                      alert('Please fill in all required fields (Name, SKU, Selling Price)')
+                      return
+                    }
+                    // Call handleSubmit manually
+                    const fakeEvent = {
+                      preventDefault: () => {},
+                    } as React.FormEvent
+                    await handleSubmit(fakeEvent)
+                  }}
+                  className="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={!formData.name || !formData.sku || !formData.selling_price}
+                >
+                  {editingProduct ? 'Update' : 'Create'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
