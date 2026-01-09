@@ -27,7 +27,7 @@ export default function AdminProfilePage() {
     name: 'Admin User',
     email: 'admin@retailboss.com',
     phone: '+91 98765 43210',
-    storeName: 'Retail Boss Store',
+    storeName: 'Cafe POS',
     address: '123 Main Street, City, State - 123456',
     role: 'Administrator',
     joinDate: 'January 2024',
@@ -36,7 +36,6 @@ export default function AdminProfilePage() {
   const [settings, setSettings] = useState({
     emailNotifications: true,
     smsNotifications: false,
-    lowStockAlerts: true,
     salesReports: true,
     weeklyReports: true,
     twoFactorAuth: false,
@@ -217,7 +216,6 @@ export default function AdminProfilePage() {
           {[
             { key: 'emailNotifications', label: 'Email Notifications', icon: Mail },
             { key: 'smsNotifications', label: 'SMS Notifications', icon: Phone },
-            { key: 'lowStockAlerts', label: 'Low Stock Alerts', icon: Bell },
             { key: 'salesReports', label: 'Daily Sales Reports', icon: Database },
             { key: 'weeklyReports', label: 'Weekly Reports', icon: Shield },
           ].map(({ key, label, icon: Icon }) => (

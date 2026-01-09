@@ -45,11 +45,15 @@ class BillItemResponse(BaseModel):
     bill_id: UUID
     product_id: UUID
     product_name: Optional[str] = None
+    category_name: Optional[str] = None
     quantity: int
     unit_price: float
+    tax_rate: float = 0.0
+    tax_amount: float = 0.0
+    line_subtotal: float = 0.0
     total_price: float
     created_at: datetime
-    
+
     class Config:
         from_attributes = True
 
@@ -59,11 +63,13 @@ class BillResponse(BaseModel):
     id: UUID
     user_id: Optional[UUID] = None  # Made optional since schema doesn't have user_id
     bill_number: str
+    subtotal: float
+    tax_amount: float
     total_amount: float
     payment_method: str
     created_at: datetime
     items: List[BillItemResponse] = []
-    
+
     class Config:
         from_attributes = True
 

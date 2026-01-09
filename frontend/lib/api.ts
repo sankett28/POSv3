@@ -106,10 +106,10 @@ class ApiClient {
 
   async createProduct(data: { 
     name: string
-    sku: string
-    barcode?: string
     selling_price: number
-    unit: 'pcs' | 'kg' | 'litre'
+    tax_rate?: number
+    category_id?: string
+    unit?: 'pcs' | 'kg' | 'litre' | 'cup' | 'plate' | 'bowl' | 'serving' | 'piece' | 'bottle' | 'can'
     is_active?: boolean
   }) {
     // #region agent log
@@ -134,10 +134,10 @@ class ApiClient {
 
   async updateProduct(id: string, data: { 
     name?: string
-    sku?: string
-    barcode?: string
     selling_price?: number
-    unit?: 'pcs' | 'kg' | 'litre'
+    tax_rate?: number
+    category_id?: string
+    unit?: 'pcs' | 'kg' | 'litre' | 'cup' | 'plate' | 'bowl' | 'serving' | 'piece' | 'bottle' | 'can'
     is_active?: boolean
   }) {
     const response = await this.client.put(`/products/${id}`, data)
@@ -148,42 +148,6 @@ class ApiClient {
     await this.client.delete(`/products/${id}`)
   }
 
-  async getProductByBarcode(barcode: string) {
-    const response = await this.client.get(`/products/barcode/${barcode}`)
-    return response.data
-  }
-
-  // Inventory endpoints
-  async getStocks() {
-    const response = await this.client.get('/inventory/stocks')
-    return response.data
-  }
-
-  async getStock(productId: string) {
-    const response = await this.client.get(`/inventory/stock/${productId}`)
-    return response.data
-  }
-
-  async addStock(productId: string, quantity: number) {
-    const response = await this.client.post('/inventory/add-stock', {
-      product_id: productId,
-      quantity,
-    })
-    return response.data
-  }
-
-  async deductStock(productId: string, quantity: number) {
-    const response = await this.client.post('/inventory/deduct-stock', {
-      product_id: productId,
-      quantity,
-    })
-    return response.data
-  }
-
-  async getStockHistory(productId: string, limit = 100) {
-    const response = await this.client.get(`/inventory/history/${productId}?limit=${limit}`)
-    return response.data
-  }
 
   // Billing endpoints
   async createBill(data: {
@@ -202,6 +166,39 @@ class ApiClient {
   async getBills(limit = 100) {
     const response = await this.client.get(`/bills?limit=${limit}`)
     return response.data
+  }
+
+  // Category endpoints
+  async getCategories() {
+    const response = await this.client.get('/categories')
+    return response.data
+  }
+
+  async getCategory(id: string) {
+    const response = await this.client.get(`/categories/${id}`)
+    return response.data
+  }
+
+  async createCategory(data: {
+    name: string
+    is_active?: boolean
+    display_order?: number
+  }) {
+    const response = await this.client.post('/categories', data)
+    return response.data
+  }
+
+  async updateCategory(id: string, data: {
+    name?: string
+    is_active?: boolean
+    display_order?: number
+  }) {
+    const response = await this.client.put(`/categories/${id}`, data)
+    return response.data
+  }
+
+  async deleteCategory(id: string) {
+    await this.client.delete(`/categories/${id}`)
   }
 }
 

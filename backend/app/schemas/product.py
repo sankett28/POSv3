@@ -8,10 +8,10 @@ from uuid import UUID
 class ProductCreate(BaseModel):
     """Schema for creating a new product."""
     name: str = Field(..., min_length=1, max_length=255, description="Product name")
-    sku: str = Field(..., min_length=1, max_length=100, description="Product SKU (unique identifier)")
-    barcode: Optional[str] = Field(None, max_length=100, description="Product barcode (optional, unique)")
     selling_price: float = Field(..., gt=0, description="Product selling price (must be greater than 0)")
-    unit: Literal["pcs", "kg", "litre"] = Field(..., description="Product unit of measurement")
+    tax_rate: float = Field(0.0, ge=0, le=100, description="Tax rate percentage (0-100)")
+    category_id: Optional[UUID] = Field(None, description="Optional category assignment")
+    unit: Optional[Literal["pcs", "kg", "litre", "cup", "plate", "bowl", "serving", "piece", "bottle", "can"]] = Field(None, description="Optional unit of measurement")
     is_active: bool = Field(True, description="Whether the product is active")
     
     @field_validator('name')
@@ -21,23 +21,15 @@ class ProductCreate(BaseModel):
         if not v.strip():
             raise ValueError("Product name cannot be empty")
         return v.strip()
-    
-    @field_validator('sku')
-    @classmethod
-    def validate_sku(cls, v: str) -> str:
-        """Ensure SKU is not just whitespace."""
-        if not v.strip():
-            raise ValueError("Product SKU cannot be empty")
-        return v.strip()
 
 
 class ProductUpdate(BaseModel):
     """Schema for updating a product."""
     name: Optional[str] = Field(None, min_length=1, max_length=255)
-    sku: Optional[str] = Field(None, min_length=1, max_length=100)
-    barcode: Optional[str] = Field(None, max_length=100)
     selling_price: Optional[float] = Field(None, gt=0)
-    unit: Optional[Literal["pcs", "kg", "litre"]] = None
+    tax_rate: Optional[float] = Field(None, ge=0, le=100)
+    category_id: Optional[UUID] = None
+    unit: Optional[Literal["pcs", "kg", "litre", "cup", "plate", "bowl", "serving", "piece", "bottle", "can"]] = None
     is_active: Optional[bool] = None
     
     @field_validator('name')
@@ -47,26 +39,19 @@ class ProductUpdate(BaseModel):
         if v is not None and not v.strip():
             raise ValueError("Product name cannot be empty")
         return v.strip() if v else None
-    
-    @field_validator('sku')
-    @classmethod
-    def validate_sku(cls, v: Optional[str]) -> Optional[str]:
-        """Ensure SKU is not just whitespace if provided."""
-        if v is not None and not v.strip():
-            raise ValueError("Product SKU cannot be empty")
-        return v.strip() if v else None
 
 
 class ProductResponse(BaseModel):
     """Schema for product response."""
     id: UUID
     name: str
-    sku: str
-    barcode: Optional[str]
     selling_price: float
-    unit: str
+    tax_rate: float
+    category_id: Optional[UUID]
+    unit: Optional[str]
     is_active: bool
     created_at: datetime
+    updated_at: datetime
     
     class Config:
         from_attributes = True

@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { login } from '@/lib/auth'
-import { Store, Mail, Lock } from 'lucide-react'
+import { UtensilsCrossed, Mail, Lock } from 'lucide-react'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -30,7 +30,7 @@ export default function LoginPage() {
         throw new Error('Token was not saved. Please try again.')
       }
       
-      router.push('/pos-billing')
+      router.push('/orders')
     } catch (err: any) {
       console.error('Login error:', err)
       // Show more detailed error message
@@ -58,8 +58,8 @@ export default function LoginPage() {
       <div className="max-w-md w-full bg-white rounded-lg shadow-xl p-10 border border-gray-200">
           <div className="flex flex-col items-center mb-10">
           <div className="flex items-center mb-4">
-            <Store className="w-8 h-8 text-black mr-2" />
-            <h1 className="text-2xl font-bold text-black">Retail Boss</h1>
+            <UtensilsCrossed className="w-8 h-8 text-black mr-2" />
+            <h1 className="text-2xl font-bold text-black">Cafe POS</h1>
           </div>
           <h2 className="text-4xl font-bold text-gray-900 mb-2">Welcome Back</h2>
           <p className="text-gray-500">Log in to your account</p>

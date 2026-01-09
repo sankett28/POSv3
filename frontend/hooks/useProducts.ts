@@ -4,8 +4,12 @@ import { api } from '@/lib/api'
 export interface Product {
   id: string
   name: string
-  barcode?: string
-  price: number
+  selling_price: number
+  tax_rate?: number
+  category_id?: string
+  category_name?: string
+  unit?: string
+  is_active: boolean
   created_at: string
   updated_at: string
 }
@@ -22,7 +26,7 @@ export function useProducts() {
       const data = await api.getProducts()
       setProducts(data)
     } catch (err: any) {
-      setError(err.response?.data?.detail || 'Failed to load products')
+      setError(err.response?.data?.detail || 'Failed to load menu items')
     } finally {
       setLoading(false)
     }
@@ -32,23 +36,37 @@ export function useProducts() {
     loadProducts()
   }, [])
 
-  const createProduct = async (data: { name: string; barcode?: string; price: number }) => {
+  const createProduct = async (data: {
+    name: string;
+    selling_price: number;
+    tax_rate?: number;
+    category_id?: string;
+    unit?: "pcs" | "kg" | "litre" | "cup" | "plate" | "bowl" | "serving" | "piece" | "bottle" | "can";
+    is_active?: boolean;
+  }) => {
     try {
       const newProduct = await api.createProduct(data)
       setProducts([newProduct, ...products])
       return newProduct
     } catch (err: any) {
-      throw new Error(err.response?.data?.detail || 'Failed to create product')
+      throw new Error(err.response?.data?.detail || 'Failed to create menu item')
     }
   }
 
-  const updateProduct = async (id: string, data: { name?: string; barcode?: string; price?: number }) => {
+  const updateProduct = async (id: string, data: {
+    name?: string;
+    selling_price?: number;
+    tax_rate?: number;
+    category_id?: string;
+    unit?: "pcs" | "kg" | "litre" | "cup" | "plate" | "bowl" | "serving" | "piece" | "bottle" | "can";
+    is_active?: boolean;
+  }) => {
     try {
       const updatedProduct = await api.updateProduct(id, data)
       setProducts(products.map((p) => (p.id === id ? updatedProduct : p)))
       return updatedProduct
     } catch (err: any) {
-      throw new Error(err.response?.data?.detail || 'Failed to update product')
+      throw new Error(err.response?.data?.detail || 'Failed to update menu item')
     }
   }
 

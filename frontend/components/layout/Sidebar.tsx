@@ -2,14 +2,14 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Store, Package, Receipt, Users, Megaphone } from 'lucide-react'
+import { Receipt, UtensilsCrossed, FileText, BarChart3, Settings } from 'lucide-react'
 
 const navItems = [
-  { href: '/pos-billing', label: 'Billing', icon: Receipt },
-  { href: '/inventory', label: 'Inventory', icon: Package },
-  { href: '/products', label: 'Products', icon: Store },
-  { href: '/customers', label: 'Customers', icon: Users },
-  { href: '/marketing', label: 'Marketing', icon: Megaphone },
+  { href: '/orders', label: 'Orders', icon: Receipt },
+  { href: '/menu', label: 'Menu', icon: UtensilsCrossed },
+  { href: '/transactions', label: 'Transactions', icon: FileText },
+  { href: '/reports', label: 'Reports', icon: BarChart3 },
+  { href: '/admin-profile', label: 'Settings', icon: Settings },
 ]
 
 export default function Sidebar() {
@@ -19,8 +19,8 @@ export default function Sidebar() {
     <div className="hidden md:block w-64 bg-white border-r border-gray-200 h-screen sticky top-0">
       <div className="p-6 border-b border-gray-200">
         <div className="flex items-center gap-2">
-          <Store className="w-6 h-6 text-black" />
-          <span className="font-bold text-lg text-black">Retail Boss</span>
+          <UtensilsCrossed className="w-6 h-6 text-black" />
+          <span className="font-bold text-lg text-black">Cafe POS</span>
         </div>
       </div>
       <nav className="p-4">

@@ -1,4 +1,5 @@
 """Bill repository for billing operations."""
+import asyncio
 from typing import List, Optional
 from uuid import UUID
 from supabase import Client
@@ -15,26 +16,34 @@ class BillRepository:
     async def create_bill(
         self,
         user_id: UUID,  # Kept for API compatibility but not used
+        subtotal: float,
+        tax_amount: float,
         total_amount: float,
         payment_method: PaymentMethod,
         bill_number: Optional[str] = None
     ) -> dict:
-        """Create a new bill."""
+        """Create a new bill with subtotal and tax_amount."""
         try:
             # Generate bill number if not provided
             if not bill_number:
                 # Simplified bill number generation without user_id dependency
-                bill_count = self.db.table("bills").select("id", count="exact").execute()
+                bill_count = await asyncio.to_thread(
+                    lambda: self.db.table("bills").select("id", count="exact").execute()
+                )
                 count = bill_count.count or 0
                 from datetime import datetime
                 bill_number = f"BILL-{datetime.now().strftime('%Y%m%d')}-{count + 1:04d}"
             
             data = {
                 "bill_number": bill_number,
+                "subtotal": subtotal,
+                "tax_amount": tax_amount,
                 "total_amount": total_amount,
                 "payment_method": payment_method.value
             }
-            result = self.db.table("bills").insert(data).execute()
+            result = await asyncio.to_thread(
+                lambda: self.db.table("bills").insert(data).execute()
+            )
             if result.data:
                 logger.info(f"Created bill {bill_number}")
                 return result.data[0]
@@ -49,19 +58,30 @@ class BillRepository:
         product_id: UUID,
         quantity: int,
         unit_price: float,
-        total_price: float
+        product_name_snapshot: str,
+        category_name_snapshot: Optional[str],
+        tax_rate: float,
+        tax_amount: float,
+        line_subtotal: float,
+        line_total: float
     ) -> dict:
-        """Create a bill item."""
+        """Create a bill item with all snapshot fields."""
         try:
-            # Map internal field names to database schema field names
             data = {
                 "bill_id": str(bill_id),
                 "product_id": str(product_id),
                 "quantity": quantity,
                 "selling_price": unit_price,  # Database uses selling_price
-                "line_total": total_price      # Database uses line_total
+                "product_name_snapshot": product_name_snapshot,
+                "category_name_snapshot": category_name_snapshot,
+                "tax_rate": tax_rate,
+                "tax_amount": tax_amount,
+                "line_subtotal": line_subtotal,
+                "line_total": line_total
             }
-            result = self.db.table("bill_items").insert(data).execute()
+            result = await asyncio.to_thread(
+                lambda: self.db.table("bill_items").insert(data).execute()
+            )
             if result.data:
                 return result.data[0]
             raise ValueError("Failed to create bill item")
@@ -70,30 +90,36 @@ class BillRepository:
             raise
     
     async def get_bill(self, bill_id: UUID, user_id: UUID) -> Optional[dict]:
-        """Get a bill by ID with items."""
+        """Get a bill by ID with items using snapshot fields."""
         try:
             # Get bill - removed user_id filter since schema doesn't have it
-            bill_result = self.db.table("bills").select("*").eq("id", str(bill_id)).execute()
+            bill_result = await asyncio.to_thread(
+                lambda: self.db.table("bills").select("*").eq("id", str(bill_id)).execute()
+            )
             if not bill_result.data:
                 return None
             
             bill = bill_result.data[0]
             
-            # Get bill items with product names
-            items_result = self.db.table("bill_items").select(
-                "*, products:product_id(name)"
-            ).eq("bill_id", str(bill_id)).execute()
+            # Get bill items with snapshot fields (no join needed)
+            items_result = await asyncio.to_thread(
+                lambda: self.db.table("bill_items").select("*").eq("bill_id", str(bill_id)).execute()
+            )
             
             items = []
             for item in items_result.data or []:
-                # Map database field names back to API field names
+                # Use all snapshot fields from bill_items
                 item_data = {
                     "id": item["id"],
                     "bill_id": item["bill_id"],
                     "product_id": item["product_id"],
-                    "product_name": item.get("products", {}).get("name") if isinstance(item.get("products"), dict) else None,
+                    "product_name": item.get("product_name_snapshot"),  # Use snapshot
+                    "category_name": item.get("category_name_snapshot"),  # Category snapshot
                     "quantity": item["quantity"],
                     "unit_price": float(item["selling_price"]),  # Map from database field
+                    "tax_rate": float(item.get("tax_rate", 0)),  # Tax rate snapshot
+                    "tax_amount": float(item.get("tax_amount", 0)),  # Tax amount snapshot
+                    "line_subtotal": float(item.get("line_subtotal", 0)),  # Line subtotal snapshot
                     "total_price": float(item["line_total"]),    # Map from database field
                     "created_at": item["created_at"]
                 }
@@ -109,7 +135,9 @@ class BillRepository:
         """List all bills."""
         try:
             # Removed user_id filter since schema doesn't have it
-            result = self.db.table("bills").select("*").order("created_at", desc=True).limit(limit).execute()
+            result = await asyncio.to_thread(
+                lambda: self.db.table("bills").select("*").order("created_at", desc=True).limit(limit).execute()
+            )
             return result.data or []
         except Exception as e:
             logger.error(f"Error listing bills: {e}")
