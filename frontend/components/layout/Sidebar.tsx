@@ -5,11 +5,11 @@ import { usePathname } from 'next/navigation'
 import { Store, Package, Receipt, Users, Megaphone, Coffee } from 'lucide-react'
 
 const navItems = [
-  { href: '/pos-billing', label: 'Billing', icon: Receipt },
-  { href: '/inventory', label: 'Inventory', icon: Package },
-  { href: '/products', label: 'Products', icon: Store },
-  { href: '/customers', label: 'Customers', icon: Users },
-  { href: '/marketing', label: 'Marketing', icon: Megaphone },
+  { href: '/orders', label: 'Orders', icon: Receipt },
+  { href: '/menu', label: 'Menu', icon: UtensilsCrossed },
+  { href: '/transactions', label: 'Transactions', icon: FileText },
+  { href: '/reports', label: 'Reports', icon: BarChart3 },
+  { href: '/admin-profile', label: 'Settings', icon: Settings },
 ]
 
 export default function Sidebar() {

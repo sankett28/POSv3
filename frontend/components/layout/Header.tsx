@@ -4,6 +4,7 @@ import { useState } from 'react'
 
 import { logout, getCurrentUserId } from '@/lib/auth'
 import { LogOut, User, ShoppingBag, Receipt, Users, Package, Megaphone, ShoppingCart, Home, LayoutGrid, DollarSign, Mic, LineChart, Bell, Menu, X, Coffee, ChefHat } from 'lucide-react'
+import { LogOut, User, Receipt, UtensilsCrossed, FileText, BarChart3, Settings, Home, Menu, X } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
@@ -17,12 +18,11 @@ export default function Header() {
   }
 
   const navItems = [
-    { name: 'Menu', href: '/products', icon: LayoutGrid },
-    { name: 'Billing', href: '/pos-billing', icon: DollarSign },
-    { name: 'Customers', href: '/customers', icon: Users },
-    { name: 'Marketing', href: '/marketing', icon: Megaphone },
-    { name: 'Analytics', href: '/analytics', icon: LineChart },
-  ];
+    { name: 'Orders', href: '/orders', icon: Receipt },
+    { name: 'Menu', href: '/menu', icon: UtensilsCrossed },
+    { name: 'Transactions', href: '/transactions', icon: FileText },
+    { name: 'Reports', href: '/reports', icon: BarChart3 },
+  ]
 
   return (
     <header className="sticky top-0 z-50 shadow-md rounded-b-2xl bg-[#FAF7F2]">
@@ -41,6 +41,7 @@ export default function Header() {
               <span className="text-xs text-[#9CA3AF] font-medium tracking-wide">Cafe Management</span>
             </div>
           </Link>
+          <span className="text-xl font-bold text-black">Cafe POS</span>
         </div>
 
         {/* Middle section: Navigation Tabs */}

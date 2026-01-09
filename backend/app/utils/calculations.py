@@ -38,15 +38,4 @@ def format_currency(amount: float) -> str:
     return f"₹{amount:,.2f}"
 
 
-def calculate_stock(ledger_entries: List[dict]) -> int:
-    """
-    Calculate current stock from ledger entries.
-    
-    Args:
-        ledger_entries: List of ledger entries with 'quantity'
-    
-    Returns:
-        Current stock as integer
-    """
-    return sum(entry.get("quantity", 0) for entry in ledger_entries)
 

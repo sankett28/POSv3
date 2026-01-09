@@ -18,24 +18,10 @@ async def create_product(
     db: Client = Depends(get_supabase)
 ):
     """Create a new product."""
-    # #region agent log
-    import json
-    with open('e:\\posv3\\POSv3\\.cursor\\debug.log', 'a') as f:
-        f.write(json.dumps({"location":"products.py:16","message":"API route create_product entry","data":{"productData":product.model_dump(),"dbType":str(type(db))},"timestamp":int(__import__('time').time()*1000),"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}) + '\n')
-    # #endregion
     try:
         logger.info(f"Received product creation request: {product.model_dump()}")
-        logger.info(f"Supabase client type: {type(db)}")
-        # #region agent log
-        with open('e:\\posv3\\POSv3\\.cursor\\debug.log', 'a') as f:
-            f.write(json.dumps({"location":"products.py:25","message":"Before service.create_product","data":{"productData":product.model_dump()},"timestamp":int(__import__('time').time()*1000),"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}) + '\n')
-        # #endregion
         service = ProductService(db)
         result = await service.create_product(product)
-        # #region agent log
-        with open('e:\\posv3\\POSv3\\.cursor\\debug.log', 'a') as f:
-            f.write(json.dumps({"location":"products.py:29","message":"After service.create_product","data":{"result":str(result)},"timestamp":int(__import__('time').time()*1000),"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}) + '\n')
-        # #endregion
         logger.info(f"Product created successfully: {result}")
         return result
     except ValueError as e:
@@ -45,7 +31,6 @@ async def create_product(
         raise
     except Exception as e:
         logger.error(f"Error creating product: {e}")
-        logger.error(f"Error type: {type(e)}")
         import traceback
         logger.error(f"Traceback: {traceback.format_exc()}")
         raise HTTPException(
@@ -145,31 +130,5 @@ async def deactivate_product(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to deactivate product"
-        )
-
-
-@router.get("/barcode/{barcode}", response_model=ProductResponse)
-async def get_product_by_barcode(
-    barcode: str,
-    db: Client = Depends(get_supabase)
-):
-    """Get a product by barcode."""
-    try:
-        from app.repositories.product_repo import ProductRepository
-        repo = ProductRepository(db)
-        result = await repo.get_product_by_barcode(barcode)
-        if not result:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Product not found"
-            )
-        return ProductResponse(**result)
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error getting product by barcode: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to get product"
         )
 

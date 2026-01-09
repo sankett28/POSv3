@@ -15,59 +15,38 @@ class ProductRepository:
     
     async def create_product(self, product: ProductCreate) -> dict:
         """Create a new product."""
-        # #region agent log
-        import json
-        with open('e:\\posv3\\POSv3\\.cursor\\debug.log', 'a') as f:
-            f.write(json.dumps({"location":"product_repo.py:15","message":"Repository create_product entry","data":{"productData":product.model_dump(),"dbType":str(type(self.db))},"timestamp":int(__import__('time').time()*1000),"sessionId":"debug-session","runId":"run1","hypothesisId":"D"}) + '\n')
-        # #endregion
         try:
             data = {
                 "name": product.name,
-                "sku": product.sku,
-                "barcode": product.barcode,
                 "selling_price": product.selling_price,
-                "unit": product.unit,
+                "tax_rate": product.tax_rate,
                 "is_active": product.is_active
             }
+            
+            # Only include optional fields if provided
+            if product.category_id:
+                data["category_id"] = str(product.category_id)
+            if product.unit:
+                data["unit"] = product.unit
+            
             logger.info(f"Attempting to insert product data: {data}")
-            # #region agent log
-            with open('e:\\posv3\\POSv3\\.cursor\\debug.log', 'a') as f:
-                f.write(json.dumps({"location":"product_repo.py:27","message":"Before Supabase insert","data":{"insertData":data},"timestamp":int(__import__('time').time()*1000),"sessionId":"debug-session","runId":"run1","hypothesisId":"D"}) + '\n')
-            # #endregion
+            
             # Run synchronous Supabase call in thread pool to avoid blocking event loop
             result = await asyncio.to_thread(
                 lambda: self.db.table("products").insert(data).execute()
             )
-            # #region agent log
-            with open('e:\\posv3\\POSv3\\.cursor\\debug.log', 'a') as f:
-                f.write(json.dumps({"location":"product_repo.py:29","message":"After Supabase insert","data":{"hasData":bool(result.data),"dataLength":len(result.data) if result.data else 0,"resultStr":str(result)[:200]},"timestamp":int(__import__('time').time()*1000),"sessionId":"debug-session","runId":"run1","hypothesisId":"D"}) + '\n')
-            # #endregion
+            
             logger.info(f"Supabase insert result: {result}")
-            logger.info(f"Result data: {result.data}")
-            logger.info(f"Result status code: {getattr(result, 'status_code', 'N/A')}")
             if result.data:
-                logger.info(f"Created product: {product.name} (SKU: {product.sku})")
-                # #region agent log
-                with open('e:\\posv3\\POSv3\\.cursor\\debug.log', 'a') as f:
-                    f.write(json.dumps({"location":"product_repo.py:36","message":"Product created successfully","data":{"productId":result.data[0].get('id') if result.data else None},"timestamp":int(__import__('time').time()*1000),"sessionId":"debug-session","runId":"run1","hypothesisId":"D"}) + '\n')
-                # #endregion
+                logger.info(f"Created product: {product.name}")
                 return result.data[0]
+            
             logger.error(f"Failed to create product - no data returned. Result: {result}")
-            # #region agent log
-            with open('e:\\posv3\\POSv3\\.cursor\\debug.log', 'a') as f:
-                f.write(json.dumps({"location":"product_repo.py:40","message":"No data returned from Supabase","data":{"resultStr":str(result)[:200]},"timestamp":int(__import__('time').time()*1000),"sessionId":"debug-session","runId":"run1","hypothesisId":"D"}) + '\n')
-            # #endregion
             raise ValueError("Failed to create product - no data returned from Supabase")
         except Exception as e:
             logger.error(f"Error creating product: {e}")
-            logger.error(f"Error type: {type(e)}")
-            logger.error(f"Error details: {str(e)}")
             import traceback
             logger.error(f"Traceback: {traceback.format_exc()}")
-            # #region agent log
-            with open('e:\\posv3\\POSv3\\.cursor\\debug.log', 'a') as f:
-                f.write(json.dumps({"location":"product_repo.py:47","message":"Exception in create_product","data":{"errorType":str(type(e)),"errorMessage":str(e),"traceback":traceback.format_exc()},"timestamp":int(__import__('time').time()*1000),"sessionId":"debug-session","runId":"run1","hypothesisId":"D"}) + '\n')
-            # #endregion
             raise
     
     async def get_product(self, product_id: UUID) -> Optional[dict]:
@@ -98,6 +77,11 @@ class ProductRepository:
         """Update a product."""
         try:
             update_data = product_update.model_dump(exclude_unset=True)
+            
+            # Convert category_id UUID to string if present
+            if "category_id" in update_data and update_data["category_id"]:
+                update_data["category_id"] = str(update_data["category_id"])
+            
             if not update_data:
                 return await self.get_product(product_id)
             
@@ -126,29 +110,4 @@ class ProductRepository:
             logger.error(f"Error deactivating product {product_id}: {e}")
             raise
     
-    async def get_product_by_barcode(self, barcode: str) -> Optional[dict]:
-        """Get a product by barcode."""
-        try:
-            result = await asyncio.to_thread(
-                lambda: self.db.table("products").select("*").eq("barcode", barcode).execute()
-            )
-            if result.data:
-                return result.data[0]
-            return None
-        except Exception as e:
-            logger.error(f"Error getting product by barcode {barcode}: {e}")
-            raise
-    
-    async def get_product_by_sku(self, sku: str) -> Optional[dict]:
-        """Get a product by SKU."""
-        try:
-            result = await asyncio.to_thread(
-                lambda: self.db.table("products").select("*").eq("sku", sku).execute()
-            )
-            if result.data:
-                return result.data[0]
-            return None
-        except Exception as e:
-            logger.error(f"Error getting product by SKU {sku}: {e}")
-            raise
 

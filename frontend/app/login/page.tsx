@@ -30,7 +30,7 @@ export default function LoginPage() {
         throw new Error('Token was not saved. Please try again.')
       }
       
-      router.push('/pos-billing')
+      router.push('/orders')
     } catch (err: any) {
       console.error('Login error:', err)
       // Show more detailed error message

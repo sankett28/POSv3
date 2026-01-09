@@ -29,23 +29,10 @@ app.add_middleware(
 # Add request logging middleware
 @app.middleware("http")
 async def log_requests(request, call_next):
-    # #region agent log
-    import json
-    with open('e:\\posv3\\POSv3\\.cursor\\debug.log', 'a') as f:
-        f.write(json.dumps({"location":"main.py:19","message":"Request received","data":{"method":request.method,"url":str(request.url),"path":request.url.path},"timestamp":int(__import__('time').time()*1000),"sessionId":"debug-session","runId":"run1","hypothesisId":"G"}) + '\n')
-    # #endregion
     try:
         response = await call_next(request)
-        # #region agent log
-        with open('e:\\posv3\\POSv3\\.cursor\\debug.log', 'a') as f:
-            f.write(json.dumps({"location":"main.py:25","message":"Request processed","data":{"method":request.method,"path":request.url.path,"status":response.status_code},"timestamp":int(__import__('time').time()*1000),"sessionId":"debug-session","runId":"run1","hypothesisId":"G"}) + '\n')
-        # #endregion
         return response
     except Exception as e:
-        # #region agent log
-        with open('e:\\posv3\\POSv3\\.cursor\\debug.log', 'a') as f:
-            f.write(json.dumps({"location":"main.py:30","message":"Request error","data":{"method":request.method,"path":request.url.path,"error":str(e)},"timestamp":int(__import__('time').time()*1000),"sessionId":"debug-session","runId":"run1","hypothesisId":"G"}) + '\n')
-        # #endregion
         raise
 
 # Include API router
@@ -61,11 +48,6 @@ async def health_check():
 @app.on_event("startup")
 async def startup_event():
     """Application startup event."""
-    # #region agent log
-    import json
-    with open('e:\\posv3\\POSv3\\.cursor\\debug.log', 'a') as f:
-        f.write(json.dumps({"location":"main.py:38","message":"Backend startup event","data":{"supabaseUrl":bool(settings.supabase_url)},"timestamp":int(__import__('time').time()*1000),"sessionId":"debug-session","runId":"run1","hypothesisId":"F"}) + '\n')
-    # #endregion
     logger.info("Starting Retail Boss POS API...")
     if settings.supabase_url:
         logger.info(f"Supabase URL: {settings.supabase_url}")
