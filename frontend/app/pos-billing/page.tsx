@@ -196,7 +196,7 @@ export default function PosBillingPage() {
       </div>
 
       {/* RIGHT CART */}
-      <div className="w-96 bg-[#FAF7F2] border-l flex flex-col">
+      <div className="w-96 bg-[#FAF7F2] border-l flex flex-col rounded-2xl shadow-lg m-4">
         <div className="p-6 bg-[#3E2C24] text-white flex items-center gap-3">
           <ShoppingCart />
           <h2 className="font-bold">Order</h2>
@@ -210,18 +210,18 @@ export default function PosBillingPage() {
             </div>
           ) : (
             billItems.map(i => (
-              <div key={i.product_id} className="flex items-center justify-between mb-3">
+              <div key={i.product_id} className="flex items-center justify-between mb-3 transition-all duration-200 ease-in-out hover:bg-[#F5F3EE] rounded-xl p-2">
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => updateQuantity(i.product_id, -1)}
-                    className="text-gray-500 hover:text-red-500"
+                    className="text-gray-500 hover:text-red-500 transition-all duration-200 ease-in-out active:scale-[0.9]"
                   >
                     <Minus className="w-4 h-4" />
                   </button>
                   <span className="font-medium">{i.quantity}x</span>
                   <button
                     onClick={() => updateQuantity(i.product_id, 1)}
-                    className="text-gray-500 hover:text-green-500"
+                    className="text-gray-500 hover:text-green-500 transition-all duration-200 ease-in-out active:scale-[0.9]"
                   >
                     <Plus className="w-4 h-4" />
                   </button>
@@ -231,7 +231,7 @@ export default function PosBillingPage() {
                   <span>₹{i.total_price.toFixed(2)}</span>
                   <button
                     onClick={() => removeItem(i.product_id)}
-                    className="text-red-500 hover:text-red-700"
+                    className="text-red-500 hover:text-red-700 transition-all duration-200 ease-in-out active:scale-[0.9]"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -249,7 +249,10 @@ export default function PosBillingPage() {
 
           <button
             onClick={handleCompleteBill}
-            className="w-full bg-[#3E2C24] text-white py-3 rounded-xl hover:scale-[1.02] transition"
+            className="w-full bg-[#3E2C24] text-white py-3 rounded-xl
+                       transition-all duration-200 ease-in-out
+                       hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]
+                       focus-visible:ring outline-none"
           >
             <Receipt className="inline mr-2" />
             Complete Order

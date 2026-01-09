@@ -402,7 +402,7 @@ export default function SuccessModal({ isOpen, onClose, billData, invoiceNumber 
       onClick={onClose}
     >
       <div
-          className="bg-white rounded-2xl p-6 sm:p-8 lg:p-12 max-w-[400px] w-full text-center animate-modal-slide-in shadow-md"
+          className="bg-white rounded-2xl p-6 sm:p-8 lg:p-12 max-w-[400px] w-full text-center animate-fade-in animate-scale-in shadow-md"
         onClick={(e) => e.stopPropagation()}
       >
           <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4 sm:mb-6">

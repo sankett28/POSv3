@@ -201,7 +201,14 @@ export default function ProductsPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredProducts.map((product) => (
-              <div key={product.id} className="rounded-2xl bg-white shadow-md hover:shadow-lg transition-all duration-200 ease-in-out hover:scale-[1.02] active:scale-[0.98] border border-[#E5E7EB] overflow-hidden">
+              <div
+                key={product.id}
+                className="rounded-2xl bg-white shadow-md border border-[#E5E7EB] overflow-hidden
+                           transition-all duration-200 ease-in-out
+                           hover:-translate-y-1 hover:scale-[1.02] hover:shadow-xl
+                           active:scale-[0.98] cursor-pointer group"
+                onClick={() => handleEdit(product)} // Make entire card clickable
+              >
                 {/* Product Image Placeholder */}
                 <div className="h-24 w-full bg-gradient-to-br from-[#C89B63]/30 to-[#F4A261]/30 flex items-center justify-center">
                   <span className="text-5xl">☕</span> {/* Cafe-friendly emoji fallback */}
@@ -233,7 +240,7 @@ export default function ProductsPage() {
                   {/* Action Buttons */}
                   <div className="flex gap-3">
                     <button
-                      onClick={() => handleEdit(product)}
+                      onClick={(e) => {e.stopPropagation(); handleEdit(product);}}
                       className="flex-1 bg-[#3E2C24] text-white py-3 px-4 rounded-xl font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2"
                     >
                       <Edit className="w-4 h-4" />
@@ -241,7 +248,7 @@ export default function ProductsPage() {
                     </button>
                     {product.is_active && (
                       <button
-                        onClick={() => handleDeactivate(product.id)}
+                        onClick={(e) => {e.stopPropagation(); handleDeactivate(product.id);}}
                         className="px-4 py-3 bg-[#F4A261] text-white rounded-xl font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
                         title="Deactivate product"
                       >

@@ -25,7 +25,7 @@ export default function Modal({ isOpen, onClose, title, children }: ModalProps) 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={onClose}>
       <div
-        className="bg-white rounded-2xl p-4 sm:p-6 max-w-md w-full mx-4 animate-fade-in shadow-md"
+        className="bg-white rounded-2xl p-4 sm:p-6 max-w-md w-full mx-4 animate-fade-in animate-scale-in shadow-md"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex justify-between items-center mb-4">
