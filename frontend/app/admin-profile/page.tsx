@@ -53,20 +53,21 @@ export default function AdminProfilePage() {
   ] as const
 
   return (
-    <div className="max-w-7xl mx-auto py-4 sm:py-8 px-4 sm:px-6 lg:px-8">
-      <div className="animate-fade-in">
+    <div className="min-h-screen bg-[#F5F3EE] p-4 pb-16 sm:p-8">
+      <div className="max-w-7xl mx-auto">
+
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl sm:text-[32px] font-bold text-primary mb-1">
+        <h1 className="text-2xl sm:text-[32px] font-bold text-[#3E2C24] mb-1">
           Admin Profile
         </h1>
-        <p className="text-gray-500">
+        <p className="text-[#6B6B6B]">
           Manage your account settings and preferences
         </p>
       </div>
 
       {/* Tabs */}
-      <div className="bg-white border border-gray-200 rounded-xl p-1 mb-8">
+      <div className="bg-[#FAF7F2] border border-[#E5E7EB] rounded-xl p-1 mb-8 shadow-md">
         <div className="flex flex-wrap gap-1">
           {tabs.map((tab) => {
             const Icon = tab.icon
@@ -74,13 +75,13 @@ export default function AdminProfilePage() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-4 py-3 rounded-lg font-medium transition-all flex-1 sm:flex-none ${
+                className={`flex items-center gap-2 px-4 py-3 rounded-xl font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] flex-1 sm:flex-none ${
                   activeTab === tab.id
-                    ? 'bg-primary text-secondary'
-                    : 'text-gray-600 hover:bg-gray-100'
+                    ? 'bg-[#3E2C24] text-white shadow-md'
+                    : 'text-[#3E2C24] hover:bg-[#C89B63]/10'
                 }`}
               >
-                <Icon className="w-5 h-5" />
+                <Icon className={`w-5 h-5 ${activeTab === tab.id ? 'text-white' : 'text-[#3E2C24]'}`} />
                 <span className="hidden sm:inline">{tab.label}</span>
               </button>
             )
@@ -93,26 +94,26 @@ export default function AdminProfilePage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Profile Card */}
           <div>
-            <div className="bg-white border rounded-xl p-6 text-center">
+            <div className="bg-white shadow-md border border-[#E5E7EB] rounded-2xl p-6 text-center">
               <div className="relative inline-block mb-4">
-                <div className="w-28 h-28 rounded-full bg-primary text-secondary flex items-center justify-center">
+                <div className="w-28 h-28 rounded-full bg-gradient-to-br from-[#3E2C24] to-[#C89B63] text-white flex items-center justify-center shadow-lg">
                   <UserCircle className="w-16 h-16" />
                 </div>
                 {isEditing && (
-                  <button className="absolute bottom-0 right-0 w-9 h-9 rounded-full bg-primary text-secondary flex items-center justify-center border-4 border-white">
+                  <button className="absolute bottom-0 right-0 w-9 h-9 rounded-full bg-[#C89B63] text-white flex items-center justify-center border-4 border-white shadow-md">
                     <Camera className="w-4 h-4" />
                   </button>
                 )}
               </div>
 
-              <h2 className="text-xl font-bold">{profileData.name}</h2>
-              <p className="text-gray-500">{profileData.role}</p>
+              <h2 className="text-xl font-bold text-[#1F1F1F]">{profileData.name}</h2>
+              <p className="text-[#6B6B6B]">{profileData.role}</p>
 
-              <span className="inline-block mt-3 px-3 py-1 bg-primary text-secondary rounded-full text-sm">
+              <span className="inline-block mt-3 px-3 py-1 bg-[#FAF7F2] text-[#3E2C24] rounded-xl text-sm font-medium border border-[#E5E7EB]">
                 {profileData.storeName}
               </span>
 
-              <p className="mt-4 text-sm text-gray-500">
+              <p className="mt-4 text-sm text-[#9CA3AF]">
                 Member since {profileData.joinDate}
               </p>
             </div>
@@ -120,14 +121,14 @@ export default function AdminProfilePage() {
 
           {/* Details */}
           <div className="lg:col-span-2">
-            <div className="bg-white border rounded-xl p-6">
+            <div className="bg-white shadow-md border border-[#E5E7EB] rounded-2xl p-6">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-semibold">Personal Information</h3>
+                <h3 className="text-xl font-semibold text-[#1F1F1F]">Personal Information</h3>
 
                 {!isEditing ? (
                   <button
                     onClick={() => setIsEditing(true)}
-                    className="flex items-center gap-2 px-4 py-2 border rounded-md hover:bg-gray-100"
+                    className="flex items-center gap-2 px-4 py-2 border border-[#3E2C24] text-[#3E2C24] rounded-xl hover:bg-[#3E2C24] hover:text-white transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
                   >
                     <Edit className="w-4 h-4" />
                     Edit Profile
@@ -136,14 +137,14 @@ export default function AdminProfilePage() {
                   <div className="flex gap-2">
                     <button
                       onClick={handleCancel}
-                      className="flex items-center gap-2 px-4 py-2 border rounded-md"
+                      className="flex items-center gap-2 px-4 py-2 border border-[#E5E7EB] text-[#3E2C24] rounded-xl hover:bg-[#F5F3EE] transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
                     >
                       <X className="w-4 h-4" />
                       Cancel
                     </button>
                     <button
                       onClick={handleSave}
-                      className="flex items-center gap-2 px-4 py-2 bg-primary text-secondary rounded-md"
+                      className="flex items-center gap-2 px-4 py-2 bg-[#3E2C24] text-white rounded-xl hover:bg-[#2c1f19] transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
                     >
                       <Save className="w-4 h-4" />
                       Save
@@ -160,7 +161,7 @@ export default function AdminProfilePage() {
                   { label: 'Store Name', value: 'storeName', icon: Store },
                 ].map(({ label, value, icon: Icon }) => (
                   <div key={value}>
-                    <label className="block text-sm font-semibold mb-1">
+                    <label className="block text-sm font-semibold text-[#6B6B6B] mb-1">
                       {label}
                     </label>
                     {isEditing ? (
@@ -172,11 +173,11 @@ export default function AdminProfilePage() {
                             [value]: e.target.value,
                           })
                         }
-                        className="w-full px-4 py-2 border rounded-md"
+                        className="w-full px-4 py-2.5 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63] bg-[#FAF7F2] hover:bg-white transition-all duration-200 text-[#1F1F1F] placeholder-[#9CA3AF]"
                       />
                     ) : (
-                      <div className="flex items-center gap-3 px-4 py-2 bg-gray-50 rounded-md">
-                        <Icon className="w-5 h-5 text-gray-400" />
+                      <div className="flex items-center gap-3 px-4 py-2.5 bg-[#F5F3EE] rounded-xl text-[#1F1F1F] border border-[#E5E7EB]">
+                        <Icon className="w-5 h-5 text-[#9CA3AF]" />
                         {profileData[value as keyof typeof profileData]}
                       </div>
                     )}
@@ -184,7 +185,7 @@ export default function AdminProfilePage() {
                 ))}
 
                 <div>
-                  <label className="block text-sm font-semibold mb-1">
+                  <label className="block text-sm font-semibold text-[#6B6B6B] mb-1">
                     Address
                   </label>
                   {isEditing ? (
@@ -194,11 +195,11 @@ export default function AdminProfilePage() {
                       onChange={(e) =>
                         setProfileData({ ...profileData, address: e.target.value })
                       }
-                      className="w-full px-4 py-2 border rounded-md"
+                      className="w-full px-4 py-2.5 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63] bg-[#FAF7F2] hover:bg-white transition-all duration-200 text-[#1F1F1F] placeholder-[#9CA3AF]"
                     />
                   ) : (
-                    <div className="flex gap-3 px-4 py-2 bg-gray-50 rounded-md">
-                      <MapPin className="w-5 h-5 text-gray-400 mt-1" />
+                    <div className="flex gap-3 px-4 py-2.5 bg-[#F5F3EE] rounded-xl text-[#1F1F1F] border border-[#E5E7EB]">
+                      <MapPin className="w-5 h-5 text-[#9CA3AF] mt-1" />
                       {profileData.address}
                     </div>
                   )}
@@ -211,8 +212,8 @@ export default function AdminProfilePage() {
 
       {/* SETTINGS TAB */}
       {activeTab === 'settings' && (
-        <div className="bg-white border rounded-xl p-6">
-          <h3 className="text-xl font-semibold mb-6">Notification Settings</h3>
+        <div className="bg-white shadow-md border border-[#E5E7EB] rounded-2xl p-6">
+          <h3 className="text-xl font-semibold text-[#1F1F1F] mb-6">Notification Settings</h3>
 
           {[
             { key: 'emailNotifications', label: 'Email Notifications', icon: Mail },
@@ -223,11 +224,11 @@ export default function AdminProfilePage() {
           ].map(({ key, label, icon: Icon }) => (
             <div
               key={key}
-              className="flex justify-between items-center p-4 border rounded-lg mb-3"
+              className="flex justify-between items-center p-4 border border-[#E5E7EB] rounded-xl mb-3 bg-[#FAF7F2] shadow-sm"
             >
               <div className="flex items-center gap-3">
-                <Icon className="w-6 h-6 text-primary" />
-                <span className="font-medium">{label}</span>
+                <Icon className="w-6 h-6 text-[#3E2C24]" />
+                <span className="font-medium text-[#1F1F1F]">{label}</span>
               </div>
               <input
                 type="checkbox"
@@ -237,7 +238,7 @@ export default function AdminProfilePage() {
                 }
                 className="sr-only peer"
               />
-              <div className="relative w-11 h-6 bg-gray-200 rounded-full peer peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-black peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-black"></div>
+              <div className="relative w-11 h-6 bg-[#E5E7EB] rounded-full peer peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#C89B63] peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-[#9CA3AF] after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#4CAF50]"></div>
             </div>
           ))}
         </div>
@@ -245,9 +246,9 @@ export default function AdminProfilePage() {
 
       {/* SECURITY TAB */}
       {activeTab === 'security' && (
-        <div className="bg-white border rounded-xl p-6">
-          <h3 className="text-xl font-semibold mb-6">Security</h3>
-          <button className="px-6 py-3 bg-primary text-secondary rounded-md">
+        <div className="bg-white shadow-md border border-[#E5E7EB] rounded-2xl p-6">
+          <h3 className="text-xl font-semibold text-[#1F1F1F] mb-6">Security</h3>
+          <button className="px-6 py-3 bg-[#3E2C24] text-white rounded-xl hover:bg-[#2c1f19] transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]">
             Update Password
           </button>
         </div>
@@ -255,9 +256,9 @@ export default function AdminProfilePage() {
 
       {/* BILLING TAB */}
       {activeTab === 'billing' && (
-        <div className="bg-white border rounded-xl p-6">
-          <h3 className="text-xl font-semibold mb-6">Billing</h3>
-          <p className="text-gray-600">Premium Plan – ₹2,999 / month</p>
+        <div className="bg-white shadow-md border border-[#E5E7EB] rounded-2xl p-6">
+          <h3 className="text-xl font-semibold text-[#1F1F1F] mb-6">Billing</h3>
+          <p className="text-[#1F1F1F]">Premium Plan – ₹2,999 / month</p>
         </div>
       )}
       </div>

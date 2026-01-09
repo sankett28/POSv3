@@ -2,7 +2,21 @@
 
 import { useState, useEffect } from 'react'
 import { api } from '@/lib/api'
-import { Search, Plus, Minus, Trash2, CheckCircle, Wallet, Smartphone, CreditCard, PackageOpen, AlertCircle } from 'lucide-react'
+import {
+  Search,
+  Plus,
+  Minus,
+  Trash2,
+  CheckCircle,
+  Wallet,
+  Smartphone,
+  CreditCard,
+  PackageOpen,
+  AlertCircle,
+  Coffee,
+  ShoppingCart,
+  Receipt,
+} from 'lucide-react'
 import SuccessModal from '@/components/ui/SuccessModal'
 
 interface Product {
@@ -30,10 +44,9 @@ export default function PosBillingPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [loading, setLoading] = useState(true)
   const [paymentMethod, setPaymentMethod] = useState<'CASH' | 'UPI' | 'CARD'>('CASH')
-  const [showSuccess, setShowSuccess] = useState(false)
   const [showSuccessModal, setShowSuccessModal] = useState(false)
   const [generatedBillData, setGeneratedBillData] = useState<any>(null)
-  const [generatedInvoiceNumber, setGeneratedInvoiceNumber] = useState<string>('')
+  const [generatedInvoiceNumber, setGeneratedInvoiceNumber] = useState('')
 
   useEffect(() => {
     loadProducts()
@@ -43,10 +56,9 @@ export default function PosBillingPage() {
   const loadProducts = async () => {
     try {
       const data = await api.getProducts()
-      // Filter only active products
       setProducts(data.filter((p: Product) => p.is_active))
-    } catch (error) {
-      console.error('Error loading products:', error)
+    } catch (err) {
+      console.error(err)
     } finally {
       setLoading(false)
     }
@@ -55,42 +67,29 @@ export default function PosBillingPage() {
   const loadStocks = async () => {
     try {
       const stockData = await api.getStocks()
-      const stockMap: Record<string, number> = {}
-      stockData.forEach((stock: { product_id: string; current_stock: number }) => {
-        stockMap[stock.product_id] = stock.current_stock
-      })
-      setStocks(stockMap)
-    } catch (error) {
-      console.error('Error loading stocks:', error)
+      const map: Record<string, number> = {}
+      stockData.forEach((s: any) => (map[s.product_id] = s.current_stock))
+      setStocks(map)
+    } catch (err) {
+      console.error(err)
     }
   }
 
   const addToBill = (product: Product) => {
-    const currentStock = stocks[product.id] || 0
-    const existingItem = billItems.find((item) => item.product_id === product.id)
+    const stock = stocks[product.id] || 0
+    const existing = billItems.find(i => i.product_id === product.id)
 
-    if (existingItem) {
-      const newQuantity = existingItem.quantity + 1
-      if (newQuantity > currentStock) {
-        alert(`Insufficient stock! Available: ${currentStock}`)
-        return
-      }
+    if (existing) {
+      if (existing.quantity + 1 > stock) return alert('Insufficient stock')
       setBillItems(
-        billItems.map((item) =>
-          item.product_id === product.id
-            ? {
-                ...item,
-                quantity: newQuantity,
-                total_price: newQuantity * item.unit_price,
-              }
-            : item
+        billItems.map(i =>
+          i.product_id === product.id
+            ? { ...i, quantity: i.quantity + 1, total_price: (i.quantity + 1) * i.unit_price }
+            : i
         )
       )
     } else {
-      if (currentStock < 1) {
-        alert(`Insufficient stock! Available: ${currentStock}`)
-        return
-      }
+      if (stock < 1) return alert('Out of stock')
       setBillItems([
         ...billItems,
         {
@@ -104,293 +103,168 @@ export default function PosBillingPage() {
     }
   }
 
-  const updateQuantity = (productId: string, delta: number) => {
-    const currentStock = stocks[productId] || 0
+  const updateQuantity = (id: string, delta: number) => {
     setBillItems(
       billItems
-        .map((item) => {
-          if (item.product_id === productId) {
-            const newQuantity = item.quantity + delta
-            if (newQuantity <= 0) return null
-            if (newQuantity > currentStock) {
-              alert(`Insufficient stock! Available: ${currentStock}`)
-              return item
-            }
-            return {
-              ...item,
-              quantity: newQuantity,
-              total_price: newQuantity * item.unit_price,
-            }
-          }
-          return item
+        .map(i => {
+          if (i.product_id !== id) return i
+          const qty = i.quantity + delta
+          if (qty <= 0) return null
+          if (qty > (stocks[id] || 0)) return i
+          return { ...i, quantity: qty, total_price: qty * i.unit_price }
         })
-        .filter((item): item is BillItem => item !== null)
+        .filter(Boolean) as BillItem[]
     )
   }
 
-  const removeItem = (productId: string) => {
-    setBillItems(billItems.filter((item) => item.product_id !== productId))
+  const removeItem = (id: string) => {
+    setBillItems(billItems.filter(i => i.product_id !== id))
   }
 
-  const subtotal = billItems.reduce((sum, item) => sum + item.total_price, 0)
-  const gstRate = 0.05 // 5% GST
-  const gst = subtotal * gstRate
+  const subtotal = billItems.reduce((s, i) => s + i.total_price, 0)
+  const gst = subtotal * 0.05
   const total = subtotal + gst
 
   const handleCompleteBill = async () => {
-    if (billItems.length === 0) {
-      alert('Please add items to the bill first!')
-      return
-    }
-
-    // Validate stock one more time before submitting
-    for (const item of billItems) {
-      const currentStock = stocks[item.product_id] || 0
-      if (item.quantity > currentStock) {
-        alert(`Insufficient stock for ${item.product_name}! Available: ${currentStock}, Requested: ${item.quantity}`)
-        return
-      }
-    }
+    if (!billItems.length) return alert('Add items first')
 
     try {
-      const billResponse = await api.createBill({
-        items: billItems.map((item) => ({
-          product_id: item.product_id,
-          quantity: item.quantity,
-          unit_price: item.unit_price,
+      const res = await api.createBill({
+        items: billItems.map(i => ({
+          product_id: i.product_id,
+          quantity: i.quantity,
+          unit_price: i.unit_price,
         })),
         payment_method: paymentMethod,
       })
 
-      setGeneratedBillData({
-        billItems: billItems.map(item => ({
-          name: item.product_name,
-          price: item.unit_price,
-          quantity: item.quantity,
-          total: item.total_price
-        })),
-        subtotal,
-        gst,
-        total,
-        paymentMethod
-      })
-      setGeneratedInvoiceNumber(billResponse.invoice_number || `INV-${new Date().getFullYear()}-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`)
+      setGeneratedBillData({ billItems, subtotal, gst, total, paymentMethod })
+      setGeneratedInvoiceNumber(res.invoice_number)
       setShowSuccessModal(true)
       setBillItems([])
-      loadStocks() // Reload stocks after bill creation
-    } catch (error: any) {
-      alert(error.response?.data?.detail || 'Failed to create bill')
+      loadStocks()
+    } catch (err: any) {
+      console.error('Failed to create bill:', err)
+      alert(err?.response?.data?.detail || 'Failed to create bill')
     }
   }
 
-  const filteredProducts =
-    searchTerm.length > 0
-      ? products.filter(
-          (p) =>
-            p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            p.sku.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            p.barcode?.toLowerCase().includes(searchTerm.toLowerCase())
-        )
-      : products
+  const filteredProducts = products.filter(p =>
+    p.name.toLowerCase().includes(searchTerm.toLowerCase())
+  )
 
   return (
-    <div className="p-4 sm:p-8 bg-gray-50 min-h-screen">
-      <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold text-black mb-6">Quick Billing</h1>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div className="col-span-1 md:col-span-1 lg:col-span-2 bg-white rounded-lg shadow p-6">
-            <div className="mb-6">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input
-                  type="text"
-                  placeholder="Search or scan product..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
-                />
-              </div>
-            </div>
-
-            {loading ? (
-              <div className="text-center text-gray-500 py-8">Loading products...</div>
-            ) : (
-              <div className="grid grid-cols-4 gap-4">
-                {filteredProducts.map((product) => {
-                  const currentStock = stocks[product.id] || 0
-                  const isOutOfStock = currentStock <= 0
-                  return (
-                    <button
-                      key={product.id}
-                      onClick={() => !isOutOfStock && addToBill(product)}
-                      disabled={isOutOfStock}
-                      className={`border rounded-md p-4 text-center transition-colors flex flex-col items-center justify-center ${
-                        isOutOfStock
-                          ? 'bg-gray-100 border-gray-200 opacity-50 cursor-not-allowed'
-                          : 'bg-gray-50 border-gray-200 hover:bg-black hover:text-white'
-                      }`}
-                    >
-                      <div className={`w-12 h-12 rounded-md flex items-center justify-center mx-auto mb-2 font-bold ${
-                        isOutOfStock ? 'bg-gray-300 text-gray-500' : 'bg-black text-white'
-                      }`}>
-                        {product.name.charAt(0).toUpperCase()}
-                      </div>
-                      <div className="font-semibold text-sm mb-1">{product.name}</div>
-                      <div className="font-bold mb-1">₹{product.selling_price.toFixed(2)}</div>
-                      <div className={`text-xs ${isOutOfStock ? 'text-red-600' : currentStock < 10 ? 'text-orange-600' : 'text-gray-600'}`}>
-                        {isOutOfStock ? (
-                          <span className="flex items-center gap-1">
-                            <AlertCircle className="w-3 h-3" />
-                            Out of Stock
-                          </span>
-                        ) : (
-                          `Stock: ${currentStock} ${product.unit}`
-                        )}
-                      </div>
-                    </button>
-                  )
-                })}
-              </div>
-            )}
-          </div>
-
-          <div className="bg-white rounded-lg shadow p-6 sticky top-4 h-fit">
-            <div className="flex justify-between items-center mb-4 pb-4 border-b border-gray-200">
-              <h3 className="text-xl font-bold text-black">Current Bill</h3>
-              <button
-                onClick={() => setBillItems([])}
-                className="text-sm bg-black text-white hover:bg-black hover:text-white rounded-md p-2"
-              >
-                Clear All
-              </button>
-            </div>
-
-            <div className="mb-4 max-h-64 overflow-y-auto overflow-x-auto">
-              {billItems.length === 0 ? (
-                <div className="text-center text-gray-400 py-8">
-                  <PackageOpen className="w-12 h-12 mx-auto mb-4" />
-                  <p className="text-lg">Add products to start billing</p>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  {billItems.map((item) => {
-                    const currentStock = stocks[item.product_id] || 0
-                    return (
-                      <div key={item.product_id} className="flex justify-between items-center py-2 border-b border-gray-200 last:border-b-0">
-                        <div className="flex-1">
-                          <div className="font-semibold text-base text-gray-900">{item.product_name}</div>
-                          <div className="text-xs text-gray-500">
-                            ₹{item.unit_price.toFixed(2)} x {item.quantity}
-                          </div>
-                          {item.quantity > currentStock && (
-                            <div className="text-xs text-red-600 flex items-center gap-1 mt-1">
-                              <AlertCircle className="w-3 h-3" />
-                              Low stock: {currentStock} available
-                            </div>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => updateQuantity(item.product_id, -1)}
-                            className="p-1 rounded-full hover:bg-gray-100 transition-colors"
-                          >
-                            <Minus className="w-4 h-4 text-gray-600" />
-                          </button>
-                          <span className="font-bold text-base text-black">₹{item.total_price.toFixed(2)}</span>
-                          <button
-                            onClick={() => updateQuantity(item.product_id, 1)}
-                            className="p-1 rounded-full hover:bg-gray-100 transition-colors"
-                          >
-                            <Plus className="w-4 h-4 text-gray-600" />
-                          </button>
-                          <button
-                            onClick={() => removeItem(item.product_id)}
-                            className="p-1 rounded-full hover:bg-red-100 transition-colors"
-                          >
-                            <Trash2 className="w-4 h-4 text-red-600" />
-                          </button>
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              )}
-            </div>
-
-            <div className="space-y-2 mb-4 pt-4 border-t border-gray-200">
-              <div className="flex justify-between text-base text-gray-700">
-                <span>Subtotal</span>
-                <span>₹{subtotal.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between text-base text-gray-700">
-                <span>GST (5%)</span>
-                <span>₹{gst.toFixed(2)}</span>
-              </div>
-            </div>
-
-            <div className="flex justify-between items-center mb-6 pt-4 border-t-2 border-black">
-              <span className="text-2xl font-bold text-black">Total</span>
-              <span className="text-2xl font-bold text-black">₹{total.toFixed(2)}</span>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-6">
-              <button
-                onClick={() => setPaymentMethod('CASH')}
-                className={`flex flex-col items-center justify-center p-4 rounded-lg border transition-colors ${
-                  paymentMethod === 'CASH'
-                    ? 'bg-black text-white border-black'
-                    : 'bg-white text-gray-700 border-gray-300 hover:border-black hover:text-black'
-                }`}
-              >
-                <Wallet className="w-6 h-6 mb-1" />
-                <span className="text-sm font-medium">Cash</span>
-              </button>
-              <button
-                onClick={() => setPaymentMethod('UPI')}
-                className={`flex flex-col items-center justify-center p-4 rounded-lg border transition-colors ${
-                  paymentMethod === 'UPI'
-                    ? 'bg-black text-white border-black'
-                    : 'bg-white text-gray-700 border-gray-300 hover:border-black hover:text-black'
-                }`}
-              >
-                <Smartphone className="w-6 h-6 mb-1" />
-                <span className="text-sm font-medium">UPI</span>
-              </button>
-              <button
-                onClick={() => setPaymentMethod('CARD')}
-                className={`flex flex-col items-center justify-center p-4 rounded-lg border transition-colors ${
-                  paymentMethod === 'CARD'
-                    ? 'bg-black text-white border-black'
-                    : 'bg-white text-gray-700 border-gray-300 hover:border-black hover:text-black'
-                }`}
-              >
-                <CreditCard className="w-6 h-6 mb-1" />
-                <span className="text-sm font-medium">Card</span>
-              </button>
-            </div>
-
-            <button
-              onClick={handleCompleteBill}
-              disabled={billItems.length === 0}
-              className="w-full bg-black text-white py-3 px-4 rounded-lg font-semibold hover:bg-black transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <CheckCircle className="w-5 h-5" />
-              Complete & Print
-            </button>
-          </div>
+    <div className="h-screen flex bg-[#F5F3EE]">
+      {/* LEFT MENU */}
+      <div className="flex-1 flex flex-col bg-white">
+        <div className="p-6 bg-[#3E2C24] text-white flex items-center gap-3 shadow-lg">
+          <Coffee />
+          <h1 className="text-2xl font-bold">BrewBite POS</h1>
         </div>
 
-        {showSuccessModal && (
-          <SuccessModal
-            isOpen={showSuccessModal}
-            onClose={() => setShowSuccessModal(false)}
-            billData={generatedBillData}
-            invoiceNumber={generatedInvoiceNumber}
-          />
-        )}
+        <div className="p-6">
+          <div className="relative mb-6">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+            <input
+              className="w-full pl-12 py-3 rounded-xl border"
+              placeholder="Search menu..."
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+            />
+          </div>
+
+          {loading ? (
+            <p>Loading...</p>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {filteredProducts.map(p => (
+                <button
+                  key={p.id}
+                  onClick={() => addToBill(p)}
+                  className="bg-white rounded-2xl p-4 shadow-md hover:shadow-lg hover:-translate-y-1 transition"
+                >
+                  <div className="w-14 h-14 bg-[#C89B63] text-white rounded-xl flex items-center justify-center mx-auto mb-3 text-xl">
+                    {p.name[0]}
+                  </div>
+                  <h3 className="font-semibold">{p.name}</h3>
+                  <p className="text-[#3E2C24] font-bold">₹{p.selling_price}</p>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
+
+      {/* RIGHT CART */}
+      <div className="w-96 bg-[#FAF7F2] border-l flex flex-col">
+        <div className="p-6 bg-[#3E2C24] text-white flex items-center gap-3">
+          <ShoppingCart />
+          <h2 className="font-bold">Order</h2>
+        </div>
+
+        <div className="flex-1 p-4">
+          {billItems.length === 0 ? (
+            <div className="text-center text-gray-400 mt-20">
+              <PackageOpen className="mx-auto mb-2" />
+              No items
+            </div>
+          ) : (
+            billItems.map(i => (
+              <div key={i.product_id} className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => updateQuantity(i.product_id, -1)}
+                    className="text-gray-500 hover:text-red-500"
+                  >
+                    <Minus className="w-4 h-4" />
+                  </button>
+                  <span className="font-medium">{i.quantity}x</span>
+                  <button
+                    onClick={() => updateQuantity(i.product_id, 1)}
+                    className="text-gray-500 hover:text-green-500"
+                  >
+                    <Plus className="w-4 h-4" />
+                  </button>
+                  <span>{i.product_name}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span>₹{i.total_price.toFixed(2)}</span>
+                  <button
+                    onClick={() => removeItem(i.product_id)}
+                    className="text-red-500 hover:text-red-700"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        <div className="p-6 border-t">
+          <div className="flex justify-between font-bold mb-4">
+            <span>Total</span>
+            <span>₹{total.toFixed(2)}</span>
+          </div>
+
+          <button
+            onClick={handleCompleteBill}
+            className="w-full bg-[#3E2C24] text-white py-3 rounded-xl hover:scale-[1.02] transition"
+          >
+            <Receipt className="inline mr-2" />
+            Complete Order
+          </button>
+        </div>
+      </div>
+
+      {showSuccessModal && (
+        <SuccessModal
+          isOpen={showSuccessModal}
+          onClose={() => setShowSuccessModal(false)}
+          billData={generatedBillData}
+          invoiceNumber={generatedInvoiceNumber}
+        />
+      )}
     </div>
   )
 }
-

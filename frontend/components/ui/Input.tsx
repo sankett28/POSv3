@@ -9,12 +9,12 @@ export default function Input({ label, error, className = '', ...props }: InputP
   return (
     <div>
       {label && (
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="block text-sm font-medium text-[#1F1F1F] mb-1">
           {label}
         </label>
       )}
       <input
-        className={`w-full px-4 py-2.5 text-sm sm:text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black ${
+        className={`w-full px-4 py-2.5 text-sm sm:text-base border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C89B63] ${
           error ? 'border-red-500' : ''
         } ${className}`}        {...props}
       />

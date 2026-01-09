@@ -402,24 +402,24 @@ export default function SuccessModal({ isOpen, onClose, billData, invoiceNumber 
       onClick={onClose}
     >
       <div
-          className="bg-white rounded-2xl p-6 sm:p-8 lg:p-12 max-w-[400px] w-full text-center animate-modal-slide-in"
+          className="bg-white rounded-2xl p-6 sm:p-8 lg:p-12 max-w-[400px] w-full text-center animate-modal-slide-in shadow-md"
         onClick={(e) => e.stopPropagation()}
       >
           <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4 sm:mb-6">
             <CheckCircle className="w-8 h-8 sm:w-10 sm:h-10 text-green-700" />
         </div>
-          <h3 className="text-xl sm:text-2xl font-semibold text-primary mb-2">Bill Generated Successfully!</h3>
-          <p className="text-sm sm:text-base text-gray-600 mb-6 sm:mb-8">Invoice #{invoiceNumber} created</p>
+          <h3 className="text-xl sm:text-2xl font-semibold text-[#1F1F1F] mb-2">Bill Generated Successfully!</h3>
+          <p className="text-sm sm:text-base text-[#6B6B6B] mb-6 sm:mb-8">Invoice #{invoiceNumber} created</p>
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
           <button
             onClick={onClose}
-              className="flex-1 bg-white text-primary border border-gray-300 px-4 sm:px-6 py-2.5 sm:py-3 rounded-md text-sm sm:text-base font-semibold cursor-pointer transition-all hover:bg-gray-100 hover:border-primary hover:scale-[1.02]"
+              className="flex-1 bg-white text-[#3E2C24] border border-[#E5E7EB] px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base font-semibold cursor-pointer transition-all hover:bg-[#F5F3EE] hover:border-[#3E2C24] hover:scale-[1.02] active:scale-[0.98]"
           >
             Close
           </button>
             <button
               onClick={handlePrint}
-              className="flex-1 bg-primary text-secondary border-none px-4 sm:px-6 py-2.5 sm:py-3 rounded-md text-sm sm:text-base font-semibold cursor-pointer flex items-center justify-center gap-2 transition-all hover:bg-primary-light hover:-translate-y-0.5 hover:scale-[1.02] hover:shadow-lg"
+              className="flex-1 bg-[#3E2C24] text-white border-none px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base font-semibold cursor-pointer flex items-center justify-center gap-2 transition-all hover:bg-[#2c1f19] hover:scale-[1.02] active:scale-[0.98] shadow-md"
             >
               <Printer className="w-4 h-4 sm:w-5 sm:h-5" />
             Print Invoice
