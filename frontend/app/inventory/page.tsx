@@ -26,6 +26,7 @@ export default function InventoryPage() {
   const [showAddStockModal, setShowAddStockModal] = useState(false)
   const [selectedProduct, setSelectedProduct] = useState<string>('')
   const [quantity, setQuantity] = useState('')
+  const [notes, setNotes] = useState('')
   const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
@@ -64,6 +65,7 @@ export default function InventoryPage() {
       setShowAddStockModal(false)
       setSelectedProduct('')
       setQuantity('')
+      setNotes('')
       loadData() // Reload stocks after adding
     } catch (error: any) {
       console.error('Error adding stock:', error)
@@ -109,9 +111,9 @@ export default function InventoryPage() {
 
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center gap-3 mb-2">
-              <AlertTriangle className="w-8 h-8 text-warning" />
+              <AlertTriangle className="w-8 h-8 text-yellow-600" />
               <div>
-                <div className="text-2xl font-bold text-warning">{stats.lowStock}</div>
+                <div className="text-2xl font-bold text-yellow-600">{stats.lowStock}</div>
                 <div className="text-sm text-gray-600">Low Stock</div>
               </div>
             </div>
@@ -129,7 +131,7 @@ export default function InventoryPage() {
 
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center gap-3 mb-2">
-              <TrendingUp className="w-8 h-8 text-success" />
+              <TrendingUp className="w-8 h-8 text-green-600" />
               <div>
                 <div className="text-2xl font-bold text-black">₹{stats.totalValue.toLocaleString()}</div>
                 <div className="text-sm text-gray-600">Stock Value</div>
@@ -162,9 +164,9 @@ export default function InventoryPage() {
                       <span
                         className={`font-semibold ${
                           stock.current_stock < 10
-                            ? 'text-warning'
+                            ? 'text-yellow-600'
                             : stock.current_stock === 0
-                            ? 'text-danger'
+                            ? 'text-red-600'
                             : 'text-black'
                         }`}
                       >
@@ -252,6 +254,7 @@ export default function InventoryPage() {
                       setShowAddStockModal(false)
                       setSelectedProduct('')
                       setQuantity('')
+                      setNotes('')
                     }}
                     disabled={submitting}
                     className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50"
