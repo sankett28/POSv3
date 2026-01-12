@@ -4,6 +4,8 @@ import { api } from '@/lib/api'
 export interface Product {
   id: string
   name: string
+  sku: string
+  barcode?: string
   selling_price: number
   tax_rate?: number
   category_id?: string
@@ -38,6 +40,8 @@ export function useProducts() {
 
   const createProduct = async (data: {
     name: string;
+    sku: string;
+    barcode?: string;
     selling_price: number;
     tax_rate?: number;
     category_id?: string;
@@ -55,6 +59,8 @@ export function useProducts() {
 
   const updateProduct = async (id: string, data: {
     name?: string;
+    sku?: string;
+    barcode?: string;
     selling_price?: number;
     tax_rate?: number;
     category_id?: string;

@@ -106,6 +106,8 @@ class ApiClient {
 
   async createProduct(data: { 
     name: string
+    sku: string
+    barcode?: string
     selling_price: number
     tax_rate?: number
     category_id?: string
@@ -134,6 +136,8 @@ class ApiClient {
 
   async updateProduct(id: string, data: { 
     name?: string
+    sku?: string
+    barcode?: string
     selling_price?: number
     tax_rate?: number
     category_id?: string
@@ -199,6 +203,33 @@ class ApiClient {
 
   async deleteCategory(id: string) {
     await this.client.delete(`/categories/${id}`)
+  }
+
+  // Inventory endpoints
+  async getStocks() {
+    const response = await this.client.get('/inventory/stocks')
+    return response.data
+  }
+
+  async getStock(productId: string) {
+    const response = await this.client.get(`/inventory/stocks/${productId}`)
+    return response.data
+  }
+
+  async addStock(productId: string, quantity: number) {
+    const response = await this.client.post('/inventory/stocks', {
+      product_id: productId,
+      quantity: quantity
+    })
+    return response.data
+  }
+
+  async deductStock(productId: string, quantity: number) {
+    const response = await this.client.post('/inventory/stocks/deduct', {
+      product_id: productId,
+      quantity: quantity
+    })
+    return response.data
   }
 }
 

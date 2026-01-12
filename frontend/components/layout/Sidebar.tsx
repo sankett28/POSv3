@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Store, Package, Receipt, Users, Megaphone, Coffee } from 'lucide-react'
+import { Store, Package, Receipt, Users, Megaphone, Coffee, UtensilsCrossed, FileText, BarChart3, Settings } from 'lucide-react'
 
 const navItems = [
   { href: '/orders', label: 'Orders', icon: Receipt },

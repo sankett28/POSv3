@@ -214,20 +214,20 @@ export default function MenuPage() {
   }
 
   return (
-    <div className="p-4 sm:p-8">
+    <div className="p-4 sm:p-8 bg-[#F5F3EE] min-h-screen">
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-black">Menu</h1>
-          <div className="flex gap-2">
+          <h1 className="text-3xl font-bold text-[#3E2C24]">Menu</h1>
+          <div className="flex gap-3">
             <button
               onClick={() => {
                 setEditingCategory(null)
                 resetCategoryForm()
                 setShowCategoryModal(true)
               }}
-              className="bg-gray-700 text-white px-4 py-2 rounded-md font-semibold hover:bg-gray-600 flex items-center gap-2"
+              className="bg-[#C89B63] text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2 text-base"
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="w-5 h-5" />
               Add Category
             </button>
             <button
@@ -236,24 +236,24 @@ export default function MenuPage() {
                 resetItemForm()
                 setShowItemModal(true)
               }}
-              className="bg-black text-white px-4 py-2 rounded-md font-semibold hover:bg-gray-800 flex items-center gap-2"
+              className="bg-[#3E2C24] text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2 text-base"
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="w-5 h-5" />
               Add Menu Item
             </button>
           </div>
         </div>
 
         {/* Categories Section */}
-        <div className="bg-white rounded-lg shadow mb-6 p-4">
-          <h2 className="text-lg font-semibold text-black mb-3">Categories</h2>
-          <div className="flex flex-wrap gap-2">
+        <div className="bg-white rounded-2xl shadow-md mb-6 p-6 border border-[#E5E7EB]">
+          <h2 className="text-xl font-bold text-[#3E2C24] mb-4">Categories</h2>
+          <div className="flex flex-wrap gap-3">
             <button
               onClick={() => setSelectedCategory(null)}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+              className={`px-4 py-2 rounded-xl font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring outline-none ${
                 selectedCategory === null
-                  ? 'bg-black text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  ? 'bg-[#3E2C24] text-white shadow-md'
+                  : 'bg-[#FAF7F2] text-[#3E2C24] hover:bg-[#C89B63]/10'
               }`}
             >
               All
@@ -262,10 +262,10 @@ export default function MenuPage() {
               <button
                 key={category.id}
                 onClick={() => setSelectedCategory(category.id)}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${
+                className={`px-4 py-2 rounded-xl font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring outline-none flex items-center gap-2 ${
                   selectedCategory === category.id
-                    ? 'bg-black text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    ? 'bg-[#3E2C24] text-white shadow-md'
+                    : 'bg-[#FAF7F2] text-[#3E2C24] hover:bg-[#C89B63]/10'
                 }`}
               >
                 {category.name}
@@ -274,7 +274,7 @@ export default function MenuPage() {
                     e.stopPropagation()
                     handleEditCategory(category)
                   }}
-                  className="hover:bg-gray-300 rounded p-1"
+                  className="p-1 rounded-full text-[#6B6B6B] hover:bg-[#E5E7EB] transition-all duration-200 ease-in-out active:scale-[0.9]"
                 >
                   <Edit className="w-3 h-3" />
                 </button>
@@ -284,15 +284,15 @@ export default function MenuPage() {
         </div>
 
         {/* Search */}
-        <div className="bg-white rounded-lg shadow mb-6 p-4">
+        <div className="bg-white rounded-2xl shadow-md mb-6 p-6 border border-[#E5E7EB]">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[#9CA3AF] w-5 h-5" />
             <input
               type="text"
               placeholder="Search menu items..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+              className="w-full pl-12 pr-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63] bg-[#FAF7F2] hover:bg-white transition-all duration-200 text-[#1F1F1F] placeholder-[#9CA3AF]"
             />
           </div>
         </div>
@@ -304,48 +304,48 @@ export default function MenuPage() {
             if (categoryProducts.length === 0) return null
 
             return (
-              <div key={category.id} className="bg-white rounded-lg shadow">
-                <div className="p-4 border-b border-gray-200">
-                  <h3 className="text-xl font-semibold text-black">{category.name}</h3>
+              <div key={category.id} className="bg-white rounded-2xl shadow-md border border-[#E5E7EB]">
+                <div className="p-6 border-b border-[#E5E7EB]">
+                  <h3 className="text-xl font-bold text-[#3E2C24]">{category.name}</h3>
                 </div>
                 <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead className="bg-gray-50">
+                  <table className="min-w-full leading-normal">
+                    <thead className="bg-[#FAF7F2]">
                       <tr>
-                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Item</th>
-                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Price</th>
-                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Tax Rate</th>
-                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Status</th>
-                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Actions</th>
+                        <th className="px-6 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider rounded-tl-xl">Item</th>
+                        <th className="px-6 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider">Price</th>
+                        <th className="px-6 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider">Tax Rate</th>
+                        <th className="px-6 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider">Status</th>
+                        <th className="px-6 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider rounded-tr-xl">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
                       {categoryProducts.map((product) => (
-                        <tr key={product.id} className="border-t border-gray-200 hover:bg-gray-50">
-                          <td className="px-4 py-3 font-medium text-gray-900">{product.name}</td>
-                          <td className="px-4 py-3 text-gray-900">₹{product.selling_price.toFixed(2)}</td>
-                          <td className="px-4 py-3 text-gray-600">{product.tax_rate || 0}%</td>
-                          <td className="px-4 py-3">
-                            <span className={`px-2 py-1 text-xs rounded-full ${
+                        <tr key={product.id} className="border-t border-[#E5E7EB] transition-all duration-200 ease-in-out hover:bg-[#FAF7F2]">
+                          <td className="px-6 py-4 font-medium text-[#1F1F1F]">{product.name}</td>
+                          <td className="px-6 py-4 text-[#1F1F1F]">₹{product.selling_price.toFixed(2)}</td>
+                          <td className="px-6 py-4 text-[#6B6B6B]">{product.tax_rate || 0}%</td>
+                          <td className="px-6 py-4">
+                            <span className={`px-3 py-1 text-xs rounded-full font-semibold ${
                               product.is_active 
-                                ? 'bg-green-100 text-green-800' 
-                                : 'bg-red-100 text-red-800'
+                                ? 'bg-green-100 text-green-700' 
+                                : 'bg-red-100 text-red-700'
                             }`}>
                               {product.is_active ? 'Active' : 'Inactive'}
                             </span>
                           </td>
-                          <td className="px-4 py-3">
-                            <div className="flex gap-2">
+                          <td className="px-6 py-4">
+                            <div className="flex gap-3">
                               <button
                                 onClick={() => handleEditItem(product)}
-                                className="text-gray-600 hover:text-black"
+                                className="text-[#3E2C24] hover:text-[#C89B63] transition-all duration-200 ease-in-out hover:scale-[1.05] active:scale-[0.95]"
                               >
                                 <Edit className="w-4 h-4" />
                               </button>
                               {product.is_active && (
                                 <button
                                   onClick={() => handleDeactivateItem(product.id)}
-                                  className="text-red-600 hover:text-red-800"
+                                  className="text-[#F4A261] hover:text-[#E08F50] transition-all duration-200 ease-in-out hover:scale-[1.05] active:scale-[0.95]"
                                 >
                                   <Trash2 className="w-4 h-4" />
                                 </button>
@@ -363,48 +363,48 @@ export default function MenuPage() {
 
           {/* Uncategorized Items */}
           {uncategorizedProducts.length > 0 && (
-            <div className="bg-white rounded-lg shadow">
-              <div className="p-4 border-b border-gray-200">
-                <h3 className="text-xl font-semibold text-black">Uncategorized</h3>
+            <div className="bg-white rounded-2xl shadow-md border border-[#E5E7EB]">
+              <div className="p-6 border-b border-[#E5E7EB]">
+                <h3 className="text-xl font-bold text-[#3E2C24]">Uncategorized</h3>
               </div>
               <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-gray-50">
+                <table className="min-w-full leading-normal">
+                  <thead className="bg-[#FAF7F2]">
                     <tr>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Item</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Price</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Tax Rate</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Status</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Actions</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider rounded-tl-xl">Item</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider">Price</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider">Tax Rate</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider">Status</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider rounded-tr-xl">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {uncategorizedProducts.map((product) => (
-                      <tr key={product.id} className="border-t border-gray-200 hover:bg-gray-50">
-                        <td className="px-4 py-3 font-medium text-gray-900">{product.name}</td>
-                        <td className="px-4 py-3 text-gray-900">₹{product.selling_price.toFixed(2)}</td>
-                        <td className="px-4 py-3 text-gray-600">{product.tax_rate || 0}%</td>
-                        <td className="px-4 py-3">
-                          <span className={`px-2 py-1 text-xs rounded-full ${
+                      <tr key={product.id} className="border-t border-[#E5E7EB] transition-all duration-200 ease-in-out hover:bg-[#FAF7F2]">
+                        <td className="px-6 py-4 font-medium text-[#1F1F1F]">{product.name}</td>
+                        <td className="px-6 py-4 text-[#1F1F1F]">₹{product.selling_price.toFixed(2)}</td>
+                        <td className="px-6 py-4 text-[#6B6B6B]">{product.tax_rate || 0}%</td>
+                        <td className="px-6 py-4">
+                          <span className={`px-3 py-1 text-xs rounded-full font-semibold ${
                             product.is_active 
-                              ? 'bg-green-100 text-green-800' 
-                              : 'bg-red-100 text-red-800'
+                              ? 'bg-green-100 text-green-700' 
+                              : 'bg-red-100 text-red-700'
                           }`}>
                             {product.is_active ? 'Active' : 'Inactive'}
                           </span>
                         </td>
-                        <td className="px-4 py-3">
-                          <div className="flex gap-2">
+                        <td className="px-6 py-4">
+                          <div className="flex gap-3">
                             <button
                               onClick={() => handleEditItem(product)}
-                              className="text-gray-600 hover:text-black"
+                              className="text-[#3E2C24] hover:text-[#C89B63] transition-all duration-200 ease-in-out hover:scale-[1.05] active:scale-[0.95]"
                             >
                               <Edit className="w-4 h-4" />
                             </button>
                             {product.is_active && (
                               <button
                                 onClick={() => handleDeactivateItem(product.id)}
-                                className="text-red-600 hover:text-red-800"
+                                className="text-[#F4A261] hover:text-[#E08F50] transition-all duration-200 ease-in-out hover:scale-[1.05] active:scale-[0.95]"
                               >
                                 <Trash2 className="w-4 h-4" />
                               </button>
@@ -422,10 +422,10 @@ export default function MenuPage() {
 
         {/* Menu Item Modal */}
         {showItemModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold text-black">
+          <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 max-w-md w-full max-h-[90vh] overflow-y-auto animate-fade-in animate-scale-in">
+              <div className="flex justify-between items-center mb-6 pb-4 border-b border-[#E5E7EB]">
+                <h2 className="text-2xl font-bold text-[#3E2C24]">
                   {editingProduct ? 'Edit Menu Item' : 'Add Menu Item'}
                 </h2>
                 <button
@@ -434,28 +434,28 @@ export default function MenuPage() {
                     setEditingProduct(null)
                     resetItemForm()
                   }}
-                  className="text-gray-500 hover:text-black"
+                  className="text-[#6B6B6B] hover:text-[#3E2C24] transition-all duration-200 ease-in-out active:scale-[0.9] p-2 rounded-full hover:bg-[#FAF7F2]"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
-              <form onSubmit={handleItemSubmit} className="space-y-4">
+              <form onSubmit={handleItemSubmit} className="space-y-5">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Name *</label>
+                  <label className="block text-sm font-semibold text-[#6B6B6B] mb-2">Name *</label>
                   <input
                     type="text"
                     value={itemFormData.name}
                     onChange={(e) => setItemFormData({ ...itemFormData, name: e.target.value })}
                     required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+                    className="w-full px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63] bg-[#FAF7F2] hover:bg-white transition-all duration-200 text-[#1F1F1F] placeholder-[#9CA3AF]"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                  <label className="block text-sm font-semibold text-[#6B6B6B] mb-2">Category</label>
                   <select
                     value={itemFormData.category_id}
                     onChange={(e) => setItemFormData({ ...itemFormData, category_id: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+                    className="w-full px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63] bg-[#FAF7F2] hover:bg-white transition-all duration-200 text-[#1F1F1F]"
                   >
                     <option value="">No Category</option>
                     {categories.map((cat) => (
@@ -464,7 +464,7 @@ export default function MenuPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Selling Price *</label>
+                  <label className="block text-sm font-semibold text-[#6B6B6B] mb-2">Selling Price *</label>
                   <input
                     type="number"
                     step="0.01"
@@ -472,11 +472,11 @@ export default function MenuPage() {
                     value={itemFormData.selling_price}
                     onChange={(e) => setItemFormData({ ...itemFormData, selling_price: e.target.value })}
                     required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+                    className="w-full px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63] bg-[#FAF7F2] hover:bg-white transition-all duration-200 text-[#1F1F1F] placeholder-[#9CA3AF]"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Tax Rate (%) *</label>
+                  <label className="block text-sm font-semibold text-[#6B6B6B] mb-2">Tax Rate (%) *</label>
                   <input
                     type="number"
                     step="0.01"
@@ -485,7 +485,7 @@ export default function MenuPage() {
                     value={itemFormData.tax_rate}
                     onChange={(e) => setItemFormData({ ...itemFormData, tax_rate: e.target.value })}
                     required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+                    className="w-full px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63] bg-[#FAF7F2] hover:bg-white transition-all duration-200 text-[#1F1F1F] placeholder-[#9CA3AF]"
                   />
                 </div>
                 <div>
@@ -494,26 +494,26 @@ export default function MenuPage() {
                       type="checkbox"
                       checked={itemFormData.is_active}
                       onChange={(e) => setItemFormData({ ...itemFormData, is_active: e.target.checked })}
-                      className="w-4 h-4 border border-gray-300 rounded focus:ring-2 focus:ring-black"
+                      className="w-5 h-5 border border-[#E5E7EB] rounded focus:ring-2 focus:ring-[#C89B63] accent-[#3E2C24]"
                     />
-                    <span className="text-sm font-medium text-gray-700">Active</span>
+                    <span className="text-sm font-semibold text-[#6B6B6B]">Active</span>
                   </label>
                 </div>
                 <button
                   type="button"
                   onClick={() => setShowAdvanced(!showAdvanced)}
-                  className="text-sm text-gray-600 hover:text-black flex items-center gap-1"
+                  className="text-sm text-[#6B6B6B] hover:text-[#3E2C24] flex items-center gap-1 transition-all duration-200 ease-in-out active:scale-[0.95] focus-visible:ring outline-none"
                 >
                   <Settings className="w-4 h-4" />
                   {showAdvanced ? 'Hide' : 'Show'} Advanced Settings
                 </button>
                 {showAdvanced && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Unit (optional)</label>
+                    <label className="block text-sm font-semibold text-[#6B6B6B] mb-2">Unit (optional)</label>
                     <select
                       value={itemFormData.unit}
                       onChange={(e) => setItemFormData({ ...itemFormData, unit: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+                      className="w-full px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63] bg-[#FAF7F2] hover:bg-white transition-all duration-200 text-[#1F1F1F]"
                     >
                       <option value="">No Unit</option>
                       <option value="pcs">Pieces (pcs)</option>
@@ -529,7 +529,7 @@ export default function MenuPage() {
                     </select>
                   </div>
                 )}
-                <div className="flex gap-2 justify-end pt-4">
+                <div className="flex gap-3 justify-end pt-4">
                   <button
                     type="button"
                     onClick={() => {
@@ -537,13 +537,13 @@ export default function MenuPage() {
                       setEditingProduct(null)
                       resetItemForm()
                     }}
-                    className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
+                    className="px-6 py-3 rounded-xl font-medium border border-[#3E2C24] text-[#3E2C24] hover:bg-[#3E2C24] hover:text-white transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800"
+                    className="px-6 py-3 bg-[#3E2C24] text-white rounded-xl font-medium hover:bg-[#2c1f19] transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
                   >
                     {editingProduct ? 'Update' : 'Create'}
                   </button>
@@ -555,10 +555,10 @@ export default function MenuPage() {
 
         {/* Category Modal */}
         {showCategoryModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg p-6 max-w-md w-full">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold text-black">
+          <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 max-w-md w-full animate-fade-in animate-scale-in">
+              <div className="flex justify-between items-center mb-6 pb-4 border-b border-[#E5E7EB]">
+                <h2 className="text-2xl font-bold text-[#3E2C24]">
                   {editingCategory ? 'Edit Category' : 'Add Category'}
                 </h2>
                 <button
@@ -567,29 +567,29 @@ export default function MenuPage() {
                     setEditingCategory(null)
                     resetCategoryForm()
                   }}
-                  className="text-gray-500 hover:text-black"
+                  className="text-[#6B6B6B] hover:text-[#3E2C24] transition-all duration-200 ease-in-out active:scale-[0.9] p-2 rounded-full hover:bg-[#FAF7F2]"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
-              <form onSubmit={handleCategorySubmit} className="space-y-4">
+              <form onSubmit={handleCategorySubmit} className="space-y-5">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Name *</label>
+                  <label className="block text-sm font-semibold text-[#6B6B6B] mb-2">Name *</label>
                   <input
                     type="text"
                     value={categoryFormData.name}
                     onChange={(e) => setCategoryFormData({ ...categoryFormData, name: e.target.value })}
                     required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+                    className="w-full px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63] bg-[#FAF7F2] hover:bg-white transition-all duration-200 text-[#1F1F1F] placeholder-[#9CA3AF]"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Display Order</label>
+                  <label className="block text-sm font-semibold text-[#6B6B6B] mb-2">Display Order</label>
                   <input
                     type="number"
                     value={categoryFormData.display_order}
                     onChange={(e) => setCategoryFormData({ ...categoryFormData, display_order: parseInt(e.target.value) || 0 })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+                    className="w-full px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63] bg-[#FAF7F2] hover:bg-white transition-all duration-200 text-[#1F1F1F] placeholder-[#9CA3AF]"
                   />
                 </div>
                 <div>
@@ -598,12 +598,12 @@ export default function MenuPage() {
                       type="checkbox"
                       checked={categoryFormData.is_active}
                       onChange={(e) => setCategoryFormData({ ...categoryFormData, is_active: e.target.checked })}
-                      className="w-4 h-4 border border-gray-300 rounded focus:ring-2 focus:ring-black"
+                      className="w-5 h-5 border border-[#E5E7EB] rounded focus:ring-2 focus:ring-[#C89B63] accent-[#3E2C24]"
                     />
-                    <span className="text-sm font-medium text-gray-700">Active</span>
+                    <span className="text-sm font-semibold text-[#6B6B6B]">Active</span>
                   </label>
                 </div>
-                <div className="flex gap-2 justify-end pt-4">
+                <div className="flex gap-3 justify-end pt-4">
                   <button
                     type="button"
                     onClick={() => {
@@ -611,13 +611,13 @@ export default function MenuPage() {
                       setEditingCategory(null)
                       resetCategoryForm()
                     }}
-                    className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
+                    className="px-6 py-3 rounded-xl font-medium border border-[#3E2C24] text-[#3E2C24] hover:bg-[#3E2C24] hover:text-white transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800"
+                    className="px-6 py-3 bg-[#3E2C24] text-white rounded-xl font-medium hover:bg-[#2c1f19] transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
                   >
                     {editingCategory ? 'Update' : 'Create'}
                   </button>

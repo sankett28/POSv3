@@ -3,8 +3,7 @@
 import { useState } from 'react'
 
 import { logout, getCurrentUserId } from '@/lib/auth'
-import { LogOut, User, ShoppingBag, Receipt, Users, Package, Megaphone, ShoppingCart, Home, LayoutGrid, DollarSign, Mic, LineChart, Bell, Menu, X, Coffee, ChefHat } from 'lucide-react'
-import { LogOut, User, Receipt, UtensilsCrossed, FileText, BarChart3, Settings, Home, Menu, X } from 'lucide-react'
+import { LogOut, User, ShoppingBag, Receipt, Users, Package, Megaphone, ShoppingCart, Home, LayoutGrid, DollarSign, Mic, LineChart, Bell, Menu, X, Coffee, ChefHat, UtensilsCrossed, FileText, BarChart3, Settings } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
@@ -22,6 +21,8 @@ export default function Header() {
     { name: 'Menu', href: '/menu', icon: UtensilsCrossed },
     { name: 'Transactions', href: '/transactions', icon: FileText },
     { name: 'Reports', href: '/reports', icon: BarChart3 },
+    { name: 'Marketing', href: '/marketing', icon: Megaphone },
+    { name: 'Customers', href: '/customers', icon: Users },
   ]
 
   return (
@@ -41,7 +42,6 @@ export default function Header() {
               <span className="text-xs text-[#9CA3AF] font-medium tracking-wide">Cafe Management</span>
             </div>
           </Link>
-          <span className="text-xl font-bold text-black">Cafe POS</span>
         </div>
 
         {/* Middle section: Navigation Tabs */}

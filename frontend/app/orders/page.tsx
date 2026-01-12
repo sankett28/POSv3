@@ -188,21 +188,20 @@ export default function OrdersPage() {
   const uncategorizedProducts = filteredProducts.filter(p => !p.category_id)
 
   return (
-    <div className="p-4 sm:p-8 bg-gray-50 min-h-screen">
+    <div className="p-4 sm:p-8 bg-[#F5F3EE] min-h-screen">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold text-black mb-6">Orders</h1>
+        <h1 className="text-3xl font-bold text-[#3E2C24] mb-6">Orders</h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Left Sidebar: Categories */}
-          <div className="lg:col-span-2 bg-white rounded-lg shadow p-4">
-            <h3 className="font-semibold text-black mb-3">Categories</h3>
-            <div className="space-y-2">
+          <div className="lg:col-span-2 bg-white rounded-2xl shadow-md p-6 border border-[#E5E7EB]">
+            <h3 className="font-bold text-[#3E2C24] mb-4 text-xl">Categories</h3>
+            <div className="space-y-3">
               <button
                 onClick={() => setSelectedCategory(null)}
-                className={`w-full text-left px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                  selectedCategory === null
-                    ? 'bg-black text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                className={`w-full text-left px-4 py-3 rounded-xl font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring outline-none ${selectedCategory === null
+                    ? 'bg-[#3E2C24] text-white shadow-md'
+                    : 'bg-[#FAF7F2] text-[#3E2C24] hover:bg-[#C89B63]/10'
                 }`}
               >
                 All
@@ -211,10 +210,9 @@ export default function OrdersPage() {
                 <button
                   key={category.id}
                   onClick={() => setSelectedCategory(category.id)}
-                  className={`w-full text-left px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    selectedCategory === category.id
-                      ? 'bg-black text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  className={`w-full text-left px-4 py-3 rounded-xl font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring outline-none ${selectedCategory === category.id
+                      ? 'bg-[#3E2C24] text-white shadow-md'
+                      : 'bg-[#FAF7F2] text-[#3E2C24] hover:bg-[#C89B63]/10'
                   }`}
                 >
                   {category.name}
@@ -224,16 +222,16 @@ export default function OrdersPage() {
           </div>
 
           {/* Center: Menu Items */}
-          <div className="lg:col-span-7 bg-white rounded-lg shadow p-6">
+          <div className="lg:col-span-7 bg-white rounded-2xl shadow-md p-6 border border-[#E5E7EB]">
             <div className="mb-6">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[#9CA3AF] w-5 h-5" />
                 <input
                   type="text"
                   placeholder="Search menu items..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+                  className="w-full pl-12 pr-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63] bg-[#FAF7F2] hover:bg-white transition-all duration-200 text-[#1F1F1F] placeholder-[#9CA3AF]"
                 />
               </div>
             </div>
@@ -248,19 +246,29 @@ export default function OrdersPage() {
 
                   return (
                     <div key={category.id}>
-                      <h4 className="font-semibold text-gray-700 mb-3">{category.name}</h4>
-                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                      <h4 className="font-bold text-[#3E2C24] mb-4 text-xl">{category.name}</h4>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                         {categoryProducts.map((product) => (
                           <button
                             key={product.id}
                             onClick={() => addToBill(product)}
-                            className="border-2 rounded-lg p-4 text-center transition-all flex flex-col items-center justify-center bg-gray-50 border-gray-200 hover:bg-black hover:text-white hover:border-black min-h-[100px]"
+                            className="bg-white rounded-2xl p-4 shadow-md border border-[#E5E7EB]
+                                       transition-all duration-200 ease-in-out
+                                       hover:-translate-y-1 hover:scale-[1.02] hover:shadow-xl
+                                       active:scale-[0.98] cursor-pointer group flex flex-col items-center justify-between min-h-[160px] text-center"
                           >
-                            <div className="font-semibold text-sm mb-1">{product.name}</div>
-                            <div className="font-bold text-base">₹{product.selling_price.toFixed(2)}</div>
-                            {product.tax_rate && product.tax_rate > 0 && (
-                              <div className="text-xs text-gray-500 mt-1">+ {product.tax_rate}% tax</div>
-                            )}
+                            {/* Product Image Placeholder */}
+                            <div className="h-24 w-full bg-gradient-to-br from-[#C89B63]/30 to-[#F4A261]/30 flex items-center justify-center rounded-xl mb-3">
+                              <span className="text-5xl">☕</span> {/* Cafe-friendly emoji fallback */}
+                            </div>
+                            {/* Product Details */}
+                            <div className="flex-grow flex flex-col justify-end w-full">
+                              <div className="font-semibold text-[#1F1F1F] text-lg mb-1 leading-tight">{product.name}</div>
+                              <div className="font-bold text-[#3E2C24] text-xl">₹{product.selling_price.toFixed(2)}</div>
+                              {product.tax_rate && product.tax_rate > 0 && (
+                                <div className="text-xs text-[#6B6B6B] mt-1">+ {product.tax_rate}% tax</div>
+                              )}
+                            </div>
                           </button>
                         ))}
                       </div>
@@ -271,19 +279,29 @@ export default function OrdersPage() {
                 {/* Uncategorized Items */}
                 {(!selectedCategory || selectedCategory === null) && uncategorizedProducts.length > 0 && (
                   <div>
-                    <h4 className="font-semibold text-gray-700 mb-3">Other Items</h4>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                    <h4 className="font-bold text-[#3E2C24] mb-4 text-xl">Other Items</h4>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                       {uncategorizedProducts.map((product) => (
                         <button
                           key={product.id}
                           onClick={() => addToBill(product)}
-                          className="border-2 rounded-lg p-4 text-center transition-all flex flex-col items-center justify-center bg-gray-50 border-gray-200 hover:bg-black hover:text-white hover:border-black min-h-[100px]"
+                          className="bg-white rounded-2xl p-4 shadow-md border border-[#E5E7EB]
+                                     transition-all duration-200 ease-in-out
+                                     hover:-translate-y-1 hover:scale-[1.02] hover:shadow-xl
+                                     active:scale-[0.98] cursor-pointer group flex flex-col items-center justify-between min-h-[160px] text-center"
                         >
-                          <div className="font-semibold text-sm mb-1">{product.name}</div>
-                          <div className="font-bold text-base">₹{product.selling_price.toFixed(2)}</div>
-                          {product.tax_rate && product.tax_rate > 0 && (
-                            <div className="text-xs text-gray-500 mt-1">+ {product.tax_rate}% tax</div>
-                          )}
+                          {/* Product Image Placeholder */}
+                          <div className="h-24 w-full bg-gradient-to-br from-[#C89B63]/30 to-[#F4A261]/30 flex items-center justify-center rounded-xl mb-3">
+                            <span className="text-5xl">☕</span> {/* Cafe-friendly emoji fallback */}
+                          </div>
+                          {/* Product Details */}
+                          <div className="flex-grow flex flex-col justify-end w-full">
+                            <div className="font-semibold text-[#1F1F1F] text-lg mb-1 leading-tight">{product.name}</div>
+                            <div className="font-bold text-[#3E2C24] text-xl">₹{product.selling_price.toFixed(2)}</div>
+                            {product.tax_rate && product.tax_rate > 0 && (
+                              <div className="text-xs text-[#6B6B6B] mt-1">+ {product.tax_rate}% tax</div>
+                            )}
+                          </div>
                         </button>
                       ))}
                     </div>
@@ -294,12 +312,12 @@ export default function OrdersPage() {
           </div>
 
           {/* Right: Order Summary */}
-          <div className="lg:col-span-3 bg-white rounded-lg shadow p-6 sticky top-4 h-fit">
-            <div className="flex justify-between items-center mb-4 pb-4 border-b border-gray-200">
-              <h3 className="text-xl font-bold text-black">Current Order</h3>
+          <div className="lg:col-span-3 bg-white rounded-2xl shadow-md p-6 border border-[#E5E7EB] sticky top-4 h-fit">
+            <div className="flex justify-between items-center mb-4 pb-4 border-b border-[#E5E7EB]">
+              <h3 className="text-xl font-bold text-[#3E2C24]">Current Order</h3>
               <button
                 onClick={() => setBillItems([])}
-                className="text-sm bg-gray-700 text-white hover:bg-gray-600 rounded-md px-3 py-1"
+                className="text-sm bg-[#F4A261] text-white hover:bg-[#E08F50] rounded-xl px-4 py-2 transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
               >
                 Clear
               </button>
@@ -307,42 +325,42 @@ export default function OrdersPage() {
 
             <div className="mb-4 max-h-64 overflow-y-auto">
               {billItems.length === 0 ? (
-                <div className="text-center text-gray-400 py-8">
+                <div className="text-center text-[#9CA3AF] py-8">
                   <PackageOpen className="w-12 h-12 mx-auto mb-4" />
                   <p className="text-sm">Add items to start order</p>
                 </div>
               ) : (
                 <div className="space-y-2">
                   {billItems.map((item) => (
-                    <div key={item.product_id} className="flex justify-between items-start py-2 border-b border-gray-200 last:border-b-0">
+                    <div key={item.product_id} className="flex justify-between items-start py-2 border-b border-[#E5E7EB] last:border-b-0 transition-all duration-200 ease-in-out hover:bg-[#FAF7F2] rounded-md px-2">
                       <div className="flex-1">
-                        <div className="font-semibold text-sm text-gray-900">{item.product_name}</div>
-                        <div className="text-xs text-gray-500">
+                        <div className="font-semibold text-sm text-[#1F1F1F]">{item.product_name}</div>
+                        <div className="text-xs text-[#6B6B6B]">
                           ₹{item.unit_price.toFixed(2)} × {item.quantity}
                         </div>
                         {item.tax_rate > 0 && (
-                          <div className="text-xs text-gray-500">Tax: {item.tax_rate}%</div>
+                          <div className="text-xs text-[#6B6B6B]">Tax: {item.tax_rate}%</div>
                         )}
                       </div>
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => updateQuantity(item.product_id, -1)}
-                          className="p-1.5 rounded-full hover:bg-gray-100 transition-colors border border-gray-300"
+                          className="p-1.5 rounded-full bg-[#FAF7F2] text-[#3E2C24] hover:bg-[#E5E7EB] transition-all duration-200 ease-in-out active:scale-[0.9] border border-[#E5E7EB]"
                         >
-                          <Minus className="w-4 h-4 text-gray-600" />
+                          <Minus className="w-4 h-4" />
                         </button>
-                        <span className="font-bold text-sm text-black min-w-[60px] text-right">₹{item.total_price.toFixed(2)}</span>
+                        <span className="font-bold text-sm text-[#1F1F1F] min-w-[30px] text-center">{item.quantity}</span>
                         <button
                           onClick={() => updateQuantity(item.product_id, 1)}
-                          className="p-1.5 rounded-full hover:bg-gray-100 transition-colors border border-gray-300"
+                          className="p-1.5 rounded-full bg-[#FAF7F2] text-[#3E2C24] hover:bg-[#E5E7EB] transition-all duration-200 ease-in-out active:scale-[0.9] border border-[#E5E7EB]"
                         >
-                          <Plus className="w-4 h-4 text-gray-600" />
+                          <Plus className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => removeItem(item.product_id)}
-                          className="p-1.5 rounded-full hover:bg-red-100 transition-colors"
+                          className="p-1.5 rounded-full bg-[#F5F3EE] text-[#EF4444] hover:bg-[#F4A261]/20 transition-all duration-200 ease-in-out active:scale-[0.9]"
                         >
-                          <Trash2 className="w-4 h-4 text-red-600" />
+                          <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
                     </div>
@@ -351,62 +369,65 @@ export default function OrdersPage() {
               )}
             </div>
 
-            <div className="space-y-2 mb-4 pt-4 border-t border-gray-200">
-              <div className="flex justify-between text-sm text-gray-700">
+            <div className="space-y-2 mb-4 pt-4 border-t border-[#E5E7EB]">
+              <div className="flex justify-between text-sm text-[#6B6B6B]">
                 <span>Subtotal</span>
                 <span>₹{subtotal.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between text-sm text-gray-700">
+              <div className="flex justify-between text-sm text-[#6B6B6B]">
                 <span>Tax (GST)</span>
                 <span>₹{totalTax.toFixed(2)}</span>
               </div>
             </div>
 
-            <div className="flex justify-between items-center mb-6 pt-4 border-t-2 border-black">
-              <span className="text-lg font-bold text-black">Total</span>
-              <span className="text-lg font-bold text-black">₹{total.toFixed(2)}</span>
+            <div className="flex justify-between items-center mb-6 pt-4 border-t-2 border-[#3E2C24]">
+              <span className="text-lg font-bold text-[#3E2C24]">Total</span>
+              <span className="text-lg font-bold text-[#3E2C24]">₹{total.toFixed(2)}</span>
             </div>
 
-            <div className="grid grid-cols-3 gap-2 mb-6">
+            <div className="grid grid-cols-3 gap-3 mb-6">
               <button
                 onClick={() => setPaymentMethod('CASH')}
-                className={`flex flex-col items-center justify-center p-3 rounded-lg border-2 transition-colors ${
+                className={`flex flex-col items-center justify-center p-4 rounded-xl border border-[#E5E7EB] transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring outline-none ${
                   paymentMethod === 'CASH'
-                    ? 'bg-black text-white border-black'
-                    : 'bg-white text-gray-700 border-gray-300 hover:border-black hover:text-black'
+                    ? 'bg-[#3E2C24] text-white shadow-md'
+                    : 'bg-[#FAF7F2] text-[#3E2C24] hover:bg-[#C89B63]/10'
                 }`}
               >
-                <Wallet className="w-5 h-5 mb-1" />
-                <span className="text-xs font-medium">Cash</span>
+                <Wallet className="w-6 h-6 mb-2" />
+                <span className="text-sm font-medium">Cash</span>
               </button>
               <button
                 onClick={() => setPaymentMethod('UPI')}
-                className={`flex flex-col items-center justify-center p-3 rounded-lg border-2 transition-colors ${
+                className={`flex flex-col items-center justify-center p-4 rounded-xl border border-[#E5E7EB] transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring outline-none ${
                   paymentMethod === 'UPI'
-                    ? 'bg-black text-white border-black'
-                    : 'bg-white text-gray-700 border-gray-300 hover:border-black hover:text-black'
+                    ? 'bg-[#3E2C24] text-white shadow-md'
+                    : 'bg-[#FAF7F2] text-[#3E2C24] hover:bg-[#C89B63]/10'
                 }`}
               >
-                <Smartphone className="w-5 h-5 mb-1" />
-                <span className="text-xs font-medium">UPI</span>
+                <Smartphone className="w-6 h-6 mb-2" />
+                <span className="text-sm font-medium">UPI</span>
               </button>
               <button
                 onClick={() => setPaymentMethod('CARD')}
-                className={`flex flex-col items-center justify-center p-3 rounded-lg border-2 transition-colors ${
+                className={`flex flex-col items-center justify-center p-4 rounded-xl border border-[#E5E7EB] transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring outline-none ${
                   paymentMethod === 'CARD'
-                    ? 'bg-black text-white border-black'
-                    : 'bg-white text-gray-700 border-gray-300 hover:border-black hover:text-black'
+                    ? 'bg-[#3E2C24] text-white shadow-md'
+                    : 'bg-[#FAF7F2] text-[#3E2C24] hover:bg-[#C89B63]/10'
                 }`}
               >
-                <CreditCard className="w-5 h-5 mb-1" />
-                <span className="text-xs font-medium">Card</span>
+                <CreditCard className="w-6 h-6 mb-2" />
+                <span className="text-sm font-medium">Card</span>
               </button>
             </div>
 
             <button
               onClick={handleCompleteBill}
               disabled={billItems.length === 0}
-              className="w-full bg-black text-white py-3 px-4 rounded-lg font-semibold hover:bg-gray-800 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-lg"
+              className="w-full bg-[#3E2C24] text-white py-3 px-4 rounded-xl font-semibold 
+                         transition-all duration-200 ease-in-out
+                         hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]
+                         focus-visible:ring outline-none disabled:opacity-50 disabled:cursor-not-allowed text-lg flex items-center justify-center gap-2"
             >
               <CheckCircle className="w-5 h-5" />
               Complete Order
@@ -415,7 +436,7 @@ export default function OrdersPage() {
         </div>
 
         {showSuccess && (
-          <div className="fixed bottom-6 right-6 bg-black text-white px-6 py-4 rounded-lg shadow-lg flex items-center gap-3 animate-fade-in">
+          <div className="fixed bottom-6 right-6 bg-[#3E2C24] text-white px-6 py-4 rounded-xl shadow-lg flex items-center gap-3 animate-fade-in">
             <CheckCircle className="w-5 h-5" />
             <span>Order completed successfully!</span>
           </div>

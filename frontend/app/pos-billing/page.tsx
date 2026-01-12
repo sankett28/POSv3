@@ -155,39 +155,61 @@ export default function PosBillingPage() {
 
   return (
     <div className="h-screen flex bg-[#F5F3EE]">
-      {/* LEFT MENU */}
-      <div className="flex-1 flex flex-col bg-white">
-        <div className="p-6 bg-[#3E2C24] text-white flex items-center gap-3 shadow-lg">
-          <Coffee />
-          <h1 className="text-2xl font-bold">BrewBite POS</h1>
+      {/* CATEGORIES SECTION */}
+      <div className="w-56 bg-white rounded-2xl shadow-md m-4 p-6 flex flex-col">
+        <h2 className="text-xl font-bold text-[#3E2C24] mb-4">Categories</h2>
+        <div className="flex flex-col gap-3">
+          {/* Example Category Buttons (replace with actual data mapping) */}
+          <button className="w-full text-left px-4 py-3 rounded-xl font-medium bg-[#3E2C24] text-white transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]">All</button>
+          <button className="w-full text-left px-4 py-3 rounded-xl font-medium text-[#3E2C24] hover:bg-[#C89B63]/10 transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]">Drinks</button>
+          <button className="w-full text-left px-4 py-3 rounded-xl font-medium text-[#3E2C24] hover:bg-[#C89B63]/10 transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]">Food</button>
+          <button className="w-full text-left px-4 py-3 rounded-xl font-medium text-[#3E2C24] hover:bg-[#C89B63]/10 transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]">Cocktails</button>
         </div>
+      </div>
 
-        <div className="p-6">
-          <div className="relative mb-6">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+      {/* LEFT MENU */}
+      <div className="flex-1 flex flex-col bg-[#F5F3EE] p-4">
+        <div className="bg-white rounded-2xl shadow-md p-6 mb-4">
+          <div className="flex items-center gap-3 mb-4">
+            <Coffee className="w-6 h-6 text-[#3E2C24]" />
+            <h1 className="text-2xl font-bold text-[#3E2C24]">BrewBite POS</h1>
+          </div>
+          <div className="relative mb-4">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9CA3AF] w-5 h-5" />
             <input
-              className="w-full pl-12 py-3 rounded-xl border"
+              className="w-full pl-12 pr-4 py-3 rounded-xl border border-[#E5E7EB] focus:outline-none focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63] bg-[#FAF7F2] hover:bg-white transition-all duration-200 text-[#1F1F1F] placeholder-[#9CA3AF]"
               placeholder="Search menu..."
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
             />
           </div>
+        </div>
 
+        <div className="bg-white rounded-2xl shadow-md p-6 mb-4 flex-1 overflow-y-auto">
+          <h2 className="text-xl font-bold text-[#3E2C24] mb-4">Menu Items</h2>
           {loading ? (
-            <p>Loading...</p>
+            <div className="flex items-center justify-center h-48">
+              <div className="text-center">
+                <div className="w-12 h-12 border-4 border-[#3E2C24] border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+                <p className="text-[#6B6B6B]">Loading menu items...</p>
+              </div>
+            </div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {filteredProducts.map(p => (
                 <button
                   key={p.id}
                   onClick={() => addToBill(p)}
-                  className="bg-white rounded-2xl p-4 shadow-md hover:shadow-lg hover:-translate-y-1 transition"
+                  className="bg-white rounded-2xl p-4 shadow-md border border-[#E5E7EB]
+                             transition-all duration-200 ease-in-out
+                             hover:-translate-y-1 hover:scale-[1.02] hover:shadow-xl
+                             active:scale-[0.98] cursor-pointer group"
                 >
                   <div className="w-14 h-14 bg-[#C89B63] text-white rounded-xl flex items-center justify-center mx-auto mb-3 text-xl">
                     {p.name[0]}
                   </div>
-                  <h3 className="font-semibold">{p.name}</h3>
-                  <p className="text-[#3E2C24] font-bold">₹{p.selling_price}</p>
+                  <h3 className="font-semibold text-[#1F1F1F] mb-1">{p.name}</h3>
+                  <p className="text-[#3E2C24] font-bold text-lg">₹{p.selling_price}</p>
                 </button>
               ))}
             </div>
