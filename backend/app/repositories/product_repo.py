@@ -19,7 +19,7 @@ class ProductRepository:
             data = {
                 "name": product.name,
                 "selling_price": product.selling_price,
-                "tax_rate": product.tax_rate,
+                "tax_group_id": str(product.tax_group_id),
                 "is_active": product.is_active
             }
             
@@ -50,13 +50,30 @@ class ProductRepository:
             raise
     
     async def get_product(self, product_id: UUID) -> Optional[dict]:
-        """Get a product by ID."""
+        """Get a product by ID with tax group data."""
         try:
             result = await asyncio.to_thread(
                 lambda: self.db.table("products").select("*").eq("id", str(product_id)).execute()
             )
             if result.data:
-                return result.data[0]
+                product = result.data[0]
+                
+                # Fetch tax group if tax_group_id exists
+                if product.get("tax_group_id"):
+                    try:
+                        tax_group_result = await asyncio.to_thread(
+                            lambda: self.db.table("tax_groups")
+                                .select("*")
+                                .eq("id", product["tax_group_id"])
+                                .execute()
+                        )
+                        if tax_group_result.data:
+                            product["tax_group"] = tax_group_result.data[0]
+                    except Exception as e:
+                        logger.warning(f"Error fetching tax group for product {product_id}: {e}")
+                        # Continue without tax group data
+                
+                return product
             return None
         except Exception as e:
             logger.error(f"Error getting product {product_id}: {e}")
@@ -78,9 +95,11 @@ class ProductRepository:
         try:
             update_data = product_update.model_dump(exclude_unset=True)
             
-            # Convert category_id UUID to string if present
+            # Convert UUID fields to strings if present
             if "category_id" in update_data and update_data["category_id"]:
                 update_data["category_id"] = str(update_data["category_id"])
+            if "tax_group_id" in update_data and update_data["tax_group_id"]:
+                update_data["tax_group_id"] = str(update_data["tax_group_id"])
             
             if not update_data:
                 return await self.get_product(product_id)

@@ -10,11 +10,21 @@ interface Category {
   is_active: boolean
 }
 
+interface TaxGroup {
+  id: string
+  name: string
+  total_rate: number
+  split_type: 'GST_50_50' | 'NO_SPLIT'
+  is_tax_inclusive: boolean
+}
+
+// Replace lines 21-26
 interface Product {
   id: string
   name: string
   selling_price: number
-  tax_rate?: number
+  tax_group_id?: string; // This should be present if assigned in backend
+  tax_group?: TaxGroup;  // Add tax group data
   category_id?: string
   category_name?: string
   is_active: boolean
@@ -25,10 +35,13 @@ interface BillItem {
   product_name: string
   quantity: number
   unit_price: number
-  tax_rate: number
   subtotal: number
-  tax_amount: number
-  total_price: number
+  tax_group?: TaxGroup
+  preview_taxable_value?: number
+  preview_tax_amount?: number
+  preview_cgst?: number
+  preview_sgst?: number
+  preview_total?: number
 }
 
 export default function OrdersPage() {
@@ -47,19 +60,22 @@ export default function OrdersPage() {
 
   const loadData = async () => {
     try {
-      const [productsData, categoriesData] = await Promise.all([
+      const [productsData, categoriesData, taxGroupsData] = await Promise.all([
         api.getProducts(),
-        api.getCategories()
+        api.getCategories(),
+        api.getActiveTaxGroups()
       ])
       
       const activeProducts = productsData.filter((p: Product) => p.is_active)
       
-      // Enrich products with category names
+      // Enrich products with category names and tax group data
       const enrichedProducts = activeProducts.map((p: any) => {
         const category = categoriesData.find((c: Category) => c.id === p.category_id)
+        const taxGroup = taxGroupsData.find((tg: TaxGroup) => tg.id === p.tax_group_id)
         return {
           ...p,
-          category_name: category?.name
+          category_name: category?.name,
+          tax_group: taxGroup
         }
       })
       
@@ -74,13 +90,11 @@ export default function OrdersPage() {
 
   const addToBill = (product: Product) => {
     const existingItem = billItems.find((item) => item.product_id === product.id)
-    const taxRate = product.tax_rate || 0
 
     if (existingItem) {
       const newQuantity = existingItem.quantity + 1
       const subtotal = newQuantity * product.selling_price
-      const taxAmount = (subtotal * taxRate) / 100
-      const totalPrice = subtotal + taxAmount
+      const taxPreview = calculateTaxPreview(product.selling_price, newQuantity, product.tax_group)
       
       setBillItems(
         billItems.map((item) =>
@@ -89,16 +103,19 @@ export default function OrdersPage() {
                 ...item,
                 quantity: newQuantity,
                 subtotal,
-                tax_amount: taxAmount,
-                total_price: totalPrice,
+                tax_group: product.tax_group,
+                preview_taxable_value: taxPreview.taxable_value,
+                preview_tax_amount: taxPreview.tax_amount,
+                preview_cgst: taxPreview.cgst,
+                preview_sgst: taxPreview.sgst,
+                preview_total: taxPreview.total,
               }
             : item
         )
       )
     } else {
       const subtotal = product.selling_price
-      const taxAmount = (subtotal * taxRate) / 100
-      const totalPrice = subtotal + taxAmount
+      const taxPreview = calculateTaxPreview(product.selling_price, 1, product.tax_group)
       
       setBillItems([
         ...billItems,
@@ -107,16 +124,22 @@ export default function OrdersPage() {
           product_name: product.name,
           quantity: 1,
           unit_price: product.selling_price,
-          tax_rate: taxRate,
           subtotal,
-          tax_amount: taxAmount,
-          total_price: totalPrice,
+          tax_group: product.tax_group,
+          preview_taxable_value: taxPreview.taxable_value,
+          preview_tax_amount: taxPreview.tax_amount,
+          preview_cgst: taxPreview.cgst,
+          preview_sgst: taxPreview.sgst,
+          preview_total: taxPreview.total,
         },
       ])
     }
   }
 
   const updateQuantity = (productId: string, delta: number) => {
+    const product = products.find(p => p.id === productId)
+    if (!product) return
+
     setBillItems(
       billItems
         .map((item) => {
@@ -124,14 +147,19 @@ export default function OrdersPage() {
             const newQuantity = item.quantity + delta
             if (newQuantity <= 0) return null
             const subtotal = newQuantity * item.unit_price
-            const taxAmount = (subtotal * item.tax_rate) / 100
-            const totalPrice = subtotal + taxAmount
+            const taxGroup = item.tax_group || product.tax_group
+            const taxPreview = calculateTaxPreview(item.unit_price, newQuantity, taxGroup)
+            
             return {
               ...item,
               quantity: newQuantity,
               subtotal,
-              tax_amount: taxAmount,
-              total_price: totalPrice,
+              tax_group: taxGroup,
+              preview_taxable_value: taxPreview.taxable_value,
+              preview_tax_amount: taxPreview.tax_amount,
+              preview_cgst: taxPreview.cgst,
+              preview_sgst: taxPreview.sgst,
+              preview_total: taxPreview.total,
             }
           }
           return item
@@ -144,9 +172,76 @@ export default function OrdersPage() {
     setBillItems(billItems.filter((item) => item.product_id !== productId))
   }
 
-  const subtotal = billItems.reduce((sum, item) => sum + item.subtotal, 0)
-  const totalTax = billItems.reduce((sum, item) => sum + item.tax_amount, 0)
-  const total = subtotal + totalTax
+  // Tax preview calculation function (for display only - backend does actual calculation)
+  const calculateTaxPreview = (
+    unitPrice: number,
+    quantity: number,
+    taxGroup?: TaxGroup
+  ): {
+    taxable_value: number
+    tax_amount: number
+    cgst: number
+    sgst: number
+    total: number
+  } => {
+    if (!taxGroup || taxGroup.total_rate === 0) {
+      const subtotal = unitPrice * quantity
+      return {
+        taxable_value: subtotal,
+        tax_amount: 0,
+        cgst: 0,
+        sgst: 0,
+        total: subtotal
+      }
+    }
+
+    let taxable_value: number
+    let tax_amount: number
+    let total: number
+
+    if (taxGroup.is_tax_inclusive) {
+      // Price includes tax - extract tax
+      total = unitPrice * quantity
+      const rateMultiplier = 1 + (taxGroup.total_rate / 100)
+      taxable_value = total / rateMultiplier
+      tax_amount = total - taxable_value
+    } else {
+      // Price excludes tax - add tax
+      taxable_value = unitPrice * quantity
+      tax_amount = taxable_value * (taxGroup.total_rate / 100)
+      total = taxable_value + tax_amount
+    }
+
+    // Round to 2 decimal places
+    taxable_value = Math.round(taxable_value * 100) / 100
+    tax_amount = Math.round(tax_amount * 100) / 100
+    total = Math.round(total * 100) / 100
+
+    // Split CGST/SGST
+    let cgst = 0
+    let sgst = 0
+    if (taxGroup.split_type === 'GST_50_50') {
+      cgst = Math.round((tax_amount / 2) * 100) / 100
+      sgst = tax_amount - cgst  // Ensure they sum to tax_amount
+    } else {
+      cgst = tax_amount  // No split - all goes to CGST
+    }
+
+    return {
+      taxable_value,
+      tax_amount,
+      cgst,
+      sgst,
+      total
+    }
+  }
+
+  // Calculate totals from preview values
+  const subtotal = billItems.reduce((sum, item) => sum + (item.preview_taxable_value || item.subtotal), 0)
+  const totalTax = billItems.reduce((sum, item) => sum + (item.preview_tax_amount || 0), 0)
+  const totalCGST = billItems.reduce((sum, item) => sum + (item.preview_cgst || 0), 0)
+  const totalSGST = billItems.reduce((sum, item) => sum + (item.preview_sgst || 0), 0)
+  const grandTotal = billItems.reduce((sum, item) => sum + (item.preview_total || item.subtotal), 0)
 
   const handleCompleteBill = async () => {
     if (billItems.length === 0) {
@@ -265,9 +360,6 @@ export default function OrdersPage() {
                             <div className="flex-grow flex flex-col justify-end w-full">
                               <div className="font-semibold text-[#1F1F1F] text-lg mb-1 leading-tight">{product.name}</div>
                               <div className="font-bold text-[#3E2C24] text-xl">₹{product.selling_price.toFixed(2)}</div>
-                              {product.tax_rate && product.tax_rate > 0 && (
-                                <div className="text-xs text-[#6B6B6B] mt-1">+ {product.tax_rate}% tax</div>
-                              )}
                             </div>
                           </button>
                         ))}
@@ -298,8 +390,11 @@ export default function OrdersPage() {
                           <div className="flex-grow flex flex-col justify-end w-full">
                             <div className="font-semibold text-[#1F1F1F] text-lg mb-1 leading-tight">{product.name}</div>
                             <div className="font-bold text-[#3E2C24] text-xl">₹{product.selling_price.toFixed(2)}</div>
-                            {product.tax_rate && product.tax_rate > 0 && (
-                              <div className="text-xs text-[#6B6B6B] mt-1">+ {product.tax_rate}% tax</div>
+                            {product.tax_group && (
+                              <div className="text-xs text-[#6B6B6B] mt-1">
+                                {product.tax_group.name}
+                                {product.tax_group.is_tax_inclusive && ' (Incl. Tax)'}
+                              </div>
                             )}
                           </div>
                         </button>
@@ -331,40 +426,62 @@ export default function OrdersPage() {
                 </div>
               ) : (
                 <div className="space-y-2">
-                  {billItems.map((item) => (
-                    <div key={item.product_id} className="flex justify-between items-start py-2 border-b border-[#E5E7EB] last:border-b-0 transition-all duration-200 ease-in-out hover:bg-[#FAF7F2] rounded-md px-2">
-                      <div className="flex-1">
-                        <div className="font-semibold text-sm text-[#1F1F1F]">{item.product_name}</div>
-                        <div className="text-xs text-[#6B6B6B]">
-                          ₹{item.unit_price.toFixed(2)} × {item.quantity}
+                  {billItems.map((item) => {
+                    const taxPreview = item.preview_tax_amount || 0
+                    const cgst = item.preview_cgst || 0
+                    const sgst = item.preview_sgst || 0
+                    const itemTotal = item.preview_total || item.subtotal
+                    
+                    return (
+                      <div key={item.product_id} className="flex justify-between items-start py-2 border-b border-[#E5E7EB] last:border-b-0 transition-all duration-200 ease-in-out hover:bg-[#FAF7F2] rounded-md px-2">
+                        <div className="flex-1">
+                          <div className="font-semibold text-sm text-[#1F1F1F]">{item.product_name}</div>
+                          <div className="text-xs text-[#6B6B6B]">
+                            ₹{item.unit_price.toFixed(2)} × {item.quantity}
+                          </div>
+                          {/* Tax Breakdown Preview */}
+                          {taxPreview > 0 && item.tax_group && (
+                            <div className="text-xs text-[#6B6B6B] mt-1">
+                              {item.tax_group.split_type === 'GST_50_50' ? (
+                                <>CGST: ₹{cgst.toFixed(2)} | SGST: ₹{sgst.toFixed(2)}</>
+                              ) : (
+                                <>Tax: ₹{taxPreview.toFixed(2)}</>
+                              )}
+                            </div>
+                          )}
+                          {item.tax_group && item.tax_group.is_tax_inclusive && (
+                            <div className="text-xs text-blue-600 mt-0.5">(Tax Inclusive)</div>
+                          )}
                         </div>
-                        {item.tax_rate > 0 && (
-                          <div className="text-xs text-[#6B6B6B]">Tax: {item.tax_rate}%</div>
-                        )}
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => updateQuantity(item.product_id, -1)}
+                            className="p-1.5 rounded-full bg-[#FAF7F2] text-[#3E2C24] hover:bg-[#E5E7EB] transition-all duration-200 ease-in-out active:scale-[0.9] border border-[#E5E7EB]"
+                          >
+                            <Minus className="w-4 h-4" />
+                          </button>
+                          <span className="font-bold text-sm text-[#1F1F1F] min-w-[30px] text-center">{item.quantity}</span>
+                          <button
+                            onClick={() => updateQuantity(item.product_id, 1)}
+                            className="p-1.5 rounded-full bg-[#FAF7F2] text-[#3E2C24] hover:bg-[#E5E7EB] transition-all duration-200 ease-in-out active:scale-[0.9] border border-[#E5E7EB]"
+                          >
+                            <Plus className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => removeItem(item.product_id)}
+                            className="p-1.5 rounded-full bg-[#F5F3EE] text-[#EF4444] hover:bg-[#F4A261]/20 transition-all duration-200 ease-in-out active:scale-[0.9]"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                          <div className="text-right min-w-[70px]">
+                            <div className="font-bold text-sm text-[#1F1F1F]">
+                              ₹{itemTotal.toFixed(2)}
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => updateQuantity(item.product_id, -1)}
-                          className="p-1.5 rounded-full bg-[#FAF7F2] text-[#3E2C24] hover:bg-[#E5E7EB] transition-all duration-200 ease-in-out active:scale-[0.9] border border-[#E5E7EB]"
-                        >
-                          <Minus className="w-4 h-4" />
-                        </button>
-                        <span className="font-bold text-sm text-[#1F1F1F] min-w-[30px] text-center">{item.quantity}</span>
-                        <button
-                          onClick={() => updateQuantity(item.product_id, 1)}
-                          className="p-1.5 rounded-full bg-[#FAF7F2] text-[#3E2C24] hover:bg-[#E5E7EB] transition-all duration-200 ease-in-out active:scale-[0.9] border border-[#E5E7EB]"
-                        >
-                          <Plus className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => removeItem(item.product_id)}
-                          className="p-1.5 rounded-full bg-[#F5F3EE] text-[#EF4444] hover:bg-[#F4A261]/20 transition-all duration-200 ease-in-out active:scale-[0.9]"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               )}
             </div>
@@ -374,15 +491,35 @@ export default function OrdersPage() {
                 <span>Subtotal</span>
                 <span>₹{subtotal.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between text-sm text-[#6B6B6B]">
-                <span>Tax (GST)</span>
-                <span>₹{totalTax.toFixed(2)}</span>
-              </div>
+              {totalTax > 0 && (
+                <>
+                  {totalCGST > 0 && totalSGST > 0 ? (
+                    <>
+                      <div className="flex justify-between text-sm text-[#6B6B6B]">
+                        <span>CGST</span>
+                        <span>₹{totalCGST.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between text-sm text-[#6B6B6B]">
+                        <span>SGST</span>
+                        <span>₹{totalSGST.toFixed(2)}</span>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="flex justify-between text-sm text-[#6B6B6B]">
+                      <span>Tax (GST)</span>
+                      <span>₹{totalTax.toFixed(2)}</span>
+                    </div>
+                  )}
+                </>
+              )}
             </div>
 
             <div className="flex justify-between items-center mb-6 pt-4 border-t-2 border-[#3E2C24]">
               <span className="text-lg font-bold text-[#3E2C24]">Total</span>
-              <span className="text-lg font-bold text-[#3E2C24]">₹{total.toFixed(2)}</span>
+              <span className="text-lg font-bold text-[#3E2C24]">₹{grandTotal.toFixed(2)}</span>
+            </div>
+            <div className="text-xs text-[#6B6B6B] text-center mb-4">
+              * Tax preview - Final amount calculated by backend
             </div>
 
             <div className="grid grid-cols-3 gap-3 mb-6">

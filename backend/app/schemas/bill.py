@@ -48,10 +48,15 @@ class BillItemResponse(BaseModel):
     category_name: Optional[str] = None
     quantity: int
     unit_price: float
-    tax_rate: float = 0.0
+    tax_rate: float = 0.0  # Kept for backward compatibility
     tax_amount: float = 0.0
     line_subtotal: float = 0.0
     total_price: float
+    # New tax snapshot fields
+    cgst_amount: float = 0.0
+    sgst_amount: float = 0.0
+    tax_group_name: Optional[str] = None
+    is_tax_inclusive: bool = False
     created_at: datetime
 
     class Config:

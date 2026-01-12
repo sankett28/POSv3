@@ -63,9 +63,15 @@ class BillRepository:
         tax_rate: float,
         tax_amount: float,
         line_subtotal: float,
-        line_total: float
+        line_total: float,
+        tax_group_name_snapshot: Optional[str] = None,
+        tax_rate_snapshot: Optional[float] = None,
+        is_tax_inclusive_snapshot: bool = False,
+        taxable_value: float = 0.0,
+        cgst_amount: float = 0.0,
+        sgst_amount: float = 0.0
     ) -> dict:
-        """Create a bill item with all snapshot fields."""
+        """Create a bill item with all snapshot fields including tax breakdown."""
         try:
             data = {
                 "bill_id": str(bill_id),
@@ -74,10 +80,17 @@ class BillRepository:
                 "selling_price": unit_price,  # Database uses selling_price
                 "product_name_snapshot": product_name_snapshot,
                 "category_name_snapshot": category_name_snapshot,
-                "tax_rate": tax_rate,
+                "tax_rate": tax_rate,  # Keep for backward compatibility
                 "tax_amount": tax_amount,
                 "line_subtotal": line_subtotal,
-                "line_total": line_total
+                "line_total": line_total,
+                # New tax snapshot fields
+                "tax_group_name_snapshot": tax_group_name_snapshot,
+                "tax_rate_snapshot": tax_rate_snapshot if tax_rate_snapshot is not None else tax_rate,
+                "is_tax_inclusive_snapshot": is_tax_inclusive_snapshot,
+                "taxable_value": taxable_value,
+                "cgst_amount": cgst_amount,
+                "sgst_amount": sgst_amount
             }
             result = await asyncio.to_thread(
                 lambda: self.db.table("bill_items").insert(data).execute()
@@ -117,10 +130,15 @@ class BillRepository:
                     "category_name": item.get("category_name_snapshot"),  # Category snapshot
                     "quantity": item["quantity"],
                     "unit_price": float(item["selling_price"]),  # Map from database field
-                    "tax_rate": float(item.get("tax_rate", 0)),  # Tax rate snapshot
+                    "tax_rate": float(item.get("tax_rate_snapshot") or item.get("tax_rate", 0)),  # Tax rate snapshot
                     "tax_amount": float(item.get("tax_amount", 0)),  # Tax amount snapshot
-                    "line_subtotal": float(item.get("line_subtotal", 0)),  # Line subtotal snapshot
+                    "line_subtotal": float(item.get("taxable_value") or item.get("line_subtotal", 0)),  # Taxable value or line subtotal
                     "total_price": float(item["line_total"]),    # Map from database field
+                    # New tax snapshot fields
+                    "cgst_amount": float(item.get("cgst_amount", 0)),
+                    "sgst_amount": float(item.get("sgst_amount", 0)),
+                    "tax_group_name": item.get("tax_group_name_snapshot"),
+                    "is_tax_inclusive": bool(item.get("is_tax_inclusive_snapshot", False)),
                     "created_at": item["created_at"]
                 }
                 items.append(item_data)

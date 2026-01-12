@@ -122,8 +122,7 @@ export default function PosBillingPage() {
   }
 
   const subtotal = billItems.reduce((s, i) => s + i.total_price, 0)
-  const gst = subtotal * 0.05
-  const total = subtotal + gst
+  // Tax is calculated by backend - no frontend tax math
 
   const handleCompleteBill = async () => {
     if (!billItems.length) return alert('Add items first')
@@ -138,7 +137,7 @@ export default function PosBillingPage() {
         payment_method: paymentMethod,
       })
 
-      setGeneratedBillData({ billItems, subtotal, gst, total, paymentMethod })
+      setGeneratedBillData({ billItems, subtotal, paymentMethod, billResponse: res })
       setGeneratedInvoiceNumber(res.invoice_number)
       setShowSuccessModal(true)
       setBillItems([])
@@ -265,8 +264,9 @@ export default function PosBillingPage() {
 
         <div className="p-6 border-t">
           <div className="flex justify-between font-bold mb-4">
-            <span>Total</span>
-            <span>₹{total.toFixed(2)}</span>
+            <span>Subtotal</span>
+            <span>₹{subtotal.toFixed(2)}</span>
+            <div className="text-xs text-[#6B6B6B] mt-1">Tax calculated by backend</div>
           </div>
 
           <button

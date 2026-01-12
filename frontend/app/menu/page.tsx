@@ -11,11 +11,20 @@ interface Category {
   display_order: number
 }
 
+interface TaxGroup {
+  id: string
+  name: string
+  total_rate: number
+  split_type: 'GST_50_50' | 'NO_SPLIT'
+  is_tax_inclusive: boolean
+  is_active: boolean
+}
+
 interface Product {
   id: string
   name: string
   selling_price: number
-  tax_rate?: number
+  tax_group_id?: string
   category_id?: string
   category_name?: string
   unit?: string
@@ -25,6 +34,7 @@ interface Product {
 export default function MenuPage() {
   const [products, setProducts] = useState<Product[]>([])
   const [categories, setCategories] = useState<Category[]>([])
+  const [taxGroups, setTaxGroups] = useState<TaxGroup[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
@@ -36,7 +46,7 @@ export default function MenuPage() {
   const [itemFormData, setItemFormData] = useState({ 
     name: '', 
     selling_price: '', 
-    tax_rate: '0',
+    tax_group_id: '',
     category_id: '',
     unit: '',
     is_active: true
@@ -53,9 +63,10 @@ export default function MenuPage() {
 
   const loadData = async () => {
     try {
-      const [productsData, categoriesData] = await Promise.all([
+      const [productsData, categoriesData, taxGroupsData] = await Promise.all([
         api.getProducts(),
-        api.getCategories()
+        api.getCategories(),
+        api.getActiveTaxGroups()
       ])
       
       // Enrich products with category names
@@ -69,6 +80,7 @@ export default function MenuPage() {
       
       setProducts(enrichedProducts)
       setCategories(categoriesData.filter((c: Category) => c.is_active))
+      setTaxGroups(taxGroupsData.filter((tg: TaxGroup) => tg.is_active))
     } catch (error) {
       console.error('Error loading data:', error)
     } finally {
@@ -79,10 +91,15 @@ export default function MenuPage() {
   const handleItemSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
+      if (!itemFormData.tax_group_id) {
+        alert('Please select a tax group')
+        return
+      }
+
       const productData: any = {
         name: itemFormData.name,
         selling_price: parseFloat(itemFormData.selling_price),
-        tax_rate: parseFloat(itemFormData.tax_rate) || 0,
+        tax_group_id: itemFormData.tax_group_id,
         is_active: itemFormData.is_active,
       }
 
@@ -132,7 +149,7 @@ export default function MenuPage() {
     setItemFormData({ 
       name: '', 
       selling_price: '', 
-      tax_rate: '0',
+      tax_group_id: '',
       category_id: '',
       unit: '',
       is_active: true
@@ -152,7 +169,7 @@ export default function MenuPage() {
     setItemFormData({
       name: product.name,
       selling_price: product.selling_price.toString(),
-      tax_rate: (product.tax_rate || 0).toString(),
+      tax_group_id: product.tax_group_id || '',
       category_id: product.category_id || '',
       unit: product.unit || '',
       is_active: product.is_active,
@@ -314,7 +331,7 @@ export default function MenuPage() {
                       <tr>
                         <th className="px-6 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider rounded-tl-xl">Item</th>
                         <th className="px-6 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider">Price</th>
-                        <th className="px-6 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider">Tax Rate</th>
+                        <th className="px-6 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider">Tax Group</th>
                         <th className="px-6 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider">Status</th>
                         <th className="px-6 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider rounded-tr-xl">Actions</th>
                       </tr>
@@ -324,7 +341,14 @@ export default function MenuPage() {
                         <tr key={product.id} className="border-t border-[#E5E7EB] transition-all duration-200 ease-in-out hover:bg-[#FAF7F2]">
                           <td className="px-6 py-4 font-medium text-[#1F1F1F]">{product.name}</td>
                           <td className="px-6 py-4 text-[#1F1F1F]">₹{product.selling_price.toFixed(2)}</td>
-                          <td className="px-6 py-4 text-[#6B6B6B]">{product.tax_rate || 0}%</td>
+                          <td className="px-6 py-4 text-[#6B6B6B]">
+                            {(() => {
+                              const taxGroup = taxGroups.find(tg => tg.id === product.tax_group_id)
+                              if (!taxGroup) return 'No Tax Group'
+                              const inclusiveText = taxGroup.is_tax_inclusive ? ' (Inclusive)' : ' (Exclusive)'
+                              return `${taxGroup.name}${inclusiveText}`
+                            })()}
+                          </td>
                           <td className="px-6 py-4">
                             <span className={`px-3 py-1 text-xs rounded-full font-semibold ${
                               product.is_active 
@@ -373,7 +397,7 @@ export default function MenuPage() {
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider rounded-tl-xl">Item</th>
                       <th className="px-6 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider">Price</th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider">Tax Rate</th>
+                        <th className="px-6 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider">Tax Group</th>
                       <th className="px-6 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider">Status</th>
                       <th className="px-6 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider rounded-tr-xl">Actions</th>
                     </tr>
@@ -383,7 +407,14 @@ export default function MenuPage() {
                       <tr key={product.id} className="border-t border-[#E5E7EB] transition-all duration-200 ease-in-out hover:bg-[#FAF7F2]">
                         <td className="px-6 py-4 font-medium text-[#1F1F1F]">{product.name}</td>
                         <td className="px-6 py-4 text-[#1F1F1F]">₹{product.selling_price.toFixed(2)}</td>
-                        <td className="px-6 py-4 text-[#6B6B6B]">{product.tax_rate || 0}%</td>
+                          <td className="px-6 py-4 text-[#6B6B6B]">
+                            {(() => {
+                              const taxGroup = taxGroups.find(tg => tg.id === product.tax_group_id)
+                              if (!taxGroup) return 'No Tax Group'
+                              const inclusiveText = taxGroup.is_tax_inclusive ? ' (Inclusive)' : ' (Exclusive)'
+                              return `${taxGroup.name}${inclusiveText}`
+                            })()}
+                          </td>
                         <td className="px-6 py-4">
                           <span className={`px-3 py-1 text-xs rounded-full font-semibold ${
                             product.is_active 
@@ -476,17 +507,20 @@ export default function MenuPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-[#6B6B6B] mb-2">Tax Rate (%) *</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    max="100"
-                    value={itemFormData.tax_rate}
-                    onChange={(e) => setItemFormData({ ...itemFormData, tax_rate: e.target.value })}
+                  <label className="block text-sm font-semibold text-[#6B6B6B] mb-2">Tax Group *</label>
+                  <select
+                    value={itemFormData.tax_group_id}
+                    onChange={(e) => setItemFormData({ ...itemFormData, tax_group_id: e.target.value })}
                     required
-                    className="w-full px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63] bg-[#FAF7F2] hover:bg-white transition-all duration-200 text-[#1F1F1F] placeholder-[#9CA3AF]"
-                  />
+                    className="w-full px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63] bg-[#FAF7F2] hover:bg-white transition-all duration-200 text-[#1F1F1F]"
+                  >
+                    <option value="">Select Tax Group</option>
+                    {taxGroups.map((tg) => (
+                      <option key={tg.id} value={tg.id}>
+                        {tg.name} ({tg.total_rate}% - {tg.is_tax_inclusive ? 'Inclusive' : 'Exclusive'})
+                      </option>
+                    ))}
+                  </select>
                 </div>
                 <div>
                   <label className="flex items-center gap-2">

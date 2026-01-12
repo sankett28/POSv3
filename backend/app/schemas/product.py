@@ -9,7 +9,7 @@ class ProductCreate(BaseModel):
     """Schema for creating a new product."""
     name: str = Field(..., min_length=1, max_length=255, description="Product name")
     selling_price: float = Field(..., gt=0, description="Product selling price (must be greater than 0)")
-    tax_rate: float = Field(0.0, ge=0, le=100, description="Tax rate percentage (0-100)")
+    tax_group_id: UUID = Field(..., description="Tax group ID (products reference tax groups, not direct rates)")
     category_id: Optional[UUID] = Field(None, description="Optional category assignment")
     unit: Optional[Literal["pcs", "kg", "litre", "cup", "plate", "bowl", "serving", "piece", "bottle", "can"]] = Field(None, description="Optional unit of measurement")
     is_active: bool = Field(True, description="Whether the product is active")
@@ -27,7 +27,7 @@ class ProductUpdate(BaseModel):
     """Schema for updating a product."""
     name: Optional[str] = Field(None, min_length=1, max_length=255)
     selling_price: Optional[float] = Field(None, gt=0)
-    tax_rate: Optional[float] = Field(None, ge=0, le=100)
+    tax_group_id: Optional[UUID] = Field(None, description="Tax group ID (products reference tax groups, not direct rates)")
     category_id: Optional[UUID] = None
     unit: Optional[Literal["pcs", "kg", "litre", "cup", "plate", "bowl", "serving", "piece", "bottle", "can"]] = None
     is_active: Optional[bool] = None
@@ -46,7 +46,7 @@ class ProductResponse(BaseModel):
     id: UUID
     name: str
     selling_price: float
-    tax_rate: float
+    tax_group_id: Optional[UUID]  # Products reference tax groups
     category_id: Optional[UUID]
     unit: Optional[str]
     is_active: bool

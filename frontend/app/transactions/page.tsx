@@ -13,6 +13,10 @@ interface BillItem {
   line_subtotal: number
   tax_rate: number
   tax_amount: number
+  cgst_amount?: number
+  sgst_amount?: number
+  tax_group_name?: string
+  is_tax_inclusive?: boolean
   line_total: number
 }
 
@@ -154,10 +158,23 @@ export default function TransactionsPage() {
                   <span className="text-[#6B6B6B] font-medium">Subtotal:</span>
                   <span className="text-[#1F1F1F]">₹{(selectedBill.subtotal || 0).toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-[#6B6B6B] font-medium">Tax (GST):</span>
-                  <span className="text-[#1F1F1F]">₹{(selectedBill.tax_amount || 0).toFixed(2)}</span>
-                </div>
+                {selectedBill.items.some(item => item.cgst_amount || item.sgst_amount) ? (
+                  <>
+                    <div className="flex justify-between items-center">
+                      <span className="text-[#6B6B6B] font-medium">CGST:</span>
+                      <span className="text-[#1F1F1F]">₹{selectedBill.items.reduce((sum, item) => sum + (item.cgst_amount || 0), 0).toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-[#6B6B6B] font-medium">SGST:</span>
+                      <span className="text-[#1F1F1F]">₹{selectedBill.items.reduce((sum, item) => sum + (item.sgst_amount || 0), 0).toFixed(2)}</span>
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex justify-between items-center">
+                    <span className="text-[#6B6B6B] font-medium">Tax (GST):</span>
+                    <span className="text-[#1F1F1F]">₹{(selectedBill.tax_amount || 0).toFixed(2)}</span>
+                  </div>
+                )}
               </div>
 
               <div className="border-t border-[#E5E7EB] pt-6 mb-6">
@@ -168,7 +185,15 @@ export default function TransactionsPage() {
                       <div className="flex-1 pr-4">
                         <div className="font-semibold text-[#1F1F1F] text-base">{item.product_name}</div>
                         <div className="text-sm text-[#6B6B6B]">
-                          ₹{item.unit_price.toFixed(2)} × {item.quantity} (Tax: {item.tax_rate}%) - ₹{item.tax_amount.toFixed(2)} Tax
+                          ₹{item.unit_price.toFixed(2)} × {item.quantity}
+                          {item.tax_group_name && (
+                            <span className="ml-2">({item.tax_group_name})</span>
+                          )}
+                          {item.cgst_amount && item.sgst_amount && (
+                            <div className="mt-1 text-xs">
+                              CGST: ₹{item.cgst_amount.toFixed(2)}, SGST: ₹{item.sgst_amount.toFixed(2)}
+                            </div>
+                          )}
                         </div>
                       </div>
                       <div className="text-right">
@@ -184,10 +209,23 @@ export default function TransactionsPage() {
                   <span>Subtotal:</span>
                   <span>₹{(selectedBill.subtotal || 0).toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between text-[#6B6B6B] text-base font-medium">
-                  <span>Tax (GST):</span>
-                  <span>₹{(selectedBill.tax_amount || 0).toFixed(2)}</span>
-                </div>
+                {selectedBill.items.some(item => item.cgst_amount || item.sgst_amount) ? (
+                  <>
+                    <div className="flex justify-between text-[#6B6B6B] text-base font-medium">
+                      <span>CGST:</span>
+                      <span>₹{selectedBill.items.reduce((sum, item) => sum + (item.cgst_amount || 0), 0).toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between text-[#6B6B6B] text-base font-medium">
+                      <span>SGST:</span>
+                      <span>₹{selectedBill.items.reduce((sum, item) => sum + (item.sgst_amount || 0), 0).toFixed(2)}</span>
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex justify-between text-[#6B6B6B] text-base font-medium">
+                    <span>Tax (GST):</span>
+                    <span>₹{(selectedBill.tax_amount || 0).toFixed(2)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between text-xl font-bold text-[#3E2C24] pt-4 border-t border-[#E5E7EB]">
                   <span>Total:</span>
                   <span>₹{selectedBill.total_amount.toFixed(2)}</span>

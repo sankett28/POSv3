@@ -231,6 +231,50 @@ class ApiClient {
     })
     return response.data
   }
+
+  // Tax group endpoints
+  async getTaxGroups() {
+    const response = await this.client.get('/tax-groups')
+    return response.data
+  }
+
+  async getActiveTaxGroups() {
+    const response = await this.client.get('/tax-groups/active')
+    return response.data
+  }
+
+  async getTaxGroup(id: string) {
+    const response = await this.client.get(`/tax-groups/${id}`)
+    return response.data
+  }
+
+  async createTaxGroup(data: {
+    name: string
+    total_rate: number
+    split_type?: 'GST_50_50' | 'NO_SPLIT'
+    is_tax_inclusive?: boolean
+    is_active?: boolean
+  }) {
+    const response = await this.client.post('/tax-groups', data)
+    return response.data
+  }
+
+  async updateTaxGroup(id: string, data: {
+    name?: string
+    total_rate?: number
+    split_type?: 'GST_50_50' | 'NO_SPLIT'
+    is_tax_inclusive?: boolean
+    is_active?: boolean
+  }) {
+    const response = await this.client.put(`/tax-groups/${id}`, data)
+    return response.data
+  }
+
+  // Reports endpoints
+  async getTaxSummary(startDate: string, endDate: string) {
+    const response = await this.client.get(`/reports/tax-summary?start_date=${startDate}&end_date=${endDate}`)
+    return response.data
+  }
 }
 
 export const api = new ApiClient()
