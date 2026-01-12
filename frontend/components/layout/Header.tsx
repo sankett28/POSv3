@@ -11,6 +11,7 @@ export default function Header() {
   const userId = getCurrentUserId()
   const pathname = usePathname()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false)
 
   const handleLogout = () => {
     logout()
@@ -63,10 +64,27 @@ export default function Header() {
         </nav>
 
         {/* Right section: Profile Icon and Logout */}
-        <div className="flex items-center gap-3">
-            <Link href="/admin-profile" className="p-3 rounded-xl bg-[#FAF7F2] border border-[#E5E7EB] transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]">
+        <div className="relative flex items-center gap-3">
+          <button
+            onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
+            className="p-3 rounded-xl bg-[#FAF7F2] border border-[#E5E7EB] transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
+          >
             <User className="w-5 h-5 text-[#3E2C24]" />
-          </Link>
+          </button>
+
+          {isProfileDropdownOpen && (
+            <div className="absolute right-0 top-14 mt-2 w-48 bg-white rounded-xl shadow-lg border border-[#E5E7EB] py-1 z-50">
+              <Link href="/admin-profile" onClick={() => setIsProfileDropdownOpen(false)} className="flex items-center gap-2 px-4 py-2 text-sm text-[#3E2C24] hover:bg-[#FAF7F2] hover:text-[#C89B63] rounded-md transition-colors">
+                <User className="w-4 h-4" />
+                Profile
+              </Link>
+              <Link href="/settings/taxes" onClick={() => setIsProfileDropdownOpen(false)} className="flex items-center gap-2 px-4 py-2 text-sm text-[#3E2C24] hover:bg-[#FAF7F2] hover:text-[#C89B63] rounded-md transition-colors">
+                <Settings className="w-4 h-4" />
+                Settings
+              </Link>
+            </div>
+          )}
+
           <button
             onClick={handleLogout}
             className="p-3 rounded-xl bg-[#C89B63] text-white transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
@@ -107,9 +125,17 @@ export default function Header() {
             <div className="mt-8 pt-6 border-t border-[#E5E7EB]">
               <Link href="/admin-profile"
                 className="flex items-center gap-4 px-5 py-4 rounded-xl text-[#3E2C24] hover:bg-[#C89B63]/10 transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] mb-3"
+                onClick={() => setIsMobileMenuOpen(false)}
               >
                 <User className="w-6 h-6 text-[#3E2C24]" />
-                <span className="font-semibold text-lg">Profile Settings</span>
+                <span className="font-semibold text-lg">Profile</span>
+              </Link>
+              <Link href="/settings/taxes"
+                className="flex items-center gap-4 px-5 py-4 rounded-xl text-[#3E2C24] hover:bg-[#C89B63]/10 transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] mb-3"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                <Settings className="w-6 h-6 text-[#3E2C24]" />
+                <span className="font-semibold text-lg">Settings</span>
               </Link>
               <button
                 onClick={() => {

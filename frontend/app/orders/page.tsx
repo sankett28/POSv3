@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { api } from '@/lib/api'
 import { Search, Plus, Minus, Trash2, CheckCircle, Wallet, Smartphone, CreditCard, PackageOpen } from 'lucide-react'
+import Image from 'next/image' // Import Next.js Image component
 
 interface Category {
   id: string
@@ -29,6 +30,7 @@ interface Product {
   category_name?: string
   is_active: boolean
 }
+
 
 interface BillItem {
   product_id: string
@@ -77,6 +79,22 @@ export default function OrdersPage() {
         api.getActiveTaxGroups()
       ])
       
+      if (!Array.isArray(productsData)) {
+        console.error("Products data is not an array:", productsData)
+        setLoading(false)
+        return
+      }
+      if (!Array.isArray(categoriesData)) {
+        console.error("Categories data is not an array:", categoriesData)
+        setLoading(false)
+        return
+      }
+      if (!Array.isArray(taxGroupsData)) {
+        console.error("Tax groups data is not an array:", taxGroupsData)
+        setLoading(false)
+        return
+      }
+
       const activeProducts = productsData.filter((p: Product) => p.is_active)
       
       // Enrich products with category names and tax group data
@@ -93,8 +111,7 @@ export default function OrdersPage() {
       setProducts(enrichedProducts)
       setCategories(categoriesData.filter((c: Category) => c.is_active))
     } catch (error) {
-      console.error('Error loading data:', error)
-    } finally {
+      console.error('Error loading data:', JSON.stringify(error, null, 2))    } finally {
       setLoading(false)
     }
   }
@@ -304,7 +321,6 @@ export default function OrdersPage() {
     if (!printWindow) return
 
     const invoiceHTML = `
-    console.log('Bill Details for Invoice:', billDetails);
       <!DOCTYPE html>
       <html>
         <head>
@@ -608,7 +624,7 @@ export default function OrdersPage() {
                       <td>${item.product_name}</td>
                       <td>${item.quantity}</td>
                       <td>₹${item.unit_price.toFixed(2)}</td>
-                      <td>₹${item.total_price.toFixed(2)}</td>
+                      <td>₹${(item.preview_total ?? 0).toFixed(2)}</td>
                     </tr>
                   `).join('')}
                 </tbody>
@@ -703,7 +719,7 @@ export default function OrdersPage() {
           </div>
 
           {/* Center: Menu Items */}
-          <div className="lg:col-span-7 bg-white rounded-2xl shadow-md p-6 border border-[#E5E7EB]">
+          <div className="lg:col-span-6 bg-white rounded-2xl shadow-md p-6 border border-[#E5E7EB]">
             <div className="mb-6">
               <div className="relative">
                 <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[#9CA3AF] w-5 h-5" />
@@ -739,8 +755,32 @@ export default function OrdersPage() {
                                        active:scale-[0.98] cursor-pointer group flex flex-col items-center justify-between min-h-[160px] text-center"
                           >
                             {/* Product Image Placeholder */}
-                            <div className="h-24 w-full bg-gradient-to-br from-[#C89B63]/30 to-[#F4A261]/30 flex items-center justify-center rounded-xl mb-3">
-                              <span className="text-5xl">☕</span> {/* Cafe-friendly emoji fallback */}
+                            <div className="h-24 w-full flex items-center justify-center rounded-xl mb-3 overflow-hidden bg-[#FAF7F2]">
+                              {product.category_name?.toLowerCase().includes('idli') ? (
+                                <Image 
+                                  key={product.id + "-idli"}
+                                  src="/images/menu_items/idli.png"
+                                  alt={product.name}
+                                  width={96}
+                                  height={96}
+                                  objectFit="cover"
+                                  className="rounded-xl"
+                                  priority
+                                />
+                              ) : product.category_name?.toLowerCase().includes('dosa') || product.category_name?.toLowerCase().includes('uttapam') ? (
+                                <Image 
+                                  key={product.id + "-dosa"}
+                                  src="/images/menu_items/dosa.jpeg"
+                                  alt={product.name}
+                                  width={96}
+                                  height={96}
+                                  objectFit="cover"
+                                  className="rounded-xl"
+                                  priority
+                                />
+                              ) : (
+                                <span className="text-5xl">☕</span>
+                              )}
                             </div>
                             {/* Product Details */}
                             <div className="flex-grow flex flex-col justify-end w-full">
@@ -793,7 +833,7 @@ export default function OrdersPage() {
           </div>
 
           {/* Right: Order Summary */}
-          <div className="lg:col-span-3 bg-white rounded-2xl shadow-md p-6 border border-[#E5E7EB] sticky top-4 h-fit">
+          <div className="lg:col-span-4 bg-white rounded-2xl shadow-md p-6 border border-[#E5E7EB] sticky top-4">
             <div className="flex justify-between items-center mb-4 pb-4 border-b border-[#E5E7EB]">
               <h3 className="text-xl font-bold text-[#3E2C24]">Current Order</h3>
               <button
@@ -804,7 +844,7 @@ export default function OrdersPage() {
               </button>
             </div>
 
-            <div className="mb-4 max-h-64 overflow-y-auto">
+            <div className="mb-4">
               {billItems.length === 0 ? (
                 <div className="text-center text-[#9CA3AF] py-8">
                   <PackageOpen className="w-12 h-12 mx-auto mb-4" />
@@ -813,33 +853,58 @@ export default function OrdersPage() {
               ) : (
                 <div className="space-y-2">
                   {billItems.map((item) => {
-                    const taxPreview = item.preview_tax_amount || 0
-                    const cgst = item.preview_cgst || 0
-                    const sgst = item.preview_sgst || 0
-                    const itemTotal = item.preview_total || item.subtotal
-                    
+                    const productImage = products.find(p => p.id === item.product_id)
+                    const itemIsDosaOrUttapam = productImage?.category_name?.toLowerCase().includes('dosa') || productImage?.category_name?.toLowerCase().includes('uttapam')
+
                     return (
-                      <div key={item.product_id} className="flex justify-between items-start py-2 border-b border-[#E5E7EB] last:border-b-0 transition-all duration-200 ease-in-out hover:bg-[#FAF7F2] rounded-md px-2">
-                        <div className="flex-1">
-                          <div className="font-semibold text-sm text-[#1F1F1F]">{item.product_name}</div>
-                          <div className="text-xs text-[#6B6B6B]">
-                            ₹{item.unit_price.toFixed(2)} × {item.quantity}
-                          </div>
-                          {/* Tax Breakdown Preview */}
-                          {taxPreview > 0 && item.tax_group && (
-                            <div className="text-xs text-[#6B6B6B] mt-1">
-                              {item.tax_group.split_type === 'GST_50_50' ? (
-                                <>CGST: ₹{cgst.toFixed(2)} | SGST: ₹{sgst.toFixed(2)}</>
-                              ) : (
-                                <>Tax: ₹{taxPreview.toFixed(2)}</>
-                              )}
-                            </div>
-                          )}
-                          {item.tax_group && item.tax_group.is_tax_inclusive && (
-                            <div className="text-xs text-blue-600 mt-0.5">(Tax Inclusive)</div>
+                      <div key={item.product_id} className="flex items-center gap-3 py-2 border-b border-[#E5E7EB] last:border-b-0 transition-all duration-200 ease-in-out hover:bg-[#FAF7F2] rounded-md px-2">
+                        {/* Image Placeholder */}
+                        <div className="flex-shrink-0 h-12 w-12 flex items-center justify-center rounded-md overflow-hidden bg-[#FAF7F2]">
+                          {productImage?.category_name?.toLowerCase().includes('idli') ? (
+                            <Image
+                              key={item.product_id + "-summary-idli"}
+                              src="/images/menu_items/idli.png"
+                              alt={item.product_name}
+                              width={48}
+                              height={48}
+                              objectFit="cover"
+                              className="rounded-md"
+                              priority
+                            />
+                          ) : productImage?.category_name?.toLowerCase().includes('dosa') || productImage?.category_name?.toLowerCase().includes('uttapam') ? (
+                            <Image
+                              key={item.product_id + "-summary-dosa"}
+                              src="/images/menu_items/dosa.jpeg"
+                              alt={item.product_name}
+                              width={48}
+                              height={48}
+                              objectFit="cover"
+                              className="rounded-md"
+                              priority
+                            />
+                          ) : (
+                            <span className="text-xl">☕</span>
                           )}
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex-1 min-w-0 pr-2">
+                          <div className="font-semibold text-sm text-[#1F1F1F] mb-0.5">{item.product_name}</div>
+                          <div className="flex flex-col text-xs text-[#6B6B6B]">
+                            <span>₹{item.unit_price.toFixed(2)} × {item.quantity}</span>
+                            {taxPreview > 0 && item.tax_group && (
+                              <div className="mt-0.5">
+                                {item.tax_group.split_type === 'GST_50_50' ? (
+                                  <>CGST: ₹{cgst.toFixed(2)} | SGST: ₹{sgst.toFixed(2)}</>
+                                ) : (
+                                  <>Tax: ₹{taxPreview.toFixed(2)}</>
+                                )}
+                                {item.tax_group.is_tax_inclusive && (
+                                  <span className="ml-1 text-blue-600">(Tax Inclusive)</span>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 flex-shrink-0">
                           <button
                             onClick={() => updateQuantity(item.product_id, -1)}
                             className="p-1.5 rounded-full bg-[#FAF7F2] text-[#3E2C24] hover:bg-[#E5E7EB] transition-all duration-200 ease-in-out active:scale-[0.9] border border-[#E5E7EB]"
@@ -904,9 +969,6 @@ export default function OrdersPage() {
               <span className="text-lg font-bold text-[#3E2C24]">Total</span>
               <span className="text-lg font-bold text-[#3E2C24]">₹{grandTotal.toFixed(2)}</span>
             </div>
-            <div className="text-xs text-[#6B6B6B] text-center mb-4">
-              * Tax preview - Final amount calculated by backend
-            </div>
 
             <div className="grid grid-cols-3 gap-3 mb-6">
               <button
@@ -947,7 +1009,7 @@ export default function OrdersPage() {
             <button
               onClick={handleCompleteBill}
               disabled={billItems.length === 0}
-              className="w-full bg-[#3E2C24] text-white py-3 px-4 rounded-xl font-semibold 
+              className="w-full bg-[#3E2C24] text-white py-3 px-4 rounded-xl font-semibold
                          transition-all duration-200 ease-in-out
                          hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]
                          focus-visible:ring outline-none disabled:opacity-50 disabled:cursor-not-allowed text-lg flex items-center justify-center gap-2"

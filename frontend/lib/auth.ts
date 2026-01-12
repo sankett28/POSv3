@@ -1,4 +1,5 @@
 import { api } from './api'
+import { supabase } from './supabase'
 
 export interface User {
   id: string
@@ -13,8 +14,9 @@ export async function login(email: string, password: string): Promise<User> {
   }
 }
 
-export function logout(): void {
-  api.logout()
+export async function logout(): Promise<void> {
+  await api.logout()
+  await supabase.auth.signOut()
 }
 
 export function getCurrentUserId(): string | null {
