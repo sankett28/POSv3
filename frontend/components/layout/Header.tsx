@@ -3,7 +3,7 @@
 import { useState } from 'react'
 
 import { logout, getCurrentUserId } from '@/lib/auth'
-import { LogOut, User, ShoppingBag, Receipt, Users, Package, Megaphone, ShoppingCart, Home, LayoutGrid, DollarSign, Mic, LineChart, Bell, Menu, X, Coffee, ChefHat, UtensilsCrossed, FileText, BarChart3, Settings } from 'lucide-react'
+import { LogOut, User, ShoppingBag, Receipt, Users, Package, Megaphone, ShoppingCart, Home, LayoutGrid, Mic, LineChart, Bell, Menu, X, Coffee, ChefHat, UtensilsCrossed, FileText, BarChart3, Settings } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
@@ -17,7 +17,7 @@ export default function Header() {
   }
 
   const navItems = [
-    { name: 'Orders', href: '/orders', icon: Receipt },
+    { name: 'Orders', href: '/orders', icon: ({ className }) => <span className={`flex items-center text-xl ${className}`}>₹</span> },
     { name: 'Menu', href: '/menu', icon: UtensilsCrossed },
     { name: 'Transactions', href: '/transactions', icon: FileText },
     { name: 'Reports', href: '/reports', icon: BarChart3 },

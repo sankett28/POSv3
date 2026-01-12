@@ -132,13 +132,57 @@ class BillRepository:
             raise
     
     async def list_bills(self, user_id: UUID, limit: int = 100) -> List[dict]:
-        """List all bills."""
+        """List all bills with their items."""
         try:
             # Removed user_id filter since schema doesn't have it
-            result = await asyncio.to_thread(
-                lambda: self.db.table("bills").select("*").order("created_at", desc=True).limit(limit).execute()
+            # Fetch bills
+            bills_result = await asyncio.to_thread(
+                lambda: self.db.table("bills").select("id", "*").order("created_at", desc=True).limit(limit).execute()
             )
-            return result.data or []
+            
+            bills_data = bills_result.data or []
+            
+            if not bills_data:
+                return []
+            
+            # Extract bill IDs for fetching items
+            bill_ids = [bill["id"] for bill in bills_data]
+            
+            # Fetch all bill items for the retrieved bills in one go
+            items_result = await asyncio.to_thread(
+                lambda: self.db.table("bill_items").select("*").in_("bill_id", bill_ids).execute()
+            )
+            
+            all_items = items_result.data or []
+            
+            # Group items by bill_id
+            items_by_bill_id = {}
+            for item in all_items:
+                bill_id = item["bill_id"]
+                if bill_id not in items_by_bill_id:
+                    items_by_bill_id[bill_id] = []
+                # Map database fields to schema fields
+                item_data = {
+                    "id": item["id"],
+                    "bill_id": item["bill_id"],
+                    "product_id": item["product_id"],
+                    "product_name": item.get("product_name_snapshot"),
+                    "category_name": item.get("category_name_snapshot"),
+                    "quantity": item["quantity"],
+                    "unit_price": float(item["selling_price"]),
+                    "tax_rate": float(item.get("tax_rate", 0)),
+                    "tax_amount": float(item.get("tax_amount", 0)),
+                    "line_subtotal": float(item.get("line_subtotal", 0)),
+                    "total_price": float(item["line_total"]),
+                    "created_at": item["created_at"]
+                }
+                items_by_bill_id[bill_id].append(item_data)
+            
+            # Attach items to their respective bills
+            for bill in bills_data:
+                bill["items"] = items_by_bill_id.get(bill["id"], [])
+            
+            return bills_data
         except Exception as e:
             logger.error(f"Error listing bills: {e}")
             raise

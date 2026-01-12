@@ -31,6 +31,16 @@ interface BillItem {
   total_price: number
 }
 
+interface BillDetails {
+  invoice_number: string
+  items: BillItem[]
+  subtotal: number
+  gst: number
+  total: number
+  paymentMethod: 'CASH' | 'UPI' | 'CARD'
+  date: string
+}
+
 export default function OrdersPage() {
   const [products, setProducts] = useState<Product[]>([])
   const [categories, setCategories] = useState<Category[]>([])
@@ -39,7 +49,8 @@ export default function OrdersPage() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [paymentMethod, setPaymentMethod] = useState<'CASH' | 'UPI' | 'CARD'>('CASH')
-  const [showSuccess, setShowSuccess] = useState(false)
+  const [showOrderSuccessModal, setShowOrderSuccessModal] = useState(false)
+  const [billDetails, setBillDetails] = useState<BillDetails | null>(null)
 
   useEffect(() => {
     loadData()
@@ -148,6 +159,17 @@ export default function OrdersPage() {
   const totalTax = billItems.reduce((sum, item) => sum + item.tax_amount, 0)
   const total = subtotal + totalTax
 
+  const getCurrentDate = () => {
+    const now = new Date()
+    return now.toLocaleDateString('en-IN', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+  }
+
   const handleCompleteBill = async () => {
     if (billItems.length === 0) {
       alert('Please add items to the order first!')
@@ -155,7 +177,7 @@ export default function OrdersPage() {
     }
 
     try {
-      await api.createBill({
+      const res = await api.createBill({
         items: billItems.map((item) => ({
           product_id: item.product_id,
           quantity: item.quantity,
@@ -164,14 +186,378 @@ export default function OrdersPage() {
         payment_method: paymentMethod,
       })
 
-      setShowSuccess(true)
+      setBillDetails({
+        invoice_number: res.bill_number,
+        items: billItems,
+        subtotal,
+        gst: totalTax,
+        total,
+        paymentMethod,
+        date: new Date().toLocaleDateString('en-IN', {day: '2-digit', month: 'short', year: 'numeric'})
+      })
+      setShowOrderSuccessModal(true)
       setBillItems([])
-      setTimeout(() => {
-        setShowSuccess(false)
-      }, 3000)
     } catch (error: any) {
       alert(error.response?.data?.detail || 'Failed to create order')
     }
+  }
+
+  const handlePrintInvoice = () => {
+    if (!billDetails) return
+
+    const printWindow = window.open('', '_blank')
+    if (!printWindow) return
+
+    const invoiceHTML = `
+    console.log('Bill Details for Invoice:', billDetails);
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Invoice ${billDetails.invoice_number}</title>
+          <style>
+            * {
+              margin: 0;
+              padding: 0;
+              box-sizing: border-box;
+            }
+            body {
+              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+              padding: 30px 15px;
+              background: #F5F3EE; /* Warm cream / off-white */
+              line-height: 1.5;
+            }
+            .invoice-container {
+              max-width: 700px;
+              margin: 0 auto;
+              background: white;
+              padding: 40px;
+              box-shadow: 0 4px 12px rgba(0,0,0,0.1); /* Soft shadows */
+              border-radius: 16px; /* rounded-2xl */
+            }
+            .header {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-bottom: 30px;
+              padding-bottom: 15px;
+              border-bottom: 1px solid #E5E7EB;
+            }
+            .header-left {
+              display: flex;
+              align-items: center;
+              gap: 10px;
+            }
+            .logo-box {
+              width: 40px;
+              height: 40px;
+              background: #3E2C24; /* Primary coffee brown */
+              color: white;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-size: 18px;
+              font-weight: 500;
+              border-radius: 4px;
+            }
+            .header-left-content h1 {
+              font-size: 24px;
+              font-weight: 600;
+              color: #3E2C24; /* Primary coffee brown */
+              margin: 0 0 2px 0;
+              letter-spacing: -0.2px;
+            }
+            .header-left-content p {
+              font-size: 11px;
+              color: #6B6B6B;
+              margin: 0;
+              font-weight: 400;
+            }
+            .invoice-number-box {
+              background: #FAF7F2; /* Light background */
+              padding: 8px 12px;
+              border-radius: 8px; /* rounded-xl */
+              border: 1px solid #E5E7EB;
+              text-align: right;
+            }
+            .invoice-number-box p:first-child {
+              font-size: 9px;
+              color: #6B6B6B;
+              margin-bottom: 3px;
+              text-transform: uppercase;
+              letter-spacing: 0.6px;
+              font-weight: 500;
+            }
+            .invoice-number-box p:last-child {
+              font-size: 16px;
+              font-weight: 600;
+              color: #3E2C24; /* Primary coffee brown */
+              margin: 0;
+              letter-spacing: 0.2px;
+            }
+            .details-section {
+              background: #fdfdfd;
+              padding: 18px;
+              border-radius: 6px;
+              margin-bottom: 25px;
+              border: 1px solid #eee;
+            }
+            .details {
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: 20px;
+            }
+            .detail-item {
+              border-left: 1px solid #ddd;
+              padding-left: 10px;
+            }
+            .detail-item p:first-child {
+              font-size: 9px;
+              color: #6B6B6B;
+              margin-bottom: 3px;
+              text-transform: uppercase;
+              letter-spacing: 0.3px;
+              font-weight: 500;
+            }
+            .detail-item p:last-child {
+              font-size: 14px;
+              font-weight: 500;
+              color: #3E2C24; /* Primary coffee brown */
+              margin: 0;
+            }
+            .table-section {
+              margin-bottom: 25px;
+            }
+            .table-title {
+              font-size: 15px;
+              font-weight: 600;
+              color: #3E2C24; /* Primary coffee brown */
+              margin-bottom: 10px;
+              padding-bottom: 6px;
+              border-bottom: 1px solid #E5E7EB;
+            }
+            table {
+              width: 100%;
+              border-collapse: collapse;
+              margin-bottom: 0;
+            }
+            thead {
+              background: #FAF7F2; /* Light background */
+              color: #555;
+            }
+            thead tr {
+              border-bottom: 1px solid #E5E7EB;
+            }
+            th {
+              text-align: left;
+              padding: 10px 12px;
+              font-size: 10px;
+              font-weight: 600;
+              color: #6B6B6B;
+              text-transform: uppercase;
+              letter-spacing: 0.7px;
+            }
+            th:nth-child(2), th:nth-child(3), th:nth-child(4) {
+              text-align: right;
+            }
+            tbody tr {
+              border-bottom: 1px solid #E5E7EB;
+              transition: background 0.1s;
+            }
+            tbody tr:hover {
+              background: #F5F3EE; /* Warm cream / off-white */
+            }
+            tbody tr:last-child {
+              border-bottom: none;
+            }
+            td {
+              padding: 12px;
+              font-size: 12px;
+              color: #3E2C24; /* Primary coffee brown */
+            }
+            td:first-child {
+              font-weight: 500;
+            }
+            td:nth-child(2), td:nth-child(3), td:nth-child(4) {
+              text-align: right;
+              font-weight: 400;
+            }
+            td:nth-child(4) {
+              font-weight: 500;
+              color: #3E2C24; /* Primary coffee brown */
+            }
+            .totals-section {
+              background: #FAF7F2; /* Light background */
+              padding: 18px 22px;
+              border-radius: 8px; /* rounded-xl */
+              border: 1px solid #E5E7EB;
+              margin-top: 20px;
+            }
+            .totals {
+              display: flex;
+              justify-content: flex-end;
+            }
+            .totals-inner {
+              width: 250px;
+            }
+            .total-row {
+              display: flex;
+              justify-content: space-between;
+              margin-bottom: 8px;
+              font-size: 13px;
+              padding-bottom: 5px;
+            }
+            .total-row:not(:last-child) {
+              border-bottom: 1px dashed #E5E7EB;
+            }
+            .total-row span:first-child {
+              color: #6B6B6B;
+              font-weight: 500;
+            }
+            .total-row span:last-child {
+              color: #3E2C24; /* Primary coffee brown */
+              font-weight: 600;
+            }
+            .total-row:last-child {
+              font-size: 18px;
+              font-weight: 700;
+              padding-top: 10px;
+              margin-top: 5px;
+              border-top: 1px solid #C89B63; /* Accent color */
+              margin-bottom: 0;
+              padding-bottom: 0;
+            }
+            .total-row:last-child span {
+              color: #3E2C24; /* Primary coffee brown */
+            }
+            .footer {
+              margin-top: 35px;
+              padding-top: 20px;
+              border-top: 1px solid #E5E7EB;
+              text-align: center;
+            }
+            .footer p:first-child {
+              font-size: 12px;
+              color: #6B6B6B;
+              margin-bottom: 5px;
+              font-weight: 500;
+            }
+            .footer p:last-child {
+              font-size: 9px;
+              color: #9CA3AF;
+              margin: 0;
+            }
+            .divider {
+              height: 1px;
+              background: linear-gradient(to right, transparent, #E5E7EB, transparent);
+              margin: 20px 0;
+            }
+            @media print {
+              @page {
+                margin: 0.5cm;
+                size: A4;
+              }
+              body {
+                padding: 0;
+                background: white;
+              }
+              .invoice-container {
+                box-shadow: none;
+                padding: 20px;
+              }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="invoice-container">
+            <div class="header">
+              <div class="header-left">
+                <div class="logo-box">BB</div>
+                <div class="header-left-content">
+                  <h1>BrewBite Cafe</h1>
+                  <p>Your Daily Dose of Delight</p>
+                </div>
+              </div>
+              <div class="invoice-number-box">
+                <p>Bill Number</p>
+                <p>${billDetails.invoice_number}</p>
+              </div>
+            </div>
+            
+            <div class="details-section">
+              <div class="details">
+                <div class="detail-item">
+                  <p>Invoice Date</p>
+                  <p>${getCurrentDate()}</p>
+                </div>
+                <div class="detail-item">
+                  <p>Payment Method</p>
+                  <p>${billDetails.paymentMethod}</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="table-section">
+              <div class="table-title">Items</div>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Item Description</th>
+                    <th>Quantity</th>
+                    <th>Unit Price</th>
+                    <th>Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${billDetails.items.map((item: any) => `
+                    <tr>
+                      <td>${item.product_name}</td>
+                      <td>${item.quantity}</td>
+                      <td>₹${item.unit_price.toFixed(2)}</td>
+                      <td>₹${item.total_price.toFixed(2)}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+
+            <div class="totals-section">
+              <div class="totals">
+                <div class="totals-inner">
+                  <div class="total-row">
+                    <span>Subtotal</span>
+                    <span>₹${billDetails.subtotal.toFixed(2)}</span>
+                  </div>
+                  <div class="total-row">
+                    <span>GST (5%)</span>
+                    <span>₹${billDetails.gst.toFixed(2)}</span>
+                  </div>
+                  <div class="total-row">
+                    <span>Total Amount</span>
+                    <span>₹${billDetails.total.toFixed(2)}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="footer">
+              <p>Thank you for your purchase!</p>
+              <p>This is a computer-generated invoice. No signature required.</p>
+            </div>
+          </div>
+          <script>
+            window.onload = function() {
+              window.print();
+              window.onafterprint = function() {
+                window.close();
+              };
+            };
+          </script>
+        </body>
+      </html>
+    `
+
+    printWindow.document.write(invoiceHTML)
+    printWindow.document.close()
   }
 
   const filteredProducts = products.filter((p) => {
@@ -265,9 +651,9 @@ export default function OrdersPage() {
                             <div className="flex-grow flex flex-col justify-end w-full">
                               <div className="font-semibold text-[#1F1F1F] text-lg mb-1 leading-tight">{product.name}</div>
                               <div className="font-bold text-[#3E2C24] text-xl">₹{product.selling_price.toFixed(2)}</div>
-                              {product.tax_rate && product.tax_rate > 0 && (
+                            {product.tax_rate && product.tax_rate > 0 && (
                                 <div className="text-xs text-[#6B6B6B] mt-1">+ {product.tax_rate}% tax</div>
-                              )}
+                            )}
                             </div>
                           </button>
                         ))}
@@ -298,9 +684,9 @@ export default function OrdersPage() {
                           <div className="flex-grow flex flex-col justify-end w-full">
                             <div className="font-semibold text-[#1F1F1F] text-lg mb-1 leading-tight">{product.name}</div>
                             <div className="font-bold text-[#3E2C24] text-xl">₹{product.selling_price.toFixed(2)}</div>
-                            {product.tax_rate && product.tax_rate > 0 && (
+                          {product.tax_rate && product.tax_rate > 0 && (
                               <div className="text-xs text-[#6B6B6B] mt-1">+ {product.tax_rate}% tax</div>
-                            )}
+                          )}
                           </div>
                         </button>
                       ))}
@@ -435,12 +821,35 @@ export default function OrdersPage() {
           </div>
         </div>
 
-        {showSuccess && (
-          <div className="fixed bottom-6 right-6 bg-[#3E2C24] text-white px-6 py-4 rounded-xl shadow-lg flex items-center gap-3 animate-fade-in">
-            <CheckCircle className="w-5 h-5" />
-            <span>Order completed successfully!</span>
+        {showOrderSuccessModal && billDetails && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 print:hidden transition-opacity duration-300 ease-in-out opacity-100">
+            <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-sm text-center transform scale-100 transition-all duration-300 ease-in-out hover:scale-[1.02] active:scale-[0.98]">
+              <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
+              <h2 className="text-2xl font-bold text-[#3E2C24] mb-2">Order Completed!</h2>
+              <p className="text-gray-700 mb-1">Bill Number: <span className="font-semibold">{billDetails.invoice_number}</span></p>
+              <p className="text-gray-700 mb-4">Total Amount: <span className="font-bold text-xl text-[#3E2C24]">₹{billDetails.total.toFixed(2)}</span></p>
+              <div className="flex justify-center gap-4 mt-6">
+                <button
+                  onClick={handlePrintInvoice}
+                  className="bg-[#C89B63] text-white py-3 px-6 rounded-xl font-semibold
+                             transition-all duration-200 ease-in-out
+                             hover:scale-[1.05] hover:shadow-lg active:scale-[0.95]"
+                >
+                  Print Invoice
+                </button>
+                <button
+                  onClick={() => setShowOrderSuccessModal(false)}
+                  className="bg-gray-300 text-[#3E2C24] py-3 px-6 rounded-xl font-semibold
+                             transition-all duration-200 ease-in-out
+                             hover:scale-[1.05] hover:shadow-lg active:scale-[0.95]"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
           </div>
         )}
+
       </div>
     </div>
   )

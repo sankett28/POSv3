@@ -109,7 +109,16 @@ export default function TransactionsPage() {
                       <td className="px-4 py-3 text-[#6B6B6B]">{formatPaymentMethod(bill.payment_method)}</td>
                       <td className="px-4 py-3">
                         <button
-                          onClick={() => setSelectedBill(bill)}
+                          onClick={async () => {
+                            console.log("Fetching bill with ID:", bill.id);
+                            try {
+                              const fullBillDetails = await api.getBill(bill.id);
+                              setSelectedBill(fullBillDetails);
+                            } catch (error) {
+                              console.error("Failed to fetch full bill details:", error);
+                              // Optionally, set an error state or show a user-friendly message
+                            }
+                          }}
                           className="text-[#3E2C24] hover:text-[#C89B63] flex items-center gap-1 transition-all duration-200 ease-in-out hover:scale-[1.05] active:scale-[0.95]"
                         >
                           <Eye className="w-4 h-4" />
@@ -137,54 +146,58 @@ export default function TransactionsPage() {
                 </button>
               </div>
 
-              <div className="mb-6 space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-[#6B6B6B] font-medium">Bill Number:</span>
-                  <span className="font-bold text-[#1F1F1F]">{selectedBill.bill_number}</span>
+              <div className="mb-6 p-4 bg-[#FAF7F2] rounded-xl border border-[#E5E7EB]">
+                <div className="flex justify-between items-center py-2 border-b border-[#E5E7EB]">
+                  <span className="text-[#6B6B6B]">Bill Number:</span>
+                  <span className="font-bold text-[#3E2C24]">{selectedBill.bill_number}</span>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-[#6B6B6B] font-medium">Date & Time:</span>
-                  <span className="text-[#1F1F1F]">{formatDate(selectedBill.created_at)}</span>
+                <div className="flex justify-between items-center py-2 border-b border-[#E5E7EB]">
+                  <span className="text-[#6B6B6B]">Date & Time:</span>
+                  <span className="text-[#3E2C24]">{formatDate(selectedBill.created_at)}</span>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-[#6B6B6B] font-medium">Payment Method:</span>
-                  <span className="text-[#1F1F1F]">{formatPaymentMethod(selectedBill.payment_method)}</span>
+                <div className="flex justify-between items-center py-2 border-b border-[#E5E7EB]">
+                  <span className="text-[#6B6B6B]">Payment Method:</span>
+                  <span className="text-[#3E2C24]">{formatPaymentMethod(selectedBill.payment_method)}</span>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-[#6B6B6B] font-medium">Subtotal:</span>
-                  <span className="text-[#1F1F1F]">₹{(selectedBill.subtotal || 0).toFixed(2)}</span>
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-[#6B6B6B]">Subtotal:</span>
+                  <span className="text-[#3E2C24]">₹{(selectedBill.subtotal || 0).toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-[#6B6B6B] font-medium">Tax (GST):</span>
-                  <span className="text-[#1F1F1F]">₹{(selectedBill.tax_amount || 0).toFixed(2)}</span>
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-[#6B6B6B]">Tax (GST):</span>
+                  <span className="text-[#3E2C24]">₹{(selectedBill.tax_amount || 0).toFixed(2)}</span>
                 </div>
               </div>
 
-              <div className="border-t border-[#E5E7EB] pt-6 mb-6">
-                <h3 className="font-bold text-xl text-[#3E2C24] mb-4">Items</h3>
+              <div className="mb-6 p-4 bg-[#FAF7F2] rounded-xl border border-[#E5E7EB]">
+                <h3 className="font-bold text-xl text-[#3E2C24] mb-4">Items Ordered</h3>
                 <div className="space-y-3">
-                  {selectedBill.items.map((item) => (
-                    <div key={item.id} className="flex justify-between items-start py-3 border-b border-[#FAF7F2] last:border-b-0">
-                      <div className="flex-1 pr-4">
-                        <div className="font-semibold text-[#1F1F1F] text-base">{item.product_name}</div>
-                        <div className="text-sm text-[#6B6B6B]">
-                          ₹{item.unit_price.toFixed(2)} × {item.quantity} (Tax: {item.tax_rate}%) - ₹{item.tax_amount.toFixed(2)} Tax
+                  {selectedBill.items.length === 0 ? (
+                    <div className="text-center text-[#9CA3AF] py-4">No items found for this order.</div>
+                  ) : (
+                    selectedBill.items.map((item) => (
+                      <div key={item.id} className="flex justify-between items-start py-2 border-b border-[#E5E7EB] last:border-b-0">
+                        <div className="flex-1 pr-4">
+                          <div className="font-semibold text-[#1F1F1F] text-base">{item.product_name}</div>
+                          <div className="text-sm text-[#6B6B6B]">
+                            {item.quantity} x ₹{item.unit_price.toFixed(2)} ({item.tax_rate || 0}% Tax)
+                          </div>
+                        </div>
+                        <div className="text-right font-bold text-[#1F1F1F]">
+                          ₹{(item.unit_price * item.quantity).toFixed(2)}
                         </div>
                       </div>
-                      <div className="text-right">
-                        <div className="font-bold text-[#1F1F1F] text-base">₹{item.line_total.toFixed(2)}</div>
-                      </div>
-                    </div>
-                  ))}
+                    ))
+                  )}
                 </div>
               </div>
 
-              <div className="border-t border-[#E5E7EB] pt-6 space-y-3">
-                <div className="flex justify-between text-[#6B6B6B] text-base font-medium">
+              <div className="p-4 bg-[#FAF7F2] rounded-xl border border-[#E5E7EB] space-y-3">
+                <div className="flex justify-between text-[#6B6B6B] text-base">
                   <span>Subtotal:</span>
                   <span>₹{(selectedBill.subtotal || 0).toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between text-[#6B6B6B] text-base font-medium">
+                <div className="flex justify-between text-[#6B6B6B] text-base">
                   <span>Tax (GST):</span>
                   <span>₹{(selectedBill.tax_amount || 0).toFixed(2)}</span>
                 </div>

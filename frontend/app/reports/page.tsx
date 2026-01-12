@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { api } from '@/lib/api'
-import { BarChart3, DollarSign, Receipt, TrendingUp } from 'lucide-react'
+import { BarChart3, IndianRupee, TrendingUp, FileText } from 'lucide-react'
 
 interface BillItem {
   id: string
@@ -108,7 +108,7 @@ export default function ReportsPage() {
                 <p className="text-gray-600 text-sm">Total Sales</p>
                 <p className="text-3xl font-bold text-black mt-2">₹{totalSales.toFixed(2)}</p>
               </div>
-              <DollarSign className="w-12 h-12 text-gray-400" />
+              <IndianRupee className="w-12 h-12 text-gray-400" />
             </div>
           </div>
 
@@ -128,7 +128,7 @@ export default function ReportsPage() {
                 <p className="text-gray-600 text-sm">Transactions</p>
                 <p className="text-3xl font-bold text-black mt-2">{transactionCount}</p>
               </div>
-              <Receipt className="w-12 h-12 text-gray-400" />
+              <FileText className="w-12 h-12 text-gray-400" />
             </div>
           </div>
         </div>

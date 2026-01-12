@@ -1,3 +1,4 @@
+
 'use client'
 
 import { useState, useEffect } from 'react'
@@ -17,7 +18,6 @@ import {
   ShoppingCart,
   Receipt,
 } from 'lucide-react'
-import SuccessModal from '@/components/ui/SuccessModal'
 
 interface Product {
   id: string
@@ -37,6 +37,16 @@ interface BillItem {
   total_price: number
 }
 
+interface BillDetails {
+  invoice_number: string
+  items: BillItem[]
+  subtotal: number
+  gst: number
+  total: number
+  paymentMethod: 'CASH' | 'UPI' | 'CARD'
+  date: string
+}
+
 export default function PosBillingPage() {
   const [products, setProducts] = useState<Product[]>([])
   const [stocks, setStocks] = useState<Record<string, number>>({})
@@ -44,9 +54,8 @@ export default function PosBillingPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [loading, setLoading] = useState(true)
   const [paymentMethod, setPaymentMethod] = useState<'CASH' | 'UPI' | 'CARD'>('CASH')
-  const [showSuccessModal, setShowSuccessModal] = useState(false)
-  const [generatedBillData, setGeneratedBillData] = useState<any>(null)
-  const [generatedInvoiceNumber, setGeneratedInvoiceNumber] = useState('')
+  const [showOrderSuccessModal, setShowOrderSuccessModal] = useState(false)
+  const [billDetails, setBillDetails] = useState<BillDetails | null>(null)
 
   useEffect(() => {
     loadProducts()
@@ -125,6 +134,374 @@ export default function PosBillingPage() {
   const gst = subtotal * 0.05
   const total = subtotal + gst
 
+  const getCurrentDate = () => {
+    const now = new Date()
+    return now.toLocaleDateString('en-IN', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+  }
+
+  const handlePrintInvoice = () => {
+    if (!billDetails) return
+
+    const printWindow = window.open('', '_blank')
+    if (!printWindow) return
+
+    const invoiceHTML = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Invoice ${billDetails.invoice_number}</title>
+          <style>
+            * {
+              margin: 0;
+              padding: 0;
+              box-sizing: border-box;
+            }
+            body {
+              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+              padding: 30px 15px;
+              background: #F5F3EE; /* Warm cream / off-white */
+              line-height: 1.5;
+            }
+            .invoice-container {
+              max-width: 700px;
+              margin: 0 auto;
+              background: white;
+              padding: 40px;
+              box-shadow: 0 4px 12px rgba(0,0,0,0.1); /* Soft shadows */
+              border-radius: 16px; /* rounded-2xl */
+            }
+            .header {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-bottom: 30px;
+              padding-bottom: 15px;
+              border-bottom: 1px solid #E5E7EB;
+            }
+            .header-left {
+              display: flex;
+              align-items: center;
+              gap: 10px;
+            }
+            .logo-box {
+              width: 40px;
+              height: 40px;
+              background: #3E2C24; /* Primary coffee brown */
+              color: white;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-size: 18px;
+              font-weight: 500;
+              border-radius: 4px;
+            }
+            .header-left-content h1 {
+              font-size: 24px;
+              font-weight: 600;
+              color: #3E2C24; /* Primary coffee brown */
+              margin: 0 0 2px 0;
+              letter-spacing: -0.2px;
+            }
+            .header-left-content p {
+              font-size: 11px;
+              color: #6B6B6B;
+              margin: 0;
+              font-weight: 400;
+            }
+            .invoice-number-box {
+              background: #FAF7F2; /* Light background */
+              padding: 8px 12px;
+              border-radius: 8px; /* rounded-xl */
+              border: 1px solid #E5E7EB;
+              text-align: right;
+            }
+            .invoice-number-box p:first-child {
+              font-size: 9px;
+              color: #6B6B6B;
+              margin-bottom: 3px;
+              text-transform: uppercase;
+              letter-spacing: 0.6px;
+              font-weight: 500;
+            }
+            .invoice-number-box p:last-child {
+              font-size: 16px;
+              font-weight: 600;
+              color: #3E2C24; /* Primary coffee brown */
+              margin: 0;
+              letter-spacing: 0.2px;
+            }
+            .details-section {
+              background: #fdfdfd;
+              padding: 18px;
+              border-radius: 6px;
+              margin-bottom: 25px;
+              border: 1px solid #eee;
+            }
+            .details {
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: 20px;
+            }
+            .detail-item {
+              border-left: 1px solid #ddd;
+              padding-left: 10px;
+            }
+            .detail-item p:first-child {
+              font-size: 9px;
+              color: #6B6B6B;
+              margin-bottom: 3px;
+              text-transform: uppercase;
+              letter-spacing: 0.3px;
+              font-weight: 500;
+            }
+            .detail-item p:last-child {
+              font-size: 14px;
+              font-weight: 500;
+              color: #3E2C24; /* Primary coffee brown */
+              margin: 0;
+            }
+            .table-section {
+              margin-bottom: 25px;
+            }
+            .table-title {
+              font-size: 15px;
+              font-weight: 600;
+              color: #3E2C24; /* Primary coffee brown */
+              margin-bottom: 10px;
+              padding-bottom: 6px;
+              border-bottom: 1px solid #E5E7EB;
+            }
+            table {
+              width: 100%;
+              border-collapse: collapse;
+              margin-bottom: 0;
+            }
+            thead {
+              background: #FAF7F2; /* Light background */
+              color: #555;
+            }
+            thead tr {
+              border-bottom: 1px solid #E5E7EB;
+            }
+            th {
+              text-align: left;
+              padding: 10px 12px;
+              font-size: 10px;
+              font-weight: 600;
+              color: #6B6B6B;
+              text-transform: uppercase;
+              letter-spacing: 0.7px;
+            }
+            th:nth-child(2), th:nth-child(3), th:nth-child(4) {
+              text-align: right;
+            }
+            tbody tr {
+              border-bottom: 1px solid #E5E7EB;
+              transition: background 0.1s;
+            }
+            tbody tr:hover {
+              background: #F5F3EE; /* Warm cream / off-white */
+            }
+            tbody tr:last-child {
+              border-bottom: none;
+            }
+            td {
+              padding: 12px;
+              font-size: 12px;
+              color: #3E2C24; /* Primary coffee brown */
+            }
+            td:first-child {
+              font-weight: 500;
+            }
+            td:nth-child(2), td:nth-child(3), td:nth-child(4) {
+              text-align: right;
+              font-weight: 400;
+            }
+            td:nth-child(4) {
+              font-weight: 500;
+              color: #3E2C24; /* Primary coffee brown */
+            }
+            .totals-section {
+              background: #FAF7F2; /* Light background */
+              padding: 18px 22px;
+              border-radius: 8px; /* rounded-xl */
+              border: 1px solid #E5E7EB;
+              margin-top: 20px;
+            }
+            .totals {
+              display: flex;
+              justify-content: flex-end;
+            }
+            .totals-inner {
+              width: 250px;
+            }
+            .total-row {
+              display: flex;
+              justify-content: space-between;
+              margin-bottom: 8px;
+              font-size: 13px;
+              padding-bottom: 5px;
+            }
+            .total-row:not(:last-child) {
+              border-bottom: 1px dashed #E5E7EB;
+            }
+            .total-row span:first-child {
+              color: #6B6B6B;
+              font-weight: 500;
+            }
+            .total-row span:last-child {
+              color: #3E2C24; /* Primary coffee brown */
+              font-weight: 600;
+            }
+            .total-row:last-child {
+              font-size: 18px;
+              font-weight: 700;
+              padding-top: 10px;
+              margin-top: 5px;
+              border-top: 1px solid #C89B63; /* Accent color */
+              margin-bottom: 0;
+              padding-bottom: 0;
+            }
+            .total-row:last-child span {
+              color: #3E2C24; /* Primary coffee brown */
+            }
+            .footer {
+              margin-top: 35px;
+              padding-top: 20px;
+              border-top: 1px solid #E5E7EB;
+              text-align: center;
+            }
+            .footer p:first-child {
+              font-size: 12px;
+              color: #6B6B6B;
+              margin-bottom: 5px;
+              font-weight: 500;
+            }
+            .footer p:last-child {
+              font-size: 9px;
+              color: #9CA3AF;
+              margin: 0;
+            }
+            .divider {
+              height: 1px;
+              background: linear-gradient(to right, transparent, #E5E7EB, transparent);
+              margin: 20px 0;
+            }
+            @media print {
+              @page {
+                margin: 0.5cm;
+                size: A4;
+              }
+              body {
+                padding: 0;
+                background: white;
+              }
+              .invoice-container {
+                box-shadow: none;
+                padding: 20px;
+              }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="invoice-container">
+            <div class="header">
+              <div class="header-left">
+                <div class="logo-box">BB</div>
+                <div class="header-left-content">
+                  <h1>BrewBite Cafe</h1>
+                  <p>Your Daily Dose of Delight</p>
+                </div>
+              </div>
+              <div class="invoice-number-box">
+                <p>Bill Number</p>
+                <p>${billDetails.invoice_number}</p>
+              </div>
+            </div>
+            
+            <div class="details-section">
+              <div class="details">
+                <div class="detail-item">
+                  <p>Invoice Date</p>
+                  <p>${getCurrentDate()}</p>
+                </div>
+                <div class="detail-item">
+                  <p>Payment Method</p>
+                  <p>${billDetails.paymentMethod}</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="table-section">
+              <div class="table-title">Items</div>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Item Description</th>
+                    <th>Quantity</th>
+                    <th>Unit Price</th>
+                    <th>Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${billDetails.items.map((item: any) => `
+                    <tr>
+                      <td>${item.product_name}</td>
+                      <td>${item.quantity}</td>
+                      <td>₹${item.unit_price.toFixed(2)}</td>
+                      <td>₹${item.total_price.toFixed(2)}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+
+            <div class="totals-section">
+              <div class="totals">
+                <div class="totals-inner">
+                  <div class="total-row">
+                    <span>Subtotal</span>
+                    <span>₹${billDetails.subtotal.toFixed(2)}</span>
+                  </div>
+                  <div class="total-row">
+                    <span>GST (5%)</span>
+                    <span>₹${billDetails.gst.toFixed(2)}</span>
+                  </div>
+                  <div class="total-row">
+                    <span>Total Amount</span>
+                    <span>₹${billDetails.total.toFixed(2)}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="footer">
+              <p>Thank you for your purchase!</p>
+              <p>This is a computer-generated invoice. No signature required.</p>
+            </div>
+          </div>
+          <script>
+            window.onload = function() {
+              window.print();
+              window.onafterprint = function() {
+                window.close();
+              };
+            };
+          </script>
+        </body>
+      </html>
+    `
+
+    printWindow.document.write(invoiceHTML)
+    printWindow.document.close()
+  }
+
   const handleCompleteBill = async () => {
     if (!billItems.length) return alert('Add items first')
 
@@ -138,9 +515,16 @@ export default function PosBillingPage() {
         payment_method: paymentMethod,
       })
 
-      setGeneratedBillData({ billItems, subtotal, gst, total, paymentMethod })
-      setGeneratedInvoiceNumber(res.invoice_number)
-      setShowSuccessModal(true)
+      setBillDetails({
+        invoice_number: res.invoice_number,
+        items: billItems,
+        subtotal,
+        gst,
+        total,
+        paymentMethod,
+        date: new Date().toLocaleDateString('en-IN', {day: '2-digit', month: 'short', year: 'numeric'})
+      })
+      setShowOrderSuccessModal(true)
       setBillItems([])
       loadStocks()
     } catch (err: any) {
@@ -173,7 +557,7 @@ export default function PosBillingPage() {
           <div className="flex items-center gap-3 mb-4">
             <Coffee className="w-6 h-6 text-[#3E2C24]" />
             <h1 className="text-2xl font-bold text-[#3E2C24]">BrewBite POS</h1>
-          </div>
+        </div>
           <div className="relative mb-4">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9CA3AF] w-5 h-5" />
             <input
@@ -183,7 +567,7 @@ export default function PosBillingPage() {
               onChange={e => setSearchTerm(e.target.value)}
             />
           </div>
-        </div>
+          </div>
 
         <div className="bg-white rounded-2xl shadow-md p-6 mb-4 flex-1 overflow-y-auto">
           <h2 className="text-xl font-bold text-[#3E2C24] mb-4">Menu Items</h2>
@@ -281,15 +665,6 @@ export default function PosBillingPage() {
           </button>
         </div>
       </div>
-
-      {showSuccessModal && (
-        <SuccessModal
-          isOpen={showSuccessModal}
-          onClose={() => setShowSuccessModal(false)}
-          billData={generatedBillData}
-          invoiceNumber={generatedInvoiceNumber}
-        />
-      )}
     </div>
   )
 }

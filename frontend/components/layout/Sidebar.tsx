@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation'
 import { Store, Package, Receipt, Users, Megaphone, Coffee, UtensilsCrossed, FileText, BarChart3, Settings } from 'lucide-react'
 
 const navItems = [
-  { href: '/orders', label: 'Orders', icon: Receipt },
+  { href: '/orders', label: 'Orders', icon: ({ className }) => <span className={`flex items-center text-xl ${className}`}>₹</span> },
   { href: '/menu', label: 'Menu', icon: UtensilsCrossed },
   { href: '/transactions', label: 'Transactions', icon: FileText },
   { href: '/reports', label: 'Reports', icon: BarChart3 },

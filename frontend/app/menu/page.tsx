@@ -3,15 +3,16 @@
 import { useState, useEffect } from 'react'
 import { api } from '@/lib/api'
 import { Plus, Edit, Trash2, Search, X, Settings } from 'lucide-react'
+import MenuTable from '@/components/ui/MenuTable'
 
-interface Category {
+export interface Category {
   id: string
   name: string
   is_active: boolean
   display_order: number
 }
 
-interface Product {
+export interface Product {
   id: string
   name: string
   selling_price: number
@@ -300,123 +301,30 @@ export default function MenuPage() {
         {/* Menu Items by Category */}
         <div className="space-y-6">
           {categories.map((category) => {
-            const categoryProducts = productsByCategory[category.id] || []
-            if (categoryProducts.length === 0) return null
+            const categoryProducts = filteredProducts.filter(p => p.category_id === category.id)
+            if (categoryProducts.length === 0 && !selectedCategory) return null
 
             return (
-              <div key={category.id} className="bg-white rounded-2xl shadow-md border border-[#E5E7EB]">
-                <div className="p-6 border-b border-[#E5E7EB]">
-                  <h3 className="text-xl font-bold text-[#3E2C24]">{category.name}</h3>
-                </div>
-                <div className="overflow-x-auto">
-                  <table className="min-w-full leading-normal">
-                    <thead className="bg-[#FAF7F2]">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider rounded-tl-xl">Item</th>
-                        <th className="px-6 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider">Price</th>
-                        <th className="px-6 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider">Tax Rate</th>
-                        <th className="px-6 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider">Status</th>
-                        <th className="px-6 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider rounded-tr-xl">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {categoryProducts.map((product) => (
-                        <tr key={product.id} className="border-t border-[#E5E7EB] transition-all duration-200 ease-in-out hover:bg-[#FAF7F2]">
-                          <td className="px-6 py-4 font-medium text-[#1F1F1F]">{product.name}</td>
-                          <td className="px-6 py-4 text-[#1F1F1F]">₹{product.selling_price.toFixed(2)}</td>
-                          <td className="px-6 py-4 text-[#6B6B6B]">{product.tax_rate || 0}%</td>
-                          <td className="px-6 py-4">
-                            <span className={`px-3 py-1 text-xs rounded-full font-semibold ${
-                              product.is_active 
-                                ? 'bg-green-100 text-green-700' 
-                                : 'bg-red-100 text-red-700'
-                            }`}>
-                              {product.is_active ? 'Active' : 'Inactive'}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="flex gap-3">
-                              <button
-                                onClick={() => handleEditItem(product)}
-                                className="text-[#3E2C24] hover:text-[#C89B63] transition-all duration-200 ease-in-out hover:scale-[1.05] active:scale-[0.95]"
-                              >
-                                <Edit className="w-4 h-4" />
-                              </button>
-                              {product.is_active && (
-                                <button
-                                  onClick={() => handleDeactivateItem(product.id)}
-                                  className="text-[#F4A261] hover:text-[#E08F50] transition-all duration-200 ease-in-out hover:scale-[1.05] active:scale-[0.95]"
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </button>
-                              )}
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
+              <MenuTable
+                key={category.id}
+                categoryName={category.name}
+                products={categoryProducts}
+                handleEditItem={handleEditItem}
+                handleDeactivateItem={handleDeactivateItem}
+                categories={categories}
+              />
             )
           })}
 
           {/* Uncategorized Items */}
-          {uncategorizedProducts.length > 0 && (
-            <div className="bg-white rounded-2xl shadow-md border border-[#E5E7EB]">
-              <div className="p-6 border-b border-[#E5E7EB]">
-                <h3 className="text-xl font-bold text-[#3E2C24]">Uncategorized</h3>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="min-w-full leading-normal">
-                  <thead className="bg-[#FAF7F2]">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider rounded-tl-xl">Item</th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider">Price</th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider">Tax Rate</th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider">Status</th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider rounded-tr-xl">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {uncategorizedProducts.map((product) => (
-                      <tr key={product.id} className="border-t border-[#E5E7EB] transition-all duration-200 ease-in-out hover:bg-[#FAF7F2]">
-                        <td className="px-6 py-4 font-medium text-[#1F1F1F]">{product.name}</td>
-                        <td className="px-6 py-4 text-[#1F1F1F]">₹{product.selling_price.toFixed(2)}</td>
-                        <td className="px-6 py-4 text-[#6B6B6B]">{product.tax_rate || 0}%</td>
-                        <td className="px-6 py-4">
-                          <span className={`px-3 py-1 text-xs rounded-full font-semibold ${
-                            product.is_active 
-                              ? 'bg-green-100 text-green-700' 
-                              : 'bg-red-100 text-red-700'
-                          }`}>
-                            {product.is_active ? 'Active' : 'Inactive'}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="flex gap-3">
-                            <button
-                              onClick={() => handleEditItem(product)}
-                              className="text-[#3E2C24] hover:text-[#C89B63] transition-all duration-200 ease-in-out hover:scale-[1.05] active:scale-[0.95]"
-                            >
-                              <Edit className="w-4 h-4" />
-                            </button>
-                            {product.is_active && (
-                              <button
-                                onClick={() => handleDeactivateItem(product.id)}
-                                className="text-[#F4A261] hover:text-[#E08F50] transition-all duration-200 ease-in-out hover:scale-[1.05] active:scale-[0.95]"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+          {(!selectedCategory || selectedCategory === null) && uncategorizedProducts.length > 0 && (
+            <MenuTable
+              categoryName="Uncategorized"
+              products={uncategorizedProducts}
+              handleEditItem={handleEditItem}
+              handleDeactivateItem={handleDeactivateItem}
+              categories={categories}
+            />
           )}
         </div>
 
