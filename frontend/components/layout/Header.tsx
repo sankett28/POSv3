@@ -17,7 +17,7 @@ export default function Header() {
   }
 
   const navItems = [
-    { name: 'Orders', href: '/orders', icon: ({ className }) => <span className={`flex items-center text-xl ${className}`}>₹</span> },
+    { name: 'Orders', href: '/orders', icon: ({ className }: { className?: string }) => <span className={`flex items-center text-xl ${className}`}>₹</span> },
     { name: 'Menu', href: '/menu', icon: UtensilsCrossed },
     { name: 'Transactions', href: '/transactions', icon: FileText },
     { name: 'Reports', href: '/reports', icon: BarChart3 },

@@ -54,8 +54,9 @@ export default function PosBillingPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [loading, setLoading] = useState(true)
   const [paymentMethod, setPaymentMethod] = useState<'CASH' | 'UPI' | 'CARD'>('CASH')
-  const [showOrderSuccessModal, setShowOrderSuccessModal] = useState(false)
-  const [billDetails, setBillDetails] = useState<BillDetails | null>(null)
+  const [showSuccessModal, setShowSuccessModal] = useState(false)
+  const [generatedBillData, setGeneratedBillData] = useState<any>(null)
+  const [generatedInvoiceNumber, setGeneratedInvoiceNumber] = useState('')
 
   useEffect(() => {
     loadProducts()
@@ -131,8 +132,7 @@ export default function PosBillingPage() {
   }
 
   const subtotal = billItems.reduce((s, i) => s + i.total_price, 0)
-  const gst = subtotal * 0.05
-  const total = subtotal + gst
+  // Tax is calculated by backend - no frontend tax math
 
   const getCurrentDate = () => {
     const now = new Date()
@@ -146,7 +146,7 @@ export default function PosBillingPage() {
   }
 
   const handlePrintInvoice = () => {
-    if (!billDetails) return
+    if (!generatedBillData) return
 
     const printWindow = window.open('', '_blank')
     if (!printWindow) return
@@ -155,7 +155,7 @@ export default function PosBillingPage() {
       <!DOCTYPE html>
       <html>
         <head>
-          <title>Invoice ${billDetails.invoice_number}</title>
+          <title>Invoice ${generatedBillData.billResponse.invoice_number}</title>
           <style>
             * {
               margin: 0;
@@ -421,7 +421,7 @@ export default function PosBillingPage() {
               </div>
               <div class="invoice-number-box">
                 <p>Bill Number</p>
-                <p>${billDetails.invoice_number}</p>
+                <p>${generatedBillData.billResponse.invoice_number}</p>
               </div>
             </div>
             
@@ -433,7 +433,7 @@ export default function PosBillingPage() {
                 </div>
                 <div class="detail-item">
                   <p>Payment Method</p>
-                  <p>${billDetails.paymentMethod}</p>
+                  <p>${generatedBillData.paymentMethod}</p>
                 </div>
               </div>
             </div>
@@ -450,7 +450,7 @@ export default function PosBillingPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  ${billDetails.items.map((item: any) => `
+                  ${generatedBillData.billItems.map((item: any) => `
                     <tr>
                       <td>${item.product_name}</td>
                       <td>${item.quantity}</td>
@@ -467,15 +467,15 @@ export default function PosBillingPage() {
                 <div class="totals-inner">
                   <div class="total-row">
                     <span>Subtotal</span>
-                    <span>₹${billDetails.subtotal.toFixed(2)}</span>
+                    <span>₹${generatedBillData.subtotal.toFixed(2)}</span>
                   </div>
                   <div class="total-row">
                     <span>GST (5%)</span>
-                    <span>₹${billDetails.gst.toFixed(2)}</span>
+                    <span>₹${generatedBillData.gst.toFixed(2)}</span>
                   </div>
                   <div class="total-row">
                     <span>Total Amount</span>
-                    <span>₹${billDetails.total.toFixed(2)}</span>
+                    <span>₹${generatedBillData.total.toFixed(2)}</span>
                   </div>
                 </div>
               </div>
@@ -515,16 +515,9 @@ export default function PosBillingPage() {
         payment_method: paymentMethod,
       })
 
-      setBillDetails({
-        invoice_number: res.invoice_number,
-        items: billItems,
-        subtotal,
-        gst,
-        total,
-        paymentMethod,
-        date: new Date().toLocaleDateString('en-IN', {day: '2-digit', month: 'short', year: 'numeric'})
-      })
-      setShowOrderSuccessModal(true)
+      setGeneratedBillData({ billItems, subtotal, gst: res.tax_amount, total: res.total_amount, paymentMethod })
+      setGeneratedInvoiceNumber(res.invoice_number)
+      setShowSuccessModal(true)
       setBillItems([])
       loadStocks()
     } catch (err: any) {
@@ -649,8 +642,9 @@ export default function PosBillingPage() {
 
         <div className="p-6 border-t">
           <div className="flex justify-between font-bold mb-4">
-            <span>Total</span>
-            <span>₹{total.toFixed(2)}</span>
+            <span>Subtotal</span>
+            <span>₹{subtotal.toFixed(2)}</span>
+            <div className="text-xs text-[#6B6B6B] mt-1">Tax calculated by backend</div>
           </div>
 
           <button
