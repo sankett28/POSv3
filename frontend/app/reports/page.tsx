@@ -45,9 +45,23 @@ interface TaxSummary {
   grand_total_tax: number
 }
 
+interface CategorySalesItem {
+  category_name: string
+  total_sales: number
+  item_count: number
+}
+
+interface SalesByCategory {
+  start_date: string
+  end_date: string
+  summary: CategorySalesItem[]
+  grand_total_sales: number
+}
+
 export default function ReportsPage() {
   const [bills, setBills] = useState<Bill[]>([])
   const [taxSummary, setTaxSummary] = useState<TaxSummary | null>(null)
+  const [salesByCategory, setSalesByCategory] = useState<SalesByCategory | null>(null)
   const [loading, setLoading] = useState(true)
   const [dateRange, setDateRange] = useState({
     start: new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().split('T')[0],
@@ -62,16 +76,46 @@ export default function ReportsPage() {
     try {
       const data = await api.getTaxSummary(dateRange.start, dateRange.end)
       setTaxSummary(data)
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error loading tax summary:', error)
+      // Log more details for debugging
+      if (error.response) {
+        console.error('Response error:', error.response.status, error.response.data)
+      } else if (error.request) {
+        console.error('Request error:', error.request)
+      } else {
+        console.error('Error message:', error.message)
+      }
+      // Set tax summary to null on error so UI doesn't show stale data
+      setTaxSummary(null)
+    }
+  }, [dateRange.start, dateRange.end])
+
+  const loadSalesByCategory = useCallback(async () => {
+    try {
+      const data = await api.getSalesByCategory(dateRange.start, dateRange.end)
+      setSalesByCategory(data)
+    } catch (error: any) {
+      console.error('Error loading sales by category:', error)
+      // Log more details for debugging
+      if (error.response) {
+        console.error('Response error:', error.response.status, error.response.data)
+      } else if (error.request) {
+        console.error('Request error:', error.request)
+      } else {
+        console.error('Error message:', error.message)
+      }
+      // Set sales by category to null on error so UI doesn't show stale data
+      setSalesByCategory(null)
     }
   }, [dateRange.start, dateRange.end])
 
   useEffect(() => {
     if (dateRange.start && dateRange.end) {
       loadTaxSummary()
+      loadSalesByCategory()
     }
-  }, [dateRange.start, dateRange.end, loadTaxSummary])
+  }, [dateRange.start, dateRange.end, loadTaxSummary, loadSalesByCategory])
 
   const loadData = async () => {
     try {
@@ -98,14 +142,6 @@ export default function ReportsPage() {
 
   const paymentMethodBreakdown = filteredBills.reduce((acc, bill) => {
     acc[bill.payment_method] = (acc[bill.payment_method] || 0) + bill.total_amount
-    return acc
-  }, {} as Record<string, number>)
-
-  const categoryBreakdown = filteredBills.reduce((acc, bill) => {
-    bill.items.forEach((item) => {
-      const category = item.category_name || 'Uncategorized'
-      acc[category] = (acc[category] || 0) + item.line_total
-    })
     return acc
   }, {} as Record<string, number>)
 
@@ -192,16 +228,20 @@ export default function ReportsPage() {
 
           <div className="bg-white rounded-lg shadow p-6">
             <h2 className="text-xl font-bold text-black mb-4">Sales by Category</h2>
-            <div className="space-y-3">
-              {Object.entries(categoryBreakdown)
-                .sort(([, a], [, b]) => b - a)
-                .map(([category, amount]) => (
-                  <div key={category} className="flex justify-between items-center">
-                    <span className="text-gray-700">{category}</span>
-                    <span className="font-semibold text-black">₹{amount.toFixed(2)}</span>
-                  </div>
-                ))}
-            </div>
+            {salesByCategory && salesByCategory.summary.length > 0 ? (
+              <div className="space-y-3">
+                {salesByCategory.summary
+                  .sort((a, b) => b.total_sales - a.total_sales)
+                  .map((item) => (
+                    <div key={item.category_name} className="flex justify-between items-center">
+                      <span className="text-gray-700">{item.category_name}</span>
+                      <span className="font-semibold text-black">₹{item.total_sales.toFixed(2)}</span>
+                    </div>
+                  ))}
+              </div>
+            ) : (
+              <div className="text-gray-500 text-sm py-4">No sales data available for the selected date range</div>
+            )}
           </div>
         </div>
 

@@ -41,6 +41,12 @@ class ProductUpdate(BaseModel):
         return v.strip() if v else None
 
 
+class BulkUpdateTaxGroupRequest(BaseModel):
+    """Schema for bulk updating tax group for products in a category."""
+    category_id: UUID = Field(..., description="Category ID to update products for")
+    tax_group_id: UUID = Field(..., description="Tax group ID to assign to products")
+
+
 class ProductResponse(BaseModel):
     """Schema for product response."""
     id: UUID

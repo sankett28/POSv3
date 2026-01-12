@@ -3,6 +3,7 @@ from typing import List, Optional
 from uuid import UUID
 from supabase import Client
 from app.repositories.product_repo import ProductRepository
+from app.repositories.tax_group_repo import TaxGroupRepository
 from app.schemas.product import ProductCreate, ProductUpdate, ProductResponse
 from app.core.logging import logger
 
@@ -49,4 +50,48 @@ class ProductService:
             return False
         
         return await self.repo.deactivate_product(product_id)
+    
+    async def bulk_update_tax_group_by_category(self, category_id: UUID, tax_group_id: UUID) -> int:
+        """Bulk update tax group for all products in a category."""
+        try:
+            # Validate the tax group exists and is active
+            tax_group_repo = TaxGroupRepository(self.repo.db)
+            tax_group = await tax_group_repo.get_tax_group(tax_group_id)
+            if not tax_group:
+                raise ValueError(f"Tax group {tax_group_id} not found")
+            if not tax_group.get("is_active", True):
+                raise ValueError(f"Tax group '{tax_group.get('name')}' is not active")
+            
+            # Get all products from repository
+            all_products = await self.repo.list_products()
+            
+            # Filter products by category_id
+            category_products = [
+                p for p in all_products 
+                if p.get("category_id") == str(category_id)
+            ]
+            
+            if not category_products:
+                logger.info(f"No products found in category {category_id}")
+                return 0
+            
+            # Update each product's tax_group_id
+            updated_count = 0
+            for product in category_products:
+                try:
+                    product_update = ProductUpdate(tax_group_id=tax_group_id)
+                    result = await self.repo.update_product(UUID(product["id"]), product_update)
+                    if result:
+                        updated_count += 1
+                except Exception as e:
+                    logger.warning(f"Failed to update product {product['id']}: {e}")
+                    # Continue with other products even if one fails
+            
+            logger.info(f"Bulk updated {updated_count} products in category {category_id} with tax group {tax_group_id}")
+            return updated_count
+        except ValueError:
+            raise
+        except Exception as e:
+            logger.error(f"Error bulk updating products by category: {e}")
+            raise
 

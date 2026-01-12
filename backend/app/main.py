@@ -1,5 +1,7 @@
 """FastAPI application entrypoint."""
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, status
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.core.logging import setup_logging, logger
@@ -26,10 +28,23 @@ app.add_middleware(
     expose_headers=["*"],  # Expose all headers to frontend
 )
 
+# Add validation exception handler for better error messages
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    """Handle validation errors and return detailed error messages."""
+    logger.error(f"Validation error on {request.method} {request.url}: {exc.errors()}")
+    return JSONResponse(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        content={"detail": exc.errors(), "body": exc.body}
+    )
+
 # Add request logging middleware
 @app.middleware("http")
-async def log_requests(request, call_next):
+async def log_requests(request: Request, call_next):
     try:
+        # Log request info for debugging
+        if "bulk-update-by-category" in str(request.url):
+            logger.info(f"Bulk update request: {request.method} {request.url}")
         response = await call_next(request)
         return response
     except Exception as e:

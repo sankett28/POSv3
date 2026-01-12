@@ -152,6 +152,14 @@ class ApiClient {
     await this.client.delete(`/products/${id}`)
   }
 
+  async bulkUpdateProductsByCategory(categoryId: string, taxGroupId: string) {
+    const response = await this.client.put('/products/bulk-update-by-category', {
+      category_id: categoryId,
+      tax_group_id: taxGroupId
+    })
+    return response.data
+  }
+
 
   // Billing endpoints
   async createBill(data: {
@@ -273,6 +281,11 @@ class ApiClient {
   // Reports endpoints
   async getTaxSummary(startDate: string, endDate: string) {
     const response = await this.client.get(`/reports/tax-summary?start_date=${startDate}&end_date=${endDate}`)
+    return response.data
+  }
+
+  async getSalesByCategory(startDate: string, endDate: string) {
+    const response = await this.client.get(`/reports/sales-by-category?start_date=${startDate}&end_date=${endDate}`)
     return response.data
   }
 }

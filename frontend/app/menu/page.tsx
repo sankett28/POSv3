@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react'
 import { api } from '@/lib/api'
 import { Plus, Edit, Trash2, Search, X, Settings } from 'lucide-react'
-import MenuTable from '@/components/ui/MenuTable'
 
 export interface Category {
   id: string
@@ -42,9 +41,12 @@ export default function MenuPage() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [showItemModal, setShowItemModal] = useState(false)
   const [showCategoryModal, setShowCategoryModal] = useState(false)
+  const [showBulkTaxModal, setShowBulkTaxModal] = useState(false)
   const [showAdvanced, setShowAdvanced] = useState(false)
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
   const [editingCategory, setEditingCategory] = useState<Category | null>(null)
+  const [selectedCategoryForBulk, setSelectedCategoryForBulk] = useState<Category | null>(null)
+  const [bulkTaxGroupId, setBulkTaxGroupId] = useState('')
   const [itemFormData, setItemFormData] = useState({ 
     name: '', 
     selling_price: '', 
@@ -211,6 +213,54 @@ export default function MenuPage() {
     }
   }
 
+  const handleBulkTaxGroupAssign = (category: Category) => {
+    setSelectedCategoryForBulk(category)
+    setBulkTaxGroupId('')
+    setShowBulkTaxModal(true)
+  }
+
+  const handleBulkTaxSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!selectedCategoryForBulk || !bulkTaxGroupId) {
+      alert('Please select a tax group')
+      return
+    }
+
+    if (!confirm(`Are you sure you want to assign this tax group to ALL products in "${selectedCategoryForBulk.name}"?`)) {
+      return
+    }
+
+    try {
+      const result = await api.bulkUpdateProductsByCategory(selectedCategoryForBulk.id, bulkTaxGroupId)
+      alert(`Successfully updated ${result.updated_count} products`)
+      setShowBulkTaxModal(false)
+      setSelectedCategoryForBulk(null)
+      setBulkTaxGroupId('')
+      loadData()
+    } catch (error: any) {
+      console.error('Bulk update error:', error)
+      // FastAPI 422 errors have a specific structure
+      let errorMessage = 'Unknown error occurred'
+      if (error?.response?.data) {
+        const errorData = error.response.data
+        // Handle FastAPI validation errors (422)
+        if (errorData.detail && Array.isArray(errorData.detail)) {
+          const validationErrors = errorData.detail.map((err: any) => 
+            `${err.loc?.join('.')}: ${err.msg}`
+          ).join(', ')
+          errorMessage = `Validation error: ${validationErrors}`
+        } else if (errorData.detail) {
+          errorMessage = errorData.detail
+        } else if (typeof errorData === 'string') {
+          errorMessage = errorData
+        }
+      } else if (error?.message) {
+        errorMessage = error.message
+      }
+      alert(`Failed to update products: ${errorMessage}`)
+    }
+  }
+
   const filteredProducts = products.filter((p) => {
     const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesCategory = !selectedCategory || p.category_id === selectedCategory
@@ -280,26 +330,31 @@ export default function MenuPage() {
               All
             </button>
             {categories.map((category) => (
-              <button
+              <div
                 key={category.id}
-                onClick={() => setSelectedCategory(category.id)}
-                className={`px-4 py-2 rounded-xl font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring outline-none flex items-center gap-2 ${
-                  selectedCategory === category.id
-                    ? 'bg-[#3E2C24] text-white shadow-md'
-                    : 'bg-[#FAF7F2] text-[#3E2C24] hover:bg-[#C89B63]/10'
-                }`}
+                className="flex items-center gap-2"
               >
-                {category.name}
+                <button
+                  onClick={() => setSelectedCategory(category.id)}
+                  className={`px-4 py-2 rounded-xl font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring outline-none ${
+                    selectedCategory === category.id
+                      ? 'bg-[#3E2C24] text-white shadow-md'
+                      : 'bg-[#FAF7F2] text-[#3E2C24] hover:bg-[#C89B63]/10'
+                  }`}
+                >
+                  {category.name}
+                </button>
                 <button
                   onClick={(e) => {
                     e.stopPropagation()
                     handleEditCategory(category)
                   }}
                   className="p-1 rounded-full text-[#6B6B6B] hover:bg-[#E5E7EB] transition-all duration-200 ease-in-out active:scale-[0.9]"
+                  title="Edit category"
                 >
                   <Edit className="w-3 h-3" />
                 </button>
-              </button>
+              </div>
             ))}
           </div>
         </div>
@@ -326,8 +381,18 @@ export default function MenuPage() {
 
             return (
               <div key={category.id} className="bg-white rounded-2xl shadow-md border border-[#E5E7EB]">
-                <div className="p-6 border-b border-[#E5E7EB]">
+                <div className="p-6 border-b border-[#E5E7EB] flex justify-between items-center">
                   <h3 className="text-xl font-bold text-[#3E2C24]">{category.name}</h3>
+                  <button
+                    onClick={() => handleBulkTaxGroupAssign(category)}
+                    className="px-4 py-2 bg-[#C89B63] text-white rounded-xl font-medium text-sm
+                             transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg 
+                             active:scale-[0.98] flex items-center gap-2"
+                    title="Assign tax group to all products in this category"
+                  >
+                    <Settings className="w-4 h-4" />
+                    Assign Tax Group
+                  </button>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="min-w-full leading-normal">
@@ -658,6 +723,71 @@ export default function MenuPage() {
                     className="px-6 py-3 bg-[#3E2C24] text-white rounded-xl font-medium hover:bg-[#2c1f19] transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
                   >
                     {editingCategory ? 'Update' : 'Create'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Bulk Tax Group Assignment Modal */}
+        {showBulkTaxModal && selectedCategoryForBulk && (
+          <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 max-w-md w-full animate-fade-in animate-scale-in">
+              <div className="flex justify-between items-center mb-6 pb-4 border-b border-[#E5E7EB]">
+                <h2 className="text-2xl font-bold text-[#3E2C24]">
+                  Assign Tax Group to Category
+                </h2>
+                <button
+                  onClick={() => {
+                    setShowBulkTaxModal(false)
+                    setSelectedCategoryForBulk(null)
+                    setBulkTaxGroupId('')
+                  }}
+                  className="text-[#6B6B6B] hover:text-[#3E2C24] transition-all duration-200 ease-in-out active:scale-[0.9] p-2 rounded-full hover:bg-[#FAF7F2]"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <form onSubmit={handleBulkTaxSubmit} className="space-y-5">
+                <div>
+                  <p className="text-sm text-[#6B6B6B] mb-4">
+                    This will assign the selected tax group to <strong>all products</strong> in the category <strong>&quot;{selectedCategoryForBulk.name}&quot;</strong>.
+                  </p>
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-[#6B6B6B] mb-2">Tax Group *</label>
+                  <select
+                    value={bulkTaxGroupId}
+                    onChange={(e) => setBulkTaxGroupId(e.target.value)}
+                    required
+                    className="w-full px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63] bg-[#FAF7F2] hover:bg-white transition-all duration-200 text-[#1F1F1F]"
+                  >
+                    <option value="">Select Tax Group</option>
+                    {taxGroups.map((tg) => (
+                      <option key={tg.id} value={tg.id}>
+                        {tg.name} ({tg.total_rate}% - {tg.is_tax_inclusive ? 'Inclusive' : 'Exclusive'})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="flex gap-3 justify-end pt-4">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowBulkTaxModal(false)
+                      setSelectedCategoryForBulk(null)
+                      setBulkTaxGroupId('')
+                    }}
+                    className="px-6 py-3 rounded-xl font-medium border border-[#3E2C24] text-[#3E2C24] hover:bg-[#3E2C24] hover:text-white transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-6 py-3 bg-[#3E2C24] text-white rounded-xl font-medium hover:bg-[#2c1f19] transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
+                  >
+                    Assign to All Products
                   </button>
                 </div>
               </form>

@@ -4,7 +4,7 @@ from typing import List
 from uuid import UUID
 from app.core.database import get_supabase
 from app.services.product_service import ProductService
-from app.schemas.product import ProductCreate, ProductUpdate, ProductResponse
+from app.schemas.product import ProductCreate, ProductUpdate, ProductResponse, BulkUpdateTaxGroupRequest
 from supabase import Client
 from app.core.logging import logger
 
@@ -53,6 +53,35 @@ async def list_products(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to list products"
+        )
+
+
+# IMPORTANT: This route must come BEFORE /{product_id} routes to avoid route matching conflicts
+@router.put("/bulk-update-by-category", status_code=status.HTTP_200_OK)
+async def bulk_update_products_by_category(
+    request: BulkUpdateTaxGroupRequest,
+    db: Client = Depends(get_supabase)
+):
+    """Bulk update tax group for all products in a category."""
+    try:
+        logger.info(f"Received bulk update request: category_id={request.category_id}, tax_group_id={request.tax_group_id}")
+        service = ProductService(db)
+        updated_count = await service.bulk_update_tax_group_by_category(
+            request.category_id, 
+            request.tax_group_id
+        )
+        logger.info(f"Bulk update successful: {updated_count} products updated")
+        return {"updated_count": updated_count, "message": f"Updated {updated_count} products"}
+    except ValueError as e:
+        logger.error(f"Validation error in bulk update: {e}")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    except Exception as e:
+        logger.error(f"Error bulk updating products: {e}")
+        import traceback
+        logger.error(f"Traceback: {traceback.format_exc()}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to bulk update products"
         )
 
 
