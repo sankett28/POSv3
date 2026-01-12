@@ -70,6 +70,8 @@ class BillResponse(BaseModel):
     bill_number: str
     subtotal: float
     tax_amount: float
+    cgst: float = 0.0  # Balanced CGST derived from total_tax
+    sgst: float = 0.0  # Balanced SGST derived from total_tax
     total_amount: float
     payment_method: str
     created_at: datetime

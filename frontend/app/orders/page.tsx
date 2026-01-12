@@ -250,8 +250,9 @@ export default function OrdersPage() {
   // Calculate totals from preview values
   const subtotal = billItems.reduce((sum, item) => sum + (item.preview_taxable_value || item.subtotal), 0)
   const totalTax = billItems.reduce((sum, item) => sum + (item.preview_tax_amount || 0), 0)
-  const totalCGST = billItems.reduce((sum, item) => sum + (item.preview_cgst || 0), 0)
-  const totalSGST = billItems.reduce((sum, item) => sum + (item.preview_sgst || 0), 0)
+  // Derive balanced CGST/SGST from total tax (matching backend logic)
+  const totalCGST = Math.round((totalTax / 2) * 100) / 100
+  const totalSGST = totalTax - totalCGST  // Ensure exact balance
   const grandTotal = billItems.reduce((sum, item) => sum + (item.preview_total || item.subtotal), 0)
 
   const getCurrentDate = () => {

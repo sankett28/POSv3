@@ -25,6 +25,8 @@ interface Bill {
   bill_number: string
   subtotal: number
   tax_amount: number
+  cgst?: number
+  sgst?: number
   total_amount: number
   payment_method: string
   created_at: string
@@ -171,11 +173,11 @@ export default function TransactionsPage() {
                   <>
                     <div className="flex justify-between items-center">
                       <span className="text-[#6B6B6B] font-medium">CGST:</span>
-                      <span className="text-[#1F1F1F]">₹{selectedBill.items.reduce((sum, item) => sum + (item.cgst_amount || 0), 0).toFixed(2)}</span>
+                      <span className="text-[#1F1F1F]">₹{(selectedBill.cgst || 0).toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-[#6B6B6B] font-medium">SGST:</span>
-                      <span className="text-[#1F1F1F]">₹{selectedBill.items.reduce((sum, item) => sum + (item.sgst_amount || 0), 0).toFixed(2)}</span>
+                      <span className="text-[#1F1F1F]">₹{(selectedBill.sgst || 0).toFixed(2)}</span>
                     </div>
                   </>
                 ) : (
@@ -219,11 +221,11 @@ export default function TransactionsPage() {
                   <>
                     <div className="flex justify-between text-[#6B6B6B] text-base font-medium">
                       <span>CGST:</span>
-                      <span>₹{selectedBill.items.reduce((sum, item) => sum + (item.cgst_amount || 0), 0).toFixed(2)}</span>
+                      <span>₹{(selectedBill.cgst || 0).toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between text-[#6B6B6B] text-base font-medium">
                       <span>SGST:</span>
-                      <span>₹{selectedBill.items.reduce((sum, item) => sum + (item.sgst_amount || 0), 0).toFixed(2)}</span>
+                      <span>₹{(selectedBill.sgst || 0).toFixed(2)}</span>
                     </div>
                   </>
                 ) : (
