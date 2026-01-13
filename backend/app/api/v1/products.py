@@ -5,6 +5,7 @@ from uuid import UUID
 from app.core.database import get_supabase
 from app.services.product_service import ProductService
 from app.schemas.product import ProductCreate, ProductUpdate, ProductResponse, BulkUpdateTaxGroupRequest
+from app.api.v1.auth import get_current_user_id
 from supabase import Client
 from app.core.logging import logger
 
@@ -15,6 +16,7 @@ router = APIRouter()
 @router.post("", response_model=ProductResponse, status_code=status.HTTP_201_CREATED)
 async def create_product(
     product: ProductCreate,
+    user_id: str = Depends(get_current_user_id),
     db: Client = Depends(get_supabase)
 ):
     """Create a new product."""
@@ -41,6 +43,7 @@ async def create_product(
 
 @router.get("", response_model=List[ProductResponse])
 async def list_products(
+    user_id: str = Depends(get_current_user_id),
     db: Client = Depends(get_supabase)
 ):
     """List all products."""
@@ -60,6 +63,7 @@ async def list_products(
 @router.put("/bulk-update-by-category", status_code=status.HTTP_200_OK)
 async def bulk_update_products_by_category(
     request: BulkUpdateTaxGroupRequest,
+    user_id: str = Depends(get_current_user_id),
     db: Client = Depends(get_supabase)
 ):
     """Bulk update tax group for all products in a category."""
@@ -88,6 +92,7 @@ async def bulk_update_products_by_category(
 @router.get("/{product_id}", response_model=ProductResponse)
 async def get_product(
     product_id: UUID,
+    user_id: str = Depends(get_current_user_id),
     db: Client = Depends(get_supabase)
 ):
     """Get a product by ID."""
@@ -114,6 +119,7 @@ async def get_product(
 async def update_product(
     product_id: UUID,
     product_update: ProductUpdate,
+    user_id: str = Depends(get_current_user_id),
     db: Client = Depends(get_supabase)
 ):
     """Update a product."""
@@ -141,6 +147,7 @@ async def update_product(
 @router.delete("/{product_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def deactivate_product(
     product_id: UUID,
+    user_id: str = Depends(get_current_user_id),
     db: Client = Depends(get_supabase)
 ):
     """Deactivate a product (soft delete)."""

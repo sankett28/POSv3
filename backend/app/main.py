@@ -18,10 +18,10 @@ app = FastAPI(
 )
 
 # Configure CORS - MUST be added before routers and other middleware
-# Allow requests ONLY from frontend on port 3000
+# Origins are configurable via CORS_ORIGINS environment variable (comma-separated)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # Explicitly allow only frontend origin
+    allow_origins=settings.cors_origins,
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],  # All required methods
     allow_headers=["*"],  # Allow all headers including Authorization
@@ -66,8 +66,7 @@ async def startup_event():
     logger.info("Starting Retail Boss POS API...")
     if settings.supabase_url:
         logger.info(f"Supabase URL: {settings.supabase_url}")
-    if settings.test_user_email:
-        logger.info(f"Test user enabled: {settings.test_user_email}")
+    logger.info(f"CORS origins: {settings.cors_origins}")
 
 
 @app.on_event("shutdown")

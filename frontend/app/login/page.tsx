@@ -30,7 +30,8 @@ export default function LoginPage() {
         throw new Error('Token was not saved. Please try again.')
       }
       
-      router.push('/orders')
+      // Use replace instead of push to avoid back button issues
+      router.replace('/orders')
     } catch (err: any) {
       console.error('Login error:', err)
       // Show more detailed error message

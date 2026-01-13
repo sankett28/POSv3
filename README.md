@@ -81,18 +81,35 @@ npm run dev  # Runs on port 3000
 ## Environment Variables
 
 ### Backend (.env)
-```
+
+Copy `backend/.env.example` to `backend/.env` and configure:
+
+```env
+# Required
 SUPABASE_URL=https://xxxx.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=xxxx
+
+# Optional (defaults shown)
 BACKEND_PORT=8000
+CORS_ORIGINS=http://localhost:3000
+```
+
+**For production:** Set `CORS_ORIGINS` to your frontend domain(s), comma-separated:
+```env
+CORS_ORIGINS=https://yourdomain.com,https://www.yourdomain.com
 ```
 
 ### Frontend (.env.local)
-```
+
+Copy `frontend/.env.local.example` to `frontend/.env.local` and configure:
+
+```env
 NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
 NEXT_PUBLIC_SUPABASE_URL=https://xxxx.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=xxxx
 ```
+
+**For production:** Update `NEXT_PUBLIC_API_BASE_URL` to your backend API URL.
 
 ## Database Schema
 
@@ -126,6 +143,38 @@ The system uses an order-centric approach:
 4. **Inventory is OPTIONAL and ADVISORY** - May exist for operational convenience
 5. **Billing must NEVER be blocked by inventory** - Sales proceed regardless of stock status
 6. **Immutability applies to orders and order items, not stock** - Orders are permanent records
+
+## Production Deployment
+
+### Security Checklist
+
+Before deploying to production, ensure:
+
+- [ ] All API routes (except `/auth/login` and `/health`) require authentication
+- [ ] JWT tokens are properly verified with Supabase
+- [ ] CORS is configured for your production frontend domain(s)
+- [ ] Test credentials are removed (not used in production)
+- [ ] Environment variables are set correctly in your hosting platform
+- [ ] Database migrations are applied
+- [ ] HTTPS is enabled
+- [ ] Frontend middleware is protecting routes server-side
+
+### Authentication
+
+The application uses Supabase for authentication:
+- All API routes require a valid JWT token in the `Authorization: Bearer <token>` header
+- Tokens are verified server-side using Supabase's token verification
+- Frontend middleware provides server-side route protection
+- Invalid or expired tokens result in 401 Unauthorized responses
+
+### CORS Configuration
+
+Configure allowed origins via the `CORS_ORIGINS` environment variable (comma-separated):
+```env
+CORS_ORIGINS=https://yourdomain.com,https://www.yourdomain.com
+```
+
+For development, defaults to `http://localhost:3000` if not set.
 
 ## License
 

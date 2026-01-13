@@ -5,6 +5,7 @@ from uuid import UUID
 from app.core.database import get_supabase
 from app.services.category_service import CategoryService
 from app.schemas.category import CategoryCreate, CategoryUpdate, CategoryResponse
+from app.api.v1.auth import get_current_user_id
 from supabase import Client
 from app.core.logging import logger
 
@@ -15,6 +16,7 @@ router = APIRouter()
 @router.post("", response_model=CategoryResponse, status_code=status.HTTP_201_CREATED)
 async def create_category(
     category: CategoryCreate,
+    user_id: str = Depends(get_current_user_id),
     db: Client = Depends(get_supabase)
 ):
     """Create a new category."""
@@ -39,6 +41,7 @@ async def create_category(
 
 @router.get("", response_model=List[CategoryResponse])
 async def list_categories(
+    user_id: str = Depends(get_current_user_id),
     db: Client = Depends(get_supabase)
 ):
     """List all categories."""
@@ -57,6 +60,7 @@ async def list_categories(
 @router.get("/{category_id}", response_model=CategoryResponse)
 async def get_category(
     category_id: UUID,
+    user_id: str = Depends(get_current_user_id),
     db: Client = Depends(get_supabase)
 ):
     """Get a category by ID."""
@@ -83,6 +87,7 @@ async def get_category(
 async def update_category(
     category_id: UUID,
     category_update: CategoryUpdate,
+    user_id: str = Depends(get_current_user_id),
     db: Client = Depends(get_supabase)
 ):
     """Update a category."""
@@ -110,6 +115,7 @@ async def update_category(
 @router.delete("/{category_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def deactivate_category(
     category_id: UUID,
+    user_id: str = Depends(get_current_user_id),
     db: Client = Depends(get_supabase)
 ):
     """Deactivate a category (soft delete)."""
