@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { api } from '@/lib/api'
-import { Plus, Edit, Trash2, Search, X, Settings } from 'lucide-react'
+import { Plus, Edit, Trash2, Search, X, Settings, CheckCircle, AlertCircle } from 'lucide-react'
 
 export interface Category {
   id: string
@@ -48,6 +48,8 @@ export default function MenuPage() {
   const [editingCategory, setEditingCategory] = useState<Category | null>(null)
   const [selectedCategoryForBulk, setSelectedCategoryForBulk] = useState<Category | null>(null)
   const [bulkTaxGroupId, setBulkTaxGroupId] = useState('')
+  const [showTaxConfirmation, setShowTaxConfirmation] = useState(false)
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
   const [itemFormData, setItemFormData] = useState({ 
     name: '', 
     selling_price: '', 
@@ -65,6 +67,20 @@ export default function MenuPage() {
   useEffect(() => {
     loadData()
   }, [])
+
+  // Auto-dismiss toast after 3 seconds
+  useEffect(() => {
+    if (toast) {
+      const timer = setTimeout(() => {
+        setToast(null)
+      }, 3000)
+      return () => clearTimeout(timer)
+    }
+  }, [toast])
+
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    setToast({ message, type })
+  }
 
   const loadData = async () => {
     try {
@@ -99,7 +115,7 @@ export default function MenuPage() {
     e.preventDefault()
     try {
       if (!itemFormData.tax_group_id) {
-        alert('Please select a tax group')
+        showToast('Please select a tax group', 'error')
         return
       }
 
@@ -119,8 +135,10 @@ export default function MenuPage() {
 
       if (editingProduct) {
         await api.updateProduct(editingProduct.id, productData)
+        showToast('Menu item updated successfully', 'success')
       } else {
         await api.createProduct(productData)
+        showToast('Menu item created successfully', 'success')
       }
       
       setShowItemModal(false)
@@ -129,7 +147,7 @@ export default function MenuPage() {
       loadData()
     } catch (error: any) {
       const errorMessage = error?.response?.data?.detail || error?.message || 'Unknown error occurred'
-      alert(`Failed to save menu item: ${errorMessage}`)
+      showToast(`Failed to save menu item: ${errorMessage}`, 'error')
     }
   }
 
@@ -138,8 +156,10 @@ export default function MenuPage() {
     try {
       if (editingCategory) {
         await api.updateCategory(editingCategory.id, categoryFormData)
+        showToast('Category updated successfully', 'success')
       } else {
         await api.createCategory(categoryFormData)
+        showToast('Category created successfully', 'success')
       }
       
       setShowCategoryModal(false)
@@ -148,7 +168,7 @@ export default function MenuPage() {
       loadData()
     } catch (error: any) {
       const errorMessage = error?.response?.data?.detail || error?.message || 'Unknown error occurred'
-      alert(`Failed to save category: ${errorMessage}`)
+      showToast(`Failed to save category: ${errorMessage}`, 'error')
     }
   }
 
@@ -198,9 +218,10 @@ export default function MenuPage() {
     if (!confirm('Are you sure you want to deactivate this menu item?')) return
     try {
       await api.deleteProduct(id)
+      showToast('Menu item deactivated successfully', 'success')
       loadData()
     } catch (error) {
-      alert('Failed to deactivate menu item')
+      showToast('Failed to deactivate menu item', 'error')
     }
   }
 
@@ -208,9 +229,10 @@ export default function MenuPage() {
     if (!confirm('Are you sure you want to deactivate this category?')) return
     try {
       await api.deleteCategory(id)
+      showToast('Category deactivated successfully', 'success')
       loadData()
     } catch (error) {
-      alert('Failed to deactivate category')
+      showToast('Failed to deactivate category', 'error')
     }
   }
 
@@ -223,20 +245,26 @@ export default function MenuPage() {
   const handleBulkTaxSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!selectedCategoryForBulk || !bulkTaxGroupId) {
-      alert('Please select a tax group')
+      showToast('Please select a tax group', 'error')
       return
     }
 
-    if (!confirm(`Are you sure you want to assign this tax group to ALL products in "${selectedCategoryForBulk.name}"?`)) {
+    // Show custom confirmation instead of browser alert
+    setShowTaxConfirmation(true)
+  }
+
+  const handleConfirmTaxAssignment = async () => {
+    if (!selectedCategoryForBulk || !bulkTaxGroupId) {
       return
     }
 
     try {
       const result = await api.bulkUpdateProductsByCategory(selectedCategoryForBulk.id, bulkTaxGroupId)
-      alert(`Successfully updated ${result.updated_count} products`)
+      showToast(`Successfully updated ${result.updated_count} products`, 'success')
       setShowBulkTaxModal(false)
       setSelectedCategoryForBulk(null)
       setBulkTaxGroupId('')
+      setShowTaxConfirmation(false)
       loadData()
     } catch (error: any) {
       console.error('Bulk update error:', error)
@@ -258,8 +286,13 @@ export default function MenuPage() {
       } else if (error?.message) {
         errorMessage = error.message
       }
-      alert(`Failed to update products: ${errorMessage}`)
+      showToast(`Failed to update products: ${errorMessage}`, 'error')
+      setShowTaxConfirmation(false)
     }
+  }
+
+  const handleCancelTaxConfirmation = () => {
+    setShowTaxConfirmation(false)
   }
 
   const filteredProducts = products.filter((p) => {
@@ -744,6 +777,7 @@ export default function MenuPage() {
                     setShowBulkTaxModal(false)
                     setSelectedCategoryForBulk(null)
                     setBulkTaxGroupId('')
+                    setShowTaxConfirmation(false)
                   }}
                   className="text-[#6B6B6B] hover:text-[#3E2C24] transition-all duration-200 ease-in-out active:scale-[0.9] p-2 rounded-full hover:bg-[#FAF7F2]"
                 >
@@ -772,6 +806,30 @@ export default function MenuPage() {
                     ))}
                   </select>
                 </div>
+                {/* Confirmation Notification */}
+                {showTaxConfirmation && (
+                  <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-xl">
+                    <p className="text-sm text-yellow-800 mb-4">
+                      Are you sure you want to assign this tax group to <strong>ALL products</strong> in &quot;{selectedCategoryForBulk?.name}&quot;?
+                    </p>
+                    <div className="flex gap-3 justify-end">
+                      <button
+                        type="button"
+                        onClick={handleCancelTaxConfirmation}
+                        className="px-4 py-2 rounded-xl font-medium border border-yellow-600 text-yellow-700 hover:bg-yellow-100 transition-all duration-200 ease-in-out hover:scale-[1.02] active:scale-[0.98]"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleConfirmTaxAssignment}
+                        className="px-4 py-2 bg-yellow-600 text-white rounded-xl font-medium hover:bg-yellow-700 transition-all duration-200 ease-in-out hover:scale-[1.02] active:scale-[0.98]"
+                      >
+                        OK
+                      </button>
+                    </div>
+                  </div>
+                )}
                 <div className="flex gap-3 justify-end pt-4">
                   <button
                     type="button"
@@ -779,6 +837,7 @@ export default function MenuPage() {
                       setShowBulkTaxModal(false)
                       setSelectedCategoryForBulk(null)
                       setBulkTaxGroupId('')
+                      setShowTaxConfirmation(false)
                     }}
                     className="px-6 py-3 rounded-xl font-medium border border-[#3E2C24] text-[#3E2C24] hover:bg-[#3E2C24] hover:text-white transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
                   >
@@ -792,6 +851,43 @@ export default function MenuPage() {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        )}
+
+        {/* Toast Notification */}
+        {toast && (
+          <div 
+            className="fixed bottom-6 right-6 z-[9999]"
+            style={{
+              animation: 'slideInRight 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
+            }}
+          >
+            <div className={`flex items-center gap-3 px-6 py-4 rounded-xl shadow-2xl min-w-[300px] max-w-md bg-white border ${
+              toast.type === 'success' 
+                ? 'border-green-200' 
+                : 'border-red-200'
+            }`}>
+              {toast.type === 'success' ? (
+                <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+                  <CheckCircle className="w-5 h-5 text-green-600" />
+                </div>
+              ) : (
+                <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
+                  <AlertCircle className="w-5 h-5 text-red-600" />
+                </div>
+              )}
+              <p className={`text-sm font-semibold flex-1 ${
+                toast.type === 'success' ? 'text-[#3E2C24]' : 'text-[#3E2C24]'
+              }`}>
+                {toast.message}
+              </p>
+              <button
+                onClick={() => setToast(null)}
+                className="flex-shrink-0 p-1 rounded-full text-[#6B6B6B] hover:text-[#3E2C24] hover:bg-[#FAF7F2] transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
           </div>
         )}

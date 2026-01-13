@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import { api } from '@/lib/api'
 import { Search, Plus, Minus, Trash2, CheckCircle, Wallet, Smartphone, CreditCard, PackageOpen } from 'lucide-react'
 import Image from 'next/image' // Import Next.js Image component
@@ -87,17 +87,23 @@ export default function OrdersPage() {
       ])
       
       if (!Array.isArray(productsData)) {
-        console.error("Products data is not an array:", productsData)
+        if (process.env.NODE_ENV === 'development') {
+          console.error("Products data is not an array:", productsData)
+        }
         setLoading(false)
         return
       }
       if (!Array.isArray(categoriesData)) {
-        console.error("Categories data is not an array:", categoriesData)
+        if (process.env.NODE_ENV === 'development') {
+          console.error("Categories data is not an array:", categoriesData)
+        }
         setLoading(false)
         return
       }
       if (!Array.isArray(taxGroupsData)) {
-        console.error("Tax groups data is not an array:", taxGroupsData)
+        if (process.env.NODE_ENV === 'development') {
+          console.error("Tax groups data is not an array:", taxGroupsData)
+        }
         setLoading(false)
         return
       }
@@ -124,97 +130,16 @@ export default function OrdersPage() {
       setProducts(enrichedProducts)
       setCategories(categoriesData.filter((c: Category) => c.is_active))
     } catch (error) {
-      console.error('Error loading data:', JSON.stringify(error, null, 2))    } finally {
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error loading data:', JSON.stringify(error, null, 2))
+      }
+    } finally {
       setLoading(false)
     }
   }
 
-  const addToBill = (product: Product) => {
-    const existingItem = billItems.find((item) => item.product_id === product.id)
-
-    if (existingItem) {
-      const newQuantity = existingItem.quantity + 1
-      const subtotal = newQuantity * product.selling_price
-      const taxPreview = calculateTaxPreview(product.selling_price, newQuantity, product.tax_group)
-      
-      setBillItems(
-        billItems.map((item) =>
-          item.product_id === product.id
-            ? {
-                ...item,
-                quantity: newQuantity,
-                subtotal,
-                tax_group: product.tax_group,
-                preview_taxable_value: taxPreview.taxable_value,
-                preview_tax_amount: taxPreview.tax_amount,
-                preview_cgst: taxPreview.cgst,
-                preview_sgst: taxPreview.sgst,
-                preview_total: taxPreview.total,
-              }
-            : item
-        )
-      )
-    } else {
-      const subtotal = product.selling_price
-      const taxPreview = calculateTaxPreview(product.selling_price, 1, product.tax_group)
-      
-      setBillItems([
-        ...billItems,
-        {
-          product_id: product.id,
-          product_name: product.name,
-          quantity: 1,
-          unit_price: product.selling_price,
-          subtotal,
-          tax_group: product.tax_group,
-          preview_taxable_value: taxPreview.taxable_value,
-          preview_tax_amount: taxPreview.tax_amount,
-          preview_cgst: taxPreview.cgst,
-          preview_sgst: taxPreview.sgst,
-          preview_total: taxPreview.total,
-        },
-      ])
-    }
-  }
-
-  const updateQuantity = (productId: string, delta: number) => {
-    const product = products.find(p => p.id === productId)
-    if (!product) return
-
-    setBillItems(
-      billItems
-        .map((item) => {
-          if (item.product_id === productId) {
-            const newQuantity = item.quantity + delta
-            if (newQuantity <= 0) return null
-            const subtotal = newQuantity * item.unit_price
-            const taxGroup = item.tax_group || product.tax_group
-            const taxPreview = calculateTaxPreview(item.unit_price, newQuantity, taxGroup)
-            
-            return {
-              ...item,
-              quantity: newQuantity,
-              subtotal,
-              tax_group: taxGroup,
-              preview_taxable_value: taxPreview.taxable_value,
-              preview_tax_amount: taxPreview.tax_amount,
-              preview_cgst: taxPreview.cgst,
-              preview_sgst: taxPreview.sgst,
-              preview_total: taxPreview.total,
-            }
-          }
-          return item
-        })
-        .filter((item): item is BillItem => item !== null)
-    )
-  }
-
-  const removeItem = (productId: string) => {
-    setBillItems(billItems.filter((item) => item.product_id !== productId))
-  }
-
   // Tax preview calculation function (for display only - backend does actual calculation)
-  const calculateTaxPreview = (
+  const calculateTaxPreview = useCallback((
     unitPrice: number,
     quantity: number,
     taxGroup?: TaxGroup
@@ -275,11 +200,101 @@ export default function OrdersPage() {
       sgst,
       total
     }
-  }
+  }, [])
 
-  // Calculate totals from preview values
-  const subtotal = billItems.reduce((sum, item) => sum + (item.preview_taxable_value || item.subtotal), 0)
-  const totalTax = billItems.reduce((sum, item) => sum + (item.preview_tax_amount || 0), 0)
+  const addToBill = useCallback((product: Product) => {
+    const existingItem = billItems.find((item) => item.product_id === product.id)
+
+    if (existingItem) {
+      const newQuantity = existingItem.quantity + 1
+      const subtotal = newQuantity * product.selling_price
+      const taxPreview = calculateTaxPreview(product.selling_price, newQuantity, product.tax_group)
+      
+      setBillItems(
+        billItems.map((item) =>
+          item.product_id === product.id
+            ? {
+                ...item,
+                quantity: newQuantity,
+                subtotal,
+                tax_group: product.tax_group,
+                preview_taxable_value: taxPreview.taxable_value,
+                preview_tax_amount: taxPreview.tax_amount,
+                preview_cgst: taxPreview.cgst,
+                preview_sgst: taxPreview.sgst,
+                preview_total: taxPreview.total,
+              }
+            : item
+        )
+      )
+    } else {
+      const subtotal = product.selling_price
+      const taxPreview = calculateTaxPreview(product.selling_price, 1, product.tax_group)
+      
+      setBillItems([
+        ...billItems,
+        {
+          product_id: product.id,
+          product_name: product.name,
+          quantity: 1,
+          unit_price: product.selling_price,
+          subtotal,
+          tax_group: product.tax_group,
+          preview_taxable_value: taxPreview.taxable_value,
+          preview_tax_amount: taxPreview.tax_amount,
+          preview_cgst: taxPreview.cgst,
+          preview_sgst: taxPreview.sgst,
+          preview_total: taxPreview.total,
+        },
+      ])
+    }
+  }, [billItems, calculateTaxPreview])
+
+  const updateQuantity = useCallback((productId: string, delta: number) => {
+    const product = products.find(p => p.id === productId)
+    if (!product) return
+
+    setBillItems(
+      billItems
+        .map((item) => {
+          if (item.product_id === productId) {
+            const newQuantity = item.quantity + delta
+            if (newQuantity <= 0) return null
+            const subtotal = newQuantity * item.unit_price
+            const taxGroup = item.tax_group || product.tax_group
+            const taxPreview = calculateTaxPreview(item.unit_price, newQuantity, taxGroup)
+            
+            return {
+              ...item,
+              quantity: newQuantity,
+              subtotal,
+              tax_group: taxGroup,
+              preview_taxable_value: taxPreview.taxable_value,
+              preview_tax_amount: taxPreview.tax_amount,
+              preview_cgst: taxPreview.cgst,
+              preview_sgst: taxPreview.sgst,
+              preview_total: taxPreview.total,
+            }
+          }
+          return item
+        })
+        .filter((item): item is BillItem => item !== null)
+    )
+  }, [billItems, products, calculateTaxPreview])
+
+  const removeItem = useCallback((productId: string) => {
+    setBillItems(billItems.filter((item) => item.product_id !== productId))
+  }, [billItems])
+
+  // Calculate totals from preview values - memoized for performance
+  const subtotal = useMemo(() => 
+    billItems.reduce((sum, item) => sum + (item.preview_taxable_value || item.subtotal), 0),
+    [billItems]
+  )
+  const totalTax = useMemo(() => 
+    billItems.reduce((sum, item) => sum + (item.preview_tax_amount || 0), 0),
+    [billItems]
+  )
   // Derive balanced CGST/SGST from total tax (matching backend logic)
   const totalCGST = Math.round((totalTax / 2) * 100) / 100
   const totalSGST = totalTax - totalCGST  // Ensure exact balance
@@ -728,32 +743,39 @@ export default function OrdersPage() {
     printWindow.document.close()
   }
 
-  const filteredProducts = products.filter((p) => {
-    const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesCategory = !selectedCategory || p.category_id === selectedCategory
-    return matchesSearch && matchesCategory
-  })
+  // Memoize filtered products for performance
+  const filteredProducts = useMemo(() => {
+    return products.filter((p) => {
+      const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase())
+      const matchesCategory = !selectedCategory || p.category_id === selectedCategory
+      return matchesSearch && matchesCategory
+    })
+  }, [products, searchTerm, selectedCategory])
 
-  const productsByCategory = categories.reduce((acc, cat) => {
-    acc[cat.id] = filteredProducts.filter(p => p.category_id === cat.id)
-    return acc
-  }, {} as Record<string, Product[]>)
+  const productsByCategory = useMemo(() => {
+    return categories.reduce((acc, cat) => {
+      acc[cat.id] = filteredProducts.filter(p => p.category_id === cat.id)
+      return acc
+    }, {} as Record<string, Product[]>)
+  }, [categories, filteredProducts])
 
-  const uncategorizedProducts = filteredProducts.filter(p => !p.category_id)
+  const uncategorizedProducts = useMemo(() => {
+    return filteredProducts.filter(p => !p.category_id)
+  }, [filteredProducts])
 
   return (
-    <div className="p-4 sm:p-8 bg-[#F5F3EE] min-h-screen">
-      <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold text-[#3E2C24] mb-6">Orders</h1>
+    <div className="p-3 sm:p-4 md:p-6 lg:p-8 bg-[#F5F3EE] min-h-screen overflow-x-hidden">
+      <div className="max-w-7xl mx-auto w-full">
+        <h1 className="text-2xl sm:text-3xl font-bold text-[#3E2C24] mb-4 sm:mb-6">Orders</h1>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 sm:gap-6 w-full">
           {/* Left Sidebar: Categories */}
-          <div className="lg:col-span-2 bg-white rounded-2xl shadow-md p-6 border border-[#E5E7EB]">
-            <h3 className="font-bold text-[#3E2C24] mb-4 text-xl">Categories</h3>
-            <div className="space-y-3">
+          <div className="xl:col-span-2 bg-white rounded-2xl shadow-md p-4 sm:p-6 border border-[#E5E7EB]">
+            <h3 className="font-bold text-[#3E2C24] mb-3 sm:mb-4 text-lg sm:text-xl">Categories</h3>
+            <div className="space-y-2 sm:space-y-3">
               <button
                 onClick={() => setSelectedCategory(null)}
-                className={`w-full text-left px-4 py-3 rounded-xl font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring outline-none ${selectedCategory === null
+                className={`w-full text-left px-3 sm:px-4 py-2 sm:py-3 rounded-xl font-medium text-sm sm:text-base transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring outline-none truncate ${selectedCategory === null
                     ? 'bg-[#3E2C24] text-white shadow-md'
                     : 'bg-[#FAF7F2] text-[#3E2C24] hover:bg-[#C89B63]/10'
                 }`}
@@ -764,7 +786,7 @@ export default function OrdersPage() {
                 <button
                   key={category.id}
                   onClick={() => setSelectedCategory(category.id)}
-                  className={`w-full text-left px-4 py-3 rounded-xl font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring outline-none ${selectedCategory === category.id
+                  className={`w-full text-left px-3 sm:px-4 py-2 sm:py-3 rounded-xl font-medium text-sm sm:text-base transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring outline-none truncate ${selectedCategory === category.id
                       ? 'bg-[#3E2C24] text-white shadow-md'
                       : 'bg-[#FAF7F2] text-[#3E2C24] hover:bg-[#C89B63]/10'
                   }`}
@@ -776,16 +798,16 @@ export default function OrdersPage() {
           </div>
 
           {/* Center: Menu Items */}
-          <div className="lg:col-span-6 bg-white rounded-2xl shadow-md p-6 border border-[#E5E7EB]">
-            <div className="mb-6">
+          <div className="xl:col-span-6 lg:col-span-7 bg-white rounded-2xl shadow-md p-4 sm:p-6 border border-[#E5E7EB]">
+            <div className="mb-4 sm:mb-6">
               <div className="relative">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[#9CA3AF] w-5 h-5" />
+                <Search className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 text-[#9CA3AF] w-4 h-4 sm:w-5 sm:h-5" />
                 <input
                   type="text"
                   placeholder="Search menu items..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63] bg-[#FAF7F2] hover:bg-white transition-all duration-200 text-[#1F1F1F] placeholder-[#9CA3AF]"
+                  className="w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-2 sm:py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63] bg-[#FAF7F2] hover:bg-white transition-all duration-200 text-sm sm:text-base text-[#1F1F1F] placeholder-[#9CA3AF]"
                 />
               </div>
             </div>
@@ -800,50 +822,86 @@ export default function OrdersPage() {
 
                   return (
                     <div key={category.id}>
-                      <h4 className="font-bold text-[#3E2C24] mb-4 text-xl">{category.name}</h4>
-                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                      <h4 className="font-bold text-[#3E2C24] mb-3 sm:mb-4 text-lg sm:text-xl">{category.name}</h4>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
                         {categoryProducts.map((product) => (
                           <button
                             key={product.id}
                             onClick={() => addToBill(product)}
-                            className="bg-white rounded-2xl p-4 shadow-md border border-[#E5E7EB]
-                                       transition-all duration-200 ease-in-out
-                                       hover:-translate-y-1 hover:scale-[1.02] hover:shadow-xl
-                                       active:scale-[0.98] cursor-pointer group flex flex-col items-center justify-between min-h-[160px] text-center"
+                            className="group relative w-full bg-white rounded-xl shadow-sm border border-[#E5E7EB]
+                                       hover:shadow-md hover:border-[#C89B63] transition-all duration-200
+                                       active:scale-[0.98] cursor-pointer flex flex-col overflow-hidden p-2 sm:p-3"
+                            style={{ aspectRatio: '4/5' }}
                           >
-                            {/* Product Image Placeholder */}
-                            <div className="h-24 w-full flex items-center justify-center rounded-xl mb-3 overflow-hidden bg-[#FAF7F2]">
-                              {product.category_name?.toLowerCase().includes('idli') ? (
-                                <Image 
-                                  key={product.id + "-idli"}
-                                  src="/images/menu_items/idli.png"
-                                  alt={product.name}
-                                  width={96}
-                                  height={96}
-                                  objectFit="cover"
-                                  className="rounded-xl"
-                                  priority
-                                />
-                              ) : product.category_name?.toLowerCase().includes('dosa') || product.category_name?.toLowerCase().includes('uttapam') ? (
-                                <Image 
-                                  key={product.id + "-dosa"}
-                                  src="/images/menu_items/dosa.jpeg"
-                                  alt={product.name}
-                                  width={96}
-                                  height={96}
-                                  objectFit="cover"
-                                  className="rounded-xl"
-                                  priority
-                                />
-                              ) : (
-                                <span className="text-5xl">☕</span>
-                              )}
+                            {/* Product Image Container - Takes ~60% of card */}
+                            <div className="w-full flex-[0_0_60%] flex items-center justify-center overflow-hidden bg-[#FAF7F2] rounded-lg mb-1 sm:mb-2">
+                              {(() => {
+                                const categoryLower = product.category_name?.toLowerCase() || ''
+                                if (categoryLower.includes('idli')) {
+                                  return (
+                                    <Image 
+                                      key={product.id + "-idli"}
+                                      src="/images/menu_items/idli.png"
+                                      alt={product.name}
+                                      width={120}
+                                      height={120}
+                                      objectFit="contain"
+                                      className="w-full h-full object-contain"
+                                      priority
+                                    />
+                                  )
+                                } else if (categoryLower.includes('dosa') || categoryLower.includes('uttapam')) {
+                                  return (
+                                    <Image 
+                                      key={product.id + "-dosa"}
+                                      src="/images/menu_items/dosa.jpeg"
+                                      alt={product.name}
+                                      width={120}
+                                      height={120}
+                                      objectFit="contain"
+                                      className="w-full h-full object-contain"
+                                      priority
+                                    />
+                                  )
+                                } else if (categoryLower.includes('snack') || categoryLower === 'other snacks' || categoryLower === 'snacks') {
+                                  return (
+                                    <Image 
+                                      key={product.id + "-snack"}
+                                      src="/images/menu_items/snacks.png"
+                                      alt={product.name}
+                                      width={120}
+                                      height={120}
+                                      objectFit="contain"
+                                      className="w-full h-full object-contain"
+                                      priority
+                                    />
+                                  )
+                                } else if (categoryLower.includes('beverage') || categoryLower === 'beverages') {
+                                  return (
+                                    <Image 
+                                      key={product.id + "-beverage"}
+                                      src="/images/menu_items/beverages.png"
+                                      alt={product.name}
+                                      width={120}
+                                      height={120}
+                                      objectFit="contain"
+                                      className="w-full h-full object-contain"
+                                      priority
+                                    />
+                                  )
+                                } else {
+                                  return <span className="text-4xl">☕</span>
+                                }
+                              })()}
                             </div>
-                            {/* Product Details */}
-                            <div className="flex-grow flex flex-col justify-end w-full">
-                              <div className="font-semibold text-[#1F1F1F] text-lg mb-1 leading-tight">{product.name}</div>
-                              <div className="font-bold text-[#3E2C24] text-xl">₹{product.selling_price.toFixed(2)}</div>
+                            
+                          {/* Product Details - Takes remaining ~40% of card */}
+                          <div className="flex flex-col justify-center items-center w-full flex-1 px-1 min-h-0">
+                            <div className="font-semibold text-[#1F1F1F] text-[10px] sm:text-xs text-center mb-1 leading-tight break-words line-clamp-2 flex items-center justify-center min-h-[2rem] max-w-full">
+                              <span className="truncate w-full">{product.name}</span>
                             </div>
+                            <div className="font-bold text-[#3E2C24] text-xs sm:text-sm whitespace-nowrap">₹{product.selling_price.toFixed(2)}</div>
+                          </div>
                           </button>
                         ))}
                       </div>
@@ -854,27 +912,87 @@ export default function OrdersPage() {
                 {/* Uncategorized Items */}
                 {(!selectedCategory || selectedCategory === null) && uncategorizedProducts.length > 0 && (
                   <div>
-                    <h4 className="font-bold text-[#3E2C24] mb-4 text-xl">Other Items</h4>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                    <h4 className="font-bold text-[#3E2C24] mb-3 sm:mb-4 text-lg sm:text-xl">Other Items</h4>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
                       {uncategorizedProducts.map((product) => (
                         <button
                           key={product.id}
                           onClick={() => addToBill(product)}
-                          className="bg-white rounded-2xl p-4 shadow-md border border-[#E5E7EB]
-                                     transition-all duration-200 ease-in-out
-                                     hover:-translate-y-1 hover:scale-[1.02] hover:shadow-xl
-                                     active:scale-[0.98] cursor-pointer group flex flex-col items-center justify-between min-h-[160px] text-center"
+                          className="group relative w-full bg-white rounded-xl shadow-sm border border-[#E5E7EB]
+                                     hover:shadow-md hover:border-[#C89B63] transition-all duration-200
+                                     active:scale-[0.98] cursor-pointer flex flex-col overflow-hidden p-2 sm:p-3"
+                          style={{ aspectRatio: '4/5' }}
                         >
-                          {/* Product Image Placeholder */}
-                          <div className="h-24 w-full bg-gradient-to-br from-[#C89B63]/30 to-[#F4A261]/30 flex items-center justify-center rounded-xl mb-3">
-                            <span className="text-5xl">☕</span> {/* Cafe-friendly emoji fallback */}
+                          {/* Product Image Container - Takes ~60% of card */}
+                          <div className="w-full flex-[0_0_60%] flex items-center justify-center overflow-hidden bg-[#FAF7F2] rounded-lg mb-1 sm:mb-2">
+                            {(() => {
+                              const categoryLower = product.category_name?.toLowerCase() || ''
+                              if (categoryLower.includes('idli')) {
+                                return (
+                                  <Image 
+                                    key={product.id + "-idli"}
+                                    src="/images/menu_items/idli.png"
+                                    alt={product.name}
+                                    width={120}
+                                    height={120}
+                                    objectFit="contain"
+                                    className="w-full h-full object-contain"
+                                    priority
+                                  />
+                                )
+                              } else if (categoryLower.includes('dosa') || categoryLower.includes('uttapam')) {
+                                return (
+                                  <Image 
+                                    key={product.id + "-dosa"}
+                                    src="/images/menu_items/dosa.jpeg"
+                                    alt={product.name}
+                                    width={120}
+                                    height={120}
+                                    objectFit="contain"
+                                    className="w-full h-full object-contain"
+                                    priority
+                                  />
+                                )
+                              } else if (categoryLower.includes('snack') || categoryLower === 'other snacks' || categoryLower === 'snacks') {
+                                return (
+                                  <Image 
+                                    key={product.id + "-snack"}
+                                    src="/images/menu_items/snacks.png"
+                                    alt={product.name}
+                                    width={120}
+                                    height={120}
+                                    objectFit="contain"
+                                    className="w-full h-full object-contain"
+                                    priority
+                                  />
+                                )
+                              } else if (categoryLower.includes('beverage') || categoryLower === 'beverages') {
+                                return (
+                                  <Image 
+                                    key={product.id + "-beverage"}
+                                    src="/images/menu_items/beverages.png"
+                                    alt={product.name}
+                                    width={120}
+                                    height={120}
+                                    objectFit="contain"
+                                    className="w-full h-full object-contain"
+                                    priority
+                                  />
+                                )
+                              } else {
+                                return <span className="text-4xl">☕</span>
+                              }
+                            })()}
                           </div>
-                          {/* Product Details */}
-                          <div className="flex-grow flex flex-col justify-end w-full">
-                            <div className="font-semibold text-[#1F1F1F] text-lg mb-1 leading-tight">{product.name}</div>
-                            <div className="font-bold text-[#3E2C24] text-xl">₹{product.selling_price.toFixed(2)}</div>
+                          
+                          {/* Product Details - Takes remaining ~40% of card */}
+                          <div className="flex flex-col justify-center items-center w-full flex-1 px-1 min-h-0">
+                            <div className="font-semibold text-[#1F1F1F] text-xs text-center mb-1 leading-tight break-words line-clamp-2 flex items-center justify-center min-h-[2rem]">
+                              {product.name}
+                            </div>
+                            <div className="font-bold text-[#3E2C24] text-sm">₹{product.selling_price.toFixed(2)}</div>
                             {product.tax_group && (
-                              <div className="text-xs text-[#6B6B6B] mt-1">
+                              <div className="text-[10px] text-[#6B6B6B] mt-0.5 text-center line-clamp-1">
                                 {product.tax_group.name}
                                 {product.tax_group.is_tax_inclusive && ' (Incl. Tax)'}
                               </div>
@@ -890,12 +1008,12 @@ export default function OrdersPage() {
           </div>
 
           {/* Right: Order Summary */}
-          <div className="lg:col-span-4 bg-white rounded-2xl shadow-md p-6 border border-[#E5E7EB] sticky top-4">
-            <div className="flex justify-between items-center mb-4 pb-4 border-b border-[#E5E7EB]">
-              <h3 className="text-xl font-bold text-[#3E2C24]">Current Order</h3>
+          <div className="xl:col-span-4 lg:col-span-5 bg-white rounded-2xl shadow-md p-4 sm:p-6 border border-[#E5E7EB] xl:sticky xl:top-4 xl:self-start">
+            <div className="flex justify-between items-center mb-3 sm:mb-4 pb-3 sm:pb-4 border-b border-[#E5E7EB]">
+              <h3 className="text-lg sm:text-xl font-bold text-[#3E2C24]">Current Order</h3>
               <button
                 onClick={() => setBillItems([])}
-                className="text-sm bg-[#F4A261] text-white hover:bg-[#E08F50] rounded-xl px-4 py-2 transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
+                className="text-xs sm:text-sm bg-[#F4A261] text-white hover:bg-[#E08F50] rounded-xl px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] whitespace-nowrap"
               >
                 Clear
               </button>
@@ -914,75 +1032,123 @@ export default function OrdersPage() {
                     const itemIsDosaOrUttapam = productImage?.category_name?.toLowerCase().includes('dosa') || productImage?.category_name?.toLowerCase().includes('uttapam')
 
                     return (
-                      <div key={item.product_id} className="flex items-center gap-3 py-2 border-b border-[#E5E7EB] last:border-b-0 transition-all duration-200 ease-in-out hover:bg-[#FAF7F2] rounded-md px-2">
-                        {/* Image Placeholder */}
-                        <div className="flex-shrink-0 h-12 w-12 flex items-center justify-center rounded-md overflow-hidden bg-[#FAF7F2]">
-                          {productImage?.category_name?.toLowerCase().includes('idli') ? (
-                            <Image
-                              key={item.product_id + "-summary-idli"}
-                              src="/images/menu_items/idli.png"
-                              alt={item.product_name}
-                              width={48}
-                              height={48}
-                              objectFit="cover"
-                              className="rounded-md"
-                              priority
-                            />
-                          ) : productImage?.category_name?.toLowerCase().includes('dosa') || productImage?.category_name?.toLowerCase().includes('uttapam') ? (
-                            <Image
-                              key={item.product_id + "-summary-dosa"}
-                              src="/images/menu_items/dosa.jpeg"
-                              alt={item.product_name}
-                              width={48}
-                              height={48}
-                              objectFit="cover"
-                              className="rounded-md"
-                              priority
-                            />
-                          ) : (
-                            <span className="text-xl">☕</span>
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0 pr-2">
-                          <div className="font-semibold text-sm text-[#1F1F1F] mb-0.5">{item.product_name}</div>
-                          <div className="flex flex-col text-xs text-[#6B6B6B]">
-                            <span>₹{item.unit_price.toFixed(2)} × {item.quantity}</span>
-                            {(item.preview_tax_amount || 0) > 0 && item.tax_group && (
-                              <div className="mt-0.5">
-                                {item.tax_group.split_type === 'GST_50_50' ? (
-                                  <>CGST: ₹{(item.preview_cgst || 0).toFixed(2)} | SGST: ₹{(item.preview_sgst || 0).toFixed(2)}</>
-                                ) : (
-                                  <>Tax: ₹{(item.preview_tax_amount || 0).toFixed(2)}</>
-                                )}
-                                {item.tax_group.is_tax_inclusive && (
-                                  <span className="ml-1 text-blue-600">(Tax Inclusive)</span>
-                                )}
-                              </div>
-                            )}
+                      <div key={item.product_id} className="flex gap-2 sm:gap-3 py-2 sm:py-3 border-b border-[#E5E7EB] last:border-b-0 transition-all duration-200 ease-in-out hover:bg-[#FAF7F2] rounded-md px-1 sm:px-2">
+                        {/* Left: Image */}
+                        <div className="flex-shrink-0">
+                          <div className="h-12 w-12 sm:h-16 sm:w-16 flex items-center justify-center rounded-md overflow-hidden bg-[#FAF7F2]">
+                            {(() => {
+                              const categoryLower = productImage?.category_name?.toLowerCase() || ''
+                              if (categoryLower.includes('idli')) {
+                                return (
+                                  <Image
+                                    key={item.product_id + "-summary-idli"}
+                                    src="/images/menu_items/idli.png"
+                                    alt={item.product_name}
+                                    width={64}
+                                    height={64}
+                                    objectFit="cover"
+                                    className="rounded-md"
+                                    loading="lazy"
+                                  />
+                                )
+                              } else if (categoryLower.includes('dosa') || categoryLower.includes('uttapam')) {
+                                return (
+                                  <Image
+                                    key={item.product_id + "-summary-dosa"}
+                                    src="/images/menu_items/dosa.jpeg"
+                                    alt={item.product_name}
+                                    width={64}
+                                    height={64}
+                                    objectFit="cover"
+                                    className="rounded-md"
+                                    loading="lazy"
+                                  />
+                                )
+                              } else if (categoryLower.includes('snack') || categoryLower === 'other snacks' || categoryLower === 'snacks') {
+                                return (
+                                  <Image
+                                    key={item.product_id + "-summary-snack"}
+                                    src="/images/menu_items/snacks.png"
+                                    alt={item.product_name}
+                                    width={64}
+                                    height={64}
+                                    objectFit="cover"
+                                    className="rounded-md"
+                                    loading="lazy"
+                                  />
+                                )
+                              } else if (categoryLower.includes('beverage') || categoryLower === 'beverages') {
+                                return (
+                                  <Image
+                                    key={item.product_id + "-summary-beverage"}
+                                    src="/images/menu_items/beverages.png"
+                                    alt={item.product_name}
+                                    width={64}
+                                    height={64}
+                                    objectFit="cover"
+                                    className="rounded-md"
+                                    loading="lazy"
+                                  />
+                                )
+                              } else {
+                                return <span className="text-xl">☕</span>
+                              }
+                            })()}
                           </div>
                         </div>
-                        <div className="flex items-center gap-2 flex-shrink-0">
-                          <button
-                            onClick={() => updateQuantity(item.product_id, -1)}
-                            className="p-1.5 rounded-full bg-[#FAF7F2] text-[#3E2C24] hover:bg-[#E5E7EB] transition-all duration-200 ease-in-out active:scale-[0.9] border border-[#E5E7EB]"
-                          >
-                            <Minus className="w-4 h-4" />
-                          </button>
-                          <span className="font-bold text-sm text-[#1F1F1F] min-w-[30px] text-center">{item.quantity}</span>
-                          <button
-                            onClick={() => updateQuantity(item.product_id, 1)}
-                            className="p-1.5 rounded-full bg-[#FAF7F2] text-[#3E2C24] hover:bg-[#E5E7EB] transition-all duration-200 ease-in-out active:scale-[0.9] border border-[#E5E7EB]"
-                          >
-                            <Plus className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => removeItem(item.product_id)}
-                            className="p-1.5 rounded-full bg-[#F5F3EE] text-[#EF4444] hover:bg-[#F4A261]/20 transition-all duration-200 ease-in-out active:scale-[0.9]"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                          <div className="text-right min-w-[70px]">
-                            <div className="font-bold text-sm text-[#1F1F1F]">
+
+                        {/* Right: Name, GST, Controls, Total */}
+                        <div className="flex-1 min-w-0 flex flex-col gap-1 sm:gap-2">
+                          {/* Product Name */}
+                          <div className="font-semibold text-xs sm:text-sm text-[#1F1F1F] truncate">{item.product_name}</div>
+                          
+                          {/* GST Details */}
+                          {(item.preview_tax_amount || 0) > 0 && item.tax_group && (
+                            <div className="flex flex-col gap-0.5">
+                              {item.tax_group.split_type === 'GST_50_50' ? (
+                                <>
+                                  <div className="text-[10px] sm:text-xs text-[#6B6B6B] whitespace-nowrap">
+                                    CGST: ₹{(item.preview_cgst || 0).toFixed(2)}
+                                  </div>
+                                  <div className="text-[10px] sm:text-xs text-[#6B6B6B] whitespace-nowrap">
+                                    SGST: ₹{(item.preview_sgst || 0).toFixed(2)}
+                                  </div>
+                                </>
+                              ) : (
+                                <div className="text-[10px] sm:text-xs text-[#6B6B6B] whitespace-nowrap">
+                                  Tax: ₹{(item.preview_tax_amount || 0).toFixed(2)}
+                                </div>
+                              )}
+                              {item.tax_group.is_tax_inclusive && (
+                                <div className="text-[10px] sm:text-xs text-blue-600">(Tax Inclusive)</div>
+                              )}
+                            </div>
+                          )}
+
+                          {/* Quantity Controls and Total */}
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+                              <button
+                                onClick={() => updateQuantity(item.product_id, -1)}
+                                className="p-1 sm:p-1.5 rounded-full bg-[#FAF7F2] text-[#3E2C24] hover:bg-[#E5E7EB] transition-all duration-200 ease-in-out active:scale-[0.9] border border-[#E5E7EB]"
+                              >
+                                <Minus className="w-3 h-3 sm:w-4 sm:h-4" />
+                              </button>
+                              <span className="font-bold text-xs sm:text-sm text-[#1F1F1F] min-w-[24px] sm:min-w-[30px] text-center">{item.quantity}</span>
+                              <button
+                                onClick={() => updateQuantity(item.product_id, 1)}
+                                className="p-1 sm:p-1.5 rounded-full bg-[#FAF7F2] text-[#3E2C24] hover:bg-[#E5E7EB] transition-all duration-200 ease-in-out active:scale-[0.9] border border-[#E5E7EB]"
+                              >
+                                <Plus className="w-3 h-3 sm:w-4 sm:h-4" />
+                              </button>
+                              <button
+                                onClick={() => removeItem(item.product_id)}
+                                className="p-1 sm:p-1.5 rounded-full bg-[#F5F3EE] text-[#EF4444] hover:bg-[#F4A261]/20 transition-all duration-200 ease-in-out active:scale-[0.9] ml-0.5 sm:ml-1"
+                              >
+                                <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
+                              </button>
+                            </div>
+                            <div className="font-bold text-xs sm:text-sm text-[#1F1F1F] whitespace-nowrap">
                               ₹{(item.preview_total || item.subtotal).toFixed(2)}
                             </div>
                           </div>
@@ -1030,7 +1196,7 @@ export default function OrdersPage() {
             <div className="space-y-2 mb-4 pt-4 border-t border-[#E5E7EB]">
               <div className="flex justify-between text-sm text-[#6B6B6B]">
                 <span>Subtotal</span>
-                <span>₹{subtotal.toFixed(2)}</span>
+                <span className="whitespace-nowrap">₹{subtotal.toFixed(2)}</span>
               </div>
               {serviceChargeEnabled && serviceChargeAmount > 0 && (
                 <>
@@ -1075,57 +1241,57 @@ export default function OrdersPage() {
               )}
             </div>
 
-            <div className="flex justify-between items-center mb-6 pt-4 border-t-2 border-[#3E2C24]">
-              <span className="text-lg font-bold text-[#3E2C24]">Total</span>
-              <span className="text-lg font-bold text-[#3E2C24]">₹{grandTotal.toFixed(2)}</span>
+            <div className="flex justify-between items-center mb-4 sm:mb-6 pt-3 sm:pt-4 border-t-2 border-[#3E2C24]">
+              <span className="text-base sm:text-lg font-bold text-[#3E2C24]">Total</span>
+              <span className="text-base sm:text-lg font-bold text-[#3E2C24] whitespace-nowrap">₹{grandTotal.toFixed(2)}</span>
             </div>
 
-            <div className="grid grid-cols-3 gap-3 mb-6">
+            <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-4 sm:mb-6">
               <button
                 onClick={() => setPaymentMethod('CASH')}
-                className={`flex flex-col items-center justify-center p-4 rounded-xl border border-[#E5E7EB] transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring outline-none ${
+                className={`flex flex-col items-center justify-center p-2 sm:p-4 rounded-xl border border-[#E5E7EB] transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring outline-none ${
                   paymentMethod === 'CASH'
                     ? 'bg-[#3E2C24] text-white shadow-md'
                     : 'bg-[#FAF7F2] text-[#3E2C24] hover:bg-[#C89B63]/10'
                 }`}
               >
-                <Wallet className="w-6 h-6 mb-2" />
-                <span className="text-sm font-medium">Cash</span>
+                <Wallet className="w-4 h-4 sm:w-6 sm:h-6 mb-1 sm:mb-2" />
+                <span className="text-[10px] sm:text-sm font-medium">Cash</span>
               </button>
               <button
                 onClick={() => setPaymentMethod('UPI')}
-                className={`flex flex-col items-center justify-center p-4 rounded-xl border border-[#E5E7EB] transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring outline-none ${
+                className={`flex flex-col items-center justify-center p-2 sm:p-4 rounded-xl border border-[#E5E7EB] transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring outline-none ${
                   paymentMethod === 'UPI'
                     ? 'bg-[#3E2C24] text-white shadow-md'
                     : 'bg-[#FAF7F2] text-[#3E2C24] hover:bg-[#C89B63]/10'
                 }`}
               >
-                <Smartphone className="w-6 h-6 mb-2" />
-                <span className="text-sm font-medium">UPI</span>
+                <Smartphone className="w-4 h-4 sm:w-6 sm:h-6 mb-1 sm:mb-2" />
+                <span className="text-[10px] sm:text-sm font-medium">UPI</span>
               </button>
               <button
                 onClick={() => setPaymentMethod('CARD')}
-                className={`flex flex-col items-center justify-center p-4 rounded-xl border border-[#E5E7EB] transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring outline-none ${
+                className={`flex flex-col items-center justify-center p-2 sm:p-4 rounded-xl border border-[#E5E7EB] transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring outline-none ${
                   paymentMethod === 'CARD'
                     ? 'bg-[#3E2C24] text-white shadow-md'
                     : 'bg-[#FAF7F2] text-[#3E2C24] hover:bg-[#C89B63]/10'
                 }`}
               >
-                <CreditCard className="w-6 h-6 mb-2" />
-                <span className="text-sm font-medium">Card</span>
+                <CreditCard className="w-4 h-4 sm:w-6 sm:h-6 mb-1 sm:mb-2" />
+                <span className="text-[10px] sm:text-sm font-medium">Card</span>
               </button>
             </div>
 
             <button
               onClick={handleCompleteBill}
               disabled={billItems.length === 0}
-              className="w-full bg-[#3E2C24] text-white py-3 px-4 rounded-xl font-semibold
+              className="w-full bg-[#3E2C24] text-white py-2.5 sm:py-3 px-3 sm:px-4 rounded-xl font-semibold
                          transition-all duration-200 ease-in-out
                          hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]
-                         focus-visible:ring outline-none disabled:opacity-50 disabled:cursor-not-allowed text-lg flex items-center justify-center gap-2"
+                         focus-visible:ring outline-none disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-lg flex items-center justify-center gap-2"
             >
-              <CheckCircle className="w-5 h-5" />
-              Complete Order
+              <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5" />
+              <span className="whitespace-nowrap">Complete Order</span>
             </button>
           </div>
         </div>
