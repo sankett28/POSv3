@@ -1,8 +1,23 @@
+
 'use client'
 
 import { useState, useEffect } from 'react'
 import { api } from '@/lib/api'
-import { Search, Plus, Minus, Trash2, CheckCircle, Wallet, Smartphone, CreditCard, PackageOpen, AlertCircle } from 'lucide-react'
+import {
+  Search,
+  Plus,
+  Minus,
+  Trash2,
+  CheckCircle,
+  Wallet,
+  Smartphone,
+  CreditCard,
+  PackageOpen,
+  AlertCircle,
+  Coffee,
+  ShoppingCart,
+  Receipt,
+} from 'lucide-react'
 
 interface Product {
   id: string
@@ -22,6 +37,16 @@ interface BillItem {
   total_price: number
 }
 
+interface BillDetails {
+  invoice_number: string
+  items: BillItem[]
+  subtotal: number
+  gst: number
+  total: number
+  paymentMethod: 'CASH' | 'UPI' | 'CARD'
+  date: string
+}
+
 export default function PosBillingPage() {
   const [products, setProducts] = useState<Product[]>([])
   const [stocks, setStocks] = useState<Record<string, number>>({})
@@ -29,7 +54,9 @@ export default function PosBillingPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [loading, setLoading] = useState(true)
   const [paymentMethod, setPaymentMethod] = useState<'CASH' | 'UPI' | 'CARD'>('CASH')
-  const [showSuccess, setShowSuccess] = useState(false)
+  const [showSuccessModal, setShowSuccessModal] = useState(false)
+  const [generatedBillData, setGeneratedBillData] = useState<any>(null)
+  const [generatedInvoiceNumber, setGeneratedInvoiceNumber] = useState('')
 
   useEffect(() => {
     loadProducts()
@@ -39,10 +66,9 @@ export default function PosBillingPage() {
   const loadProducts = async () => {
     try {
       const data = await api.getProducts()
-      // Filter only active products
       setProducts(data.filter((p: Product) => p.is_active))
-    } catch (error) {
-      console.error('Error loading products:', error)
+    } catch (err) {
+      console.error(err)
     } finally {
       setLoading(false)
     }
@@ -51,42 +77,29 @@ export default function PosBillingPage() {
   const loadStocks = async () => {
     try {
       const stockData = await api.getStocks()
-      const stockMap: Record<string, number> = {}
-      stockData.forEach((stock: { product_id: string; current_stock: number }) => {
-        stockMap[stock.product_id] = stock.current_stock
-      })
-      setStocks(stockMap)
-    } catch (error) {
-      console.error('Error loading stocks:', error)
+      const map: Record<string, number> = {}
+      stockData.forEach((s: any) => (map[s.product_id] = s.current_stock))
+      setStocks(map)
+    } catch (err) {
+      console.error(err)
     }
   }
 
   const addToBill = (product: Product) => {
-    const currentStock = stocks[product.id] || 0
-    const existingItem = billItems.find((item) => item.product_id === product.id)
+    const stock = stocks[product.id] || 0
+    const existing = billItems.find(i => i.product_id === product.id)
 
-    if (existingItem) {
-      const newQuantity = existingItem.quantity + 1
-      if (newQuantity > currentStock) {
-        alert(`Insufficient stock! Available: ${currentStock}`)
-        return
-      }
+    if (existing) {
+      if (existing.quantity + 1 > stock) return alert('Insufficient stock')
       setBillItems(
-        billItems.map((item) =>
-          item.product_id === product.id
-            ? {
-                ...item,
-                quantity: newQuantity,
-                total_price: newQuantity * item.unit_price,
-              }
-            : item
+        billItems.map(i =>
+          i.product_id === product.id
+            ? { ...i, quantity: i.quantity + 1, total_price: (i.quantity + 1) * i.unit_price }
+            : i
         )
       )
     } else {
-      if (currentStock < 1) {
-        alert(`Insufficient stock! Available: ${currentStock}`)
-        return
-      }
+      if (stock < 1) return alert('Out of stock')
       setBillItems([
         ...billItems,
         {
@@ -100,275 +113,552 @@ export default function PosBillingPage() {
     }
   }
 
-  const updateQuantity = (productId: string, delta: number) => {
-    const currentStock = stocks[productId] || 0
+  const updateQuantity = (id: string, delta: number) => {
     setBillItems(
       billItems
-        .map((item) => {
-          if (item.product_id === productId) {
-            const newQuantity = item.quantity + delta
-            if (newQuantity <= 0) return null
-            if (newQuantity > currentStock) {
-              alert(`Insufficient stock! Available: ${currentStock}`)
-              return item
-            }
-            return {
-              ...item,
-              quantity: newQuantity,
-              total_price: newQuantity * item.unit_price,
-            }
-          }
-          return item
+        .map(i => {
+          if (i.product_id !== id) return i
+          const qty = i.quantity + delta
+          if (qty <= 0) return null
+          if (qty > (stocks[id] || 0)) return i
+          return { ...i, quantity: qty, total_price: qty * i.unit_price }
         })
-        .filter((item): item is BillItem => item !== null)
+        .filter(Boolean) as BillItem[]
     )
   }
 
-  const removeItem = (productId: string) => {
-    setBillItems(billItems.filter((item) => item.product_id !== productId))
+  const removeItem = (id: string) => {
+    setBillItems(billItems.filter(i => i.product_id !== id))
   }
 
-  const subtotal = billItems.reduce((sum, item) => sum + item.total_price, 0)
-  const total = subtotal
+  const subtotal = billItems.reduce((s, i) => s + i.total_price, 0)
+  // Tax is calculated by backend - no frontend tax math
+
+  const getCurrentDate = () => {
+    const now = new Date()
+    return now.toLocaleDateString('en-IN', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+  }
+
+  const handlePrintInvoice = () => {
+    if (!generatedBillData) return
+
+    const printWindow = window.open('', '_blank')
+    if (!printWindow) return
+
+    const invoiceHTML = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Invoice ${generatedBillData.billResponse.invoice_number}</title>
+          <style>
+            * {
+              margin: 0;
+              padding: 0;
+              box-sizing: border-box;
+            }
+            body {
+              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+              padding: 30px 15px;
+              background: #F5F3EE; /* Warm cream / off-white */
+              line-height: 1.5;
+            }
+            .invoice-container {
+              max-width: 700px;
+              margin: 0 auto;
+              background: white;
+              padding: 40px;
+              box-shadow: 0 4px 12px rgba(0,0,0,0.1); /* Soft shadows */
+              border-radius: 16px; /* rounded-2xl */
+            }
+            .header {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-bottom: 30px;
+              padding-bottom: 15px;
+              border-bottom: 1px solid #E5E7EB;
+            }
+            .header-left {
+              display: flex;
+              align-items: center;
+              gap: 10px;
+            }
+            .logo-box {
+              width: 40px;
+              height: 40px;
+              background: #3E2C24; /* Primary coffee brown */
+              color: white;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-size: 18px;
+              font-weight: 500;
+              border-radius: 4px;
+            }
+            .header-left-content h1 {
+              font-size: 24px;
+              font-weight: 600;
+              color: #3E2C24; /* Primary coffee brown */
+              margin: 0 0 2px 0;
+              letter-spacing: -0.2px;
+            }
+            .header-left-content p {
+              font-size: 11px;
+              color: #6B6B6B;
+              margin: 0;
+              font-weight: 400;
+            }
+            .invoice-number-box {
+              background: #FAF7F2; /* Light background */
+              padding: 8px 12px;
+              border-radius: 8px; /* rounded-xl */
+              border: 1px solid #E5E7EB;
+              text-align: right;
+            }
+            .invoice-number-box p:first-child {
+              font-size: 9px;
+              color: #6B6B6B;
+              margin-bottom: 3px;
+              text-transform: uppercase;
+              letter-spacing: 0.6px;
+              font-weight: 500;
+            }
+            .invoice-number-box p:last-child {
+              font-size: 16px;
+              font-weight: 600;
+              color: #3E2C24; /* Primary coffee brown */
+              margin: 0;
+              letter-spacing: 0.2px;
+            }
+            .details-section {
+              background: #fdfdfd;
+              padding: 18px;
+              border-radius: 6px;
+              margin-bottom: 25px;
+              border: 1px solid #eee;
+            }
+            .details {
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: 20px;
+            }
+            .detail-item {
+              border-left: 1px solid #ddd;
+              padding-left: 10px;
+            }
+            .detail-item p:first-child {
+              font-size: 9px;
+              color: #6B6B6B;
+              margin-bottom: 3px;
+              text-transform: uppercase;
+              letter-spacing: 0.3px;
+              font-weight: 500;
+            }
+            .detail-item p:last-child {
+              font-size: 14px;
+              font-weight: 500;
+              color: #3E2C24; /* Primary coffee brown */
+              margin: 0;
+            }
+            .table-section {
+              margin-bottom: 25px;
+            }
+            .table-title {
+              font-size: 15px;
+              font-weight: 600;
+              color: #3E2C24; /* Primary coffee brown */
+              margin-bottom: 10px;
+              padding-bottom: 6px;
+              border-bottom: 1px solid #E5E7EB;
+            }
+            table {
+              width: 100%;
+              border-collapse: collapse;
+              margin-bottom: 0;
+            }
+            thead {
+              background: #FAF7F2; /* Light background */
+              color: #555;
+            }
+            thead tr {
+              border-bottom: 1px solid #E5E7EB;
+            }
+            th {
+              text-align: left;
+              padding: 10px 12px;
+              font-size: 10px;
+              font-weight: 600;
+              color: #6B6B6B;
+              text-transform: uppercase;
+              letter-spacing: 0.7px;
+            }
+            th:nth-child(2), th:nth-child(3), th:nth-child(4) {
+              text-align: right;
+            }
+            tbody tr {
+              border-bottom: 1px solid #E5E7EB;
+              transition: background 0.1s;
+            }
+            tbody tr:hover {
+              background: #F5F3EE; /* Warm cream / off-white */
+            }
+            tbody tr:last-child {
+              border-bottom: none;
+            }
+            td {
+              padding: 12px;
+              font-size: 12px;
+              color: #3E2C24; /* Primary coffee brown */
+            }
+            td:first-child {
+              font-weight: 500;
+            }
+            td:nth-child(2), td:nth-child(3), td:nth-child(4) {
+              text-align: right;
+              font-weight: 400;
+            }
+            td:nth-child(4) {
+              font-weight: 500;
+              color: #3E2C24; /* Primary coffee brown */
+            }
+            .totals-section {
+              background: #FAF7F2; /* Light background */
+              padding: 18px 22px;
+              border-radius: 8px; /* rounded-xl */
+              border: 1px solid #E5E7EB;
+              margin-top: 20px;
+            }
+            .totals {
+              display: flex;
+              justify-content: flex-end;
+            }
+            .totals-inner {
+              width: 250px;
+            }
+            .total-row {
+              display: flex;
+              justify-content: space-between;
+              margin-bottom: 8px;
+              font-size: 13px;
+              padding-bottom: 5px;
+            }
+            .total-row:not(:last-child) {
+              border-bottom: 1px dashed #E5E7EB;
+            }
+            .total-row span:first-child {
+              color: #6B6B6B;
+              font-weight: 500;
+            }
+            .total-row span:last-child {
+              color: #3E2C24; /* Primary coffee brown */
+              font-weight: 600;
+            }
+            .total-row:last-child {
+              font-size: 18px;
+              font-weight: 700;
+              padding-top: 10px;
+              margin-top: 5px;
+              border-top: 1px solid #C89B63; /* Accent color */
+              margin-bottom: 0;
+              padding-bottom: 0;
+            }
+            .total-row:last-child span {
+              color: #3E2C24; /* Primary coffee brown */
+            }
+            .footer {
+              margin-top: 35px;
+              padding-top: 20px;
+              border-top: 1px solid #E5E7EB;
+              text-align: center;
+            }
+            .footer p:first-child {
+              font-size: 12px;
+              color: #6B6B6B;
+              margin-bottom: 5px;
+              font-weight: 500;
+            }
+            .footer p:last-child {
+              font-size: 9px;
+              color: #9CA3AF;
+              margin: 0;
+            }
+            .divider {
+              height: 1px;
+              background: linear-gradient(to right, transparent, #E5E7EB, transparent);
+              margin: 20px 0;
+            }
+            @media print {
+              @page {
+                margin: 0.5cm;
+                size: A4;
+              }
+              body {
+                padding: 0;
+                background: white;
+              }
+              .invoice-container {
+                box-shadow: none;
+                padding: 20px;
+              }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="invoice-container">
+            <div class="header">
+              <div class="header-left">
+                <div class="logo-box">BB</div>
+                <div class="header-left-content">
+                  <h1>BrewBite Cafe</h1>
+                  <p>Your Daily Dose of Delight</p>
+                </div>
+              </div>
+              <div class="invoice-number-box">
+                <p>Bill Number</p>
+                <p>${generatedBillData.billResponse.invoice_number}</p>
+              </div>
+            </div>
+            
+            <div class="details-section">
+              <div class="details">
+                <div class="detail-item">
+                  <p>Invoice Date</p>
+                  <p>${getCurrentDate()}</p>
+                </div>
+                <div class="detail-item">
+                  <p>Payment Method</p>
+                  <p>${generatedBillData.paymentMethod}</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="table-section">
+              <div class="table-title">Items</div>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Item Description</th>
+                    <th>Quantity</th>
+                    <th>Unit Price</th>
+                    <th>Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${generatedBillData.billItems.map((item: any) => `
+                    <tr>
+                      <td>${item.product_name}</td>
+                      <td>${item.quantity}</td>
+                      <td>₹${item.unit_price.toFixed(2)}</td>
+                      <td>₹${item.total_price.toFixed(2)}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+
+            <div class="totals-section">
+              <div class="totals">
+                <div class="totals-inner">
+                  <div class="total-row">
+                    <span>Subtotal</span>
+                    <span>₹${generatedBillData.subtotal.toFixed(2)}</span>
+                  </div>
+                  <div class="total-row">
+                    <span>GST (5%)</span>
+                    <span>₹${generatedBillData.gst.toFixed(2)}</span>
+                  </div>
+                  <div class="total-row">
+                    <span>Total Amount</span>
+                    <span>₹${generatedBillData.total.toFixed(2)}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="footer">
+              <p>Thank you for your purchase!</p>
+              <p>This is a computer-generated invoice. No signature required.</p>
+            </div>
+          </div>
+          <script>
+            window.onload = function() {
+              window.print();
+              window.onafterprint = function() {
+                window.close();
+              };
+            };
+          </script>
+        </body>
+      </html>
+    `
+
+    printWindow.document.write(invoiceHTML)
+    printWindow.document.close()
+  }
 
   const handleCompleteBill = async () => {
-    if (billItems.length === 0) {
-      alert('Please add items to the bill first!')
-      return
-    }
-
-    // Validate stock one more time before submitting
-    for (const item of billItems) {
-      const currentStock = stocks[item.product_id] || 0
-      if (item.quantity > currentStock) {
-        alert(`Insufficient stock for ${item.product_name}! Available: ${currentStock}, Requested: ${item.quantity}`)
-        return
-      }
-    }
+    if (!billItems.length) return alert('Add items first')
 
     try {
-      await api.createBill({
-        items: billItems.map((item) => ({
-          product_id: item.product_id,
-          quantity: item.quantity,
-          unit_price: item.unit_price,
+      const res = await api.createBill({
+        items: billItems.map(i => ({
+          product_id: i.product_id,
+          quantity: i.quantity,
+          unit_price: i.unit_price,
         })),
         payment_method: paymentMethod,
       })
 
-      setShowSuccess(true)
+      setGeneratedBillData({ billItems, subtotal, gst: res.tax_amount, total: res.total_amount, paymentMethod })
+      setGeneratedInvoiceNumber(res.invoice_number)
+      setShowSuccessModal(true)
       setBillItems([])
-      loadStocks() // Reload stocks after bill creation
-      setTimeout(() => {
-        setShowSuccess(false)
-      }, 3000)
-    } catch (error: any) {
-      alert(error.response?.data?.detail || 'Failed to create bill')
+      loadStocks()
+    } catch (err: any) {
+      console.error('Failed to create bill:', err)
+      alert(err?.response?.data?.detail || 'Failed to create bill')
     }
   }
 
-  const filteredProducts =
-    searchTerm.length > 0
-      ? products.filter(
-          (p) =>
-            p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            p.sku.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            p.barcode?.toLowerCase().includes(searchTerm.toLowerCase())
-        )
-      : products
+  const filteredProducts = products.filter(p =>
+    p.name.toLowerCase().includes(searchTerm.toLowerCase())
+  )
 
   return (
-    <div className="p-8 bg-gray-50 min-h-screen">
-      <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold text-black mb-6">Quick Billing</h1>
+    <div className="h-screen flex bg-[#F5F3EE]">
+      {/* CATEGORIES SECTION */}
+      <div className="w-56 bg-white rounded-2xl shadow-md m-4 p-6 flex flex-col">
+        <h2 className="text-xl font-bold text-[#3E2C24] mb-4">Categories</h2>
+        <div className="flex flex-col gap-3">
+          {/* Example Category Buttons (replace with actual data mapping) */}
+          <button className="w-full text-left px-4 py-3 rounded-xl font-medium bg-[#3E2C24] text-white transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]">All</button>
+          <button className="w-full text-left px-4 py-3 rounded-xl font-medium text-[#3E2C24] hover:bg-[#C89B63]/10 transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]">Drinks</button>
+          <button className="w-full text-left px-4 py-3 rounded-xl font-medium text-[#3E2C24] hover:bg-[#C89B63]/10 transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]">Food</button>
+          <button className="w-full text-left px-4 py-3 rounded-xl font-medium text-[#3E2C24] hover:bg-[#C89B63]/10 transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]">Cocktails</button>
+        </div>
+      </div>
 
-        <div className="grid grid-cols-3 gap-6">
-          <div className="col-span-2 bg-white rounded-lg shadow p-6">
-            <div className="mb-6">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input
-                  type="text"
-                  placeholder="Search or scan product..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
-                />
-              </div>
-            </div>
-
-            {loading ? (
-              <div className="text-center text-gray-500 py-8">Loading products...</div>
-            ) : (
-              <div className="grid grid-cols-4 gap-4">
-                {filteredProducts.map((product) => {
-                  const currentStock = stocks[product.id] || 0
-                  const isOutOfStock = currentStock <= 0
-                  return (
-                    <button
-                      key={product.id}
-                      onClick={() => !isOutOfStock && addToBill(product)}
-                      disabled={isOutOfStock}
-                      className={`border rounded-md p-4 text-center transition-colors flex flex-col items-center justify-center ${
-                        isOutOfStock
-                          ? 'bg-gray-100 border-gray-200 opacity-50 cursor-not-allowed'
-                          : 'bg-gray-50 border-gray-200 hover:bg-black hover:text-white'
-                      }`}
-                    >
-                      <div className={`w-12 h-12 rounded-md flex items-center justify-center mx-auto mb-2 font-bold ${
-                        isOutOfStock ? 'bg-gray-300 text-gray-500' : 'bg-black text-white'
-                      }`}>
-                        {product.name.charAt(0).toUpperCase()}
-                      </div>
-                      <div className="font-semibold text-sm mb-1">{product.name}</div>
-                      <div className="font-bold mb-1">₹{product.selling_price.toFixed(2)}</div>
-                      <div className={`text-xs ${isOutOfStock ? 'text-red-600' : currentStock < 10 ? 'text-orange-600' : 'text-gray-600'}`}>
-                        {isOutOfStock ? (
-                          <span className="flex items-center gap-1">
-                            <AlertCircle className="w-3 h-3" />
-                            Out of Stock
-                          </span>
-                        ) : (
-                          `Stock: ${currentStock} ${product.unit}`
-                        )}
-                      </div>
-                    </button>
-                  )
-                })}
-              </div>
-            )}
+      {/* LEFT MENU */}
+      <div className="flex-1 flex flex-col bg-[#F5F3EE] p-4">
+        <div className="bg-white rounded-2xl shadow-md p-6 mb-4">
+          <div className="flex items-center gap-3 mb-4">
+            <Coffee className="w-6 h-6 text-[#3E2C24]" />
+            <h1 className="text-2xl font-bold text-[#3E2C24]">BrewBite POS</h1>
+        </div>
+          <div className="relative mb-4">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9CA3AF] w-5 h-5" />
+            <input
+              className="w-full pl-12 pr-4 py-3 rounded-xl border border-[#E5E7EB] focus:outline-none focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63] bg-[#FAF7F2] hover:bg-white transition-all duration-200 text-[#1F1F1F] placeholder-[#9CA3AF]"
+              placeholder="Search menu..."
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+            />
+          </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow p-6 sticky top-4 h-fit">
-            <div className="flex justify-between items-center mb-4 pb-4 border-b border-gray-200">
-              <h3 className="text-xl font-bold text-black">Current Bill</h3>
-              <button
-                onClick={() => setBillItems([])}
-                className="text-sm bg-black text-white hover:bg-black hover:text-white rounded-md p-2"
-              >
-                Clear All
-              </button>
-            </div>
-
-            <div className="mb-4 max-h-64 overflow-y-auto">
-              {billItems.length === 0 ? (
-                <div className="text-center text-gray-400 py-8">
-                  <PackageOpen className="w-12 h-12 mx-auto mb-4" />
-                  <p className="text-lg">Add products to start billing</p>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  {billItems.map((item) => {
-                    const currentStock = stocks[item.product_id] || 0
-                    return (
-                      <div key={item.product_id} className="flex justify-between items-center py-2 border-b border-gray-200 last:border-b-0">
-                        <div className="flex-1">
-                          <div className="font-semibold text-base text-gray-900">{item.product_name}</div>
-                          <div className="text-xs text-gray-500">
-                            ₹{item.unit_price.toFixed(2)} x {item.quantity}
-                          </div>
-                          {item.quantity > currentStock && (
-                            <div className="text-xs text-red-600 flex items-center gap-1 mt-1">
-                              <AlertCircle className="w-3 h-3" />
-                              Low stock: {currentStock} available
-                            </div>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => updateQuantity(item.product_id, -1)}
-                            className="p-1 rounded-full hover:bg-gray-100 transition-colors"
-                          >
-                            <Minus className="w-4 h-4 text-gray-600" />
-                          </button>
-                          <span className="font-bold text-base text-black">₹{item.total_price.toFixed(2)}</span>
-                          <button
-                            onClick={() => updateQuantity(item.product_id, 1)}
-                            className="p-1 rounded-full hover:bg-gray-100 transition-colors"
-                          >
-                            <Plus className="w-4 h-4 text-gray-600" />
-                          </button>
-                          <button
-                            onClick={() => removeItem(item.product_id)}
-                            className="p-1 rounded-full hover:bg-red-100 transition-colors"
-                          >
-                            <Trash2 className="w-4 h-4 text-red-600" />
-                          </button>
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              )}
-            </div>
-
-            <div className="space-y-2 mb-4 pt-4 border-t border-gray-200">
-              <div className="flex justify-between text-base text-gray-700">
-                <span>Subtotal</span>
-                <span>₹{subtotal.toFixed(2)}</span>
+        <div className="bg-white rounded-2xl shadow-md p-6 mb-4 flex-1 overflow-y-auto">
+          <h2 className="text-xl font-bold text-[#3E2C24] mb-4">Menu Items</h2>
+          {loading ? (
+            <div className="flex items-center justify-center h-48">
+              <div className="text-center">
+                <div className="w-12 h-12 border-4 border-[#3E2C24] border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+                <p className="text-[#6B6B6B]">Loading menu items...</p>
               </div>
             </div>
-
-            <div className="flex justify-between items-center mb-6 pt-4 border-t-2 border-black">
-              <span className="text-2xl font-bold text-black">Total</span>
-              <span className="text-2xl font-bold text-black">₹{total.toFixed(2)}</span>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {filteredProducts.map(p => (
+                <button
+                  key={p.id}
+                  onClick={() => addToBill(p)}
+                  className="bg-white rounded-2xl p-4 shadow-md border border-[#E5E7EB]
+                             transition-all duration-200 ease-in-out
+                             hover:-translate-y-1 hover:scale-[1.02] hover:shadow-xl
+                             active:scale-[0.98] cursor-pointer group"
+                >
+                  <div className="w-14 h-14 bg-[#C89B63] text-white rounded-xl flex items-center justify-center mx-auto mb-3 text-xl">
+                    {p.name[0]}
+                  </div>
+                  <h3 className="font-semibold text-[#1F1F1F] mb-1">{p.name}</h3>
+                  <p className="text-[#3E2C24] font-bold text-lg">₹{p.selling_price}</p>
+                </button>
+              ))}
             </div>
+          )}
+        </div>
+      </div>
 
-            <div className="grid grid-cols-3 gap-3 mb-6">
-              <button
-                onClick={() => setPaymentMethod('CASH')}
-                className={`flex flex-col items-center justify-center p-4 rounded-lg border transition-colors ${
-                  paymentMethod === 'CASH'
-                    ? 'bg-black text-white border-black'
-                    : 'bg-white text-gray-700 border-gray-300 hover:border-black hover:text-black'
-                }`}
-              >
-                <Wallet className="w-6 h-6 mb-1" />
-                <span className="text-sm font-medium">Cash</span>
-              </button>
-              <button
-                onClick={() => setPaymentMethod('UPI')}
-                className={`flex flex-col items-center justify-center p-4 rounded-lg border transition-colors ${
-                  paymentMethod === 'UPI'
-                    ? 'bg-black text-white border-black'
-                    : 'bg-white text-gray-700 border-gray-300 hover:border-black hover:text-black'
-                }`}
-              >
-                <Smartphone className="w-6 h-6 mb-1" />
-                <span className="text-sm font-medium">UPI</span>
-              </button>
-              <button
-                onClick={() => setPaymentMethod('CARD')}
-                className={`flex flex-col items-center justify-center p-4 rounded-lg border transition-colors ${
-                  paymentMethod === 'CARD'
-                    ? 'bg-black text-white border-black'
-                    : 'bg-white text-gray-700 border-gray-300 hover:border-black hover:text-black'
-                }`}
-              >
-                <CreditCard className="w-6 h-6 mb-1" />
-                <span className="text-sm font-medium">Card</span>
-              </button>
-            </div>
-
-            <button
-              onClick={handleCompleteBill}
-              disabled={billItems.length === 0}
-              className="w-full bg-black text-white py-3 px-4 rounded-lg font-semibold hover:bg-black transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <CheckCircle className="w-5 h-5" />
-              Complete & Print
-            </button>
-          </div>
+      {/* RIGHT CART */}
+      <div className="w-96 bg-[#FAF7F2] border-l flex flex-col rounded-2xl shadow-lg m-4">
+        <div className="p-6 bg-[#3E2C24] text-white flex items-center gap-3">
+          <ShoppingCart />
+          <h2 className="font-bold">Order</h2>
         </div>
 
-        {showSuccess && (
-          <div className="fixed bottom-6 right-6 bg-black text-white px-6 py-4 rounded-lg shadow-lg flex items-center gap-3 animate-fade-in">
-            <CheckCircle className="w-5 h-5" />
-            <span>Bill generated successfully!</span>
+        <div className="flex-1 p-4">
+          {billItems.length === 0 ? (
+            <div className="text-center text-gray-400 mt-20">
+              <PackageOpen className="mx-auto mb-2" />
+              No items
+            </div>
+          ) : (
+            billItems.map(i => (
+              <div key={i.product_id} className="flex items-center justify-between mb-3 transition-all duration-200 ease-in-out hover:bg-[#F5F3EE] rounded-xl p-2">
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => updateQuantity(i.product_id, -1)}
+                    className="text-gray-500 hover:text-red-500 transition-all duration-200 ease-in-out active:scale-[0.9]"
+                  >
+                    <Minus className="w-4 h-4" />
+                  </button>
+                  <span className="font-medium">{i.quantity}x</span>
+                  <button
+                    onClick={() => updateQuantity(i.product_id, 1)}
+                    className="text-gray-500 hover:text-green-500 transition-all duration-200 ease-in-out active:scale-[0.9]"
+                  >
+                    <Plus className="w-4 h-4" />
+                  </button>
+                  <span>{i.product_name}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span>₹{i.total_price.toFixed(2)}</span>
+                  <button
+                    onClick={() => removeItem(i.product_id)}
+                    className="text-red-500 hover:text-red-700 transition-all duration-200 ease-in-out active:scale-[0.9]"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        <div className="p-6 border-t">
+          <div className="flex justify-between font-bold mb-4">
+            <span>Subtotal</span>
+            <span>₹{subtotal.toFixed(2)}</span>
+            <div className="text-xs text-[#6B6B6B] mt-1">Tax calculated by backend</div>
           </div>
-        )}
+
+          <button
+            onClick={handleCompleteBill}
+            className="w-full bg-[#3E2C24] text-white py-3 rounded-xl
+                       transition-all duration-200 ease-in-out
+                       hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]
+                       focus-visible:ring outline-none"
+          >
+            <Receipt className="inline mr-2" />
+            Complete Order
+          </button>
+        </div>
       </div>
     </div>
   )
 }
-

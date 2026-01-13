@@ -29,6 +29,8 @@ class BillCreate(BaseModel):
     """Schema for creating a bill."""
     items: List[BillItemCreate] = Field(..., min_length=1, description="Bill items")
     payment_method: PaymentMethod = Field(PaymentMethod.CASH, description="Payment method")
+    service_charge_enabled: bool = Field(True, description="Whether service charge is enabled")
+    service_charge_rate: float = Field(10.0, ge=0, le=20, description="Service charge rate (0-20%)")
     
     @field_validator('items')
     @classmethod
@@ -45,11 +47,20 @@ class BillItemResponse(BaseModel):
     bill_id: UUID
     product_id: UUID
     product_name: Optional[str] = None
+    category_name: Optional[str] = None
     quantity: int
     unit_price: float
+    tax_rate: float = 0.0  # Kept for backward compatibility
+    tax_amount: float = 0.0
+    line_subtotal: float = 0.0
     total_price: float
+    # New tax snapshot fields
+    cgst_amount: float = 0.0
+    sgst_amount: float = 0.0
+    tax_group_name: Optional[str] = None
+    is_tax_inclusive: bool = False
     created_at: datetime
-    
+
     class Config:
         from_attributes = True
 
@@ -59,11 +70,16 @@ class BillResponse(BaseModel):
     id: UUID
     user_id: Optional[UUID] = None  # Made optional since schema doesn't have user_id
     bill_number: str
+    subtotal: float
+    service_charge_amount: float = 0.0  # Service charge amount
+    tax_amount: float
+    cgst: float = 0.0  # Balanced CGST derived from total_tax
+    sgst: float = 0.0  # Balanced SGST derived from total_tax
     total_amount: float
     payment_method: str
     created_at: datetime
     items: List[BillItemResponse] = []
-    
+
     class Config:
         from_attributes = True
 

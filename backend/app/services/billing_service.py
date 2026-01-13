@@ -1,12 +1,15 @@
-"""Billing service with atomic bill creation."""
-from typing import List
+"""Billing service with snapshot-based bill creation."""
+from typing import List, Optional
 from uuid import UUID
+from decimal import Decimal
 from supabase import Client
 from app.repositories.bill_repo import BillRepository
 from app.repositories.product_repo import ProductRepository
-from app.services.inventory_service import InventoryService
+from app.repositories.tax_group_repo import TaxGroupRepository
+from app.utils.tax_engine import TaxEngine, TaxGroupConfig
 from app.schemas.bill import BillCreate, BillResponse, BillItemResponse, PaymentMethod
 from app.core.logging import logger
+from app.core.exceptions import ConfigurationError
 
 
 class BillingService:
@@ -15,98 +18,233 @@ class BillingService:
     def __init__(self, db: Client):
         self.bill_repo = BillRepository(db)
         self.product_repo = ProductRepository(db)
-        self.inventory_service = InventoryService(db)
+        self.tax_group_repo = TaxGroupRepository(db)
+        self.tax_engine = TaxEngine()
+        self.db = db
+    
+    async def _get_category_name(self, category_id: Optional[UUID]) -> Optional[str]:
+        """Get category name by ID."""
+        if not category_id:
+            return None
+        try:
+            import asyncio
+            result = await asyncio.to_thread(
+                lambda: self.db.table("categories").select("name").eq("id", str(category_id)).execute()
+            )
+            if result.data:
+                return result.data[0]["name"]
+            return None
+        except Exception as e:
+            logger.warning(f"Error getting category {category_id}: {e}")
+            return None
     
     async def create_bill(self, bill_data: BillCreate, user_id: UUID) -> BillResponse:
         """
-        Create a bill atomically with stock deduction.
+        Create a bill with snapshot-based product data using TaxEngine.
         
         This operation:
-        1. Validates all products exist
-        2. Validates stock availability for all items
-        3. Creates bill
-        4. Creates bill items
-        5. Creates inventory ledger entries (outgoing)
+        1. Validates all products exist and are active
+        2. Fetches tax groups for each product
+        3. Calculates tax using TaxEngine (the ONLY place for tax math)
+        4. Snapshots ALL tax values (taxable_value, cgst_amount, sgst_amount, etc.)
+        5. Creates bill with totals
+        6. Creates bill items with all snapshot fields
         
-        If any step fails, the operation should rollback (Supabase transactions).
+        All product and tax data is snapshotted to ensure historical accuracy.
+        TaxEngine is the ONLY place where tax calculations occur.
         """
-        # Step 1: Validate all products exist and get current prices
+        # Step 1: Validate all products exist and are active, fetch tax groups
         product_data = {}
+        line_item_results = []
+        
         for item in bill_data.items:
             product = await self.product_repo.get_product(item.product_id)
             if not product:
                 raise ValueError(f"Product {item.product_id} not found")
             
+            # Check if product is active
+            if not product.get("is_active", True):
+                raise ValueError(f"Product {product['name']} is not active")
+            
+            # Get tax group
+            tax_group_id = product.get("tax_group_id")
+            if not tax_group_id:
+                raise ValueError(f"Product {product['name']} does not have a tax group assigned")
+            
+            tax_group_data = await self.tax_group_repo.get_tax_group(UUID(tax_group_id))
+            if not tax_group_data:
+                raise ValueError(f"Tax group {tax_group_id} not found for product {product['name']}")
+            
+            if not tax_group_data.get("is_active", True):
+                raise ValueError(f"Tax group '{tax_group_data['name']}' is not active")
+            
+            # Get category name if category_id exists
+            category_name = None
+            if product.get("category_id"):
+                category_name = await self._get_category_name(UUID(product["category_id"]))
+            
             # Use current product price if not specified
             unit_price = item.unit_price if item.unit_price > 0 else float(product["selling_price"])
+            quantity = item.quantity
+            
+            # Step 2: Prepare TaxEngine input
+            tax_group_config = TaxGroupConfig(
+                name=tax_group_data["name"],
+                total_rate=Decimal(str(tax_group_data["total_rate"])),
+                split_type=tax_group_data["split_type"],
+                is_tax_inclusive=tax_group_data["is_tax_inclusive"]
+            )
+            
+            # Step 3: Calculate tax using TaxEngine (ONLY place for tax math)
+            tax_result = self.tax_engine.calculate_line_item(
+                unit_price=Decimal(str(unit_price)),
+                quantity=quantity,
+                tax_group=tax_group_config
+            )
+            
+            line_item_results.append(tax_result)
+            
             product_data[item.product_id] = {
                 "product": product,
+                "tax_group": tax_group_data,
+                "tax_group_config": tax_group_config,
                 "unit_price": unit_price,
-                "quantity": item.quantity
+                "quantity": quantity,
+                "product_name": product["name"],
+                "category_name": category_name,
+                "tax_result": tax_result
             }
         
-        # Step 2: Validate stock availability for all items
-        for product_id, data in product_data.items():
-            current_stock = await self.inventory_service.get_current_stock(product_id)
-            if current_stock < data["quantity"]:
-                raise ValueError(
-                    f"Insufficient stock for product {data['product']['name']}. "
-                    f"Available: {current_stock}, Requested: {data['quantity']}"
-                )
+        # Step 4: Fetch dedicated SERVICE_CHARGE_GST tax group
+        service_charge_tax_group = None
+        service_charge_tax_group_config = None
         
-        # Step 3: Calculate total amount
-        total_amount = sum(
-            data["quantity"] * data["unit_price"]
-            for data in product_data.values()
+        if bill_data.service_charge_enabled:
+            # Fetch dedicated service charge tax group by code
+            service_charge_tax_group_data = await self.tax_group_repo.get_by_code("SERVICE_CHARGE_GST")
+            
+            if not service_charge_tax_group_data:
+                raise ConfigurationError(
+                    "Service Charge GST tax group (SERVICE_CHARGE_GST) is not configured. "
+                    "Please configure it in Settings → Taxes."
+                )
+            
+            if not service_charge_tax_group_data.get("is_active", True):
+                raise ConfigurationError(
+                    "Service Charge GST tax group (SERVICE_CHARGE_GST) is not active. "
+                    "Please activate it in Settings → Taxes."
+                )
+            
+            # Enforce exclusive pricing
+            if service_charge_tax_group_data.get("is_tax_inclusive", False):
+                raise ConfigurationError(
+                    "Service Charge GST tax group must have exclusive pricing (is_tax_inclusive=false). "
+                    "Please update SERVICE_CHARGE_GST tax group configuration."
+                )
+            
+            # Create TaxGroupConfig for service charge
+            service_charge_tax_group_config = TaxGroupConfig(
+                name=service_charge_tax_group_data["name"],
+                total_rate=Decimal(str(service_charge_tax_group_data["total_rate"])),
+                split_type=service_charge_tax_group_data["split_type"],
+                is_tax_inclusive=False  # Enforced to be False
+            )
+            service_charge_tax_group = service_charge_tax_group_data
+        
+        # Step 5: Generate bill summary with service charge using TaxEngine
+        bill_summary = self.tax_engine.generate_bill_summary(
+            line_items=line_item_results,
+            service_charge_enabled=bill_data.service_charge_enabled,
+            service_charge_rate=Decimal(str(bill_data.service_charge_rate)),
+            service_charge_tax_group=service_charge_tax_group_config
         )
         
-        # Step 4: Create bill
+        # Step 6: Calculate service charge tax breakdown (for snapshot)
+        service_charge_tax_rate = None
+        service_charge_tax_amount = 0.0
+        service_charge_cgst_amount = 0.0
+        service_charge_sgst_amount = 0.0
+        
+        if bill_data.service_charge_enabled and bill_summary.service_charge_amount > 0:
+            if service_charge_tax_group:
+                service_charge_tax_rate = float(service_charge_tax_group["total_rate"])
+                # Calculate GST on service charge separately for snapshot
+                sc_tax_result = self.tax_engine.calculate_line_item(
+                    unit_price=Decimal(str(bill_summary.service_charge_amount)),
+                    quantity=1,
+                    tax_group=service_charge_tax_group_config
+                )
+                service_charge_tax_amount = float(sc_tax_result.tax_amount)
+                service_charge_cgst_amount = float(sc_tax_result.cgst_amount)
+                service_charge_sgst_amount = float(sc_tax_result.sgst_amount)
+        
+        # Step 7: Create bill with totals including service charge
         bill = await self.bill_repo.create_bill(
             user_id=user_id,
-            total_amount=total_amount,
+            subtotal=float(bill_summary.subtotal),
+            service_charge_enabled=bill_data.service_charge_enabled,
+            service_charge_rate=bill_data.service_charge_rate,
+            service_charge_amount=float(bill_summary.service_charge_amount),
+            service_charge_tax_rate=service_charge_tax_rate,
+            service_charge_tax_amount=service_charge_tax_amount,
+            service_charge_cgst_amount=service_charge_cgst_amount,
+            service_charge_sgst_amount=service_charge_sgst_amount,
+            tax_amount=float(bill_summary.total_tax),
+            total_amount=float(bill_summary.total_amount),
             payment_method=bill_data.payment_method
         )
         bill_id = UUID(bill["id"])
         
-        # Step 5: Create bill items and deduct stock (atomic operations)
+        # Step 8: Create bill items with ALL snapshot fields
         bill_items = []
         for item in bill_data.items:
             data = product_data[item.product_id]
-            unit_price = data["unit_price"]
-            quantity = data["quantity"]
-            total_price = quantity * unit_price
+            tax_result = data["tax_result"]
+            tax_group_config = data["tax_group_config"]
             
-            # Create bill item
+            # Create bill item with ALL tax snapshot fields
             bill_item = await self.bill_repo.create_bill_item(
                 bill_id=bill_id,
                 product_id=item.product_id,
-                quantity=quantity,
-                unit_price=unit_price,
-                total_price=total_price
+                quantity=data["quantity"],
+                unit_price=data["unit_price"],
+                product_name_snapshot=data["product_name"],
+                category_name_snapshot=data["category_name"],
+                tax_rate=float(tax_group_config.total_rate),  # Keep for backward compatibility
+                tax_amount=float(tax_result.tax_amount),
+                line_subtotal=float(tax_result.taxable_value),
+                line_total=float(tax_result.line_total),
+                # New tax snapshot fields
+                tax_group_name_snapshot=tax_group_config.name,
+                tax_rate_snapshot=float(tax_group_config.total_rate),
+                is_tax_inclusive_snapshot=tax_group_config.is_tax_inclusive,
+                taxable_value=float(tax_result.taxable_value),
+                cgst_amount=float(tax_result.cgst_amount),
+                sgst_amount=float(tax_result.sgst_amount)
             )
             bill_items.append(bill_item)
-            
-            # Deduct stock (create outgoing ledger entry)
-            await self.inventory_service.deduct_stock(
-                product_id=item.product_id,
-                quantity=quantity,
-                reference_id=bill_id
-            )
         
-        # Step 6: Build response
+        # Step 9: Build response
         items_response = []
         for item in bill_items:
-            product = product_data[UUID(item["product_id"])]["product"]
-            # Handle both field names for compatibility (repository maps DB fields)
+            data = product_data[UUID(item["product_id"])]
             items_response.append(
                 BillItemResponse(
                     id=UUID(item["id"]),
                     bill_id=UUID(item["bill_id"]),
                     product_id=UUID(item["product_id"]),
-                    product_name=product["name"],
+                    product_name=item.get("product_name_snapshot") or data["product_name"],
+                    category_name=item.get("category_name_snapshot"),
                     quantity=item["quantity"],
                     unit_price=float(item.get("selling_price") or item.get("unit_price", 0)),
+                    tax_rate=float(item.get("tax_rate_snapshot") or item.get("tax_rate", 0)),
+                    tax_amount=float(item.get("tax_amount", 0)),
+                    line_subtotal=float(item.get("taxable_value") or item.get("line_subtotal", 0)),
                     total_price=float(item.get("line_total") or item.get("total_price", 0)),
+                    cgst_amount=float(item.get("cgst_amount", 0)),
+                    sgst_amount=float(item.get("sgst_amount", 0)),
+                    tax_group_name=item.get("tax_group_name_snapshot"),
+                    is_tax_inclusive=bool(item.get("is_tax_inclusive_snapshot", False)),
                     created_at=item["created_at"]
                 )
             )
@@ -115,6 +253,11 @@ class BillingService:
             id=UUID(bill["id"]),
             user_id=None,  # Schema doesn't have user_id, set to None
             bill_number=bill["bill_number"],
+            subtotal=float(bill["subtotal"]),
+            service_charge_amount=float(bill["service_charge_amount"]),
+            tax_amount=float(bill["tax_amount"]),
+            cgst=float(bill_summary.total_cgst),
+            sgst=float(bill_summary.total_sgst),
             total_amount=float(bill["total_amount"]),
             payment_method=bill["payment_method"],
             created_at=bill["created_at"],
@@ -133,18 +276,37 @@ class BillingService:
                 bill_id=UUID(item["bill_id"]),
                 product_id=UUID(item["product_id"]),
                 product_name=item.get("product_name"),
+                category_name=item.get("category_name"),
                 quantity=item["quantity"],
                 unit_price=item["unit_price"],
+                tax_rate=item.get("tax_rate", 0),
+                tax_amount=item.get("tax_amount", 0),
+                line_subtotal=item.get("line_subtotal", 0),
                 total_price=item["total_price"],
+                cgst_amount=item.get("cgst_amount", 0),
+                sgst_amount=item.get("sgst_amount", 0),
+                tax_group_name=item.get("tax_group_name"),
+                is_tax_inclusive=item.get("is_tax_inclusive", False),
                 created_at=item["created_at"]
             )
             for item in bill.get("items", [])
         ]
         
+        # Derive balanced CGST/SGST from total_tax (matching TaxEngine logic)
+        tax_amount_decimal = Decimal(str(bill["tax_amount"]))
+        half = tax_amount_decimal / Decimal('2')
+        cgst = float(TaxEngine._round_currency(half))
+        sgst = float(tax_amount_decimal - Decimal(str(cgst)))
+        
         return BillResponse(
             id=UUID(bill["id"]),
             user_id=None,  # Schema doesn't have user_id, set to None
             bill_number=bill["bill_number"],
+            subtotal=float(bill["subtotal"]),
+            service_charge_amount=float(bill.get("service_charge_amount", 0)),
+            tax_amount=float(bill["tax_amount"]),
+            cgst=cgst,
+            sgst=sgst,
             total_amount=float(bill["total_amount"]),
             payment_method=bill["payment_method"],
             created_at=bill["created_at"],
@@ -159,6 +321,9 @@ class BillingService:
                 id=UUID(bill["id"]),
                 user_id=None,  # Schema doesn't have user_id, set to None
                 bill_number=bill["bill_number"],
+                subtotal=float(bill["subtotal"]),
+                service_charge_amount=float(bill.get("service_charge_amount", 0)),
+                tax_amount=float(bill["tax_amount"]),
                 total_amount=float(bill["total_amount"]),
                 payment_method=bill["payment_method"],
                 created_at=bill["created_at"],

@@ -6,6 +6,7 @@ from app.core.database import get_supabase
 from app.services.billing_service import BillingService
 from app.schemas.bill import BillCreate, BillResponse
 from app.api.v1.auth import get_current_user_id
+from app.core.exceptions import ConfigurationError
 from supabase import Client
 from app.core.logging import logger
 
@@ -20,18 +21,26 @@ async def create_bill(
     user_id: str = Depends(get_current_user_id)
 ):
     """
-    Create a new bill atomically with stock deduction.
+    Create a new bill with snapshot-based product data.
     
     This operation:
-    1. Validates all products exist
-    2. Validates stock availability
-    3. Creates bill and items
-    4. Deducts stock from inventory
+    1. Validates all products exist and are active
+    2. Snapshots product information (name, category, price, tax_rate)
+    3. Calculates tax for each item
+    4. Creates bill with totals (subtotal, tax_amount, total_amount)
+    5. Creates bill items with all snapshot fields
+    
+    All product data is snapshotted to ensure historical accuracy.
     """
     try:
         service = BillingService(db)
         result = await service.create_bill(bill_data, UUID(user_id))
         return result
+    except ConfigurationError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except Exception as e:
