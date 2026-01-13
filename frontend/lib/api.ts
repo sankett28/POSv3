@@ -55,14 +55,14 @@ class ApiClient {
     if (typeof window === 'undefined') return
     localStorage.removeItem('access_token')
     localStorage.removeItem('user_id')
-    // Clear the cookie for middleware
+    // Also clear cookie for middleware
     document.cookie = 'access_token=; path=/; max-age=0'
   }
 
   setToken(token: string): void {
     if (typeof window === 'undefined') return
     localStorage.setItem('access_token', token)
-    // Also set it as a cookie for middleware (24 hours expiry)
+    // Also set cookie for middleware to access (24 hour expiry)
     document.cookie = `access_token=${token}; path=/; max-age=86400; SameSite=Lax`
   }
 
@@ -141,8 +141,6 @@ class ApiClient {
   async createBill(data: {
     items: Array<{ product_id: string; quantity: number; unit_price: number }>
     payment_method: 'CASH' | 'UPI' | 'CARD'
-    service_charge_enabled?: boolean
-    service_charge_rate?: number
   }) {
     const response = await this.client.post('/bills', data)
     return response.data

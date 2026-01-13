@@ -1,12 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { login } from '@/lib/auth'
 import { Store, Mail, Lock, Coffee, ChefHat, Star } from 'lucide-react'
 
 export default function LoginPage() {
-  const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -21,8 +19,8 @@ export default function LoginPage() {
       const result = await login(email, password)
       console.log('Login successful:', result)
       
-      // Small delay to ensure localStorage is updated
-      await new Promise(resolve => setTimeout(resolve, 100))
+      // Wait a bit longer to ensure cookie is set
+      await new Promise(resolve => setTimeout(resolve, 200))
       
       // Verify token was saved
       const token = localStorage.getItem('access_token')
@@ -30,8 +28,8 @@ export default function LoginPage() {
         throw new Error('Token was not saved. Please try again.')
       }
       
-      // Use replace instead of push to avoid back button issues
-      router.replace('/orders')
+      // Use window.location for a full page reload to ensure middleware sees the cookie
+      window.location.href = '/orders'
     } catch (err: any) {
       console.error('Login error:', err)
       // Show more detailed error message
