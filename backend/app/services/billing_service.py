@@ -187,6 +187,8 @@ class BillingService:
             bill_number=bill["bill_number"],
             subtotal=float(bill["subtotal"]),
             tax_amount=float(bill["tax_amount"]),
+            cgst=float(bill_summary.total_cgst),
+            sgst=float(bill_summary.total_sgst),
             total_amount=float(bill["total_amount"]),
             payment_method=bill["payment_method"],
             created_at=bill["created_at"],
@@ -221,12 +223,20 @@ class BillingService:
             for item in bill.get("items", [])
         ]
         
+        # Derive balanced CGST/SGST from total_tax (matching TaxEngine logic)
+        tax_amount_decimal = Decimal(str(bill["tax_amount"]))
+        half = tax_amount_decimal / Decimal('2')
+        cgst = float(TaxEngine._round_currency(half))
+        sgst = float(tax_amount_decimal - Decimal(str(cgst)))
+        
         return BillResponse(
             id=UUID(bill["id"]),
             user_id=None,  # Schema doesn't have user_id, set to None
             bill_number=bill["bill_number"],
             subtotal=float(bill["subtotal"]),
             tax_amount=float(bill["tax_amount"]),
+            cgst=cgst,
+            sgst=sgst,
             total_amount=float(bill["total_amount"]),
             payment_method=bill["payment_method"],
             created_at=bill["created_at"],

@@ -176,16 +176,24 @@ class TaxEngine:
         # Sum all values
         subtotal = sum(item.taxable_value for item in line_items)
         total_tax = sum(item.tax_amount for item in line_items)
-        total_cgst = sum(item.cgst_amount for item in line_items)
-        total_sgst = sum(item.sgst_amount for item in line_items)
         total_amount = sum(item.line_total for item in line_items)
         
-        # Round all totals
+        # Round totals
+        subtotal = TaxEngine._round_currency(subtotal)
+        total_tax = TaxEngine._round_currency(total_tax)
+        total_amount = TaxEngine._round_currency(total_amount)
+        
+        # Derive CGST/SGST from total_tax (balanced split)
+        # This ensures cgst + sgst = total_tax exactly, eliminating rounding drift
+        half = total_tax / Decimal('2')
+        total_cgst = TaxEngine._round_currency(half)
+        total_sgst = total_tax - total_cgst  # Ensure exact balance
+        
         return BillSummary(
-            subtotal=TaxEngine._round_currency(subtotal),
-            total_tax=TaxEngine._round_currency(total_tax),
-            total_cgst=TaxEngine._round_currency(total_cgst),
-            total_sgst=TaxEngine._round_currency(total_sgst),
-            total_amount=TaxEngine._round_currency(total_amount)
+            subtotal=subtotal,
+            total_tax=total_tax,
+            total_cgst=total_cgst,
+            total_sgst=total_sgst,
+            total_amount=total_amount
         )
 

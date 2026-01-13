@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { api } from '@/lib/api'
-import { Plus, Edit, Trash2, Search, X, Settings } from 'lucide-react'
-import MenuTable from '@/components/ui/MenuTable'
+import { Plus, Edit, Trash2, Search, X, Settings, CheckCircle, AlertCircle } from 'lucide-react'
 
 export interface Category {
   id: string
@@ -43,9 +42,14 @@ export default function MenuPage() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [showItemModal, setShowItemModal] = useState(false)
   const [showCategoryModal, setShowCategoryModal] = useState(false)
+  const [showBulkTaxModal, setShowBulkTaxModal] = useState(false)
   const [showAdvanced, setShowAdvanced] = useState(false)
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
   const [editingCategory, setEditingCategory] = useState<Category | null>(null)
+  const [selectedCategoryForBulk, setSelectedCategoryForBulk] = useState<Category | null>(null)
+  const [bulkTaxGroupId, setBulkTaxGroupId] = useState('')
+  const [showTaxConfirmation, setShowTaxConfirmation] = useState(false)
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
   const [itemFormData, setItemFormData] = useState({ 
     name: '', 
     selling_price: '', 
@@ -63,6 +67,20 @@ export default function MenuPage() {
   useEffect(() => {
     loadData()
   }, [])
+
+  // Auto-dismiss toast after 3 seconds
+  useEffect(() => {
+    if (toast) {
+      const timer = setTimeout(() => {
+        setToast(null)
+      }, 3000)
+      return () => clearTimeout(timer)
+    }
+  }, [toast])
+
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    setToast({ message, type })
+  }
 
   const loadData = async () => {
     try {
@@ -97,7 +115,7 @@ export default function MenuPage() {
     e.preventDefault()
     try {
       if (!itemFormData.tax_group_id) {
-        alert('Please select a tax group')
+        showToast('Please select a tax group', 'error')
         return
       }
 
@@ -117,8 +135,10 @@ export default function MenuPage() {
 
       if (editingProduct) {
         await api.updateProduct(editingProduct.id, productData)
+        showToast('Menu item updated successfully', 'success')
       } else {
         await api.createProduct(productData)
+        showToast('Menu item created successfully', 'success')
       }
       
       setShowItemModal(false)
@@ -127,7 +147,7 @@ export default function MenuPage() {
       loadData()
     } catch (error: any) {
       const errorMessage = error?.response?.data?.detail || error?.message || 'Unknown error occurred'
-      alert(`Failed to save menu item: ${errorMessage}`)
+      showToast(`Failed to save menu item: ${errorMessage}`, 'error')
     }
   }
 
@@ -136,8 +156,10 @@ export default function MenuPage() {
     try {
       if (editingCategory) {
         await api.updateCategory(editingCategory.id, categoryFormData)
+        showToast('Category updated successfully', 'success')
       } else {
         await api.createCategory(categoryFormData)
+        showToast('Category created successfully', 'success')
       }
       
       setShowCategoryModal(false)
@@ -146,7 +168,7 @@ export default function MenuPage() {
       loadData()
     } catch (error: any) {
       const errorMessage = error?.response?.data?.detail || error?.message || 'Unknown error occurred'
-      alert(`Failed to save category: ${errorMessage}`)
+      showToast(`Failed to save category: ${errorMessage}`, 'error')
     }
   }
 
@@ -196,9 +218,10 @@ export default function MenuPage() {
     if (!confirm('Are you sure you want to deactivate this menu item?')) return
     try {
       await api.deleteProduct(id)
+      showToast('Menu item deactivated successfully', 'success')
       loadData()
     } catch (error) {
-      alert('Failed to deactivate menu item')
+      showToast('Failed to deactivate menu item', 'error')
     }
   }
 
@@ -206,10 +229,70 @@ export default function MenuPage() {
     if (!confirm('Are you sure you want to deactivate this category?')) return
     try {
       await api.deleteCategory(id)
+      showToast('Category deactivated successfully', 'success')
       loadData()
     } catch (error) {
-      alert('Failed to deactivate category')
+      showToast('Failed to deactivate category', 'error')
     }
+  }
+
+  const handleBulkTaxGroupAssign = (category: Category) => {
+    setSelectedCategoryForBulk(category)
+    setBulkTaxGroupId('')
+    setShowBulkTaxModal(true)
+  }
+
+  const handleBulkTaxSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!selectedCategoryForBulk || !bulkTaxGroupId) {
+      showToast('Please select a tax group', 'error')
+      return
+    }
+
+    // Show custom confirmation instead of browser alert
+    setShowTaxConfirmation(true)
+  }
+
+  const handleConfirmTaxAssignment = async () => {
+    if (!selectedCategoryForBulk || !bulkTaxGroupId) {
+      return
+    }
+
+    try {
+      const result = await api.bulkUpdateProductsByCategory(selectedCategoryForBulk.id, bulkTaxGroupId)
+      showToast(`Successfully updated ${result.updated_count} products`, 'success')
+      setShowBulkTaxModal(false)
+      setSelectedCategoryForBulk(null)
+      setBulkTaxGroupId('')
+      setShowTaxConfirmation(false)
+      loadData()
+    } catch (error: any) {
+      console.error('Bulk update error:', error)
+      // FastAPI 422 errors have a specific structure
+      let errorMessage = 'Unknown error occurred'
+      if (error?.response?.data) {
+        const errorData = error.response.data
+        // Handle FastAPI validation errors (422)
+        if (errorData.detail && Array.isArray(errorData.detail)) {
+          const validationErrors = errorData.detail.map((err: any) => 
+            `${err.loc?.join('.')}: ${err.msg}`
+          ).join(', ')
+          errorMessage = `Validation error: ${validationErrors}`
+        } else if (errorData.detail) {
+          errorMessage = errorData.detail
+        } else if (typeof errorData === 'string') {
+          errorMessage = errorData
+        }
+      } else if (error?.message) {
+        errorMessage = error.message
+      }
+      showToast(`Failed to update products: ${errorMessage}`, 'error')
+      setShowTaxConfirmation(false)
+    }
+  }
+
+  const handleCancelTaxConfirmation = () => {
+    setShowTaxConfirmation(false)
   }
 
   const filteredProducts = products.filter((p) => {
@@ -281,26 +364,31 @@ export default function MenuPage() {
               All
             </button>
             {categories.map((category) => (
-              <button
+              <div
                 key={category.id}
-                onClick={() => setSelectedCategory(category.id)}
-                className={`px-4 py-2 rounded-xl font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring outline-none flex items-center gap-2 ${
-                  selectedCategory === category.id
-                    ? 'bg-[#3E2C24] text-white shadow-md'
-                    : 'bg-[#FAF7F2] text-[#3E2C24] hover:bg-[#C89B63]/10'
-                }`}
+                className="flex items-center gap-2"
               >
-                {category.name}
+                <button
+                  onClick={() => setSelectedCategory(category.id)}
+                  className={`px-4 py-2 rounded-xl font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring outline-none ${
+                    selectedCategory === category.id
+                      ? 'bg-[#3E2C24] text-white shadow-md'
+                      : 'bg-[#FAF7F2] text-[#3E2C24] hover:bg-[#C89B63]/10'
+                  }`}
+                >
+                  {category.name}
+                </button>
                 <button
                   onClick={(e) => {
                     e.stopPropagation()
                     handleEditCategory(category)
                   }}
                   className="p-1 rounded-full text-[#6B6B6B] hover:bg-[#E5E7EB] transition-all duration-200 ease-in-out active:scale-[0.9]"
+                  title="Edit category"
                 >
                   <Edit className="w-3 h-3" />
                 </button>
-              </button>
+              </div>
             ))}
           </div>
         </div>
@@ -326,24 +414,143 @@ export default function MenuPage() {
             if (categoryProducts.length === 0 && !selectedCategory) return null
 
             return (
-              <MenuTable
-                key={category.id}
-                categoryName={category.name}
-                products={categoryProducts}
-                handleEditItem={handleEditItem}
-                handleDeactivateItem={handleDeactivateItem}
-              />
+              <div key={category.id} className="bg-white rounded-2xl shadow-md border border-[#E5E7EB]">
+                <div className="p-6 border-b border-[#E5E7EB] flex justify-between items-center">
+                  <h3 className="text-xl font-bold text-[#3E2C24]">{category.name}</h3>
+                  <button
+                    onClick={() => handleBulkTaxGroupAssign(category)}
+                    className="px-4 py-2 bg-[#C89B63] text-white rounded-xl font-medium text-sm
+                             transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg 
+                             active:scale-[0.98] flex items-center gap-2"
+                    title="Assign tax group to all products in this category"
+                  >
+                    <Settings className="w-4 h-4" />
+                    Assign Tax Group
+                  </button>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full leading-normal">
+                    <thead className="bg-[#FAF7F2]">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider rounded-tl-xl">Item</th>
+                        <th className="px-6 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider">Price</th>
+                        <th className="px-6 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider">Tax Group</th>
+                        <th className="px-6 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider">Status</th>
+                        <th className="px-6 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider rounded-tr-xl">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {categoryProducts.map((product) => (
+                        <tr key={product.id} className="border-t border-[#E5E7EB] transition-all duration-200 ease-in-out hover:bg-[#FAF7F2]">
+                          <td className="px-6 py-4 font-medium text-[#1F1F1F]">{product.name}</td>
+                          <td className="px-6 py-4 text-[#1F1F1F]">₹{product.selling_price.toFixed(2)}</td>
+                          <td className="px-6 py-4 text-[#6B6B6B]">
+                            {(() => {
+                              const taxGroup = taxGroups.find(tg => tg.id === product.tax_group_id)
+                              if (!taxGroup) return 'No Tax Group'
+                              const inclusiveText = taxGroup.is_tax_inclusive ? ' (Inclusive)' : ' (Exclusive)'
+                              return `${taxGroup.name}${inclusiveText}`
+                            })()}
+                          </td>
+                          <td className="px-6 py-4">
+                            <span className={`px-3 py-1 text-xs rounded-full font-semibold ${
+                              product.is_active 
+                                ? 'bg-green-100 text-green-700' 
+                                : 'bg-red-100 text-red-700'
+                            }`}>
+                              {product.is_active ? 'Active' : 'Inactive'}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="flex gap-3">
+                              <button
+                                onClick={() => handleEditItem(product)}
+                                className="text-[#3E2C24] hover:text-[#C89B63] transition-all duration-200 ease-in-out hover:scale-[1.05] active:scale-[0.95]"
+                              >
+                                <Edit className="w-4 h-4" />
+                              </button>
+                              {product.is_active && (
+                                <button
+                                  onClick={() => handleDeactivateItem(product.id)}
+                                  className="text-[#F4A261] hover:text-[#E08F50] transition-all duration-200 ease-in-out hover:scale-[1.05] active:scale-[0.95]"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             )
           })}
 
           {/* Uncategorized Items */}
           {(!selectedCategory || selectedCategory === null) && uncategorizedProducts.length > 0 && (
-            <MenuTable
-              categoryName="Uncategorized"
-              products={uncategorizedProducts}
-              handleEditItem={handleEditItem}
-              handleDeactivateItem={handleDeactivateItem}
-            />
+            <div className="bg-white rounded-2xl shadow-md border border-[#E5E7EB]">
+              <div className="p-6 border-b border-[#E5E7EB]">
+                <h3 className="text-xl font-bold text-[#3E2C24]">Uncategorized</h3>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="min-w-full leading-normal">
+                  <thead className="bg-[#FAF7F2]">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider rounded-tl-xl">Item</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider">Price</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider">Tax Group</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider">Status</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider rounded-tr-xl">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {uncategorizedProducts.map((product) => (
+                      <tr key={product.id} className="border-t border-[#E5E7EB] transition-all duration-200 ease-in-out hover:bg-[#FAF7F2]">
+                        <td className="px-6 py-4 font-medium text-[#1F1F1F]">{product.name}</td>
+                        <td className="px-6 py-4 text-[#1F1F1F]">₹{product.selling_price.toFixed(2)}</td>
+                        <td className="px-6 py-4 text-[#6B6B6B]">
+                          {(() => {
+                            const taxGroup = taxGroups.find(tg => tg.id === product.tax_group_id)
+                            if (!taxGroup) return 'No Tax Group'
+                            const inclusiveText = taxGroup.is_tax_inclusive ? ' (Inclusive)' : ' (Exclusive)'
+                            return `${taxGroup.name}${inclusiveText}`
+                          })()}
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className={`px-3 py-1 text-xs rounded-full font-semibold ${
+                            product.is_active 
+                              ? 'bg-green-100 text-green-700' 
+                              : 'bg-red-100 text-red-700'
+                          }`}>
+                            {product.is_active ? 'Active' : 'Inactive'}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex gap-3">
+                            <button
+                              onClick={() => handleEditItem(product)}
+                              className="text-[#3E2C24] hover:text-[#C89B63] transition-all duration-200 ease-in-out hover:scale-[1.05] active:scale-[0.95]"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </button>
+                            {product.is_active && (
+                              <button
+                                onClick={() => handleDeactivateItem(product.id)}
+                                className="text-[#F4A261] hover:text-[#E08F50] transition-all duration-200 ease-in-out hover:scale-[1.05] active:scale-[0.95]"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           )}
         </div>
 
@@ -553,6 +760,134 @@ export default function MenuPage() {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        )}
+
+        {/* Bulk Tax Group Assignment Modal */}
+        {showBulkTaxModal && selectedCategoryForBulk && (
+          <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 max-w-md w-full animate-fade-in animate-scale-in">
+              <div className="flex justify-between items-center mb-6 pb-4 border-b border-[#E5E7EB]">
+                <h2 className="text-2xl font-bold text-[#3E2C24]">
+                  Assign Tax Group to Category
+                </h2>
+                <button
+                  onClick={() => {
+                    setShowBulkTaxModal(false)
+                    setSelectedCategoryForBulk(null)
+                    setBulkTaxGroupId('')
+                    setShowTaxConfirmation(false)
+                  }}
+                  className="text-[#6B6B6B] hover:text-[#3E2C24] transition-all duration-200 ease-in-out active:scale-[0.9] p-2 rounded-full hover:bg-[#FAF7F2]"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <form onSubmit={handleBulkTaxSubmit} className="space-y-5">
+                <div>
+                  <p className="text-sm text-[#6B6B6B] mb-4">
+                    This will assign the selected tax group to <strong>all products</strong> in the category <strong>&quot;{selectedCategoryForBulk.name}&quot;</strong>.
+                  </p>
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-[#6B6B6B] mb-2">Tax Group *</label>
+                  <select
+                    value={bulkTaxGroupId}
+                    onChange={(e) => setBulkTaxGroupId(e.target.value)}
+                    required
+                    className="w-full px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63] bg-[#FAF7F2] hover:bg-white transition-all duration-200 text-[#1F1F1F]"
+                  >
+                    <option value="">Select Tax Group</option>
+                    {taxGroups.map((tg) => (
+                      <option key={tg.id} value={tg.id}>
+                        {tg.name} ({tg.total_rate}% - {tg.is_tax_inclusive ? 'Inclusive' : 'Exclusive'})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                {/* Confirmation Notification */}
+                {showTaxConfirmation && (
+                  <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-xl">
+                    <p className="text-sm text-yellow-800 mb-4">
+                      Are you sure you want to assign this tax group to <strong>ALL products</strong> in &quot;{selectedCategoryForBulk?.name}&quot;?
+                    </p>
+                    <div className="flex gap-3 justify-end">
+                      <button
+                        type="button"
+                        onClick={handleCancelTaxConfirmation}
+                        className="px-4 py-2 rounded-xl font-medium border border-yellow-600 text-yellow-700 hover:bg-yellow-100 transition-all duration-200 ease-in-out hover:scale-[1.02] active:scale-[0.98]"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleConfirmTaxAssignment}
+                        className="px-4 py-2 bg-yellow-600 text-white rounded-xl font-medium hover:bg-yellow-700 transition-all duration-200 ease-in-out hover:scale-[1.02] active:scale-[0.98]"
+                      >
+                        OK
+                      </button>
+                    </div>
+                  </div>
+                )}
+                <div className="flex gap-3 justify-end pt-4">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowBulkTaxModal(false)
+                      setSelectedCategoryForBulk(null)
+                      setBulkTaxGroupId('')
+                      setShowTaxConfirmation(false)
+                    }}
+                    className="px-6 py-3 rounded-xl font-medium border border-[#3E2C24] text-[#3E2C24] hover:bg-[#3E2C24] hover:text-white transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-6 py-3 bg-[#3E2C24] text-white rounded-xl font-medium hover:bg-[#2c1f19] transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
+                  >
+                    Assign to All Products
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Toast Notification */}
+        {toast && (
+          <div 
+            className="fixed bottom-6 right-6 z-[9999]"
+            style={{
+              animation: 'slideInRight 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
+            }}
+          >
+            <div className={`flex items-center gap-3 px-6 py-4 rounded-xl shadow-2xl min-w-[300px] max-w-md bg-white border ${
+              toast.type === 'success' 
+                ? 'border-green-200' 
+                : 'border-red-200'
+            }`}>
+              {toast.type === 'success' ? (
+                <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+                  <CheckCircle className="w-5 h-5 text-green-600" />
+                </div>
+              ) : (
+                <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
+                  <AlertCircle className="w-5 h-5 text-red-600" />
+                </div>
+              )}
+              <p className={`text-sm font-semibold flex-1 ${
+                toast.type === 'success' ? 'text-[#3E2C24]' : 'text-[#3E2C24]'
+              }`}>
+                {toast.message}
+              </p>
+              <button
+                onClick={() => setToast(null)}
+                className="flex-shrink-0 p-1 rounded-full text-[#6B6B6B] hover:text-[#3E2C24] hover:bg-[#FAF7F2] transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
           </div>
         )}

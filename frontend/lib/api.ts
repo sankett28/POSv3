@@ -17,9 +17,6 @@ class ApiClient {
     // Request interceptor to add auth token
     this.client.interceptors.request.use(
       (config) => {
-        // #region agent log
-        fetch('http://127.0.0.1:7248/ingest/85c36ff9-e5e0-49bc-833b-6a6f1bcd9015',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'api.ts:18',message:'Request interceptor called',data:{url:config.url,method:config.method,baseURL:config.baseURL},"timestamp":Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-        // #endregion
         const token = this.getToken()
         if (token) {
           config.headers.Authorization = `Bearer ${token}`
@@ -27,9 +24,6 @@ class ApiClient {
         return config
       },
       (error) => {
-        // #region agent log
-        fetch('http://127.0.0.1:7248/ingest/85c36ff9-e5e0-49bc-833b-6a6f1bcd9015',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'api.ts:26',message:'Request interceptor error',data:{error:error?.message},"timestamp":Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-        // #endregion
         return Promise.reject(error)
       }
     )
@@ -37,15 +31,9 @@ class ApiClient {
     // Response interceptor for error handling
     this.client.interceptors.response.use(
       (response) => {
-        // #region agent log
-        fetch('http://127.0.0.1:7248/ingest/85c36ff9-e5e0-49bc-833b-6a6f1bcd9015',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'api.ts:32',message:'Response interceptor success',data:{status:response.status,url:response.config.url},"timestamp":Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-        // #endregion
         return response
       },
       (error: AxiosError) => {
-        // #region agent log
-        fetch('http://127.0.0.1:7248/ingest/85c36ff9-e5e0-49bc-833b-6a6f1bcd9015',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'api.ts:37',message:'Response interceptor error',data:{errorType:error?.code,errorMessage:error?.message,status:error?.response?.status,responseData:error?.response?.data},"timestamp":Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-        // #endregion
         if (error.response?.status === 401) {
           // Handle unauthorized - clear token and redirect to login
           this.clearToken()
@@ -114,24 +102,8 @@ class ApiClient {
     unit?: 'pcs' | 'kg' | 'litre' | 'cup' | 'plate' | 'bowl' | 'serving' | 'piece' | 'bottle' | 'can'
     is_active?: boolean
   }) {
-    // #region agent log
-    fetch('http://127.0.0.1:7248/ingest/85c36ff9-e5e0-49bc-833b-6a6f1bcd9015',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'api.ts:100',message:'API createProduct called',data:{productData:data,baseURL:this.client.defaults.baseURL},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-    // #endregion
-    try {
-      // #region agent log
-      fetch('http://127.0.0.1:7248/ingest/85c36ff9-e5e0-49bc-833b-6a6f1bcd9015',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'api.ts:103',message:'Before POST request',data:{url:'/products',data},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-      // #endregion
-      const response = await this.client.post('/products', data)
-      // #region agent log
-      fetch('http://127.0.0.1:7248/ingest/85c36ff9-e5e0-49bc-833b-6a6f1bcd9015',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'api.ts:106',message:'POST request successful',data:{status:response.status,statusText:response.statusText,responseData:response.data},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-      // #endregion
-      return response.data
-    } catch (error: any) {
-      // #region agent log
-      fetch('http://127.0.0.1:7248/ingest/85c36ff9-e5e0-49bc-833b-6a6f1bcd9015',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'api.ts:110',message:'POST request failed',data:{error:error?.message,status:error?.response?.status,responseData:error?.response?.data,stack:error?.stack},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-      // #endregion
-      throw error
-    }
+    const response = await this.client.post('/products', data)
+    return response.data
   }
 
   async updateProduct(id: string, data: { 
@@ -150,6 +122,14 @@ class ApiClient {
 
   async deleteProduct(id: string) {
     await this.client.delete(`/products/${id}`)
+  }
+
+  async bulkUpdateProductsByCategory(categoryId: string, taxGroupId: string) {
+    const response = await this.client.put('/products/bulk-update-by-category', {
+      category_id: categoryId,
+      tax_group_id: taxGroupId
+    })
+    return response.data
   }
 
 
@@ -273,6 +253,11 @@ class ApiClient {
   // Reports endpoints
   async getTaxSummary(startDate: string, endDate: string) {
     const response = await this.client.get(`/reports/tax-summary?start_date=${startDate}&end_date=${endDate}`)
+    return response.data
+  }
+
+  async getSalesByCategory(startDate: string, endDate: string) {
+    const response = await this.client.get(`/reports/sales-by-category?start_date=${startDate}&end_date=${endDate}`)
     return response.data
   }
 }

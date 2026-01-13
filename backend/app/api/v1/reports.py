@@ -34,6 +34,21 @@ class TaxSummaryResponse(BaseModel):
     grand_total_tax: float
 
 
+class CategorySalesItem(BaseModel):
+    """Sales by category item."""
+    category_name: str
+    total_sales: float
+    item_count: int
+
+
+class SalesByCategoryResponse(BaseModel):
+    """Sales by category response."""
+    start_date: str
+    end_date: str
+    summary: List[CategorySalesItem]
+    grand_total_sales: float
+
+
 @router.get("/tax-summary", response_model=TaxSummaryResponse)
 async def get_tax_summary(
     start_date: str = Query(..., description="Start date (YYYY-MM-DD)"),
@@ -50,10 +65,12 @@ async def get_tax_summary(
     try:
         import asyncio
         
-        # Parse dates
+        # Parse dates - handle YYYY-MM-DD format
         try:
-            start_dt = datetime.fromisoformat(start_date)
-            end_dt = datetime.fromisoformat(end_date)
+            # Parse date strings in YYYY-MM-DD format
+            start_dt = datetime.strptime(start_date, "%Y-%m-%d")
+            # End date should include the full day (23:59:59.999999)
+            end_dt = datetime.strptime(end_date, "%Y-%m-%d").replace(hour=23, minute=59, second=59, microsecond=999999)
         except ValueError:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -133,5 +150,90 @@ async def get_tax_summary(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to generate tax summary"
+        )
+
+
+@router.get("/sales-by-category", response_model=SalesByCategoryResponse)
+async def get_sales_by_category(
+    start_date: str = Query(..., description="Start date (YYYY-MM-DD)"),
+    end_date: str = Query(..., description="End date (YYYY-MM-DD)"),
+    db: Client = Depends(get_supabase),
+    user_id: str = Depends(get_current_user_id)
+):
+    """
+    Get sales summary grouped by category.
+    
+    This endpoint queries bill_items snapshots directly - uses category_name_snapshot
+    for historical accuracy. Sums line_total for each category.
+    """
+    try:
+        import asyncio
+        
+        # Parse dates - handle YYYY-MM-DD format
+        try:
+            # Parse date strings in YYYY-MM-DD format
+            start_dt = datetime.strptime(start_date, "%Y-%m-%d")
+            # End date should include the full day (23:59:59.999999)
+            end_dt = datetime.strptime(end_date, "%Y-%m-%d").replace(hour=23, minute=59, second=59, microsecond=999999)
+        except ValueError:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid date format. Use YYYY-MM-DD"
+            )
+        
+        # Query bill_items with category snapshots
+        # Group by category_name_snapshot and sum line_total
+        result = await asyncio.to_thread(
+            lambda: db.table("bill_items")
+                .select("category_name_snapshot, line_total")
+                .gte("created_at", start_dt.isoformat())
+                .lte("created_at", end_dt.isoformat())
+                .execute()
+        )
+        
+        if not result.data:
+            return SalesByCategoryResponse(
+                start_date=start_date,
+                end_date=end_date,
+                summary=[],
+                grand_total_sales=0.0
+            )
+        
+        # Group by category_name_snapshot
+        grouped = {}
+        for item in result.data:
+            category_name = item.get("category_name_snapshot") or "Uncategorized"
+            if category_name not in grouped:
+                grouped[category_name] = {
+                    "category_name": category_name,
+                    "total_sales": 0.0,
+                    "item_count": 0
+                }
+            
+            grouped[category_name]["total_sales"] += float(item.get("line_total", 0))
+            grouped[category_name]["item_count"] += 1
+        
+        # Convert to list and calculate grand total
+        summary_items = []
+        grand_total_sales = 0.0
+        
+        for category_name in sorted(grouped.keys()):
+            item = grouped[category_name]
+            summary_items.append(CategorySalesItem(**item))
+            grand_total_sales += item["total_sales"]
+        
+        return SalesByCategoryResponse(
+            start_date=start_date,
+            end_date=end_date,
+            summary=summary_items,
+            grand_total_sales=grand_total_sales
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error generating sales by category: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to generate sales by category report"
         )
 

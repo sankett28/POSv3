@@ -26,6 +26,8 @@ interface Bill {
   bill_number: string
   subtotal: number
   tax_amount: number
+  cgst?: number
+  sgst?: number
   total_amount: number
   payment_method: string
   created_at: string
@@ -140,7 +142,7 @@ export default function TransactionsPage() {
 
         {selectedBill && (
           <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-fade-in animate-scale-in">
+            <div className="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-fade-in animate-scale-in custom-scrollbar">
               <div className="flex justify-between items-center mb-6 pb-4 border-b border-[#E5E7EB]">
                 <h2 className="text-2xl font-bold text-[#3E2C24]">Order Details</h2>
                 <button
@@ -172,11 +174,11 @@ export default function TransactionsPage() {
                   <>
                     <div className="flex justify-between items-center">
                       <span className="text-[#6B6B6B] font-medium">CGST:</span>
-                      <span className="text-[#1F1F1F]">₹{selectedBill.items.reduce((sum, item) => sum + (item.cgst_amount || 0), 0).toFixed(2)}</span>
+                      <span className="text-[#1F1F1F]">₹{(selectedBill.cgst || 0).toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-[#6B6B6B] font-medium">SGST:</span>
-                      <span className="text-[#1F1F1F]">₹{selectedBill.items.reduce((sum, item) => sum + (item.sgst_amount || 0), 0).toFixed(2)}</span>
+                      <span className="text-[#1F1F1F]">₹{(selectedBill.sgst || 0).toFixed(2)}</span>
                     </div>
                   </>
                 ) : (
@@ -225,11 +227,11 @@ export default function TransactionsPage() {
                   <>
                     <div className="flex justify-between text-[#6B6B6B] text-base font-medium">
                       <span>CGST:</span>
-                      <span>₹{selectedBill.items.reduce((sum, item) => sum + (item.cgst_amount || 0), 0).toFixed(2)}</span>
+                      <span>₹{(selectedBill.cgst || 0).toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between text-[#6B6B6B] text-base font-medium">
                       <span>SGST:</span>
-                      <span>₹{selectedBill.items.reduce((sum, item) => sum + (item.sgst_amount || 0), 0).toFixed(2)}</span>
+                      <span>₹{(selectedBill.sgst || 0).toFixed(2)}</span>
                     </div>
                   </>
                 ) : (
