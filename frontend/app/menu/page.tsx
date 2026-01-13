@@ -25,6 +25,7 @@ export interface Product {
   name: string
   selling_price: number
   tax_group_id?: string
+  tax_group?: TaxGroup // Add this line
   category_id?: string
   category_name?: string
   tax_rate?: number
@@ -80,7 +81,7 @@ export default function MenuPage() {
         return {
           ...p,
           category_name: category?.name,
-          tax_rate: taxGroup?.total_rate || 0
+          tax_group: taxGroup, // Assign the whole taxGroup object
         }
       })
       
@@ -455,7 +456,7 @@ export default function MenuPage() {
           })}
 
           {/* Uncategorized Items */}
-          {uncategorizedProducts.length > 0 && (
+          {(!selectedCategory || selectedCategory === null) && uncategorizedProducts.length > 0 && (
             <div className="bg-white rounded-2xl shadow-md border border-[#E5E7EB]">
               <div className="p-6 border-b border-[#E5E7EB]">
                 <h3 className="text-xl font-bold text-[#3E2C24]">Uncategorized</h3>
@@ -466,7 +467,7 @@ export default function MenuPage() {
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider rounded-tl-xl">Item</th>
                       <th className="px-6 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider">Price</th>
-                        <th className="px-6 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider">Tax Group</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider">Tax Group</th>
                       <th className="px-6 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider">Status</th>
                       <th className="px-6 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider rounded-tr-xl">Actions</th>
                     </tr>
@@ -476,14 +477,14 @@ export default function MenuPage() {
                       <tr key={product.id} className="border-t border-[#E5E7EB] transition-all duration-200 ease-in-out hover:bg-[#FAF7F2]">
                         <td className="px-6 py-4 font-medium text-[#1F1F1F]">{product.name}</td>
                         <td className="px-6 py-4 text-[#1F1F1F]">₹{product.selling_price.toFixed(2)}</td>
-                          <td className="px-6 py-4 text-[#6B6B6B]">
-                            {(() => {
-                              const taxGroup = taxGroups.find(tg => tg.id === product.tax_group_id)
-                              if (!taxGroup) return 'No Tax Group'
-                              const inclusiveText = taxGroup.is_tax_inclusive ? ' (Inclusive)' : ' (Exclusive)'
-                              return `${taxGroup.name}${inclusiveText}`
-                            })()}
-                          </td>
+                        <td className="px-6 py-4 text-[#6B6B6B]">
+                          {(() => {
+                            const taxGroup = taxGroups.find(tg => tg.id === product.tax_group_id)
+                            if (!taxGroup) return 'No Tax Group'
+                            const inclusiveText = taxGroup.is_tax_inclusive ? ' (Inclusive)' : ' (Exclusive)'
+                            return `${taxGroup.name}${inclusiveText}`
+                          })()}
+                        </td>
                         <td className="px-6 py-4">
                           <span className={`px-3 py-1 text-xs rounded-full font-semibold ${
                             product.is_active 

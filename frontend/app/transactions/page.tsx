@@ -17,6 +17,7 @@ interface BillItem {
   sgst_amount?: number
   tax_group_name?: string
   is_tax_inclusive?: boolean
+  total_rate?: number
   line_total: number
 }
 
@@ -192,21 +193,26 @@ export default function TransactionsPage() {
                 <h3 className="font-bold text-xl text-[#3E2C24] mb-4">Items Ordered</h3>
                 <div className="space-y-3">
                   {selectedBill.items.map((item) => (
-                    <div key={item.id} className="flex justify-between items-start py-3 border-b border-[#FAF7F2] last:border-b-0">
-                      <div className="flex-1 pr-4">
-                        <div className="font-semibold text-[#1F1F1F] text-base">{item.product_name}</div>
-                        <div className="text-sm text-[#6B6B6B]">
-                          ₹{item.unit_price.toFixed(2)} × {item.quantity}
-                          {item.tax_group_name && (
-                            <span className="ml-2">({item.tax_group_name})</span>
-                          )}
-                          {item.cgst_amount && item.sgst_amount && (
-                            <div className="mt-1 text-xs">
-                              CGST: ₹{item.cgst_amount.toFixed(2)}, SGST: ₹{item.sgst_amount.toFixed(2)}
-                            </div>
-                          )}
-                        </div>
+                    <div key={item.id} className="flex flex-col gap-1 border-b border-[#f1ece6] py-3 last:border-none">
+                      <div className="flex justify-between items-center">
+                        <span className="font-semibold text-[#3E2C24]">{item.product_name}</span>
+                        <span className="font-semibold text-[#3E2C24]">
+                          ₹{((item.unit_price * item.quantity) + (item.tax_amount || 0)).toFixed(2)}
+                        </span>
                       </div>
+
+                      <div className="text-sm text-[#6B6B6B]">
+                        ₹{item.unit_price.toFixed(2)} × {item.quantity}
+                        {item.tax_group_name && (
+                          <span className="ml-2">({item.tax_group_name})</span>
+                        )}
+                      </div>
+
+                      {((item.cgst_amount ?? 0) > 0 || (item.sgst_amount ?? 0) > 0) && (
+                        <div className="text-xs text-[#9CA3AF]">
+                          CGST: ₹{(item.cgst_amount || 0).toFixed(2)}, SGST: ₹{(item.sgst_amount || 0).toFixed(2)}
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>

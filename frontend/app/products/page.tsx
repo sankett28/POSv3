@@ -13,6 +13,7 @@ interface Product {
   unit: 'pcs' | 'kg' | 'litre'
   is_active: boolean
   created_at: string
+  image_url?: string
 }
 
 export default function ProductsPage() {
@@ -306,15 +307,6 @@ export default function ProductsPage() {
                   onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
                   required
                   placeholder="e.g., ESP-001, CAP-002"
-                  className="w-full px-4 py-4 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63] bg-[#FAF7F2] hover:bg-white transition-all duration-200 text-[#1F1F1F] placeholder-[#9CA3AF]"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-[#6B6B6B] mb-1">Barcode (optional)</label>
-                <input
-                  type="text"
-                  value={formData.barcode}
-                  onChange={(e) => setFormData({ ...formData, barcode: e.target.value })}
                   className="w-full px-4 py-4 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63] bg-[#FAF7F2] hover:bg-white transition-all duration-200 text-[#1F1F1F] placeholder-[#9CA3AF]"
                 />
               </div>

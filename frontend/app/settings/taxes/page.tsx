@@ -269,7 +269,7 @@ export default function TaxSettingsPage() {
               <form onSubmit={handleSubmit} className="p-6 space-y-6">
                 {/* Name */}
                 <div>
-                  <label className="block text-sm font-semibold text-[#6B6B6B] mb-2">
+                  <label className="block text-sm font-semibold text-[#3E2C24] mb-2">
                     Tax Group Name *
                   </label>
                   <input
@@ -277,14 +277,14 @@ export default function TaxSettingsPage() {
                     required
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl border border-[#E5E7EB] focus:outline-none focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63]"
+                    className="w-full px-4 py-3 rounded-xl border border-[#E5E7EB] focus:outline-none focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63] bg-[#FAF7F2] text-[#1F1F1F] placeholder-[#9CA3AF]"
                     placeholder="e.g., GST 18%"
                   />
                 </div>
 
                 {/* Total Rate */}
                 <div>
-                  <label className="block text-sm font-semibold text-[#6B6B6B] mb-2">
+                  <label className="block text-sm font-semibold text-[#3E2C24] mb-2">
                     Total Tax Rate (%) *
                   </label>
                   <input
@@ -295,20 +295,20 @@ export default function TaxSettingsPage() {
                     step="0.01"
                     value={formData.total_rate}
                     onChange={(e) => setFormData({ ...formData, total_rate: parseFloat(e.target.value) || 0 })}
-                    className="w-full px-4 py-3 rounded-xl border border-[#E5E7EB] focus:outline-none focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63]"
+                    className="w-full px-4 py-3 rounded-xl border border-[#E5E7EB] focus:outline-none focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63] bg-[#FAF7F2] text-[#1F1F1F] placeholder-[#9CA3AF]"
                     placeholder="0.00"
                   />
                 </div>
 
                 {/* Split Type */}
                 <div>
-                  <label className="block text-sm font-semibold text-[#6B6B6B] mb-2">
+                  <label className="block text-sm font-semibold text-[#3E2C24] mb-2">
                     Split Type *
                   </label>
                   <select
                     value={formData.split_type}
                     onChange={(e) => setFormData({ ...formData, split_type: e.target.value as 'GST_50_50' | 'NO_SPLIT' })}
-                    className="w-full px-4 py-3 rounded-xl border border-[#E5E7EB] focus:outline-none focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63]"
+                    className="w-full px-4 py-3 rounded-xl border border-[#E5E7EB] focus:outline-none focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63] bg-[#FAF7F2] text-[#1F1F1F] placeholder-[#9CA3AF]"
                   >
                     <option value="GST_50_50">GST 50/50 (CGST + SGST)</option>
                     <option value="NO_SPLIT">No Split</option>
@@ -329,7 +329,7 @@ export default function TaxSettingsPage() {
                       type="checkbox"
                       checked={formData.is_tax_inclusive}
                       onChange={(e) => setFormData({ ...formData, is_tax_inclusive: e.target.checked })}
-                      className="w-5 h-5 rounded border-[#E5E7EB] text-[#C89B63] focus:ring-[#C89B63]"
+                      className="w-5 h-5 rounded border-[#C89B63] text-[#3E2C24] focus:ring-[#3E2C24]"
                     />
                     <span className="text-sm font-semibold text-[#6B6B6B]">
                       Tax Inclusive Pricing
@@ -348,7 +348,7 @@ export default function TaxSettingsPage() {
                       type="checkbox"
                       checked={formData.is_active}
                       onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-                      className="w-5 h-5 rounded border-[#E5E7EB] text-[#C89B63] focus:ring-[#C89B63]"
+                      className="w-5 h-5 rounded border-[#C89B63] text-[#3E2C24] focus:ring-[#3E2C24]"
                     />
                     <span className="text-sm font-semibold text-[#6B6B6B]">
                       Active
@@ -364,7 +364,7 @@ export default function TaxSettingsPage() {
                   <button
                     type="button"
                     onClick={() => setShowForm(false)}
-                    className="flex-1 px-6 py-3 rounded-xl border border-[#E5E7EB] text-[#6B6B6B] font-semibold
+                    className="flex-1 px-6 py-3 rounded-xl border border-[#3E2C24] text-[#3E2C24] font-semibold
                              hover:bg-[#FAF7F2] transition-colors"
                   >
                     Cancel

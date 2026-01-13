@@ -3,21 +3,36 @@
 import { CheckCircle, Printer } from 'lucide-react'
 
 interface BillItem {
-  name: string
-  price: number
+  product_id: string
+  product_name: string
   quantity: number
-  total: number
+  unit_price: number
+  subtotal: number
+  tax_group?: {
+    name: string
+    is_tax_inclusive: boolean
+  }
+  preview_taxable_value?: number
+  preview_tax_amount?: number
+  preview_cgst?: number
+  preview_sgst?: number
+  preview_total?: number
+  total_price?: number
+  line_total?: number
+  tax_rate?: number
+  tax_amount?: number
 }
 
 interface SuccessModalProps {
   isOpen: boolean
   onClose: () => void
   billData?: {
-    billItems: BillItem[]
+    items: BillItem[]
     subtotal: number
     gst: number
     total: number
     paymentMethod: string
+    date: string
   }
   invoiceNumber?: string
 }
@@ -309,7 +324,7 @@ export default function SuccessModal({ isOpen, onClose, billData, invoiceNumber 
               <div class="details">
                 <div class="detail-item">
                   <p>Invoice Date</p>
-                  <p>${getCurrentDate()}</p>
+                  <p>${billData.date}</p>
                 </div>
                 <div class="detail-item">
                   <p>Payment Method</p>
@@ -318,28 +333,33 @@ export default function SuccessModal({ isOpen, onClose, billData, invoiceNumber 
               </div>
             </div>
 
-            <div class="table-section">
-              <div class="table-title">Items</div>
-              <table>
-                <thead>
-                  <tr>
-                    <th>Item Description</th>
-                    <th>Quantity</th>
-                    <th>Unit Price</th>
-                    <th>Amount</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${billData.billItems.map((item: any, index: number) => `
-                    <tr>
-                      <td>${item.name}</td>
-                      <td>${item.quantity}</td>
-                      <td>₹${item.price.toLocaleString('en-IN')}</td>
-                      <td>₹${item.total.toLocaleString('en-IN')}</td>
-                    </tr>
-                  `).join('')}
-                </tbody>
-              </table>
+            <div class="table-title">Items Ordered</div>
+            <div class="bg-[#FAF7F2] rounded-xl p-4 space-y-3">
+              ${billData.items.map((item: any) => `
+                <div class="flex flex-col gap-1 border-b border-[#f1ece6] py-3 last:border-none">
+                  <div class="flex justify-between items-center">
+                    <span class="font-semibold text-[#3E2C24]">${item.product_name}</span>
+                    <span class="font-semibold text-[#3E2C24]">
+                      ₹${(item.total_price || item.line_total || item.unit_price * item.quantity).toFixed(2)}
+                    </span>
+                  </div>
+
+                  <div class="text-sm text-[#6B6B6B]">
+                    ₹${item.unit_price.toFixed(2)} × ${item.quantity}
+                    (${item.tax_group ? `GST ${item.tax_group.total_rate}%` : 'No Tax'})
+                  </div>
+
+                  ${item.preview_tax_amount > 0 ? `
+                    <div class="text-xs text-[#9CA3AF]">
+                      CGST: ₹${(item.preview_tax_amount / 2).toFixed(2)}, SGST: ₹{(item.preview_tax_amount / 2).toFixed(2)}
+                    </div>
+                  ` : ''}
+
+                  <div class="text-right text-sm font-medium text-[#3E2C24] mt-1">
+                    Item Total: ₹${(item.unit_price * item.quantity + item.preview_tax_amount).toFixed(2)}
+                  </div>
+                </div>
+              `).join('')}
             </div>
 
             <div class="totals-section">
@@ -347,15 +367,15 @@ export default function SuccessModal({ isOpen, onClose, billData, invoiceNumber 
                 <div class="totals-inner">
                   <div class="total-row">
                     <span>Subtotal</span>
-                    <span>₹${billData.subtotal.toLocaleString('en-IN')}</span>
+                    <span>₹${billData.subtotal.toFixed(2)}</span>
                   </div>
                   <div class="total-row">
                     <span>GST (5%)</span>
-                    <span>₹${billData.gst.toLocaleString('en-IN')}</span>
+                    <span>₹${billData.gst.toFixed(2)}</span>
                   </div>
                   <div class="total-row">
                     <span>Total Amount</span>
-                    <span>₹${billData.total.toLocaleString('en-IN')}</span>
+                    <span>₹${billData.total.toFixed(2)}</span>
                   </div>
                 </div>
               </div>
