@@ -6,6 +6,7 @@ from app.core.database import get_supabase
 from app.services.billing_service import BillingService
 from app.schemas.bill import BillCreate, BillResponse
 from app.api.v1.auth import get_current_user_id
+from app.core.exceptions import ConfigurationError
 from supabase import Client
 from app.core.logging import logger
 
@@ -35,6 +36,11 @@ async def create_bill(
         service = BillingService(db)
         result = await service.create_bill(bill_data, UUID(user_id))
         return result
+    except ConfigurationError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except Exception as e:

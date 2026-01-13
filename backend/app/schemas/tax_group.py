@@ -53,6 +53,7 @@ class TaxGroupResponse(BaseModel):
     split_type: str
     is_tax_inclusive: bool
     is_active: bool
+    code: Optional[str] = None  # System-level code (e.g., SERVICE_CHARGE_GST)
     created_at: datetime
     updated_at: datetime
     

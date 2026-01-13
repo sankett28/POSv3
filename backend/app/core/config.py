@@ -17,6 +17,10 @@ class Settings(BaseSettings):
     # CORS configuration - can be string (comma-separated) or list
     cors_origins: Union[str, list[str]] = "http://localhost:3000"
     
+    # Service charge default configuration
+    default_service_charge_enabled: bool = True
+    default_service_charge_rate: float = 10.0
+    
     @validator('cors_origins', pre=True)
     def parse_cors_origins(cls, v):
         """Parse CORS origins from comma-separated string or list."""

@@ -9,6 +9,7 @@ from app.repositories.tax_group_repo import TaxGroupRepository
 from app.utils.tax_engine import TaxEngine, TaxGroupConfig
 from app.schemas.bill import BillCreate, BillResponse, BillItemResponse, PaymentMethod
 from app.core.logging import logger
+from app.core.exceptions import ConfigurationError
 
 
 class BillingService:
@@ -114,20 +115,87 @@ class BillingService:
                 "tax_result": tax_result
             }
         
-        # Step 4: Generate bill summary using TaxEngine
-        bill_summary = self.tax_engine.generate_bill_summary(line_item_results)
+        # Step 4: Fetch dedicated SERVICE_CHARGE_GST tax group
+        service_charge_tax_group = None
+        service_charge_tax_group_config = None
         
-        # Step 5: Create bill with totals
+        if bill_data.service_charge_enabled:
+            # Fetch dedicated service charge tax group by code
+            service_charge_tax_group_data = await self.tax_group_repo.get_by_code("SERVICE_CHARGE_GST")
+            
+            if not service_charge_tax_group_data:
+                raise ConfigurationError(
+                    "Service Charge GST tax group (SERVICE_CHARGE_GST) is not configured. "
+                    "Please configure it in Settings → Taxes."
+                )
+            
+            if not service_charge_tax_group_data.get("is_active", True):
+                raise ConfigurationError(
+                    "Service Charge GST tax group (SERVICE_CHARGE_GST) is not active. "
+                    "Please activate it in Settings → Taxes."
+                )
+            
+            # Enforce exclusive pricing
+            if service_charge_tax_group_data.get("is_tax_inclusive", False):
+                raise ConfigurationError(
+                    "Service Charge GST tax group must have exclusive pricing (is_tax_inclusive=false). "
+                    "Please update SERVICE_CHARGE_GST tax group configuration."
+                )
+            
+            # Create TaxGroupConfig for service charge
+            service_charge_tax_group_config = TaxGroupConfig(
+                name=service_charge_tax_group_data["name"],
+                total_rate=Decimal(str(service_charge_tax_group_data["total_rate"])),
+                split_type=service_charge_tax_group_data["split_type"],
+                is_tax_inclusive=False  # Enforced to be False
+            )
+            service_charge_tax_group = service_charge_tax_group_data
+        
+        # Step 5: Generate bill summary with service charge using TaxEngine
+        bill_summary = self.tax_engine.generate_bill_summary(
+            line_items=line_item_results,
+            service_charge_enabled=bill_data.service_charge_enabled,
+            service_charge_rate=Decimal(str(bill_data.service_charge_rate)),
+            service_charge_tax_group=service_charge_tax_group_config
+        )
+        
+        # Step 6: Calculate service charge tax breakdown (for snapshot)
+        service_charge_tax_rate = None
+        service_charge_tax_amount = 0.0
+        service_charge_cgst_amount = 0.0
+        service_charge_sgst_amount = 0.0
+        
+        if bill_data.service_charge_enabled and bill_summary.service_charge_amount > 0:
+            if service_charge_tax_group:
+                service_charge_tax_rate = float(service_charge_tax_group["total_rate"])
+                # Calculate GST on service charge separately for snapshot
+                sc_tax_result = self.tax_engine.calculate_line_item(
+                    unit_price=Decimal(str(bill_summary.service_charge_amount)),
+                    quantity=1,
+                    tax_group=service_charge_tax_group_config
+                )
+                service_charge_tax_amount = float(sc_tax_result.tax_amount)
+                service_charge_cgst_amount = float(sc_tax_result.cgst_amount)
+                service_charge_sgst_amount = float(sc_tax_result.sgst_amount)
+        
+        # Step 7: Create bill with totals including service charge
         bill = await self.bill_repo.create_bill(
             user_id=user_id,
             subtotal=float(bill_summary.subtotal),
+            service_charge_enabled=bill_data.service_charge_enabled,
+            service_charge_rate=bill_data.service_charge_rate,
+            service_charge_amount=float(bill_summary.service_charge_amount),
+            service_charge_tax_rate=service_charge_tax_rate,
+            service_charge_tax_amount=service_charge_tax_amount,
+            service_charge_cgst_amount=service_charge_cgst_amount,
+            service_charge_sgst_amount=service_charge_sgst_amount,
             tax_amount=float(bill_summary.total_tax),
             total_amount=float(bill_summary.total_amount),
             payment_method=bill_data.payment_method
         )
         bill_id = UUID(bill["id"])
         
-        # Step 6: Create bill items with ALL snapshot fields
+        # Step 8: Create bill items with ALL snapshot fields
         bill_items = []
         for item in bill_data.items:
             data = product_data[item.product_id]
@@ -156,7 +224,7 @@ class BillingService:
             )
             bill_items.append(bill_item)
         
-        # Step 7: Build response
+        # Step 9: Build response
         items_response = []
         for item in bill_items:
             data = product_data[UUID(item["product_id"])]
@@ -186,6 +254,7 @@ class BillingService:
             user_id=None,  # Schema doesn't have user_id, set to None
             bill_number=bill["bill_number"],
             subtotal=float(bill["subtotal"]),
+            service_charge_amount=float(bill["service_charge_amount"]),
             tax_amount=float(bill["tax_amount"]),
             cgst=float(bill_summary.total_cgst),
             sgst=float(bill_summary.total_sgst),
@@ -234,6 +303,7 @@ class BillingService:
             user_id=None,  # Schema doesn't have user_id, set to None
             bill_number=bill["bill_number"],
             subtotal=float(bill["subtotal"]),
+            service_charge_amount=float(bill.get("service_charge_amount", 0)),
             tax_amount=float(bill["tax_amount"]),
             cgst=cgst,
             sgst=sgst,
@@ -252,6 +322,7 @@ class BillingService:
                 user_id=None,  # Schema doesn't have user_id, set to None
                 bill_number=bill["bill_number"],
                 subtotal=float(bill["subtotal"]),
+                service_charge_amount=float(bill.get("service_charge_amount", 0)),
                 tax_amount=float(bill["tax_amount"]),
                 total_amount=float(bill["total_amount"]),
                 payment_method=bill["payment_method"],

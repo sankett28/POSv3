@@ -17,12 +17,19 @@ class BillRepository:
         self,
         user_id: UUID,  # Kept for API compatibility but not used
         subtotal: float,
+        service_charge_enabled: bool,
+        service_charge_rate: float,
+        service_charge_amount: float,
+        service_charge_tax_rate: Optional[float],
+        service_charge_tax_amount: float,
+        service_charge_cgst_amount: float,
+        service_charge_sgst_amount: float,
         tax_amount: float,
         total_amount: float,
         payment_method: PaymentMethod,
         bill_number: Optional[str] = None
     ) -> dict:
-        """Create a new bill with subtotal and tax_amount."""
+        """Create a new bill with subtotal, service charge, and tax_amount including service charge tax breakdown."""
         try:
             # Generate bill number if not provided
             if not bill_number:
@@ -37,6 +44,13 @@ class BillRepository:
             data = {
                 "bill_number": bill_number,
                 "subtotal": subtotal,
+                "service_charge_enabled": service_charge_enabled,
+                "service_charge_rate": service_charge_rate,
+                "service_charge_amount": service_charge_amount,
+                "service_charge_tax_rate_snapshot": service_charge_tax_rate,
+                "service_charge_tax_amount": service_charge_tax_amount,
+                "service_charge_cgst_amount": service_charge_cgst_amount,
+                "service_charge_sgst_amount": service_charge_sgst_amount,
                 "tax_amount": tax_amount,
                 "total_amount": total_amount,
                 "payment_method": payment_method.value
@@ -113,6 +127,15 @@ class BillRepository:
                 return None
             
             bill = bill_result.data[0]
+            
+            # Include service charge fields from database
+            bill["service_charge_enabled"] = bill.get("service_charge_enabled", True)
+            bill["service_charge_rate"] = float(bill.get("service_charge_rate", 0))
+            bill["service_charge_amount"] = float(bill.get("service_charge_amount", 0))
+            bill["service_charge_tax_rate_snapshot"] = bill.get("service_charge_tax_rate_snapshot")
+            bill["service_charge_tax_amount"] = float(bill.get("service_charge_tax_amount", 0))
+            bill["service_charge_cgst_amount"] = float(bill.get("service_charge_cgst_amount", 0))
+            bill["service_charge_sgst_amount"] = float(bill.get("service_charge_sgst_amount", 0))
             
             # Get bill items with snapshot fields (no join needed)
             items_result = await asyncio.to_thread(

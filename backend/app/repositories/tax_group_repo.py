@@ -25,6 +25,22 @@ class TaxGroupRepository:
             logger.error(f"Error getting tax group {tax_group_id}: {e}")
             raise
     
+    async def get_by_code(self, code: str) -> Optional[dict]:
+        """Get a tax group by code (for system-level tax groups)."""
+        try:
+            result = await asyncio.to_thread(
+                lambda: self.db.table("tax_groups")
+                    .select("*")
+                    .eq("code", code)
+                    .execute()
+            )
+            if result.data:
+                return result.data[0]
+            return None
+        except Exception as e:
+            logger.error(f"Error getting tax group by code {code}: {e}")
+            raise
+    
     async def get_active_tax_groups(self) -> List[dict]:
         """Get all active tax groups."""
         try:

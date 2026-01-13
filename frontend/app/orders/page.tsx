@@ -17,6 +17,7 @@ interface TaxGroup {
   total_rate: number
   split_type: 'GST_50_50' | 'NO_SPLIT'
   is_tax_inclusive: boolean
+  code?: string  // For system-level tax groups like SERVICE_CHARGE_GST
 }
 
 // Replace lines 21-26
@@ -50,7 +51,10 @@ interface BillDetails {
   invoice_number: string
   items: BillItem[]
   subtotal: number
+  service_charge_amount?: number
   gst: number
+  cgst?: number
+  sgst?: number
   total: number
   paymentMethod: 'CASH' | 'UPI' | 'CARD'
   date: string
@@ -64,6 +68,9 @@ export default function OrdersPage() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [paymentMethod, setPaymentMethod] = useState<'CASH' | 'UPI' | 'CARD'>('CASH')
+  const [serviceChargeEnabled, setServiceChargeEnabled] = useState(true)
+  const [serviceChargeRate, setServiceChargeRate] = useState(10.0)
+  const [serviceChargeTaxGroup, setServiceChargeTaxGroup] = useState<TaxGroup | null>(null)
   const [showOrderSuccessModal, setShowOrderSuccessModal] = useState(false)
   const [billDetails, setBillDetails] = useState<BillDetails | null>(null)
 
@@ -96,6 +103,12 @@ export default function OrdersPage() {
       }
 
       const activeProducts = productsData.filter((p: Product) => p.is_active)
+      
+      // Find SERVICE_CHARGE_GST tax group by name or code
+      const serviceChargeGST = taxGroupsData.find((tg: TaxGroup) => 
+        tg.name === 'Service Charge GST' || (tg as any).code === 'SERVICE_CHARGE_GST'
+      )
+      setServiceChargeTaxGroup(serviceChargeGST || null)
       
       // Enrich products with category names and tax group data
       const enrichedProducts = activeProducts.map((p: any) => {
@@ -270,7 +283,28 @@ export default function OrdersPage() {
   // Derive balanced CGST/SGST from total tax (matching backend logic)
   const totalCGST = Math.round((totalTax / 2) * 100) / 100
   const totalSGST = totalTax - totalCGST  // Ensure exact balance
-  const grandTotal = billItems.reduce((sum, item) => sum + (item.preview_total || item.subtotal), 0)
+  
+  // Calculate service charge preview (always exclusive GST in India)
+  const serviceChargeAmount = serviceChargeEnabled && serviceChargeRate > 0
+    ? Math.round((subtotal * serviceChargeRate / 100) * 100) / 100
+    : 0
+  
+  // Calculate GST on service charge using dedicated SERVICE_CHARGE_GST tax group
+  // If not found, fallback to 18% (default) but log a warning
+  const serviceChargeGSTRate = serviceChargeTaxGroup?.total_rate || 18.0
+  if (serviceChargeAmount > 0 && !serviceChargeTaxGroup) {
+    console.warn('SERVICE_CHARGE_GST tax group not found. Using default 18% for preview.')
+  }
+  const gstOnServiceCharge = serviceChargeAmount > 0
+    ? Math.round((serviceChargeAmount * serviceChargeGSTRate / 100) * 100) / 100
+    : 0
+  const cgstOnServiceCharge = Math.round((gstOnServiceCharge / 2) * 100) / 100
+  const sgstOnServiceCharge = gstOnServiceCharge - cgstOnServiceCharge
+  
+  // Grand total includes items + service charge + GST on service charge
+  const grandTotal = billItems.reduce((sum, item) => sum + (item.preview_total || item.subtotal), 0) 
+    + serviceChargeAmount 
+    + gstOnServiceCharge
 
   const getCurrentDate = () => {
     const now = new Date()
@@ -297,14 +331,19 @@ export default function OrdersPage() {
           unit_price: item.unit_price,
         })),
         payment_method: paymentMethod,
+        service_charge_enabled: serviceChargeEnabled,
+        service_charge_rate: serviceChargeRate,
       })
 
       setBillDetails({
         invoice_number: res.bill_number,
         items: billItems,
-        subtotal,
-        gst: totalTax,
-        total: grandTotal,
+        subtotal: res.subtotal,
+        service_charge_amount: res.service_charge_amount || 0,
+        gst: res.tax_amount,
+        cgst: res.cgst,
+        sgst: res.sgst,
+        total: res.total_amount,
         paymentMethod,
         date: new Date().toLocaleDateString('en-IN', {day: '2-digit', month: 'short', year: 'numeric'})
       })
@@ -639,10 +678,27 @@ export default function OrdersPage() {
                     <span>Subtotal</span>
                     <span>₹${billDetails.subtotal.toFixed(2)}</span>
                   </div>
+                  ${billDetails.service_charge_amount && billDetails.service_charge_amount > 0 ? `
                   <div class="total-row">
-                    <span>GST (5%)</span>
+                    <span>Service Charge</span>
+                    <span>₹${billDetails.service_charge_amount.toFixed(2)}</span>
+                  </div>
+                  ` : ''}
+                  ${billDetails.cgst && billDetails.sgst ? `
+                  <div class="total-row">
+                    <span>CGST</span>
+                    <span>₹${billDetails.cgst.toFixed(2)}</span>
+                  </div>
+                  <div class="total-row">
+                    <span>SGST</span>
+                    <span>₹${billDetails.sgst.toFixed(2)}</span>
+                  </div>
+                  ` : `
+                  <div class="total-row">
+                    <span>GST</span>
                     <span>₹${billDetails.gst.toFixed(2)}</span>
                   </div>
+                  `}
                   <div class="total-row">
                     <span>Total Amount</span>
                     <span>₹${billDetails.total.toFixed(2)}</span>
@@ -938,27 +994,80 @@ export default function OrdersPage() {
               )}
             </div>
 
+            {/* Service Charge Toggle */}
+            <div className="space-y-2 mb-4 pt-4 border-t border-[#E5E7EB]">
+              <div className="flex justify-between items-center mb-3">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={serviceChargeEnabled}
+                    onChange={(e) => setServiceChargeEnabled(e.target.checked)}
+                    className="w-5 h-5 border border-[#E5E7EB] rounded focus:ring-2 focus:ring-[#C89B63] accent-[#3E2C24]"
+                  />
+                  <span className="text-sm font-semibold text-[#3E2C24]">
+                    Service Charge (Voluntary)
+                  </span>
+                </label>
+                {serviceChargeEnabled && (
+                  <input
+                    type="number"
+                    min="0"
+                    max="20"
+                    step="0.1"
+                    value={serviceChargeRate}
+                    onChange={(e) => setServiceChargeRate(parseFloat(e.target.value) || 0)}
+                    className="w-20 px-2 py-1 border border-[#E5E7EB] rounded-lg text-sm text-center focus:outline-none focus:ring-2 focus:ring-[#C89B63] bg-[#FAF7F2]"
+                  />
+                )}
+              </div>
+              {serviceChargeEnabled && (
+                <p className="text-xs text-[#6B6B6B] mb-2">
+                  Service charge is optional and can be removed on request.
+                </p>
+              )}
+            </div>
+
             <div className="space-y-2 mb-4 pt-4 border-t border-[#E5E7EB]">
               <div className="flex justify-between text-sm text-[#6B6B6B]">
                 <span>Subtotal</span>
                 <span>₹{subtotal.toFixed(2)}</span>
               </div>
+              {serviceChargeEnabled && serviceChargeAmount > 0 && (
+                <>
+                  <div className="flex justify-between text-sm text-[#6B6B6B]">
+                    <span>Service Charge ({serviceChargeRate}%)</span>
+                    <span>₹{serviceChargeAmount.toFixed(2)}</span>
+                  </div>
+                  {gstOnServiceCharge > 0 && (
+                    <>
+                      <div className="flex justify-between text-xs text-[#9CA3AF] pl-4">
+                        <span>CGST on Service Charge</span>
+                        <span>₹{cgstOnServiceCharge.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between text-xs text-[#9CA3AF] pl-4">
+                        <span>SGST on Service Charge</span>
+                        <span>₹{sgstOnServiceCharge.toFixed(2)}</span>
+                      </div>
+                    </>
+                  )}
+                </>
+              )}
               {totalTax > 0 && (
                 <>
                   {totalCGST > 0 && totalSGST > 0 ? (
                     <>
                       <div className="flex justify-between text-sm text-[#6B6B6B]">
-                        <span>CGST</span>
+                        <span>CGST (Items)</span>
                         <span>₹{totalCGST.toFixed(2)}</span>
                       </div>
                       <div className="flex justify-between text-sm text-[#6B6B6B]">
-                        <span>SGST</span>
+                        <span>SGST (Items)</span>
                         <span>₹{totalSGST.toFixed(2)}</span>
                       </div>
                     </>
                   ) : (
                     <div className="flex justify-between text-sm text-[#6B6B6B]">
-                      <span>Tax (GST)</span>
+                      <span>Tax (GST) - Items</span>
                       <span>₹{totalTax.toFixed(2)}</span>
                     </div>
                   )}

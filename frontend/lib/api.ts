@@ -141,6 +141,8 @@ class ApiClient {
   async createBill(data: {
     items: Array<{ product_id: string; quantity: number; unit_price: number }>
     payment_method: 'CASH' | 'UPI' | 'CARD'
+    service_charge_enabled?: boolean
+    service_charge_rate?: number
   }) {
     const response = await this.client.post('/bills', data)
     return response.data

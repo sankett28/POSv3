@@ -14,7 +14,7 @@ CORE PRINCIPLES:
 - TaxEngine is the ONLY place for tax math
 """
 from decimal import Decimal, ROUND_HALF_UP
-from typing import List, Literal
+from typing import List, Literal, Optional
 from dataclasses import dataclass
 
 
@@ -40,11 +40,12 @@ class LineItemTaxResult:
 @dataclass
 class BillSummary:
     """Summary of tax calculations for an entire bill."""
-    subtotal: Decimal        # Sum of all taxable_value
-    total_tax: Decimal       # Sum of all tax_amount
+    subtotal: Decimal        # Sum of all taxable_value (items only)
+    total_tax: Decimal       # Sum of all tax_amount (items + GST on service charge)
     total_cgst: Decimal      # Sum of all cgst_amount
     total_sgst: Decimal      # Sum of all sgst_amount
     total_amount: Decimal    # Final bill total
+    service_charge_amount: Decimal = Decimal('0')  # Service charge amount
 
 
 class TaxEngine:
@@ -154,15 +155,30 @@ class TaxEngine:
     
     @staticmethod
     def generate_bill_summary(
-        line_items: List[LineItemTaxResult]
+        line_items: List[LineItemTaxResult],
+        service_charge_enabled: bool = False,
+        service_charge_rate: Decimal = Decimal('0'),
+        service_charge_tax_group: Optional[TaxGroupConfig] = None
     ) -> BillSummary:
-        """Generate summary for an entire bill from line items.
+        """Generate summary for an entire bill from line items with optional service charge.
+        
+        BUSINESS RULES:
+        1. Service charge calculated on item subtotal (taxable_value sum)
+        2. GST applied on service charge using dedicated SERVICE_CHARGE_GST tax group
+        3. Service charge GST is ALWAYS exclusive (Indian regulation)
+        4. Total tax = item tax + GST on service charge
         
         Args:
             line_items: List of tax calculation results for each line item
+            service_charge_enabled: Whether service charge is enabled
+            service_charge_rate: Service charge rate percentage (0-20)
+            service_charge_tax_group: Tax group config for service charge GST (MUST be provided if enabled)
             
         Returns:
-            BillSummary with aggregated totals
+            BillSummary with aggregated totals including service charge
+            
+        Raises:
+            ValueError: If service charge is enabled but tax group is missing or invalid
         """
         if not line_items:
             return BillSummary(
@@ -170,30 +186,73 @@ class TaxEngine:
                 total_tax=Decimal('0'),
                 total_cgst=Decimal('0'),
                 total_sgst=Decimal('0'),
-                total_amount=Decimal('0')
+                total_amount=Decimal('0'),
+                service_charge_amount=Decimal('0')
             )
         
-        # Sum all values
-        subtotal = sum(item.taxable_value for item in line_items)
-        total_tax = sum(item.tax_amount for item in line_items)
-        total_amount = sum(item.line_total for item in line_items)
+        # Step 1: Calculate item subtotal and tax
+        item_subtotal = sum(item.taxable_value for item in line_items)
+        item_tax = sum(item.tax_amount for item in line_items)
         
-        # Round totals
-        subtotal = TaxEngine._round_currency(subtotal)
+        item_subtotal = TaxEngine._round_currency(item_subtotal)
+        item_tax = TaxEngine._round_currency(item_tax)
+        
+        # Step 2: Calculate service charge on item subtotal
+        service_charge_amount = Decimal('0')
+        if service_charge_enabled and service_charge_rate > 0:
+            service_charge_amount = TaxEngine._round_currency(
+                item_subtotal * (service_charge_rate / Decimal('100'))
+            )
+        
+        # Step 3: Calculate GST on service charge (MUST use dedicated tax group)
+        gst_on_service_charge = Decimal('0')
+        gst_cgst_on_service = Decimal('0')
+        gst_sgst_on_service = Decimal('0')
+        
+        if service_charge_amount > 0:
+            # Require dedicated tax group - no fallbacks
+            if not service_charge_tax_group:
+                raise ValueError(
+                    "Service charge tax group is required when service charge is enabled. "
+                    "SERVICE_CHARGE_GST tax group must be configured."
+                )
+            
+            # Enforce exclusive pricing for service charge GST (Indian regulation)
+            if service_charge_tax_group.is_tax_inclusive:
+                raise ValueError(
+                    "Service charge GST must be exclusive. "
+                    "SERVICE_CHARGE_GST tax group must have is_tax_inclusive=false"
+                )
+            
+            # Calculate GST on service charge using dedicated tax group
+            sc_tax_result = TaxEngine.calculate_line_item(
+                unit_price=service_charge_amount,
+                quantity=1,
+                tax_group=service_charge_tax_group
+            )
+            gst_on_service_charge = sc_tax_result.tax_amount
+            gst_cgst_on_service = sc_tax_result.cgst_amount
+            gst_sgst_on_service = sc_tax_result.sgst_amount
+        
+        # Step 4: Total tax = item tax + GST on service charge
+        total_tax = item_tax + gst_on_service_charge
         total_tax = TaxEngine._round_currency(total_tax)
-        total_amount = TaxEngine._round_currency(total_amount)
         
-        # Derive CGST/SGST from total_tax (balanced split)
-        # This ensures cgst + sgst = total_tax exactly, eliminating rounding drift
+        # Step 5: Split total tax into CGST/SGST (balanced)
         half = total_tax / Decimal('2')
         total_cgst = TaxEngine._round_currency(half)
         total_sgst = total_tax - total_cgst  # Ensure exact balance
         
+        # Step 6: Total amount = subtotal + service_charge_amount + total_tax
+        total_amount = item_subtotal + service_charge_amount + total_tax
+        total_amount = TaxEngine._round_currency(total_amount)
+        
         return BillSummary(
-            subtotal=subtotal,
+            subtotal=item_subtotal,
             total_tax=total_tax,
             total_cgst=total_cgst,
             total_sgst=total_sgst,
-            total_amount=total_amount
+            total_amount=total_amount,
+            service_charge_amount=service_charge_amount
         )
 
