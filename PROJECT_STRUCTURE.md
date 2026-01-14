@@ -26,6 +26,12 @@
 
 **Core Philosophy**: A café POS is a financial and tax recording system with a fast ordering UI. Inventory does not exist in the system.
 
+**Key Features**:
+- Tax Groups Architecture (products reference tax groups)
+- TaxEngine (centralized tax calculations)
+- Service Charge with GST compliance
+- Snapshot-based billing for audit compliance
+
 **Tech Stack**:
 - **Backend**: Python FastAPI (port 8000)
 - **Frontend**: Next.js 14+ App Router (port 3000)
@@ -104,20 +110,27 @@ backend/
 │   ├── services/                # Business logic layer
 │   │   ├── __init__.py
 │   │   ├── product_service.py  # Product business logic
+│   │   ├── category_service.py  # Category management logic
+│   │   ├── tax_group_service.py # Tax group management logic
 │   │   └── billing_service.py  # Billing business logic (tax calculation, snapshots)
 │   │
 │   ├── repositories/            # Data access layer
 │   │   ├── __init__.py
 │   │   ├── product_repo.py      # Product database operations
+│   │   ├── category_repo.py     # Category database operations
+│   │   ├── tax_group_repo.py    # Tax group database operations
 │   │   └── bill_repo.py         # Bill and bill_item database operations
 │   │
 │   ├── schemas/                 # Pydantic models (validation)
 │   │   ├── __init__.py
 │   │   ├── product.py           # ProductCreate, ProductUpdate, ProductResponse
+│   │   ├── category.py          # CategoryCreate, CategoryUpdate, CategoryResponse
+│   │   ├── tax_group.py          # TaxGroupCreate, TaxGroupUpdate, TaxGroupResponse
 │   │   └── bill.py              # BillCreate, BillItemCreate, BillResponse
 │   │
 │   ├── utils/                   # Utility functions
 │   │   ├── __init__.py
+│   │   ├── tax_engine.py        # TaxEngine - centralized tax calculation engine
 │   │   └── calculations.py      # Tax calculations, bill totals, formatting
 │   │
 │   └── tests/                   # Test files
@@ -128,7 +141,13 @@ backend/
 │   ├── migrations/              # SQL migration files
 │   │   ├── 001_initial_schema.sql
 │   │   ├── 002_remove_inventory_add_tax_categories.sql
-│   │   └── 003_cleanup_products_cafe_schema.sql
+│   │   ├── 003_cleanup_products_cafe_schema.sql
+│   │   ├── 004_drop_inventory_ledger.sql
+│   │   ├── 005_remove_sku_barcode.sql
+│   │   ├── 006_tax_groups_architecture.sql
+│   │   ├── 007_add_service_charge.sql
+│   │   ├── 008_add_tax_group_code.sql
+│   │   └── 009_add_service_charge_tax_snapshot.sql
 │   └── BUSINESS_LOGIC.md        # Database-specific business logic
 │
 ├── requirements.txt             # Python dependencies
@@ -146,10 +165,10 @@ backend/
 
 #### Services Layer (`app/services/`)
 - Implement business logic and rules
-- Calculate tax at sale time
-- Snapshot product information
+- Calculate tax at sale time using TaxEngine
+- Snapshot product and tax group information
 - Coordinate multiple repository calls
-- Handle complex operations (atomic bill creation)
+- Handle complex operations (atomic bill creation with service charge)
 
 #### Repositories Layer (`app/repositories/`)
 - Abstract database operations
@@ -342,10 +361,26 @@ Backend API
 **`app/api/v1/products.py`**
 - Product CRUD endpoints
 - GET, POST, PUT, DELETE operations
+- Bulk update tax group by category
+
+**`app/api/v1/categories.py`**
+- Category management endpoints
+- GET, POST, PUT, DELETE operations
+
+**`app/api/v1/tax_groups.py`**
+- Tax group management endpoints
+- GET, POST, PUT operations
+- List active tax groups
 
 **`app/api/v1/billing.py`**
 - Bill creation endpoints
-- Order processing
+- Order processing with service charge
+- Get bill by ID, list bills
+
+**`app/api/v1/reports.py`**
+- Tax summary reports
+- Sales by category reports
+- All reports use snapshot fields
 
 **`app/api/v1/health.py`**
 - Health check endpoint
@@ -357,11 +392,21 @@ Backend API
 - Product business logic
 - Validation rules
 - Product availability management
+- Tax group assignment validation
+
+**`app/services/category_service.py`**
+- Category management logic
+- Category validation
+
+**`app/services/tax_group_service.py`**
+- Tax group management logic
+- Tax group validation
 
 **`app/services/billing_service.py`**
 - Bill creation logic
-- Tax calculation
-- Product snapshot creation
+- Tax calculation using TaxEngine
+- Product and tax group snapshot creation
+- Service charge calculation
 - Atomic transaction handling
 
 #### Repositories
