@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react'
 import { api } from '@/lib/api'
 import { BarChart3, IndianRupee, TrendingUp, FileText, Download } from 'lucide-react'
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
-// Performance: jsPDF is only loaded when exportToPDF is called (dynamic import)
+// Performance: xlsx is only loaded when exportToExcel is called (dynamic import)
 
 interface BillItem {
   id: string
@@ -176,114 +176,14 @@ export default function ReportsPage() {
     })
   }
 
-  // Performance: Use dynamic import for jsPDF to reduce initial bundle size
-  const exportToPDF = useCallback(async () => {
-    // Dynamic import: Only load jsPDF when user clicks export
-    const { default: jsPDF } = await import('jspdf')
-    const doc = new jsPDF()
-    const pageWidth = doc.internal.pageSize.getWidth()
-    const pageHeight = doc.internal.pageSize.getHeight()
-    let yPos = 20
-    const margin = 15
-    const lineHeight = 7
-    const sectionGap = 12
-    const tableRowHeight = 8
-
-    // Helper function to draw a line
-    const drawLine = (x1: number, y1: number, x2: number, y2: number) => {
-      doc.setLineWidth(0.5)
-      doc.line(x1, y1, x2, y2)
-    }
-
-    // Helper function to add new page if needed
-    const checkNewPage = (requiredSpace: number) => {
-      if (yPos + requiredSpace > pageHeight - margin - 15) {
-        doc.addPage()
-        yPos = margin
-        return true
-      }
-      return false
-    }
-
-    // Helper function to draw table with borders
-    const drawTable = (headers: string[], rows: string[][], colWidths: number[], startX: number, startY: number) => {
-      let currentY = startY
-      const tableWidth = colWidths.reduce((sum, width) => sum + width, 0)
-      
-      // Draw header background
-      doc.setFillColor(240, 240, 240)
-      doc.rect(startX, currentY - 6, tableWidth, tableRowHeight, 'F')
-      
-      // Draw header text
-      doc.setFontSize(9)
-      doc.setFont('helvetica', 'bold')
-      let currentX = startX + 3
-      headers.forEach((header, idx) => {
-        // Truncate long headers
-        const headerText = header.length > 20 ? header.substring(0, 17) + '...' : header
-        doc.text(headerText, currentX, currentY)
-        currentX += colWidths[idx]
-      })
-      
-      // Draw header border
-      drawLine(startX, currentY - 6, startX + tableWidth, currentY - 6)
-      drawLine(startX, currentY + 2, startX + tableWidth, currentY + 2)
-      currentY += tableRowHeight
-      
-      // Draw rows (excluding last row if it's a total - we'll handle that separately)
-      doc.setFontSize(9)
-      doc.setFont('helvetica', 'normal')
-      rows.forEach((row, rowIdx) => {
-        // Skip if this is a total row (we'll handle it separately)
-        if (row[0] === 'Total') {
-          return
-        }
-        
-        if (checkNewPage(tableRowHeight + 3)) {
-          currentY = margin + tableRowHeight
-        }
-        
-        currentX = startX + 3
-        row.forEach((cell, colIdx) => {
-          // Truncate long cell text to prevent overflow
-          const cellText = cell.length > 25 ? cell.substring(0, 22) + '...' : cell
-          doc.text(cellText, currentX, currentY)
-          currentX += colWidths[colIdx]
-        })
-        
-        // Draw row border
-        drawLine(startX, currentY + 2, startX + tableWidth, currentY + 2)
-        currentY += tableRowHeight
-      })
-      
-      // Draw side borders
-      drawLine(startX, startY - 6, startX, currentY - tableRowHeight)
-      drawLine(startX + tableWidth, startY - 6, startX + tableWidth, currentY - tableRowHeight)
-      
-      return currentY
-    }
-
-    // Header with better styling
-    doc.setFillColor(62, 44, 36) // Brown color
-    doc.rect(0, 0, pageWidth, 35, 'F')
+  // Performance: Use dynamic import for xlsx to reduce initial bundle size
+  const exportToExcel = useCallback(async () => {
+    // Dynamic import: Only load xlsx when user clicks export
+    const XLSX = await import('xlsx')
     
-    doc.setTextColor(255, 255, 255)
-    doc.setFontSize(22)
-    doc.setFont('helvetica', 'bold')
-    doc.text('BrewBite Cafe', margin, 15)
+    // Create a new workbook
+    const workbook = XLSX.utils.book_new()
     
-    doc.setFontSize(16)
-    doc.text('Sales Report', margin, 25)
-    
-    doc.setTextColor(0, 0, 0)
-    yPos = 45
-
-    // Date info
-    doc.setFontSize(10)
-    doc.setFont('helvetica', 'normal')
-    doc.setTextColor(100, 100, 100)
-    doc.text(`Date Range: ${formatDate(dateRange.start)} to ${formatDate(dateRange.end)}`, margin, yPos)
-    yPos += 5
     const generatedDate = new Date().toLocaleDateString('en-IN', { 
       day: '2-digit', 
       month: 'short', 
@@ -291,195 +191,106 @@ export default function ReportsPage() {
       hour: '2-digit', 
       minute: '2-digit' 
     })
-    doc.text(`Generated on: ${generatedDate}`, margin, yPos)
-    yPos += sectionGap + 5
-    doc.setTextColor(0, 0, 0)
 
-    // Summary Table
-    checkNewPage(50)
-    doc.setFontSize(14)
-    doc.setFont('helvetica', 'bold')
-    doc.text('Summary', margin, yPos)
-    yPos += 8
-
-    const summaryHeaders = ['Description', 'Amount']
-    const summaryColWidths = [120, 60]
-    const summaryRows = [
-      ['Total Sales', `Rs. ${totalSales.toFixed(2)}`],
-      ['Total Tax (GST)', `Rs. ${totalTax.toFixed(2)}`],
-      ['CGST', `Rs. ${totalCGST.toFixed(2)}`],
-      ['SGST', `Rs. ${totalSGST.toFixed(2)}`],
-      ['Total Transactions', transactionCount.toString()],
+    // Summary Sheet
+    const summaryData = [
+      ['BrewBite Cafe - Sales Report'],
+      [''],
+      ['Date Range:', `${formatDate(dateRange.start)} to ${formatDate(dateRange.end)}`],
+      ['Generated on:', generatedDate],
+      [''],
+      ['Summary'],
+      ['Description', 'Amount'],
+      ['Total Sales', totalSales.toFixed(2)],
+      ['Total Tax (GST)', totalTax.toFixed(2)],
+      ['CGST', totalCGST.toFixed(2)],
+      ['SGST', totalSGST.toFixed(2)],
+      ['Total Transactions', transactionCount],
     ]
+    const summarySheet = XLSX.utils.aoa_to_sheet(summaryData)
+    // Set column widths
+    summarySheet['!cols'] = [{ wch: 25 }, { wch: 15 }]
+    XLSX.utils.book_append_sheet(workbook, summarySheet, 'Summary')
 
-    yPos = drawTable(summaryHeaders, summaryRows, summaryColWidths, margin, yPos)
-    yPos += sectionGap
-
-    // Payment Methods Table
-    checkNewPage(40)
-    doc.setFontSize(14)
-    doc.setFont('helvetica', 'bold')
-    doc.text('Payment Methods', margin, yPos)
-    yPos += 8
-
+    // Payment Methods Sheet
     if (Object.keys(paymentMethodBreakdown).length > 0) {
-      const paymentHeaders = ['Payment Method', 'Amount']
-      const paymentColWidths = [120, 60]
-      const paymentRows = Object.entries(paymentMethodBreakdown).map(([method, amount]) => [
-        method.charAt(0) + method.slice(1).toLowerCase(),
-        `Rs. ${amount.toFixed(2)}`
-      ])
-      
-      yPos = drawTable(paymentHeaders, paymentRows, paymentColWidths, margin, yPos)
-    } else {
-      doc.setFontSize(10)
-      doc.setFont('helvetica', 'normal')
-      doc.setTextColor(150, 150, 150)
-      doc.text('No payment data available', margin + 5, yPos)
-      yPos += tableRowHeight
-      doc.setTextColor(0, 0, 0)
+      const paymentData = [
+        ['Payment Methods'],
+        [''],
+        ['Payment Method', 'Amount'],
+        ...Object.entries(paymentMethodBreakdown).map(([method, amount]) => [
+          method.charAt(0) + method.slice(1).toLowerCase(),
+          amount.toFixed(2)
+        ]),
+        ['Total', Object.values(paymentMethodBreakdown).reduce((sum, amount) => sum + amount, 0).toFixed(2)]
+      ]
+      const paymentSheet = XLSX.utils.aoa_to_sheet(paymentData)
+      paymentSheet['!cols'] = [{ wch: 20 }, { wch: 15 }]
+      XLSX.utils.book_append_sheet(workbook, paymentSheet, 'Payment Methods')
     }
-    yPos += sectionGap
 
-    // Sales by Category Table
-    checkNewPage(40)
-    doc.setFontSize(14)
-    doc.setFont('helvetica', 'bold')
-    doc.text('Sales by Category', margin, yPos)
-    yPos += 8
-
+    // Sales by Category Sheet
     if (salesByCategory && salesByCategory.summary.length > 0) {
-      const categoryHeaders = ['Category', 'Sales Amount']
-      const categoryColWidths = [120, 60]
-      const categoryRows = salesByCategory.summary
-        .sort((a, b) => b.total_sales - a.total_sales)
-        .map((item) => [
-          item.category_name,
-          `Rs. ${item.total_sales.toFixed(2)}`
-        ])
-      
-      // Add total row
-      categoryRows.push([
-        'Total',
-        `Rs. ${salesByCategory.grand_total_sales.toFixed(2)}`
-      ])
-      
-      // Draw table without total row
-      const categoryRowsWithoutTotal = salesByCategory.summary
-        .sort((a, b) => b.total_sales - a.total_sales)
-        .map((item) => [
-          item.category_name.length > 25 ? item.category_name.substring(0, 22) + '...' : item.category_name,
-          `Rs. ${item.total_sales.toFixed(2)}`
-        ])
-      
-      yPos = drawTable(categoryHeaders, categoryRowsWithoutTotal, categoryColWidths, margin, yPos)
-      
-      // Add total row separately with proper spacing
-      checkNewPage(tableRowHeight + 8)
-      yPos += 5
-      doc.setFillColor(240, 240, 240)
-      const categoryTableWidth = categoryColWidths.reduce((sum, w) => sum + w, 0)
-      doc.rect(margin, yPos - 6, categoryTableWidth, tableRowHeight, 'F')
-      
-      doc.setFont('helvetica', 'bold')
-      doc.setFontSize(9)
-      doc.text('Total', margin + 3, yPos)
-      doc.text(`Rs. ${salesByCategory.grand_total_sales.toFixed(2)}`, margin + 123, yPos)
-      
-      // Draw borders for total
-      drawLine(margin, yPos - 6, margin + categoryTableWidth, yPos - 6)
-      drawLine(margin, yPos + 2, margin + categoryTableWidth, yPos + 2)
-      drawLine(margin, yPos - 6, margin, yPos + 2)
-      drawLine(margin + categoryTableWidth, yPos - 6, margin + categoryTableWidth, yPos + 2)
-      yPos += tableRowHeight + 5
-    } else {
-      doc.setFontSize(10)
-      doc.setFont('helvetica', 'normal')
-      doc.setTextColor(150, 150, 150)
-      doc.text('No category sales data available', margin + 5, yPos)
-      yPos += tableRowHeight
-      doc.setTextColor(0, 0, 0)
+      const categoryData = [
+        ['Sales by Category'],
+        [''],
+        ['Category', 'Sales Amount'],
+        ...salesByCategory.summary
+          .sort((a, b) => b.total_sales - a.total_sales)
+          .map((item) => [
+            item.category_name,
+            item.total_sales.toFixed(2)
+          ]),
+        ['Total', salesByCategory.grand_total_sales.toFixed(2)]
+      ]
+      const categorySheet = XLSX.utils.aoa_to_sheet(categoryData)
+      categorySheet['!cols'] = [{ wch: 30 }, { wch: 15 }]
+      XLSX.utils.book_append_sheet(workbook, categorySheet, 'Sales by Category')
     }
-    yPos += sectionGap
 
-    // Tax Summary by Tax Rate Table
+    // Tax Summary Sheet
     if (taxSummary && taxSummary.summary.length > 0) {
-      checkNewPage(60)
-      doc.setFontSize(14)
-      doc.setFont('helvetica', 'bold')
-      doc.text('Tax Summary by Tax Rate', margin, yPos)
-      yPos += 8
-
-      const taxHeaders = ['Tax Rate', 'Tax Group', 'Taxable Value', 'CGST', 'SGST', 'Total Tax', 'Items']
-      const taxColWidths = [25, 40, 35, 30, 30, 35, 20]
-      const taxRows = taxSummary.summary.map((item) => [
-        `${item.tax_rate_snapshot}%`,
-        item.tax_group_name || 'N/A',
-        `Rs. ${item.total_taxable_value.toFixed(2)}`,
-        `Rs. ${item.total_cgst.toFixed(2)}`,
-        `Rs. ${item.total_sgst.toFixed(2)}`,
-        `Rs. ${item.total_tax.toFixed(2)}`,
-        item.item_count.toString(),
-      ])
-
-      yPos = drawTable(taxHeaders, taxRows, taxColWidths, margin, yPos)
-      
-      // Grand Total Row
-      checkNewPage(tableRowHeight + 8)
-      yPos += 5
-      doc.setFillColor(240, 240, 240)
-      const grandTotalWidth = taxColWidths.reduce((sum, w) => sum + w, 0)
-      doc.rect(margin, yPos - 6, grandTotalWidth, tableRowHeight, 'F')
-      
-      doc.setFont('helvetica', 'bold')
-      doc.setFontSize(9)
-      let xPos = margin + 3
-      doc.text('Grand Total', xPos, yPos)
-      xPos += taxColWidths[0] + taxColWidths[1]
-      doc.text(`Rs. ${taxSummary.grand_total_taxable_value.toFixed(2)}`, xPos, yPos)
-      xPos += taxColWidths[2]
-      doc.text(`Rs. ${taxSummary.grand_total_cgst.toFixed(2)}`, xPos, yPos)
-      xPos += taxColWidths[3]
-      doc.text(`Rs. ${taxSummary.grand_total_sgst.toFixed(2)}`, xPos, yPos)
-      xPos += taxColWidths[4]
-      doc.text(`Rs. ${taxSummary.grand_total_tax.toFixed(2)}`, xPos, yPos)
-      
-      // Draw borders for grand total
-      drawLine(margin, yPos - 6, margin + grandTotalWidth, yPos - 6)
-      drawLine(margin, yPos + 2, margin + grandTotalWidth, yPos + 2)
-      drawLine(margin, yPos - 6, margin, yPos + 2)
-      drawLine(margin + grandTotalWidth, yPos - 6, margin + grandTotalWidth, yPos + 2)
-      yPos += tableRowHeight + 5
-    }
-
-    // Footer on each page
-    const addFooter = (pageNum: number, totalPages: number) => {
-      doc.setFontSize(8)
-      doc.setFont('helvetica', 'normal')
-      doc.setTextColor(150, 150, 150)
-      doc.text(
-        `Page ${pageNum} of ${totalPages} - BrewBite Cafe Management System`,
-        pageWidth / 2,
-        pageHeight - 10,
-        { align: 'center' }
-      )
-      doc.setTextColor(0, 0, 0)
-    }
-
-    // Add footer to all pages
-    const totalPages = (doc as any).internal.getNumberOfPages()
-    for (let i = 1; i <= totalPages; i++) {
-      doc.setPage(i)
-      addFooter(i, totalPages)
+      const taxData = [
+        ['Tax Summary by Tax Rate'],
+        [''],
+        ['Tax Rate', 'Tax Group', 'Taxable Value', 'CGST', 'SGST', 'Total Tax', 'Items'],
+        ...taxSummary.summary.map((item) => [
+          `${item.tax_rate_snapshot}%`,
+          item.tax_group_name || 'N/A',
+          item.total_taxable_value.toFixed(2),
+          item.total_cgst.toFixed(2),
+          item.total_sgst.toFixed(2),
+          item.total_tax.toFixed(2),
+          item.item_count
+        ]),
+        ['Grand Total', '', 
+          taxSummary.grand_total_taxable_value.toFixed(2),
+          taxSummary.grand_total_cgst.toFixed(2),
+          taxSummary.grand_total_sgst.toFixed(2),
+          taxSummary.grand_total_tax.toFixed(2),
+          ''
+        ]
+      ]
+      const taxSheet = XLSX.utils.aoa_to_sheet(taxData)
+      taxSheet['!cols'] = [
+        { wch: 12 }, // Tax Rate
+        { wch: 20 }, // Tax Group
+        { wch: 15 }, // Taxable Value
+        { wch: 12 }, // CGST
+        { wch: 12 }, // SGST
+        { wch: 12 }, // Total Tax
+        { wch: 8 }   // Items
+      ]
+      XLSX.utils.book_append_sheet(workbook, taxSheet, 'Tax Summary')
     }
 
     // Generate filename with date range
     const startDateStr = dateRange.start.replace(/-/g, '')
     const endDateStr = dateRange.end.replace(/-/g, '')
-    const filename = `BrewBite_Report_${startDateStr}_to_${endDateStr}.pdf`
+    const filename = `BrewBite_Report_${startDateStr}_to_${endDateStr}.xlsx`
 
-    // Save the PDF
-    doc.save(filename)
+    // Save the Excel file
+    XLSX.writeFile(workbook, filename)
   }, [dateRange.start, dateRange.end, totalSales, totalTax, totalCGST, totalSGST, transactionCount, paymentMethodBreakdown, salesByCategory, taxSummary])
 
   if (loading) {
@@ -525,7 +336,7 @@ export default function ReportsPage() {
               className="px-4 py-2 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63] bg-[#FAF7F2] hover:bg-white transition-all duration-200 text-[#1F1F1F]"
             />
             <button
-              onClick={() => exportToPDF().catch(console.error)}
+              onClick={() => exportToExcel().catch(console.error)}
               className="px-6 py-2 bg-[#3E2C24] text-white rounded-xl font-medium hover:bg-[#2c1f19] transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] flex items-center gap-2"
             >
               <Download className="w-4 h-4" />
