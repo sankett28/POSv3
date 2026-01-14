@@ -34,7 +34,8 @@ This system prioritizes:
 │   │   ├── api/
 │   │   ├── services/
 │   │   ├── repositories/
-│   │   └── schemas/
+│   │   ├── schemas/
+│   │   └── utils/    # TaxEngine for centralized tax calculations
 │   └── requirements.txt
 │
 ├── frontend/         # Next.js frontend
@@ -172,6 +173,7 @@ The system uses an order-centric approach:
 - **Routes** → **Services** → **Repositories** → **Supabase**
 - No business logic in routes
 - All APIs under `/api/v1`
+- Tax calculations via centralized `TaxEngine`
 
 ### Frontend Architecture
 
