@@ -1,6 +1,6 @@
 """Configuration management using Pydantic settings."""
-from pydantic_settings import BaseSettings
-from pydantic import validator
+from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import field_validator
 from typing import Optional, Union
 
 
@@ -14,24 +14,28 @@ class Settings(BaseSettings):
     # Server configuration
     backend_port: int = 8000
     
-    # CORS configuration - can be string (comma-separated) or list
-    cors_origins: Union[str, list[str]] = "http://localhost:3000"
+    # CORS configuration - loaded from .env as comma-separated string
+    cors_origins: Optional[Union[str, list[str]]] = None
     
     # Service charge default configuration
     default_service_charge_enabled: bool = True
     default_service_charge_rate: float = 10.0
     
-    @validator('cors_origins', pre=True)
+    @field_validator('cors_origins', mode='before')
+    @classmethod
     def parse_cors_origins(cls, v):
         """Parse CORS origins from comma-separated string or list."""
+        if v is None:
+            return []
         if isinstance(v, str):
             # Split by comma and strip whitespace
             return [origin.strip() for origin in v.split(',') if origin.strip()]
-        return v if isinstance(v, list) else ["http://localhost:3000"]
+        return v if isinstance(v, list) else []
     
-    class Config:
-        env_file = ".env"
-        case_sensitive = False
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        case_sensitive=False,
+    )
 
 
 # Global settings instance
