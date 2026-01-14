@@ -68,6 +68,18 @@ export default function MenuPage() {
     loadData()
   }, [])
 
+  // Prevent body scroll when any modal is open
+  useEffect(() => {
+    if (showItemModal || showCategoryModal || showBulkTaxModal) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+    }
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [showItemModal, showCategoryModal, showBulkTaxModal])
+
   // Auto-dismiss toast after 3 seconds
   useEffect(() => {
     if (toast) {
@@ -556,8 +568,18 @@ export default function MenuPage() {
 
         {/* Menu Item Modal */}
         {showItemModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 max-w-md w-full max-h-[90vh] overflow-y-auto animate-fade-in animate-scale-in">
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+            onClick={() => {
+              setShowItemModal(false)
+              setEditingProduct(null)
+              resetItemForm()
+            }}
+          >
+            <div 
+              className="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 max-w-md w-full max-h-[90vh] overflow-y-auto animate-fade-in animate-scale-in"
+              onClick={(e) => e.stopPropagation()}
+            >
               <div className="flex justify-between items-center mb-6 pb-4 border-b border-[#E5E7EB]">
                 <h2 className="text-2xl font-bold text-[#3E2C24]">
                   {editingProduct ? 'Edit Menu Item' : 'Add Menu Item'}
@@ -692,8 +714,18 @@ export default function MenuPage() {
 
         {/* Category Modal */}
         {showCategoryModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 max-w-md w-full animate-fade-in animate-scale-in">
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+            onClick={() => {
+              setShowCategoryModal(false)
+              setEditingCategory(null)
+              resetCategoryForm()
+            }}
+          >
+            <div 
+              className="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 max-w-md w-full animate-fade-in animate-scale-in"
+              onClick={(e) => e.stopPropagation()}
+            >
               <div className="flex justify-between items-center mb-6 pb-4 border-b border-[#E5E7EB]">
                 <h2 className="text-2xl font-bold text-[#3E2C24]">
                   {editingCategory ? 'Edit Category' : 'Add Category'}
@@ -766,8 +798,19 @@ export default function MenuPage() {
 
         {/* Bulk Tax Group Assignment Modal */}
         {showBulkTaxModal && selectedCategoryForBulk && (
-          <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 max-w-md w-full animate-fade-in animate-scale-in">
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+            onClick={() => {
+              setShowBulkTaxModal(false)
+              setSelectedCategoryForBulk(null)
+              setBulkTaxGroupId('')
+              setShowTaxConfirmation(false)
+            }}
+          >
+            <div 
+              className="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 max-w-md w-full animate-fade-in animate-scale-in"
+              onClick={(e) => e.stopPropagation()}
+            >
               <div className="flex justify-between items-center mb-6 pb-4 border-b border-[#E5E7EB]">
                 <h2 className="text-2xl font-bold text-[#3E2C24]">
                   Assign Tax Group to Category

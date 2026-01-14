@@ -26,6 +26,13 @@
 
 **Core Philosophy**: A café POS is a financial and tax recording system with a fast ordering UI. Inventory does not exist in the system.
 
+**Key Features**:
+- **Tax Groups Architecture** - Products reference tax groups (not direct rates) for flexible tax management
+- **TaxEngine** - Centralized tax calculation engine (the ONLY place for tax math)
+- **Service Charge** - Optional service charge (0-20%) with GST compliance
+- **Snapshot-Based Billing** - All tax and product information snapshotted for audit compliance
+- **GST Compliance** - CGST/SGST split for Indian tax regulations
+
 **Tech Stack**:
 - **Backend**: Python FastAPI (port 8000)
 - **Frontend**: Next.js 14+ App Router (port 3000)
@@ -104,20 +111,27 @@ backend/
 │   ├── services/                # Business logic layer
 │   │   ├── __init__.py
 │   │   ├── product_service.py  # Product business logic
+│   │   ├── category_service.py  # Category management logic
+│   │   ├── tax_group_service.py # Tax group management logic
 │   │   └── billing_service.py  # Billing business logic (tax calculation, snapshots)
 │   │
 │   ├── repositories/            # Data access layer
 │   │   ├── __init__.py
 │   │   ├── product_repo.py      # Product database operations
+│   │   ├── category_repo.py     # Category database operations
+│   │   ├── tax_group_repo.py    # Tax group database operations
 │   │   └── bill_repo.py         # Bill and bill_item database operations
 │   │
 │   ├── schemas/                 # Pydantic models (validation)
 │   │   ├── __init__.py
 │   │   ├── product.py           # ProductCreate, ProductUpdate, ProductResponse
+│   │   ├── category.py          # CategoryCreate, CategoryUpdate, CategoryResponse
+│   │   ├── tax_group.py          # TaxGroupCreate, TaxGroupUpdate, TaxGroupResponse
 │   │   └── bill.py              # BillCreate, BillItemCreate, BillResponse
 │   │
 │   ├── utils/                   # Utility functions
 │   │   ├── __init__.py
+│   │   ├── tax_engine.py        # TaxEngine - centralized tax calculation engine
 │   │   └── calculations.py      # Tax calculations, bill totals, formatting
 │   │
 │   └── tests/                   # Test files
@@ -128,7 +142,13 @@ backend/
 │   ├── migrations/              # SQL migration files
 │   │   ├── 001_initial_schema.sql
 │   │   ├── 002_remove_inventory_add_tax_categories.sql
-│   │   └── 003_cleanup_products_cafe_schema.sql
+│   │   ├── 003_cleanup_products_cafe_schema.sql
+│   │   ├── 004_drop_inventory_ledger.sql
+│   │   ├── 005_remove_sku_barcode.sql
+│   │   ├── 006_tax_groups_architecture.sql
+│   │   ├── 007_add_service_charge.sql
+│   │   ├── 008_add_tax_group_code.sql
+│   │   └── 009_add_service_charge_tax_snapshot.sql
 │   └── BUSINESS_LOGIC.md        # Database-specific business logic
 │
 ├── requirements.txt             # Python dependencies
@@ -146,10 +166,12 @@ backend/
 
 #### Services Layer (`app/services/`)
 - Implement business logic and rules
-- Calculate tax at sale time
-- Snapshot product information
+- Calculate tax at sale time using TaxEngine (the ONLY place for tax math)
+- Snapshot product and tax group information
 - Coordinate multiple repository calls
-- Handle complex operations (atomic bill creation)
+- Handle complex operations (atomic bill creation with service charge)
+- Validate tax group assignments
+- Manage service charge calculations with GST
 
 #### Repositories Layer (`app/repositories/`)
 - Abstract database operations
@@ -188,6 +210,22 @@ frontend/
 │   │
 │   ├── pos-billing/             # Point of Sale
 │   │   └── page.tsx            # Billing interface
+│   │
+│   ├── orders/                  # Order management
+│   │   └── page.tsx            # Order list and details
+│   │
+│   ├── reports/                  # Reports
+│   │   └── page.tsx            # Sales and tax reports
+│   │
+│   ├── settings/                # Settings
+│   │   └── taxes/              # Tax management
+│   │       └── page.tsx        # Tax groups configuration
+│   │
+│   ├── menu/                    # Menu display
+│   │   └── page.tsx            # Menu view
+│   │
+│   ├── transactions/            # Transaction history
+│   │   └── page.tsx            # Transaction list
 │   │
 │   ├── inventory/               # Inventory (deprecated/legacy)
 │   │   └── page.tsx            # Inventory management (if exists)
@@ -277,9 +315,10 @@ Supabase Database
 **Data Flow Example: Creating a Bill**
 
 1. **Route** (`billing.py`) - Validates request, extracts user_id
-2. **Service** (`billing_service.py`) - Validates products, calculates tax, snapshots product info
-3. **Repository** (`bill_repo.py`) - Executes database operations
-4. **Database** - Stores immutable bill and bill_items records
+2. **Service** (`billing_service.py`) - Validates products and tax groups, calculates tax using TaxEngine, snapshots all data
+3. **TaxEngine** (`tax_engine.py`) - Calculates tax for each line item (the ONLY place for tax math)
+4. **Repository** (`bill_repo.py`) - Executes database operations
+5. **Database** - Stores immutable bill and bill_items records with all snapshots
 
 ### Frontend Architecture
 
@@ -342,10 +381,28 @@ Backend API
 **`app/api/v1/products.py`**
 - Product CRUD endpoints
 - GET, POST, PUT, DELETE operations
+- Bulk update tax group by category
+- Products reference tax groups (not direct rates)
+
+**`app/api/v1/categories.py`**
+- Category management endpoints
+- GET, POST, PUT, DELETE operations
+
+**`app/api/v1/tax_groups.py`**
+- Tax group management endpoints
+- GET, POST, PUT operations
+- List active tax groups
 
 **`app/api/v1/billing.py`**
 - Bill creation endpoints
-- Order processing
+- Order processing with service charge
+- Tax calculation via TaxEngine
+- Get bill by ID, list bills
+
+**`app/api/v1/reports.py`**
+- Tax summary reports
+- Sales by category reports
+- All reports use snapshot fields
 
 **`app/api/v1/health.py`**
 - Health check endpoint
@@ -357,12 +414,23 @@ Backend API
 - Product business logic
 - Validation rules
 - Product availability management
+- Tax group assignment validation
+
+**`app/services/category_service.py`**
+- Category management logic
+- Category validation
+
+**`app/services/tax_group_service.py`**
+- Tax group management logic
+- Tax group validation
 
 **`app/services/billing_service.py`**
 - Bill creation logic
-- Tax calculation
-- Product snapshot creation
+- Tax calculation using TaxEngine (the ONLY place for tax math)
+- Product and tax group snapshot creation
+- Service charge calculation with GST
 - Atomic transaction handling
+- Validates tax group assignments
 
 #### Repositories
 
@@ -390,10 +458,18 @@ Backend API
 
 #### Utilities
 
+**`app/utils/tax_engine.py`**
+- **TaxEngine** - Centralized tax calculation engine
+- Handles inclusive and exclusive pricing
+- CGST/SGST split for GST compliance
+- Pure functions with no side effects
+- Uses Decimal precision for accuracy
+- Service charge tax calculations
+
 **`app/utils/calculations.py`**
-- Tax calculation functions
 - Bill total calculations
 - Currency formatting
+- Helper functions (deprecated in favor of TaxEngine)
 
 ### Frontend Files
 
@@ -414,7 +490,23 @@ Backend API
 **`app/pos-billing/page.tsx`**
 - Point of Sale interface
 - Bill creation UI
-- Order processing
+- Order processing with service charge
+- Tax calculation display
+
+**`app/orders/page.tsx`**
+- Order list and details
+- Bill viewing
+- Order history
+
+**`app/reports/page.tsx`**
+- Sales and tax reports
+- Tax summary by tax group
+- Sales by category
+
+**`app/settings/taxes/page.tsx`**
+- Tax groups management
+- Create/edit tax groups
+- Configure SERVICE_CHARGE_GST tax group
 
 **`app/inventory/page.tsx`**
 - Inventory management (deprecated/legacy)
@@ -551,8 +643,12 @@ Backend API
 3. **Immutability** - Orders and order items are immutable
 4. **Tax Snapshots** - Tax values frozen at sale time
 5. **Product Snapshots** - Product info captured at sale time
-6. **No Inventory** - System is SALES + TAX + REPORTING only
-7. **Order-Centric** - Orders are the single source of truth
+6. **Tax Group Snapshots** - Tax group info captured at sale time
+7. **TaxEngine Centralization** - TaxEngine is the ONLY place for tax math
+8. **Tax Groups Architecture** - Products reference tax groups (not direct rates)
+9. **No Inventory** - System is SALES + TAX + REPORTING only
+10. **Order-Centric** - Orders are the single source of truth
+11. **Service Charge Support** - Optional service charge with GST compliance
 
 ---
 
@@ -576,5 +672,5 @@ Backend API
 ---
 
 **Last Updated**: January 2025  
-**Version**: 3.0 (Cafe POS - Inventory Removed)
+**Version**: 3.0 (Cafe POS - Tax Groups Architecture, TaxEngine, Service Charge)
 

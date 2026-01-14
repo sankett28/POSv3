@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import { api } from '@/lib/api'
 import { Search, Plus, Minus, Trash2, CheckCircle, Wallet, Smartphone, CreditCard, PackageOpen } from 'lucide-react'
 import Image from 'next/image' // Import Next.js Image component
@@ -17,7 +17,6 @@ interface TaxGroup {
   total_rate: number
   split_type: 'GST_50_50' | 'NO_SPLIT'
   is_tax_inclusive: boolean
-  code?: string  // For system-level tax groups like SERVICE_CHARGE_GST
 }
 
 // Replace lines 21-26
@@ -51,10 +50,7 @@ interface BillDetails {
   invoice_number: string
   items: BillItem[]
   subtotal: number
-  service_charge_amount?: number
   gst: number
-  cgst?: number
-  sgst?: number
   total: number
   paymentMethod: 'CASH' | 'UPI' | 'CARD'
   date: string
@@ -68,15 +64,24 @@ export default function OrdersPage() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [paymentMethod, setPaymentMethod] = useState<'CASH' | 'UPI' | 'CARD'>('CASH')
-  const [serviceChargeEnabled, setServiceChargeEnabled] = useState(true)
-  const [serviceChargeRate, setServiceChargeRate] = useState(10.0)
-  const [serviceChargeTaxGroup, setServiceChargeTaxGroup] = useState<TaxGroup | null>(null)
   const [showOrderSuccessModal, setShowOrderSuccessModal] = useState(false)
   const [billDetails, setBillDetails] = useState<BillDetails | null>(null)
 
   useEffect(() => {
     loadData()
   }, [])
+
+  // Prevent body scroll when modal is open
+  useEffect(() => {
+    if (showOrderSuccessModal) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+    }
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [showOrderSuccessModal])
 
   const loadData = async () => {
     try {
@@ -87,34 +92,22 @@ export default function OrdersPage() {
       ])
       
       if (!Array.isArray(productsData)) {
-        if (process.env.NODE_ENV === 'development') {
-          console.error("Products data is not an array:", productsData)
-        }
+        console.error("Products data is not an array:", productsData)
         setLoading(false)
         return
       }
       if (!Array.isArray(categoriesData)) {
-        if (process.env.NODE_ENV === 'development') {
-          console.error("Categories data is not an array:", categoriesData)
-        }
+        console.error("Categories data is not an array:", categoriesData)
         setLoading(false)
         return
       }
       if (!Array.isArray(taxGroupsData)) {
-        if (process.env.NODE_ENV === 'development') {
-          console.error("Tax groups data is not an array:", taxGroupsData)
-        }
+        console.error("Tax groups data is not an array:", taxGroupsData)
         setLoading(false)
         return
       }
 
       const activeProducts = productsData.filter((p: Product) => p.is_active)
-      
-      // Find SERVICE_CHARGE_GST tax group by name or code
-      const serviceChargeGST = taxGroupsData.find((tg: TaxGroup) => 
-        tg.name === 'Service Charge GST' || (tg as any).code === 'SERVICE_CHARGE_GST'
-      )
-      setServiceChargeTaxGroup(serviceChargeGST || null)
       
       // Enrich products with category names and tax group data
       const enrichedProducts = activeProducts.map((p: any) => {
@@ -130,16 +123,97 @@ export default function OrdersPage() {
       setProducts(enrichedProducts)
       setCategories(categoriesData.filter((c: Category) => c.is_active))
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error loading data:', JSON.stringify(error, null, 2))
-      }
-    } finally {
+      console.error('Error loading data:', JSON.stringify(error, null, 2))    } finally {
       setLoading(false)
     }
   }
 
+  const addToBill = (product: Product) => {
+    const existingItem = billItems.find((item) => item.product_id === product.id)
+
+    if (existingItem) {
+      const newQuantity = existingItem.quantity + 1
+      const subtotal = newQuantity * product.selling_price
+      const taxPreview = calculateTaxPreview(product.selling_price, newQuantity, product.tax_group)
+      
+      setBillItems(
+        billItems.map((item) =>
+          item.product_id === product.id
+            ? {
+                ...item,
+                quantity: newQuantity,
+                subtotal,
+                tax_group: product.tax_group,
+                preview_taxable_value: taxPreview.taxable_value,
+                preview_tax_amount: taxPreview.tax_amount,
+                preview_cgst: taxPreview.cgst,
+                preview_sgst: taxPreview.sgst,
+                preview_total: taxPreview.total,
+              }
+            : item
+        )
+      )
+    } else {
+      const subtotal = product.selling_price
+      const taxPreview = calculateTaxPreview(product.selling_price, 1, product.tax_group)
+      
+      setBillItems([
+        ...billItems,
+        {
+          product_id: product.id,
+          product_name: product.name,
+          quantity: 1,
+          unit_price: product.selling_price,
+          subtotal,
+          tax_group: product.tax_group,
+          preview_taxable_value: taxPreview.taxable_value,
+          preview_tax_amount: taxPreview.tax_amount,
+          preview_cgst: taxPreview.cgst,
+          preview_sgst: taxPreview.sgst,
+          preview_total: taxPreview.total,
+        },
+      ])
+    }
+  }
+
+  const updateQuantity = (productId: string, delta: number) => {
+    const product = products.find(p => p.id === productId)
+    if (!product) return
+
+    setBillItems(
+      billItems
+        .map((item) => {
+          if (item.product_id === productId) {
+            const newQuantity = item.quantity + delta
+            if (newQuantity <= 0) return null
+            const subtotal = newQuantity * item.unit_price
+            const taxGroup = item.tax_group || product.tax_group
+            const taxPreview = calculateTaxPreview(item.unit_price, newQuantity, taxGroup)
+            
+            return {
+              ...item,
+              quantity: newQuantity,
+              subtotal,
+              tax_group: taxGroup,
+              preview_taxable_value: taxPreview.taxable_value,
+              preview_tax_amount: taxPreview.tax_amount,
+              preview_cgst: taxPreview.cgst,
+              preview_sgst: taxPreview.sgst,
+              preview_total: taxPreview.total,
+            }
+          }
+          return item
+        })
+        .filter((item): item is BillItem => item !== null)
+    )
+  }
+
+  const removeItem = (productId: string) => {
+    setBillItems(billItems.filter((item) => item.product_id !== productId))
+  }
+
   // Tax preview calculation function (for display only - backend does actual calculation)
-  const calculateTaxPreview = useCallback((
+  const calculateTaxPreview = (
     unitPrice: number,
     quantity: number,
     taxGroup?: TaxGroup
@@ -200,126 +274,15 @@ export default function OrdersPage() {
       sgst,
       total
     }
-  }, [])
+  }
 
-  const addToBill = useCallback((product: Product) => {
-    const existingItem = billItems.find((item) => item.product_id === product.id)
-
-    if (existingItem) {
-      const newQuantity = existingItem.quantity + 1
-      const subtotal = newQuantity * product.selling_price
-      const taxPreview = calculateTaxPreview(product.selling_price, newQuantity, product.tax_group)
-      
-      setBillItems(
-        billItems.map((item) =>
-          item.product_id === product.id
-            ? {
-                ...item,
-                quantity: newQuantity,
-                subtotal,
-                tax_group: product.tax_group,
-                preview_taxable_value: taxPreview.taxable_value,
-                preview_tax_amount: taxPreview.tax_amount,
-                preview_cgst: taxPreview.cgst,
-                preview_sgst: taxPreview.sgst,
-                preview_total: taxPreview.total,
-              }
-            : item
-        )
-      )
-    } else {
-      const subtotal = product.selling_price
-      const taxPreview = calculateTaxPreview(product.selling_price, 1, product.tax_group)
-      
-      setBillItems([
-        ...billItems,
-        {
-          product_id: product.id,
-          product_name: product.name,
-          quantity: 1,
-          unit_price: product.selling_price,
-          subtotal,
-          tax_group: product.tax_group,
-          preview_taxable_value: taxPreview.taxable_value,
-          preview_tax_amount: taxPreview.tax_amount,
-          preview_cgst: taxPreview.cgst,
-          preview_sgst: taxPreview.sgst,
-          preview_total: taxPreview.total,
-        },
-      ])
-    }
-  }, [billItems, calculateTaxPreview])
-
-  const updateQuantity = useCallback((productId: string, delta: number) => {
-    const product = products.find(p => p.id === productId)
-    if (!product) return
-
-    setBillItems(
-      billItems
-        .map((item) => {
-          if (item.product_id === productId) {
-            const newQuantity = item.quantity + delta
-            if (newQuantity <= 0) return null
-            const subtotal = newQuantity * item.unit_price
-            const taxGroup = item.tax_group || product.tax_group
-            const taxPreview = calculateTaxPreview(item.unit_price, newQuantity, taxGroup)
-            
-            return {
-              ...item,
-              quantity: newQuantity,
-              subtotal,
-              tax_group: taxGroup,
-              preview_taxable_value: taxPreview.taxable_value,
-              preview_tax_amount: taxPreview.tax_amount,
-              preview_cgst: taxPreview.cgst,
-              preview_sgst: taxPreview.sgst,
-              preview_total: taxPreview.total,
-            }
-          }
-          return item
-        })
-        .filter((item): item is BillItem => item !== null)
-    )
-  }, [billItems, products, calculateTaxPreview])
-
-  const removeItem = useCallback((productId: string) => {
-    setBillItems(billItems.filter((item) => item.product_id !== productId))
-  }, [billItems])
-
-  // Calculate totals from preview values - memoized for performance
-  const subtotal = useMemo(() => 
-    billItems.reduce((sum, item) => sum + (item.preview_taxable_value || item.subtotal), 0),
-    [billItems]
-  )
-  const totalTax = useMemo(() => 
-    billItems.reduce((sum, item) => sum + (item.preview_tax_amount || 0), 0),
-    [billItems]
-  )
+  // Calculate totals from preview values
+  const subtotal = billItems.reduce((sum, item) => sum + (item.preview_taxable_value || item.subtotal), 0)
+  const totalTax = billItems.reduce((sum, item) => sum + (item.preview_tax_amount || 0), 0)
   // Derive balanced CGST/SGST from total tax (matching backend logic)
   const totalCGST = Math.round((totalTax / 2) * 100) / 100
   const totalSGST = totalTax - totalCGST  // Ensure exact balance
-  
-  // Calculate service charge preview (always exclusive GST in India)
-  const serviceChargeAmount = serviceChargeEnabled && serviceChargeRate > 0
-    ? Math.round((subtotal * serviceChargeRate / 100) * 100) / 100
-    : 0
-  
-  // Calculate GST on service charge using dedicated SERVICE_CHARGE_GST tax group
-  // If not found, fallback to 18% (default) but log a warning
-  const serviceChargeGSTRate = serviceChargeTaxGroup?.total_rate || 18.0
-  if (serviceChargeAmount > 0 && !serviceChargeTaxGroup) {
-    console.warn('SERVICE_CHARGE_GST tax group not found. Using default 18% for preview.')
-  }
-  const gstOnServiceCharge = serviceChargeAmount > 0
-    ? Math.round((serviceChargeAmount * serviceChargeGSTRate / 100) * 100) / 100
-    : 0
-  const cgstOnServiceCharge = Math.round((gstOnServiceCharge / 2) * 100) / 100
-  const sgstOnServiceCharge = gstOnServiceCharge - cgstOnServiceCharge
-  
-  // Grand total includes items + service charge + GST on service charge
-  const grandTotal = billItems.reduce((sum, item) => sum + (item.preview_total || item.subtotal), 0) 
-    + serviceChargeAmount 
-    + gstOnServiceCharge
+  const grandTotal = billItems.reduce((sum, item) => sum + (item.preview_total || item.subtotal), 0)
 
   const getCurrentDate = () => {
     const now = new Date()
@@ -346,19 +309,14 @@ export default function OrdersPage() {
           unit_price: item.unit_price,
         })),
         payment_method: paymentMethod,
-        service_charge_enabled: serviceChargeEnabled,
-        service_charge_rate: serviceChargeRate,
       })
 
       setBillDetails({
         invoice_number: res.bill_number,
         items: billItems,
-        subtotal: res.subtotal,
-        service_charge_amount: res.service_charge_amount || 0,
-        gst: res.tax_amount,
-        cgst: res.cgst,
-        sgst: res.sgst,
-        total: res.total_amount,
+        subtotal,
+        gst: totalTax,
+        total: grandTotal,
         paymentMethod,
         date: new Date().toLocaleDateString('en-IN', {day: '2-digit', month: 'short', year: 'numeric'})
       })
@@ -693,27 +651,10 @@ export default function OrdersPage() {
                     <span>Subtotal</span>
                     <span>₹${billDetails.subtotal.toFixed(2)}</span>
                   </div>
-                  ${billDetails.service_charge_amount && billDetails.service_charge_amount > 0 ? `
                   <div class="total-row">
-                    <span>Service Charge</span>
-                    <span>₹${billDetails.service_charge_amount.toFixed(2)}</span>
-                  </div>
-                  ` : ''}
-                  ${billDetails.cgst && billDetails.sgst ? `
-                  <div class="total-row">
-                    <span>CGST</span>
-                    <span>₹${billDetails.cgst.toFixed(2)}</span>
-                  </div>
-                  <div class="total-row">
-                    <span>SGST</span>
-                    <span>₹${billDetails.sgst.toFixed(2)}</span>
-                  </div>
-                  ` : `
-                  <div class="total-row">
-                    <span>GST</span>
+                    <span>GST (5%)</span>
                     <span>₹${billDetails.gst.toFixed(2)}</span>
                   </div>
-                  `}
                   <div class="total-row">
                     <span>Total Amount</span>
                     <span>₹${billDetails.total.toFixed(2)}</span>
@@ -743,39 +684,32 @@ export default function OrdersPage() {
     printWindow.document.close()
   }
 
-  // Memoize filtered products for performance
-  const filteredProducts = useMemo(() => {
-    return products.filter((p) => {
-      const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase())
-      const matchesCategory = !selectedCategory || p.category_id === selectedCategory
-      return matchesSearch && matchesCategory
-    })
-  }, [products, searchTerm, selectedCategory])
+  const filteredProducts = products.filter((p) => {
+    const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesCategory = !selectedCategory || p.category_id === selectedCategory
+    return matchesSearch && matchesCategory
+  })
 
-  const productsByCategory = useMemo(() => {
-    return categories.reduce((acc, cat) => {
-      acc[cat.id] = filteredProducts.filter(p => p.category_id === cat.id)
-      return acc
-    }, {} as Record<string, Product[]>)
-  }, [categories, filteredProducts])
+  const productsByCategory = categories.reduce((acc, cat) => {
+    acc[cat.id] = filteredProducts.filter(p => p.category_id === cat.id)
+    return acc
+  }, {} as Record<string, Product[]>)
 
-  const uncategorizedProducts = useMemo(() => {
-    return filteredProducts.filter(p => !p.category_id)
-  }, [filteredProducts])
+  const uncategorizedProducts = filteredProducts.filter(p => !p.category_id)
 
   return (
-    <div className="p-3 sm:p-4 md:p-6 lg:p-8 bg-[#F5F3EE] min-h-screen overflow-x-hidden">
-      <div className="max-w-7xl mx-auto w-full">
-        <h1 className="text-2xl sm:text-3xl font-bold text-[#3E2C24] mb-4 sm:mb-6">Orders</h1>
+    <div className="p-4 sm:p-8 bg-[#F5F3EE] min-h-screen">
+      <div className="max-w-7xl mx-auto">
+        <h1 className="text-3xl font-bold text-[#3E2C24] mb-6">Orders</h1>
 
-        <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 sm:gap-6 w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Left Sidebar: Categories */}
-          <div className="xl:col-span-2 bg-white rounded-2xl shadow-md p-4 sm:p-6 border border-[#E5E7EB]">
-            <h3 className="font-bold text-[#3E2C24] mb-3 sm:mb-4 text-lg sm:text-xl">Categories</h3>
-            <div className="space-y-2 sm:space-y-3">
+          <div className="lg:col-span-2 bg-white rounded-2xl shadow-md p-6 border border-[#E5E7EB]">
+            <h3 className="font-bold text-[#3E2C24] mb-4 text-xl">Categories</h3>
+            <div className="space-y-3">
               <button
                 onClick={() => setSelectedCategory(null)}
-                className={`w-full text-left px-3 sm:px-4 py-2 sm:py-3 rounded-xl font-medium text-sm sm:text-base transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring outline-none truncate ${selectedCategory === null
+                className={`w-full text-left px-4 py-3 rounded-xl font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring outline-none ${selectedCategory === null
                     ? 'bg-[#3E2C24] text-white shadow-md'
                     : 'bg-[#FAF7F2] text-[#3E2C24] hover:bg-[#C89B63]/10'
                 }`}
@@ -786,7 +720,7 @@ export default function OrdersPage() {
                 <button
                   key={category.id}
                   onClick={() => setSelectedCategory(category.id)}
-                  className={`w-full text-left px-3 sm:px-4 py-2 sm:py-3 rounded-xl font-medium text-sm sm:text-base transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring outline-none truncate ${selectedCategory === category.id
+                  className={`w-full text-left px-4 py-3 rounded-xl font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring outline-none ${selectedCategory === category.id
                       ? 'bg-[#3E2C24] text-white shadow-md'
                       : 'bg-[#FAF7F2] text-[#3E2C24] hover:bg-[#C89B63]/10'
                   }`}
@@ -798,16 +732,16 @@ export default function OrdersPage() {
           </div>
 
           {/* Center: Menu Items */}
-          <div className="xl:col-span-6 lg:col-span-7 bg-white rounded-2xl shadow-md p-4 sm:p-6 border border-[#E5E7EB]">
-            <div className="mb-4 sm:mb-6">
+          <div className="lg:col-span-6 bg-white rounded-2xl shadow-md p-6 border border-[#E5E7EB]">
+            <div className="mb-6">
               <div className="relative">
-                <Search className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 text-[#9CA3AF] w-4 h-4 sm:w-5 sm:h-5" />
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[#9CA3AF] w-5 h-5" />
                 <input
                   type="text"
                   placeholder="Search menu items..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-2 sm:py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63] bg-[#FAF7F2] hover:bg-white transition-all duration-200 text-sm sm:text-base text-[#1F1F1F] placeholder-[#9CA3AF]"
+                  className="w-full pl-12 pr-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63] bg-[#FAF7F2] hover:bg-white transition-all duration-200 text-[#1F1F1F] placeholder-[#9CA3AF]"
                 />
               </div>
             </div>
@@ -822,19 +756,19 @@ export default function OrdersPage() {
 
                   return (
                     <div key={category.id}>
-                      <h4 className="font-bold text-[#3E2C24] mb-3 sm:mb-4 text-lg sm:text-xl">{category.name}</h4>
-                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+                      <h4 className="font-bold text-[#3E2C24] mb-4 text-xl">{category.name}</h4>
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                         {categoryProducts.map((product) => (
                           <button
                             key={product.id}
                             onClick={() => addToBill(product)}
                             className="group relative w-full bg-white rounded-xl shadow-sm border border-[#E5E7EB]
                                        hover:shadow-md hover:border-[#C89B63] transition-all duration-200
-                                       active:scale-[0.98] cursor-pointer flex flex-col overflow-hidden p-2 sm:p-3"
+                                       active:scale-[0.98] cursor-pointer flex flex-col overflow-hidden p-3"
                             style={{ aspectRatio: '4/5' }}
                           >
                             {/* Product Image Container - Takes ~60% of card */}
-                            <div className="w-full flex-[0_0_60%] flex items-center justify-center overflow-hidden bg-[#FAF7F2] rounded-lg mb-1 sm:mb-2">
+                            <div className="w-full flex-[0_0_60%] flex items-center justify-center overflow-hidden bg-[#FAF7F2] rounded-lg mb-2">
                               {(() => {
                                 const categoryLower = product.category_name?.toLowerCase() || ''
                                 if (categoryLower.includes('idli')) {
@@ -895,13 +829,13 @@ export default function OrdersPage() {
                               })()}
                             </div>
                             
-                          {/* Product Details - Takes remaining ~40% of card */}
-                          <div className="flex flex-col justify-center items-center w-full flex-1 px-1 min-h-0">
-                            <div className="font-semibold text-[#1F1F1F] text-[10px] sm:text-xs text-center mb-1 leading-tight break-words line-clamp-2 flex items-center justify-center min-h-[2rem] max-w-full">
-                              <span className="truncate w-full">{product.name}</span>
+                            {/* Product Details - Takes remaining ~40% of card */}
+                            <div className="flex flex-col justify-center items-center w-full flex-1 px-1 min-h-0">
+                              <div className="font-semibold text-[#1F1F1F] text-xs text-center mb-1 leading-tight break-words line-clamp-2 flex items-center justify-center min-h-[2rem]">
+                                {product.name}
+                              </div>
+                              <div className="font-bold text-[#3E2C24] text-sm">₹{product.selling_price.toFixed(2)}</div>
                             </div>
-                            <div className="font-bold text-[#3E2C24] text-xs sm:text-sm whitespace-nowrap">₹{product.selling_price.toFixed(2)}</div>
-                          </div>
                           </button>
                         ))}
                       </div>
@@ -912,19 +846,19 @@ export default function OrdersPage() {
                 {/* Uncategorized Items */}
                 {(!selectedCategory || selectedCategory === null) && uncategorizedProducts.length > 0 && (
                   <div>
-                    <h4 className="font-bold text-[#3E2C24] mb-3 sm:mb-4 text-lg sm:text-xl">Other Items</h4>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+                    <h4 className="font-bold text-[#3E2C24] mb-4 text-xl">Other Items</h4>
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                       {uncategorizedProducts.map((product) => (
                         <button
                           key={product.id}
                           onClick={() => addToBill(product)}
                           className="group relative w-full bg-white rounded-xl shadow-sm border border-[#E5E7EB]
                                      hover:shadow-md hover:border-[#C89B63] transition-all duration-200
-                                     active:scale-[0.98] cursor-pointer flex flex-col overflow-hidden p-2 sm:p-3"
+                                     active:scale-[0.98] cursor-pointer flex flex-col overflow-hidden p-3"
                           style={{ aspectRatio: '4/5' }}
                         >
                           {/* Product Image Container - Takes ~60% of card */}
-                          <div className="w-full flex-[0_0_60%] flex items-center justify-center overflow-hidden bg-[#FAF7F2] rounded-lg mb-1 sm:mb-2">
+                          <div className="w-full flex-[0_0_60%] flex items-center justify-center overflow-hidden bg-[#FAF7F2] rounded-lg mb-2">
                             {(() => {
                               const categoryLower = product.category_name?.toLowerCase() || ''
                               if (categoryLower.includes('idli')) {
@@ -1008,12 +942,12 @@ export default function OrdersPage() {
           </div>
 
           {/* Right: Order Summary */}
-          <div className="xl:col-span-4 lg:col-span-5 bg-white rounded-2xl shadow-md p-4 sm:p-6 border border-[#E5E7EB] xl:sticky xl:top-4 xl:self-start">
-            <div className="flex justify-between items-center mb-3 sm:mb-4 pb-3 sm:pb-4 border-b border-[#E5E7EB]">
-              <h3 className="text-lg sm:text-xl font-bold text-[#3E2C24]">Current Order</h3>
+          <div className="lg:col-span-4 bg-white rounded-2xl shadow-md p-6 border border-[#E5E7EB] sticky top-4">
+            <div className="flex justify-between items-center mb-4 pb-4 border-b border-[#E5E7EB]">
+              <h3 className="text-xl font-bold text-[#3E2C24]">Current Order</h3>
               <button
                 onClick={() => setBillItems([])}
-                className="text-xs sm:text-sm bg-[#F4A261] text-white hover:bg-[#E08F50] rounded-xl px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] whitespace-nowrap"
+                className="text-sm bg-[#F4A261] text-white hover:bg-[#E08F50] rounded-xl px-4 py-2 transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
               >
                 Clear
               </button>
@@ -1032,10 +966,10 @@ export default function OrdersPage() {
                     const itemIsDosaOrUttapam = productImage?.category_name?.toLowerCase().includes('dosa') || productImage?.category_name?.toLowerCase().includes('uttapam')
 
                     return (
-                      <div key={item.product_id} className="flex gap-2 sm:gap-3 py-2 sm:py-3 border-b border-[#E5E7EB] last:border-b-0 transition-all duration-200 ease-in-out hover:bg-[#FAF7F2] rounded-md px-1 sm:px-2">
+                      <div key={item.product_id} className="flex gap-3 py-3 border-b border-[#E5E7EB] last:border-b-0 transition-all duration-200 ease-in-out hover:bg-[#FAF7F2] rounded-md px-2">
                         {/* Left: Image */}
                         <div className="flex-shrink-0">
-                          <div className="h-12 w-12 sm:h-16 sm:w-16 flex items-center justify-center rounded-md overflow-hidden bg-[#FAF7F2]">
+                          <div className="h-16 w-16 flex items-center justify-center rounded-md overflow-hidden bg-[#FAF7F2]">
                             {(() => {
                               const categoryLower = productImage?.category_name?.toLowerCase() || ''
                               if (categoryLower.includes('idli')) {
@@ -1048,7 +982,7 @@ export default function OrdersPage() {
                                     height={64}
                                     objectFit="cover"
                                     className="rounded-md"
-                                    loading="lazy"
+                                    priority
                                   />
                                 )
                               } else if (categoryLower.includes('dosa') || categoryLower.includes('uttapam')) {
@@ -1061,7 +995,7 @@ export default function OrdersPage() {
                                     height={64}
                                     objectFit="cover"
                                     className="rounded-md"
-                                    loading="lazy"
+                                    priority
                                   />
                                 )
                               } else if (categoryLower.includes('snack') || categoryLower === 'other snacks' || categoryLower === 'snacks') {
@@ -1074,7 +1008,7 @@ export default function OrdersPage() {
                                     height={64}
                                     objectFit="cover"
                                     className="rounded-md"
-                                    loading="lazy"
+                                    priority
                                   />
                                 )
                               } else if (categoryLower.includes('beverage') || categoryLower === 'beverages') {
@@ -1087,7 +1021,7 @@ export default function OrdersPage() {
                                     height={64}
                                     objectFit="cover"
                                     className="rounded-md"
-                                    loading="lazy"
+                                    priority
                                   />
                                 )
                               } else {
@@ -1098,57 +1032,57 @@ export default function OrdersPage() {
                         </div>
 
                         {/* Right: Name, GST, Controls, Total */}
-                        <div className="flex-1 min-w-0 flex flex-col gap-1 sm:gap-2">
+                        <div className="flex-1 min-w-0 flex flex-col gap-2">
                           {/* Product Name */}
-                          <div className="font-semibold text-xs sm:text-sm text-[#1F1F1F] truncate">{item.product_name}</div>
+                          <div className="font-semibold text-sm text-[#1F1F1F]">{item.product_name}</div>
                           
                           {/* GST Details */}
                           {(item.preview_tax_amount || 0) > 0 && item.tax_group && (
                             <div className="flex flex-col gap-0.5">
                               {item.tax_group.split_type === 'GST_50_50' ? (
                                 <>
-                                  <div className="text-[10px] sm:text-xs text-[#6B6B6B] whitespace-nowrap">
+                                  <div className="text-xs text-[#6B6B6B]">
                                     CGST: ₹{(item.preview_cgst || 0).toFixed(2)}
                                   </div>
-                                  <div className="text-[10px] sm:text-xs text-[#6B6B6B] whitespace-nowrap">
+                                  <div className="text-xs text-[#6B6B6B]">
                                     SGST: ₹{(item.preview_sgst || 0).toFixed(2)}
                                   </div>
                                 </>
                               ) : (
-                                <div className="text-[10px] sm:text-xs text-[#6B6B6B] whitespace-nowrap">
+                                <div className="text-xs text-[#6B6B6B]">
                                   Tax: ₹{(item.preview_tax_amount || 0).toFixed(2)}
                                 </div>
                               )}
                               {item.tax_group.is_tax_inclusive && (
-                                <div className="text-[10px] sm:text-xs text-blue-600">(Tax Inclusive)</div>
+                                <div className="text-xs text-blue-600">(Tax Inclusive)</div>
                               )}
                             </div>
                           )}
 
                           {/* Quantity Controls and Total */}
-                          <div className="flex items-center justify-between gap-2">
-                            <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
                               <button
                                 onClick={() => updateQuantity(item.product_id, -1)}
-                                className="p-1 sm:p-1.5 rounded-full bg-[#FAF7F2] text-[#3E2C24] hover:bg-[#E5E7EB] transition-all duration-200 ease-in-out active:scale-[0.9] border border-[#E5E7EB]"
+                                className="p-1.5 rounded-full bg-[#FAF7F2] text-[#3E2C24] hover:bg-[#E5E7EB] transition-all duration-200 ease-in-out active:scale-[0.9] border border-[#E5E7EB]"
                               >
-                                <Minus className="w-3 h-3 sm:w-4 sm:h-4" />
+                                <Minus className="w-4 h-4" />
                               </button>
-                              <span className="font-bold text-xs sm:text-sm text-[#1F1F1F] min-w-[24px] sm:min-w-[30px] text-center">{item.quantity}</span>
+                              <span className="font-bold text-sm text-[#1F1F1F] min-w-[30px] text-center">{item.quantity}</span>
                               <button
                                 onClick={() => updateQuantity(item.product_id, 1)}
-                                className="p-1 sm:p-1.5 rounded-full bg-[#FAF7F2] text-[#3E2C24] hover:bg-[#E5E7EB] transition-all duration-200 ease-in-out active:scale-[0.9] border border-[#E5E7EB]"
+                                className="p-1.5 rounded-full bg-[#FAF7F2] text-[#3E2C24] hover:bg-[#E5E7EB] transition-all duration-200 ease-in-out active:scale-[0.9] border border-[#E5E7EB]"
                               >
-                                <Plus className="w-3 h-3 sm:w-4 sm:h-4" />
+                                <Plus className="w-4 h-4" />
                               </button>
                               <button
                                 onClick={() => removeItem(item.product_id)}
-                                className="p-1 sm:p-1.5 rounded-full bg-[#F5F3EE] text-[#EF4444] hover:bg-[#F4A261]/20 transition-all duration-200 ease-in-out active:scale-[0.9] ml-0.5 sm:ml-1"
+                                className="p-1.5 rounded-full bg-[#F5F3EE] text-[#EF4444] hover:bg-[#F4A261]/20 transition-all duration-200 ease-in-out active:scale-[0.9] ml-1"
                               >
-                                <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
+                                <Trash2 className="w-4 h-4" />
                               </button>
                             </div>
-                            <div className="font-bold text-xs sm:text-sm text-[#1F1F1F] whitespace-nowrap">
+                            <div className="font-bold text-sm text-[#1F1F1F]">
                               ₹{(item.preview_total || item.subtotal).toFixed(2)}
                             </div>
                           </div>
@@ -1160,80 +1094,27 @@ export default function OrdersPage() {
               )}
             </div>
 
-            {/* Service Charge Toggle */}
-            <div className="space-y-2 mb-4 pt-4 border-t border-[#E5E7EB]">
-              <div className="flex justify-between items-center mb-3">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={serviceChargeEnabled}
-                    onChange={(e) => setServiceChargeEnabled(e.target.checked)}
-                    className="w-5 h-5 border border-[#E5E7EB] rounded focus:ring-2 focus:ring-[#C89B63] accent-[#3E2C24]"
-                  />
-                  <span className="text-sm font-semibold text-[#3E2C24]">
-                    Service Charge (Voluntary)
-                  </span>
-                </label>
-                {serviceChargeEnabled && (
-                  <input
-                    type="number"
-                    min="0"
-                    max="20"
-                    step="0.1"
-                    value={serviceChargeRate}
-                    onChange={(e) => setServiceChargeRate(parseFloat(e.target.value) || 0)}
-                    className="w-20 px-2 py-1 border border-[#E5E7EB] rounded-lg text-sm text-center focus:outline-none focus:ring-2 focus:ring-[#C89B63] bg-[#FAF7F2]"
-                  />
-                )}
-              </div>
-              {serviceChargeEnabled && (
-                <p className="text-xs text-[#6B6B6B] mb-2">
-                  Service charge is optional and can be removed on request.
-                </p>
-              )}
-            </div>
-
             <div className="space-y-2 mb-4 pt-4 border-t border-[#E5E7EB]">
               <div className="flex justify-between text-sm text-[#6B6B6B]">
                 <span>Subtotal</span>
-                <span className="whitespace-nowrap">₹{subtotal.toFixed(2)}</span>
+                <span>₹{subtotal.toFixed(2)}</span>
               </div>
-              {serviceChargeEnabled && serviceChargeAmount > 0 && (
-                <>
-                  <div className="flex justify-between text-sm text-[#6B6B6B]">
-                    <span>Service Charge ({serviceChargeRate}%)</span>
-                    <span>₹{serviceChargeAmount.toFixed(2)}</span>
-                  </div>
-                  {gstOnServiceCharge > 0 && (
-                    <>
-                      <div className="flex justify-between text-xs text-[#9CA3AF] pl-4">
-                        <span>CGST on Service Charge</span>
-                        <span>₹{cgstOnServiceCharge.toFixed(2)}</span>
-                      </div>
-                      <div className="flex justify-between text-xs text-[#9CA3AF] pl-4">
-                        <span>SGST on Service Charge</span>
-                        <span>₹{sgstOnServiceCharge.toFixed(2)}</span>
-                      </div>
-                    </>
-                  )}
-                </>
-              )}
               {totalTax > 0 && (
                 <>
                   {totalCGST > 0 && totalSGST > 0 ? (
                     <>
                       <div className="flex justify-between text-sm text-[#6B6B6B]">
-                        <span>CGST (Items)</span>
+                        <span>CGST</span>
                         <span>₹{totalCGST.toFixed(2)}</span>
                       </div>
                       <div className="flex justify-between text-sm text-[#6B6B6B]">
-                        <span>SGST (Items)</span>
+                        <span>SGST</span>
                         <span>₹{totalSGST.toFixed(2)}</span>
                       </div>
                     </>
                   ) : (
                     <div className="flex justify-between text-sm text-[#6B6B6B]">
-                      <span>Tax (GST) - Items</span>
+                      <span>Tax (GST)</span>
                       <span>₹{totalTax.toFixed(2)}</span>
                     </div>
                   )}
@@ -1241,64 +1122,70 @@ export default function OrdersPage() {
               )}
             </div>
 
-            <div className="flex justify-between items-center mb-4 sm:mb-6 pt-3 sm:pt-4 border-t-2 border-[#3E2C24]">
-              <span className="text-base sm:text-lg font-bold text-[#3E2C24]">Total</span>
-              <span className="text-base sm:text-lg font-bold text-[#3E2C24] whitespace-nowrap">₹{grandTotal.toFixed(2)}</span>
+            <div className="flex justify-between items-center mb-6 pt-4 border-t-2 border-[#3E2C24]">
+              <span className="text-lg font-bold text-[#3E2C24]">Total</span>
+              <span className="text-lg font-bold text-[#3E2C24]">₹{grandTotal.toFixed(2)}</span>
             </div>
 
-            <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-4 sm:mb-6">
+            <div className="grid grid-cols-3 gap-3 mb-6">
               <button
                 onClick={() => setPaymentMethod('CASH')}
-                className={`flex flex-col items-center justify-center p-2 sm:p-4 rounded-xl border border-[#E5E7EB] transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring outline-none ${
+                className={`flex flex-col items-center justify-center p-4 rounded-xl border border-[#E5E7EB] transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring outline-none ${
                   paymentMethod === 'CASH'
                     ? 'bg-[#3E2C24] text-white shadow-md'
                     : 'bg-[#FAF7F2] text-[#3E2C24] hover:bg-[#C89B63]/10'
                 }`}
               >
-                <Wallet className="w-4 h-4 sm:w-6 sm:h-6 mb-1 sm:mb-2" />
-                <span className="text-[10px] sm:text-sm font-medium">Cash</span>
+                <Wallet className="w-6 h-6 mb-2" />
+                <span className="text-sm font-medium">Cash</span>
               </button>
               <button
                 onClick={() => setPaymentMethod('UPI')}
-                className={`flex flex-col items-center justify-center p-2 sm:p-4 rounded-xl border border-[#E5E7EB] transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring outline-none ${
+                className={`flex flex-col items-center justify-center p-4 rounded-xl border border-[#E5E7EB] transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring outline-none ${
                   paymentMethod === 'UPI'
                     ? 'bg-[#3E2C24] text-white shadow-md'
                     : 'bg-[#FAF7F2] text-[#3E2C24] hover:bg-[#C89B63]/10'
                 }`}
               >
-                <Smartphone className="w-4 h-4 sm:w-6 sm:h-6 mb-1 sm:mb-2" />
-                <span className="text-[10px] sm:text-sm font-medium">UPI</span>
+                <Smartphone className="w-6 h-6 mb-2" />
+                <span className="text-sm font-medium">UPI</span>
               </button>
               <button
                 onClick={() => setPaymentMethod('CARD')}
-                className={`flex flex-col items-center justify-center p-2 sm:p-4 rounded-xl border border-[#E5E7EB] transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring outline-none ${
+                className={`flex flex-col items-center justify-center p-4 rounded-xl border border-[#E5E7EB] transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring outline-none ${
                   paymentMethod === 'CARD'
                     ? 'bg-[#3E2C24] text-white shadow-md'
                     : 'bg-[#FAF7F2] text-[#3E2C24] hover:bg-[#C89B63]/10'
                 }`}
               >
-                <CreditCard className="w-4 h-4 sm:w-6 sm:h-6 mb-1 sm:mb-2" />
-                <span className="text-[10px] sm:text-sm font-medium">Card</span>
+                <CreditCard className="w-6 h-6 mb-2" />
+                <span className="text-sm font-medium">Card</span>
               </button>
             </div>
 
             <button
               onClick={handleCompleteBill}
               disabled={billItems.length === 0}
-              className="w-full bg-[#3E2C24] text-white py-2.5 sm:py-3 px-3 sm:px-4 rounded-xl font-semibold
+              className="w-full bg-[#3E2C24] text-white py-3 px-4 rounded-xl font-semibold
                          transition-all duration-200 ease-in-out
                          hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]
-                         focus-visible:ring outline-none disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-lg flex items-center justify-center gap-2"
+                         focus-visible:ring outline-none disabled:opacity-50 disabled:cursor-not-allowed text-lg flex items-center justify-center gap-2"
             >
-              <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5" />
-              <span className="whitespace-nowrap">Complete Order</span>
+              <CheckCircle className="w-5 h-5" />
+              Complete Order
             </button>
           </div>
         </div>
 
         {showOrderSuccessModal && billDetails && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 print:hidden transition-opacity duration-300 ease-in-out opacity-100">
-            <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-sm text-center transform scale-100 transition-all duration-300 ease-in-out hover:scale-[1.02] active:scale-[0.98]">
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 print:hidden transition-opacity duration-300 ease-in-out opacity-100"
+            onClick={() => setShowOrderSuccessModal(false)}
+          >
+            <div 
+              className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-sm text-center transform scale-100 transition-all duration-300 ease-in-out hover:scale-[1.02] active:scale-[0.98]"
+              onClick={(e) => e.stopPropagation()}
+            >
               <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
               <h2 className="text-2xl font-bold text-[#3E2C24] mb-2">Order Completed!</h2>
               <p className="text-gray-700 mb-1">Bill Number: <span className="font-semibold">{billDetails.invoice_number}</span></p>

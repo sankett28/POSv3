@@ -1,8 +1,9 @@
 'use client'
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { api } from '@/lib/api'
 import { BarChart3, IndianRupee, TrendingUp, FileText, Download } from 'lucide-react'
+import jsPDF from 'jspdf'
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 
 interface BillItem {
@@ -129,21 +130,15 @@ export default function ReportsPage() {
     }
   }
 
-  // Memoize filtered bills and calculations for performance
-  const filteredBills = useMemo(() => {
-    return bills.filter((bill) => {
-      const billDate = new Date(bill.created_at).toISOString().split('T')[0]
-      return billDate >= dateRange.start && billDate <= dateRange.end
-    })
-  }, [bills, dateRange.start, dateRange.end])
+  const filteredBills = bills.filter((bill) => {
+    const billDate = new Date(bill.created_at).toISOString().split('T')[0]
+    return billDate >= dateRange.start && billDate <= dateRange.end
+  })
 
-  const totalSales = useMemo(() => 
-    filteredBills.reduce((sum, bill) => sum + bill.total_amount, 0),
-    [filteredBills]
-  )
-  const transactionCount = useMemo(() => filteredBills.length, [filteredBills])
+  const totalSales = filteredBills.reduce((sum, bill) => sum + bill.total_amount, 0)
+  const transactionCount = filteredBills.length
   // Tax values come from tax summary (sum of stored snapshots, not recalculation)
-  const totalTax = useMemo(() => taxSummary?.grand_total_tax || 0, [taxSummary])
+  const totalTax = taxSummary?.grand_total_tax || 0
   const totalCGST = taxSummary?.grand_total_cgst || 0
   const totalSGST = taxSummary?.grand_total_sgst || 0
 
@@ -161,9 +156,7 @@ export default function ReportsPage() {
     })
   }
 
-  const exportToPDF = async () => {
-    // Dynamically import jsPDF only when needed
-    const { default: jsPDF } = await import('jspdf')
+  const exportToPDF = () => {
     const doc = new jsPDF()
     const pageWidth = doc.internal.pageSize.getWidth()
     const pageHeight = doc.internal.pageSize.getHeight()

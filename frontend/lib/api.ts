@@ -4,6 +4,8 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8
 
 class ApiClient {
   private client: AxiosInstance
+  private isRefreshing = false
+  private refreshPromise: Promise<boolean> | null = null
 
   constructor() {
     this.client = axios.create({
@@ -14,9 +16,12 @@ class ApiClient {
       timeout: 10000, // 10 second timeout
     })
 
-    // Request interceptor to add auth token
+    // Request interceptor to add auth token and refresh if needed
     this.client.interceptors.request.use(
-      (config) => {
+      async (config) => {
+        // Refresh token if needed before making the request
+        await this.refreshTokenIfNeeded()
+        
         const token = this.getToken()
         if (token) {
           config.headers.Authorization = `Bearer ${token}`
@@ -28,14 +33,66 @@ class ApiClient {
       }
     )
 
-    // Response interceptor for error handling
+    // Response interceptor for error handling and token refresh
     this.client.interceptors.response.use(
       (response) => {
         return response
       },
-      (error: AxiosError) => {
-        if (error.response?.status === 401) {
-          // Handle unauthorized - clear token and redirect to login
+      async (error: AxiosError) => {
+        const originalRequest = error.config as any
+
+        // Don't logout on network errors or service unavailable (503) - user is just offline
+        if (!error.response || error.response.status === 503) {
+          // Network error or service unavailable - don't logout, just reject the error
+          return Promise.reject(error)
+        }
+
+        if (error.response?.status === 401 && !originalRequest._retry) {
+          originalRequest._retry = true
+
+          // Try to refresh the token
+          const refreshToken = this.getRefreshToken()
+          if (refreshToken) {
+            try {
+              const response = await axios.post(
+                `${API_BASE_URL}/api/v1/auth/refresh`,
+                { refresh_token: refreshToken },
+                { headers: { 'Content-Type': 'application/json' } }
+              )
+
+              if (response.data.access_token) {
+                this.setTokens(
+                  response.data.access_token,
+                  response.data.refresh_token,
+                  response.data.expires_at
+                )
+
+                // Retry the original request with the new token
+                originalRequest.headers.Authorization = `Bearer ${response.data.access_token}`
+                return this.client(originalRequest)
+              }
+            } catch (refreshError: any) {
+              // If refresh failed due to network error (no response), don't logout
+              if (!refreshError?.response) {
+                // Network error during refresh - don't logout, user is offline
+                return Promise.reject(refreshError)
+              }
+              
+              // If refresh returned 503 (service unavailable), don't logout
+              if (refreshError?.response?.status === 503) {
+                return Promise.reject(refreshError)
+              }
+
+              // Refresh token was rejected by server (401) => real logout needed
+              this.clearToken()
+              if (typeof window !== 'undefined') {
+                window.location.href = '/login'
+              }
+              return Promise.reject(refreshError)
+            }
+          }
+
+          // No refresh token available, clear and redirect
           this.clearToken()
           if (typeof window !== 'undefined') {
             window.location.href = '/login'
@@ -51,26 +108,106 @@ class ApiClient {
     return localStorage.getItem('access_token')
   }
 
+  private getRefreshToken(): string | null {
+    if (typeof window === 'undefined') return null
+    return localStorage.getItem('refresh_token')
+  }
+
+  private getTokenExpiry(): number | null {
+    if (typeof window === 'undefined') return null
+    const expiry = localStorage.getItem('token_expires_at')
+    return expiry ? parseInt(expiry, 10) : null
+  }
+
+  private isTokenExpired(): boolean {
+    const expiresAt = this.getTokenExpiry()
+    if (!expiresAt) return true
+    // Consider token expired if it expires within 60 seconds (1 minute buffer)
+    return Date.now() / 1000 >= (expiresAt - 60)
+  }
+
+  private async refreshTokenIfNeeded(): Promise<boolean> {
+    const refreshToken = this.getRefreshToken()
+    if (!refreshToken) {
+      return false
+    }
+
+    // Only refresh if token is expired or about to expire
+    if (!this.isTokenExpired()) {
+      return true
+    }
+
+    // If already refreshing, wait for that to complete
+    if (this.isRefreshing && this.refreshPromise) {
+      return await this.refreshPromise
+    }
+
+    // Start refresh process
+    this.isRefreshing = true
+    this.refreshPromise = (async () => {
+      try {
+        const response = await axios.post(
+          `${API_BASE_URL}/api/v1/auth/refresh`,
+          { refresh_token: refreshToken },
+          { headers: { 'Content-Type': 'application/json' } }
+        )
+
+        if (response.data.access_token) {
+          this.setTokens(
+            response.data.access_token,
+            response.data.refresh_token,
+            response.data.expires_at
+          )
+          return true
+        }
+        return false
+      } catch (error) {
+        console.error('Token refresh failed:', error)
+        return false
+      } finally {
+        this.isRefreshing = false
+        this.refreshPromise = null
+      }
+    })()
+
+    return await this.refreshPromise
+  }
+
   private clearToken(): void {
     if (typeof window === 'undefined') return
     localStorage.removeItem('access_token')
+    localStorage.removeItem('refresh_token')
+    localStorage.removeItem('token_expires_at')
     localStorage.removeItem('user_id')
-    // Clear the cookie for middleware
+    // Also clear cookie for middleware
     document.cookie = 'access_token=; path=/; max-age=0'
+  }
+
+  private setTokens(accessToken: string, refreshToken: string, expiresAt: number): void {
+    if (typeof window === 'undefined') return
+    localStorage.setItem('access_token', accessToken)
+    localStorage.setItem('refresh_token', refreshToken)
+    localStorage.setItem('token_expires_at', expiresAt.toString())
+    // Also set cookie for middleware to access (24 hour expiry)
+    document.cookie = `access_token=${accessToken}; path=/; max-age=86400; SameSite=Lax`
   }
 
   setToken(token: string): void {
     if (typeof window === 'undefined') return
     localStorage.setItem('access_token', token)
-    // Also set it as a cookie for middleware (24 hours expiry)
+    // Also set cookie for middleware to access (24 hour expiry)
     document.cookie = `access_token=${token}; path=/; max-age=86400; SameSite=Lax`
   }
 
   // Auth endpoints
   async login(email: string, password: string) {
     const response = await this.client.post('/auth/login', { email, password })
-    if (response.data.access_token) {
-      this.setToken(response.data.access_token)
+    if (response.data.access_token && response.data.refresh_token && response.data.expires_at) {
+      this.setTokens(
+        response.data.access_token,
+        response.data.refresh_token,
+        response.data.expires_at
+      )
       if (typeof window !== 'undefined') {
         localStorage.setItem('user_id', response.data.user_id)
       }
@@ -106,8 +243,8 @@ class ApiClient {
     unit?: 'pcs' | 'kg' | 'litre' | 'cup' | 'plate' | 'bowl' | 'serving' | 'piece' | 'bottle' | 'can'
     is_active?: boolean
   }) {
-    const response = await this.client.post('/products', data)
-    return response.data
+      const response = await this.client.post('/products', data)
+      return response.data
   }
 
   async updateProduct(id: string, data: { 
@@ -141,8 +278,6 @@ class ApiClient {
   async createBill(data: {
     items: Array<{ product_id: string; quantity: number; unit_price: number }>
     payment_method: 'CASH' | 'UPI' | 'CARD'
-    service_charge_enabled?: boolean
-    service_charge_rate?: number
   }) {
     const response = await this.client.post('/bills', data)
     return response.data
