@@ -42,6 +42,18 @@ export default function TaxSettingsPage() {
     loadTaxGroups()
   }, [])
 
+  // Prevent body scroll when modal is open
+  useEffect(() => {
+    if (showForm) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+    }
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [showForm])
+
   const loadTaxGroups = async () => {
     try {
       setLoading(true)
@@ -252,8 +264,24 @@ export default function TaxSettingsPage() {
 
         {/* Create/Edit Form Modal */}
         {showForm && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+            onClick={() => {
+              setShowForm(false)
+              setEditingGroup(null)
+              setFormData({
+                name: '',
+                total_rate: 0,
+                split_type: 'GST_50_50',
+                is_tax_inclusive: false,
+                is_active: true,
+              })
+            }}
+          >
+            <div 
+              className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
               <div className="p-6 border-b border-[#E5E7EB] flex items-center justify-between">
                 <h2 className="text-xl font-bold text-[#3E2C24]">
                   {editingGroup ? 'Edit Tax Group' : 'Create Tax Group'}

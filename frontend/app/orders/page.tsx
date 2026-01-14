@@ -71,6 +71,18 @@ export default function OrdersPage() {
     loadData()
   }, [])
 
+  // Prevent body scroll when modal is open
+  useEffect(() => {
+    if (showOrderSuccessModal) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+    }
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [showOrderSuccessModal])
+
   const loadData = async () => {
     try {
       const [productsData, categoriesData, taxGroupsData] = await Promise.all([
@@ -1166,8 +1178,14 @@ export default function OrdersPage() {
         </div>
 
         {showOrderSuccessModal && billDetails && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 print:hidden transition-opacity duration-300 ease-in-out opacity-100">
-            <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-sm text-center transform scale-100 transition-all duration-300 ease-in-out hover:scale-[1.02] active:scale-[0.98]">
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 print:hidden transition-opacity duration-300 ease-in-out opacity-100"
+            onClick={() => setShowOrderSuccessModal(false)}
+          >
+            <div 
+              className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-sm text-center transform scale-100 transition-all duration-300 ease-in-out hover:scale-[1.02] active:scale-[0.98]"
+              onClick={(e) => e.stopPropagation()}
+            >
               <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
               <h2 className="text-2xl font-bold text-[#3E2C24] mb-2">Order Completed!</h2>
               <p className="text-gray-700 mb-1">Bill Number: <span className="font-semibold">{billDetails.invoice_number}</span></p>

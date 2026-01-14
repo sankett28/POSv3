@@ -35,6 +35,18 @@ export default function ProductsPage() {
     loadProducts()
   }, [])
 
+  // Prevent body scroll when modal is open
+  useEffect(() => {
+    if (showModal) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+    }
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [showModal])
+
   const loadProducts = async () => {
     try {
       const data = await api.getProducts()
@@ -266,8 +278,25 @@ export default function ProductsPage() {
 
       {/* Add/Edit Product Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 max-w-lg w-full animate-fade-in">
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+          onClick={() => {
+            setShowModal(false)
+            setEditingProduct(null)
+            setFormData({
+              name: '',
+              sku: '',
+              barcode: '',
+              selling_price: '',
+              unit: 'pcs',
+              is_active: true
+            })
+          }}
+        >
+          <div 
+            className="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 max-w-lg w-full animate-fade-in"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center gap-4 mb-6">
               <div className="w-12 h-12 bg-gradient-to-br from-[#C89B63] to-[#F4A261] rounded-xl flex items-center justify-center">
                 <Package className="w-6 h-6 text-white" />

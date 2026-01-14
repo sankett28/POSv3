@@ -106,8 +106,8 @@ class ApiClient {
     unit?: 'pcs' | 'kg' | 'litre' | 'cup' | 'plate' | 'bowl' | 'serving' | 'piece' | 'bottle' | 'can'
     is_active?: boolean
   }) {
-    const response = await this.client.post('/products', data)
-    return response.data
+      const response = await this.client.post('/products', data)
+      return response.data
   }
 
   async updateProduct(id: string, data: { 
