@@ -1,9 +1,12 @@
 'use client'
 
+import { memo } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Store, Package, Receipt, Users, Megaphone, Coffee, UtensilsCrossed, FileText, BarChart3, Settings } from 'lucide-react'
+// Performance: Only import icons that are actually used
+import { Coffee, UtensilsCrossed, FileText, BarChart3, Settings } from 'lucide-react'
 
+// Performance: Memoize navItems to prevent recreation on every render
 const navItems = [
   { href: '/orders', label: 'Orders', icon: ({ className }: { className?: string }) => <span className={`flex items-center text-xl ${className}`}>₹</span> },
   { href: '/menu', label: 'Menu', icon: UtensilsCrossed },
@@ -12,7 +15,7 @@ const navItems = [
   { href: '/admin-profile', label: 'Settings', icon: Settings },
 ]
 
-export default function Sidebar() {
+function Sidebar() {
   const pathname = usePathname()
 
   return (
@@ -51,4 +54,7 @@ export default function Sidebar() {
     </div>
   )
 }
+
+// Performance: Memoize Sidebar to prevent unnecessary re-renders
+export default memo(Sidebar)
 

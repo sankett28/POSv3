@@ -1,12 +1,16 @@
 'use client'
 
-import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import { usePathname } from 'next/navigation'
 import '../styles/globals.css'
 import Header from '@/components/layout/Header'
 
-const inter = Inter({ subsets: ['latin'] })
+// Performance: Optimize font loading with display swap to prevent render blocking
+const inter = Inter({ 
+  subsets: ['latin'],
+  display: 'swap', // Prevents invisible text during font load
+  preload: true, // Preloads font for better performance
+})
 
 
 export default function RootLayout({

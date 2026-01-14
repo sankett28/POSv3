@@ -830,11 +830,11 @@ export default function OrdersPage() {
                             </div>
                             
                             {/* Product Details - Takes remaining ~40% of card */}
-                            <div className="flex flex-col justify-center items-center w-full flex-1 px-1 min-h-0">
-                              <div className="font-semibold text-[#1F1F1F] text-xs text-center mb-1 leading-tight break-words line-clamp-2 flex items-center justify-center min-h-[2rem]">
-                                {product.name}
+                            <div className="flex flex-col justify-center items-center w-full flex-1 px-1 min-h-0 gap-1">
+                              <div className="font-semibold text-[#1F1F1F] text-xs sm:text-sm text-center mb-1 leading-tight break-words line-clamp-2 w-full overflow-hidden">
+                                <span className="block">{product.name}</span>
                               </div>
-                              <div className="font-bold text-[#3E2C24] text-sm">₹{product.selling_price.toFixed(2)}</div>
+                              <div className="font-bold text-[#3E2C24] text-xs sm:text-sm mt-auto">₹{product.selling_price.toFixed(2)}</div>
                             </div>
                           </button>
                         ))}
@@ -920,11 +920,11 @@ export default function OrdersPage() {
                           </div>
                           
                           {/* Product Details - Takes remaining ~40% of card */}
-                          <div className="flex flex-col justify-center items-center w-full flex-1 px-1 min-h-0">
-                            <div className="font-semibold text-[#1F1F1F] text-xs text-center mb-1 leading-tight break-words line-clamp-2 flex items-center justify-center min-h-[2rem]">
-                              {product.name}
+                          <div className="flex flex-col justify-center items-center w-full flex-1 px-1 min-h-0 gap-1">
+                            <div className="font-semibold text-[#1F1F1F] text-xs sm:text-sm text-center mb-1 leading-tight break-words line-clamp-2 w-full overflow-hidden">
+                              <span className="block">{product.name}</span>
                             </div>
-                            <div className="font-bold text-[#3E2C24] text-sm">₹{product.selling_price.toFixed(2)}</div>
+                            <div className="font-bold text-[#3E2C24] text-xs sm:text-sm mt-auto">₹{product.selling_price.toFixed(2)}</div>
                             {product.tax_group && (
                               <div className="text-[10px] text-[#6B6B6B] mt-0.5 text-center line-clamp-1">
                                 {product.tax_group.name}

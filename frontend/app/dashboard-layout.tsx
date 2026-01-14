@@ -13,13 +13,16 @@ export default function DashboardLayout({
 }) {
   const router = useRouter()
 
+  // Performance: Check auth once per render
+  const authenticated = isAuthenticated()
+
   useEffect(() => {
-    if (!isAuthenticated()) {
+    if (!authenticated) {
       router.push('/login')
     }
-  }, [router])
+  }, [router, authenticated])
 
-  if (!isAuthenticated()) {
+  if (!authenticated) {
     return null
   }
 

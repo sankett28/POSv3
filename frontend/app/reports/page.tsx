@@ -1,10 +1,10 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { api } from '@/lib/api'
 import { BarChart3, IndianRupee, TrendingUp, FileText, Download } from 'lucide-react'
-import jsPDF from 'jspdf'
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
+// Performance: jsPDF is only loaded when exportToPDF is called (dynamic import)
 
 interface BillItem {
   id: string
@@ -65,9 +65,18 @@ export default function ReportsPage() {
   const [taxSummary, setTaxSummary] = useState<TaxSummary | null>(null)
   const [salesByCategory, setSalesByCategory] = useState<SalesByCategory | null>(null)
   const [loading, setLoading] = useState(true)
-  const [dateRange, setDateRange] = useState({
-    start: new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().split('T')[0],
-    end: new Date().toISOString().split('T')[0],
+  const [dateRange, setDateRange] = useState(() => {
+    const minDate = '2026-01-01'
+    const today = new Date().toISOString().split('T')[0]
+    const thirtyDaysAgo = new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().split('T')[0]
+    
+    // Ensure start date is at least 2026-01-01
+    const start = thirtyDaysAgo < minDate ? minDate : thirtyDaysAgo
+    
+    return {
+      start,
+      end: today < minDate ? minDate : today,
+    }
   })
 
   useEffect(() => {
@@ -130,22 +139,33 @@ export default function ReportsPage() {
     }
   }
 
-  const filteredBills = bills.filter((bill) => {
-    const billDate = new Date(bill.created_at).toISOString().split('T')[0]
-    return billDate >= dateRange.start && billDate <= dateRange.end
-  })
+  // Performance: Memoize filtered bills to avoid recalculating on every render
+  const filteredBills = useMemo(() => {
+    return bills.filter((bill) => {
+      const billDate = new Date(bill.created_at).toISOString().split('T')[0]
+      return billDate >= dateRange.start && billDate <= dateRange.end
+    })
+  }, [bills, dateRange.start, dateRange.end])
 
-  const totalSales = filteredBills.reduce((sum, bill) => sum + bill.total_amount, 0)
+  // Performance: Memoize expensive calculations
+  const totalSales = useMemo(() => {
+    return filteredBills.reduce((sum, bill) => sum + bill.total_amount, 0)
+  }, [filteredBills])
+
   const transactionCount = filteredBills.length
+  
   // Tax values come from tax summary (sum of stored snapshots, not recalculation)
   const totalTax = taxSummary?.grand_total_tax || 0
   const totalCGST = taxSummary?.grand_total_cgst || 0
   const totalSGST = taxSummary?.grand_total_sgst || 0
 
-  const paymentMethodBreakdown = filteredBills.reduce((acc, bill) => {
-    acc[bill.payment_method] = (acc[bill.payment_method] || 0) + bill.total_amount
-    return acc
-  }, {} as Record<string, number>)
+  // Performance: Memoize payment method breakdown calculation
+  const paymentMethodBreakdown = useMemo(() => {
+    return filteredBills.reduce((acc, bill) => {
+      acc[bill.payment_method] = (acc[bill.payment_method] || 0) + bill.total_amount
+      return acc
+    }, {} as Record<string, number>)
+  }, [filteredBills])
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
@@ -156,7 +176,10 @@ export default function ReportsPage() {
     })
   }
 
-  const exportToPDF = () => {
+  // Performance: Use dynamic import for jsPDF to reduce initial bundle size
+  const exportToPDF = useCallback(async () => {
+    // Dynamic import: Only load jsPDF when user clicks export
+    const { default: jsPDF } = await import('jspdf')
     const doc = new jsPDF()
     const pageWidth = doc.internal.pageSize.getWidth()
     const pageHeight = doc.internal.pageSize.getHeight()
@@ -457,7 +480,7 @@ export default function ReportsPage() {
 
     // Save the PDF
     doc.save(filename)
-  }
+  }, [dateRange.start, dateRange.end, totalSales, totalTax, totalCGST, totalSGST, transactionCount, paymentMethodBreakdown, salesByCategory, taxSummary])
 
   if (loading) {
     return (
@@ -478,17 +501,31 @@ export default function ReportsPage() {
             <input
               type="date"
               value={dateRange.start}
-              onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
+              min="2026-01-01"
+              onChange={(e) => {
+                const newStart = e.target.value
+                // Ensure start date is not before 2026-01-01
+                if (newStart >= '2026-01-01') {
+                  setDateRange({ ...dateRange, start: newStart })
+                }
+              }}
               className="px-4 py-2 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63] bg-[#FAF7F2] hover:bg-white transition-all duration-200 text-[#1F1F1F]"
             />
             <input
               type="date"
               value={dateRange.end}
-              onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })}
+              min="2026-01-01"
+              onChange={(e) => {
+                const newEnd = e.target.value
+                // Ensure end date is not before 2026-01-01
+                if (newEnd >= '2026-01-01') {
+                  setDateRange({ ...dateRange, end: newEnd })
+                }
+              }}
               className="px-4 py-2 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63] bg-[#FAF7F2] hover:bg-white transition-all duration-200 text-[#1F1F1F]"
             />
             <button
-              onClick={exportToPDF}
+              onClick={() => exportToPDF().catch(console.error)}
               className="px-6 py-2 bg-[#3E2C24] text-white rounded-xl font-medium hover:bg-[#2c1f19] transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] flex items-center gap-2"
             >
               <Download className="w-4 h-4" />
