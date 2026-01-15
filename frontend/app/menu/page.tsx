@@ -509,6 +509,7 @@ export default function MenuPage() {
         {/* Menu Items by Category */}
         <div className="space-y-6">
           {categories.map((category) => {
+            if (selectedCategory && selectedCategory !== category.id) return null
             const categoryProducts = filteredProducts.filter(p => p.category_id === category.id)
             if (categoryProducts.length === 0 && !selectedCategory) return null
 
