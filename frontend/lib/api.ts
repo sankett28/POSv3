@@ -401,6 +401,19 @@ class ApiClient {
     const response = await this.client.get(`/reports/sales-by-category?start_date=${startDate}&end_date=${endDate}`)
     return response.data
   }
+
+  // Admin endpoints
+  async importMenu(file: File) {
+    const formData = new FormData()
+    formData.append("file", file)
+    
+    const response = await this.client.post('/admin/menu/import', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
+    return response.data
+  }
 }
 
 export const api = new ApiClient()
