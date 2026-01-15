@@ -371,22 +371,36 @@ export default function OrdersPage() {
               align-items: center;
               gap: 10px;
             }
-            .logo-box {
-              width: 40px;
-              height: 40px;
-              background: #912B48; /* Lichy Primary Rose */
-              color: white;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              font-size: 18px;
-              font-weight: 500;
-              border-radius: 4px;
+            .logo-text {
+              font-size: 24px;
+              font-weight: 700;
+              color: #610027; /* Lichy Deep Burgundy */
+              margin: 0;
+              letter-spacing: -0.2px;
+              display: inline-block;
+            }
+            .logo-dot {
+              display: inline-block;
+              width: 6px;
+              height: 6px;
+              background: #FFBB94; /* Cream */
+              border-radius: 50%;
+              margin-left: 1px;
+              vertical-align: top;
+              margin-top: 2px;
+            }
+            .logo-accent {
+              display: inline-block;
+              width: 16px;
+              height: 16px;
+              color: #FB9590; /* Soft Pink */
+              margin-left: 4px;
+              vertical-align: middle;
             }
             .header-left-content h1 {
               font-size: 24px;
               font-weight: 600;
-              color: #610027; /* Lichy Deep Wine */
+              color: #610027; /* Lichy Deep Burgundy */
               margin: 0 0 2px 0;
               letter-spacing: -0.2px;
             }
@@ -595,9 +609,14 @@ export default function OrdersPage() {
           <div class="invoice-container">
             <div class="header">
               <div class="header-left">
-                <div class="logo-box">BB</div>
                 <div class="header-left-content">
-                  <h1>Lichy Cafe</h1>
+                  <h1>
+                    <span class="logo-text">Lich<span class="logo-dot"></span>i</span>
+                    <svg class="logo-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/>
+                      <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 11"/>
+                    </svg>
+                  </h1>
                   <p>Your Daily Dose of Delight</p>
                 </div>
               </div>

@@ -2,7 +2,8 @@
 
 import { useState } from 'react'
 import { login } from '@/lib/auth'
-import { Store, Mail, Lock, Coffee, ChefHat, Star } from 'lucide-react'
+import { Mail, Lock, ChefHat } from 'lucide-react'
+import Logo from '@/components/ui/Logo'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -56,16 +57,10 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-[#FFF0F3] py-8 px-4">
       <div className="max-w-md w-full bg-white rounded-2xl shadow-2xl p-8 border border-[#E5E7EB] animate-fade-in">
           <div className="flex flex-col items-center mb-8">
-          <div className="relative mb-6">
-            <div className="w-20 h-20 bg-gradient-to-br from-[#912B48] to-[#B45A69] rounded-2xl flex items-center justify-center shadow-xl animate-bounce-in">
-              <Coffee className="w-10 h-10 text-white" />
-            </div>
-            <div className="absolute -top-2 -right-2 w-8 h-8 bg-[#610027] rounded-full flex items-center justify-center shadow-lg">
-              <Star className="w-4 h-4 text-white fill-current" />
-            </div>
+          <div className="mb-6 animate-bounce-in">
+            <Logo size="xl" showAccent={true} />
           </div>
           <div className="text-center mb-6">
-            <h1 className="text-3xl font-bold text-[#610027] mb-2 leading-tight">Lichy POS</h1>
             <h2 className="text-2xl font-semibold text-[#610027] mb-2">Welcome Back</h2>
             <p className="text-[#6B6B6B]">Your cafe management starts here</p>
           </div>

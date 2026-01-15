@@ -194,7 +194,7 @@ export default function ReportsPage() {
 
     // Summary Sheet
     const summaryData = [
-      ['Lichy Cafe - Sales Report'],
+      ['Lichi Cafe - Sales Report'],
       [''],
       ['Date Range:', `${formatDate(dateRange.start)} to ${formatDate(dateRange.end)}`],
       ['Generated on:', generatedDate],
@@ -287,7 +287,7 @@ export default function ReportsPage() {
     // Generate filename with date range
     const startDateStr = dateRange.start.replace(/-/g, '')
     const endDateStr = dateRange.end.replace(/-/g, '')
-    const filename = `Lichy_Report_${startDateStr}_to_${endDateStr}.xlsx`
+    const filename = `Lichi_Report_${startDateStr}_to_${endDateStr}.xlsx`
 
     // Save the Excel file
     XLSX.writeFile(workbook, filename)
@@ -567,40 +567,45 @@ export default function ReportsPage() {
 
         {/* Tax Summary by Tax Rate */}
         {taxSummary && taxSummary.summary.length > 0 && (
-          <div className="bg-white rounded-2xl shadow-md p-6 border border-[#E5E7EB]">
+          <div className="bg-white rounded-2xl shadow-lg p-6 border border-[#E5E7EB] overflow-hidden">
             <h2 className="text-xl font-bold text-[#610027] mb-6">Tax Summary by Tax Rate</h2>
             <div className="overflow-x-auto">
               <table className="min-w-full">
-                <thead className="bg-[#B45A69]/20">
+                <thead className="bg-gradient-to-r from-[#B45A69]/25 to-[#B45A69]/15 border-b-2 border-[#B45A69]/30">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-[#610027] uppercase tracking-wider">Tax Rate</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-[#610027] uppercase tracking-wider">Tax Group</th>
-                    <th className="px-4 py-3 text-right text-xs font-semibold text-[#610027] uppercase tracking-wider">Taxable Value</th>
-                    <th className="px-4 py-3 text-right text-xs font-semibold text-[#610027] uppercase tracking-wider">CGST</th>
-                    <th className="px-4 py-3 text-right text-xs font-semibold text-[#610027] uppercase tracking-wider">SGST</th>
-                    <th className="px-4 py-3 text-right text-xs font-semibold text-[#610027] uppercase tracking-wider">Total Tax</th>
-                    <th className="px-4 py-3 text-right text-xs font-semibold text-[#610027] uppercase tracking-wider">Items</th>
+                    <th className="px-6 py-4 text-left text-xs font-extrabold text-[#610027] uppercase tracking-wider">Tax Rate</th>
+                    <th className="px-6 py-4 text-left text-xs font-extrabold text-[#610027] uppercase tracking-wider">Tax Group</th>
+                    <th className="px-6 py-4 text-right text-xs font-extrabold text-[#610027] uppercase tracking-wider">Taxable Value</th>
+                    <th className="px-6 py-4 text-right text-xs font-extrabold text-[#610027] uppercase tracking-wider">CGST</th>
+                    <th className="px-6 py-4 text-right text-xs font-extrabold text-[#610027] uppercase tracking-wider">SGST</th>
+                    <th className="px-6 py-4 text-right text-xs font-extrabold text-[#610027] uppercase tracking-wider">Total Tax</th>
+                    <th className="px-6 py-4 text-right text-xs font-extrabold text-[#610027] uppercase tracking-wider">Items</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#E5E7EB]">
+                <tbody className="divide-y divide-[#E5E7EB]/50">
                   {taxSummary.summary.map((item, idx) => (
-                    <tr key={idx} className="hover:bg-[#FFF0F3]/20 transition-colors">
-                      <td className="px-4 py-3 text-[#610027] font-medium">{item.tax_rate_snapshot}%</td>
-                      <td className="px-4 py-3 text-[#6B6B6B]">{item.tax_group_name || 'N/A'}</td>
-                      <td className="px-4 py-3 text-right text-[#610027]">₹{item.total_taxable_value.toFixed(2)}</td>
-                      <td className="px-4 py-3 text-right text-[#610027]">₹{item.total_cgst.toFixed(2)}</td>
-                      <td className="px-4 py-3 text-right text-[#610027]">₹{item.total_sgst.toFixed(2)}</td>
-                      <td className="px-4 py-3 text-right font-semibold text-[#912B48]">₹{item.total_tax.toFixed(2)}</td>
-                      <td className="px-4 py-3 text-right text-[#6B6B6B]">{item.item_count}</td>
+                    <tr 
+                      key={idx} 
+                      className={`transition-all duration-300 ease-in-out hover:bg-gradient-to-r hover:from-[#FFF0F3]/30 hover:to-[#FFF0F3]/10 hover:shadow-sm ${
+                        idx % 2 === 0 ? 'bg-white' : 'bg-[#FFF0F3]/5'
+                      }`}
+                    >
+                      <td className="px-6 py-4 text-[#610027] font-bold text-sm">{item.tax_rate_snapshot}%</td>
+                      <td className="px-6 py-4 text-[#6B6B6B] text-sm font-medium">{item.tax_group_name || 'N/A'}</td>
+                      <td className="px-6 py-4 text-right text-[#610027] font-semibold">₹{item.total_taxable_value.toFixed(2)}</td>
+                      <td className="px-6 py-4 text-right text-[#610027] font-semibold">₹{item.total_cgst.toFixed(2)}</td>
+                      <td className="px-6 py-4 text-right text-[#610027] font-semibold">₹{item.total_sgst.toFixed(2)}</td>
+                      <td className="px-6 py-4 text-right font-bold text-[#912B48] text-base">₹{item.total_tax.toFixed(2)}</td>
+                      <td className="px-6 py-4 text-right text-[#6B6B6B] font-medium">{item.item_count}</td>
                     </tr>
                   ))}
-                  <tr className="bg-[#FFF0F3]/30 font-bold">
-                    <td colSpan={2} className="px-4 py-3 text-[#610027]">Grand Total</td>
-                    <td className="px-4 py-3 text-right text-[#912B48]">₹{taxSummary.grand_total_taxable_value.toFixed(2)}</td>
-                    <td className="px-4 py-3 text-right text-[#912B48]">₹{taxSummary.grand_total_cgst.toFixed(2)}</td>
-                    <td className="px-4 py-3 text-right text-[#912B48]">₹{taxSummary.grand_total_sgst.toFixed(2)}</td>
-                    <td className="px-4 py-3 text-right text-[#912B48]">₹{taxSummary.grand_total_tax.toFixed(2)}</td>
-                    <td className="px-4 py-3"></td>
+                  <tr className="bg-gradient-to-r from-[#FFF0F3]/40 to-[#FFF0F3]/20 font-bold border-t-2 border-[#B45A69]/30">
+                    <td colSpan={2} className="px-6 py-4 text-[#610027] text-base">Grand Total</td>
+                    <td className="px-6 py-4 text-right text-[#912B48] text-base">₹{taxSummary.grand_total_taxable_value.toFixed(2)}</td>
+                    <td className="px-6 py-4 text-right text-[#912B48] text-base">₹{taxSummary.grand_total_cgst.toFixed(2)}</td>
+                    <td className="px-6 py-4 text-right text-[#912B48] text-base">₹{taxSummary.grand_total_sgst.toFixed(2)}</td>
+                    <td className="px-6 py-4 text-right text-[#912B48] text-lg">₹{taxSummary.grand_total_tax.toFixed(2)}</td>
+                    <td className="px-6 py-4"></td>
                   </tr>
                 </tbody>
               </table>

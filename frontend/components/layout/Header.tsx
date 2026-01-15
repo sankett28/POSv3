@@ -4,9 +4,10 @@ import { useState, useCallback, useMemo } from 'react'
 
 import { logout, getCurrentUserId } from '@/lib/auth'
 // Performance: Only import icons that are actually used
-import { LogOut, User, Menu, X, Coffee, UtensilsCrossed, FileText, BarChart3, Settings } from 'lucide-react'
+import { LogOut, User, Menu, X, UtensilsCrossed, FileText, BarChart3, Settings } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import Logo from '@/components/ui/Logo'
 
 // Performance: Memoize navItems to prevent recreation on every render
 const navItems = [
@@ -57,11 +58,8 @@ export default function Header() {
         {/* Left section: Logo */}
         <div className="flex items-center gap-3">
           <Link href="/" className="flex items-center gap-2 transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98]">
-            <div className="w-10 h-10 bg-[#912B48] rounded-xl flex items-center justify-center shadow-md">
-              <Coffee className="w-6 h-6 text-white" />
-            </div>
+            <Logo size="md" showAccent={true} />
             <div className="flex flex-col">
-              <span className="text-lg font-bold text-[#610027]">Lichy</span>
               <span className="text-xs text-[#9CA3AF] font-medium tracking-wide">Cafe Management</span>
             </div>
           </Link>
@@ -124,11 +122,8 @@ export default function Header() {
               <X className="w-6 h-6" />
             </button>
             <div className="flex items-center gap-3 mb-8 mt-4">
-              <div className="w-12 h-12 bg-[#912B48] rounded-xl flex items-center justify-center shadow-lg">
-                <Coffee className="w-7 h-7 text-white" />
-              </div>
+              <Logo size="lg" showAccent={true} />
               <div className="flex flex-col">
-                <span className="text-2xl font-bold text-[#610027] leading-tight">Lichy</span>
                 <span className="text-sm text-[#9CA3AF] font-medium tracking-wide">Cafe Management</span>
               </div>
             </div>

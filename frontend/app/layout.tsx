@@ -24,8 +24,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <title>Lichy - Cafe POS System</title>
-        <meta name="description" content="Lichy - Modern cafe management and POS system" />
+        <title>Lichi - Cafe POS System</title>
+        <meta name="description" content="Lichi - Modern cafe management and POS system" />
       </head>
       <body className={`${inter.className} bg-[#FFF0F3]`}>
         {!isLoginPage && <Header />}

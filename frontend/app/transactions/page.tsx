@@ -98,35 +98,44 @@ export default function TransactionsPage() {
           <h1 className="text-3xl font-bold text-[#610027]">Transactions</h1>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-md p-6 border border-[#E5E7EB]">
+        <div className="bg-white rounded-2xl shadow-lg p-6 border border-[#E5E7EB] overflow-hidden">
           <div className="overflow-x-auto">
             <table className="min-w-full leading-normal">
-              <thead className="bg-[#B45A69]/20">
+              <thead className="bg-gradient-to-r from-[#B45A69]/25 to-[#B45A69]/15 border-b-2 border-[#B45A69]/30">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-[#610027] uppercase tracking-wider rounded-tl-xl">Bill Number</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-[#610027] uppercase tracking-wider">Date & Time</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-[#610027] uppercase tracking-wider">Total Amount</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-[#610027] uppercase tracking-wider">Tax Amount</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-[#610027] uppercase tracking-wider">Payment Method</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-[#610027] uppercase tracking-wider rounded-tr-xl">Actions</th>
+                  <th className="px-6 py-4 text-left text-xs font-extrabold text-[#610027] uppercase tracking-wider">Bill Number</th>
+                  <th className="px-6 py-4 text-left text-xs font-extrabold text-[#610027] uppercase tracking-wider">Date & Time</th>
+                  <th className="px-6 py-4 text-left text-xs font-extrabold text-[#610027] uppercase tracking-wider">Total Amount</th>
+                  <th className="px-6 py-4 text-left text-xs font-extrabold text-[#610027] uppercase tracking-wider">Tax Amount</th>
+                  <th className="px-6 py-4 text-left text-xs font-extrabold text-[#610027] uppercase tracking-wider">Payment Method</th>
+                  <th className="px-6 py-4 text-left text-xs font-extrabold text-[#610027] uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {bills.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-4 py-8 text-center text-[#9CA3AF]">
-                      No transactions found
+                    <td colSpan={6} className="px-6 py-12 text-center text-[#9CA3AF] bg-[#FFF0F3]/5">
+                      <p className="text-sm font-medium">No transactions found</p>
                     </td>
                   </tr>
                 ) : (
-                  bills.map((bill) => (
-                    <tr key={bill.id} className="border-t border-[#E5E7EB] transition-all duration-200 ease-in-out hover:bg-[#FFF0F3]/20">
-                      <td className="px-4 py-3 font-medium text-[#610027]">{bill.bill_number}</td>
-                      <td className="px-4 py-3 text-[#6B6B6B]">{formatDate(bill.created_at)}</td>
-                      <td className="px-4 py-3 text-[#912B48] font-bold">₹{bill.total_amount.toFixed(2)}</td>
-                      <td className="px-4 py-3 text-[#6B6B6B]">₹{(bill.tax_amount || 0).toFixed(2)}</td>
-                      <td className="px-4 py-3 text-[#6B6B6B]">{formatPaymentMethod(bill.payment_method)}</td>
-                      <td className="px-4 py-3">
+                  bills.map((bill, index) => (
+                    <tr 
+                      key={bill.id} 
+                      className={`border-b border-[#E5E7EB]/50 transition-all duration-300 ease-in-out hover:bg-gradient-to-r hover:from-[#FFF0F3]/30 hover:to-[#FFF0F3]/10 hover:shadow-sm ${
+                        index % 2 === 0 ? 'bg-white' : 'bg-[#FFF0F3]/5'
+                      }`}
+                    >
+                      <td className="px-6 py-4 font-semibold text-[#610027] text-sm">{bill.bill_number}</td>
+                      <td className="px-6 py-4 text-[#6B6B6B] text-sm">{formatDate(bill.created_at)}</td>
+                      <td className="px-6 py-4 text-[#912B48] font-bold text-base">₹{bill.total_amount.toFixed(2)}</td>
+                      <td className="px-6 py-4 text-[#6B6B6B] text-sm">₹{(bill.tax_amount || 0).toFixed(2)}</td>
+                      <td className="px-6 py-4">
+                        <span className="px-3 py-1.5 rounded-full text-xs font-semibold bg-[#FFF0F3] text-[#610027] border border-[#B45A69]/20">
+                          {formatPaymentMethod(bill.payment_method)}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
                         <button
                           onClick={async () => {
                             console.log("Fetching bill with ID:", bill.id);
@@ -135,10 +144,9 @@ export default function TransactionsPage() {
                               setSelectedBill(fullBillDetails);
                             } catch (error) {
                               console.error("Failed to fetch full bill details:", error);
-                              // Optionally, set an error state or show a user-friendly message
                             }
                           }}
-                          className="text-[#610027] hover:text-[#B45A69] flex items-center gap-1 transition-all duration-200 ease-in-out hover:scale-[1.05] active:scale-[0.95]"
+                          className="px-4 py-2 rounded-lg text-[#610027] hover:text-white hover:bg-[#912B48] flex items-center gap-2 transition-all duration-200 ease-in-out hover:scale-105 active:scale-95 shadow-sm hover:shadow-md font-medium text-sm"
                         >
                           <Eye className="w-4 h-4" />
                           <span>View</span>

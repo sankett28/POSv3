@@ -14,10 +14,10 @@ import {
   CreditCard,
   PackageOpen,
   AlertCircle,
-  Coffee,
   ShoppingCart,
   Receipt,
 } from 'lucide-react'
+import Logo from '@/components/ui/Logo'
 
 interface Product {
   id: string
@@ -189,22 +189,36 @@ export default function PosBillingPage() {
               align-items: center;
               gap: 10px;
             }
-            .logo-box {
-              width: 40px;
-              height: 40px;
-              background: #912B48; /* Lichy Primary Rose */
-              color: white;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              font-size: 18px;
-              font-weight: 500;
-              border-radius: 4px;
+            .logo-text {
+              font-size: 24px;
+              font-weight: 700;
+              color: #610027; /* Lichy Deep Burgundy */
+              margin: 0;
+              letter-spacing: -0.2px;
+              display: inline-block;
+            }
+            .logo-dot {
+              display: inline-block;
+              width: 6px;
+              height: 6px;
+              background: #FFBB94; /* Cream */
+              border-radius: 50%;
+              margin-left: 1px;
+              vertical-align: top;
+              margin-top: 2px;
+            }
+            .logo-accent {
+              display: inline-block;
+              width: 16px;
+              height: 16px;
+              color: #FB9590; /* Soft Pink */
+              margin-left: 4px;
+              vertical-align: middle;
             }
             .header-left-content h1 {
               font-size: 24px;
               font-weight: 600;
-              color: #610027; /* Lichy Deep Wine */
+              color: #610027; /* Lichy Deep Burgundy */
               margin: 0 0 2px 0;
               letter-spacing: -0.2px;
             }
@@ -413,9 +427,14 @@ export default function PosBillingPage() {
           <div class="invoice-container">
             <div class="header">
               <div class="header-left">
-                <div class="logo-box">L</div>
                 <div class="header-left-content">
-                  <h1>Lichy Cafe</h1>
+                  <h1>
+                    <span class="logo-text">Lich<span class="logo-dot"></span>i</span>
+                    <svg class="logo-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/>
+                      <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 11"/>
+                    </svg>
+                  </h1>
                   <p>Your Daily Dose of Delight</p>
                 </div>
               </div>
@@ -548,8 +567,7 @@ export default function PosBillingPage() {
       <div className="flex-1 flex flex-col bg-[#FFF0F3] p-4">
         <div className="bg-white rounded-2xl shadow-md p-6 mb-4">
           <div className="flex items-center gap-3 mb-4">
-            <Coffee className="w-6 h-6 text-[#610027]" />
-            <h1 className="text-2xl font-bold text-[#610027]">Lichy POS</h1>
+            <Logo size="lg" showAccent={true} />
         </div>
           <div className="relative mb-4">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9CA3AF] w-5 h-5" />

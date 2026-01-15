@@ -5,6 +5,7 @@ import { api } from '@/lib/api'
 import {
   Plus,
   Edit,
+  Trash2,
   X,
   AlertTriangle,
   CheckCircle,
@@ -186,72 +187,86 @@ export default function TaxSettingsPage() {
             <p className="text-[#6B6B6B]">Loading tax groups...</p>
           </div>
         ) : (
-          <div className="bg-white rounded-2xl shadow-md overflow-hidden">
+          <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-[#E5E7EB]">
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-[#B45A69]/20 border-b border-[#E5E7EB]">
+                <thead className="bg-gradient-to-r from-[#B45A69]/25 to-[#B45A69]/15 border-b-2 border-[#B45A69]/30">
                   <tr>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-[#610027] uppercase tracking-wider">
+                    <th className="px-6 py-4 text-left text-xs font-extrabold text-[#610027] uppercase tracking-wider">
                       Name
                     </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-[#610027] uppercase tracking-wider">
+                    <th className="px-6 py-4 text-left text-xs font-extrabold text-[#610027] uppercase tracking-wider">
                       Rate & Split
                     </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-[#610027] uppercase tracking-wider">
+                    <th className="px-6 py-4 text-left text-xs font-extrabold text-[#610027] uppercase tracking-wider">
                       Pricing Type
                     </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-[#610027] uppercase tracking-wider">
+                    <th className="px-6 py-4 text-left text-xs font-extrabold text-[#610027] uppercase tracking-wider">
                       Status
                     </th>
-                    <th className="px-6 py-4 text-right text-xs font-semibold text-[#610027] uppercase tracking-wider">
+                    <th className="px-6 py-4 text-right text-xs font-extrabold text-[#610027] uppercase tracking-wider">
                       Actions
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#E5E7EB]">
+                <tbody className="divide-y divide-[#E5E7EB]/50">
                   {taxGroups.length === 0 ? (
                     <tr>
-                      <td colSpan={5} className="px-6 py-12 text-center text-[#6B6B6B]">
-                        No tax groups found. Create one to get started.
+                      <td colSpan={5} className="px-6 py-12 text-center text-[#6B6B6B] bg-[#FFF0F3]/5">
+                        <p className="text-sm font-medium">No tax groups found. Create one to get started.</p>
                       </td>
                     </tr>
                   ) : (
-                    taxGroups.map((group) => (
-                      <tr key={group.id} className="hover:bg-[#FFF0F3]/20 transition-colors">
+                    taxGroups.map((group, index) => (
+                      <tr 
+                        key={group.id} 
+                        className={`transition-all duration-300 ease-in-out hover:bg-gradient-to-r hover:from-[#FFF0F3]/30 hover:to-[#FFF0F3]/10 hover:shadow-sm ${
+                          index % 2 === 0 ? 'bg-white' : 'bg-[#FFF0F3]/5'
+                        }`}
+                      >
                         <td className="px-6 py-4">
-                          <div className="font-semibold text-[#610027]">{group.name}</div>
+                          <div className="font-bold text-[#610027] text-sm">{group.name}</div>
                         </td>
                         <td className="px-6 py-4">
-                          <div className="text-sm text-[#6B6B6B]">
+                          <div className="text-sm text-[#6B6B6B] font-medium">
                             {formatGSTPreview(group)}
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                          <span className={`px-3 py-1.5 rounded-full text-xs font-bold shadow-sm ${
                             group.is_tax_inclusive
-                              ? 'bg-blue-100 text-blue-800'
-                              : 'bg-green-100 text-green-800'
+                              ? 'bg-gradient-to-r from-blue-100 to-blue-50 text-blue-800 border border-blue-200'
+                              : 'bg-gradient-to-r from-green-100 to-green-50 text-green-800 border border-green-200'
                           }`}>
                             {group.is_tax_inclusive ? 'Inclusive' : 'Exclusive'}
                           </span>
                         </td>
                         <td className="px-6 py-4">
-                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                          <span className={`px-3 py-1.5 rounded-full text-xs font-bold shadow-sm ${
                             group.is_active
-                              ? 'bg-green-100 text-green-800'
-                              : 'bg-gray-100 text-gray-800'
+                              ? 'bg-gradient-to-r from-green-100 to-green-50 text-green-700 border border-green-200'
+                              : 'bg-gradient-to-r from-gray-100 to-gray-50 text-gray-700 border border-gray-200'
                           }`}>
                             {group.is_active ? 'Active' : 'Inactive'}
                           </span>
                         </td>
                         <td className="px-6 py-4 text-right">
-                          <button
-                            onClick={() => handleEdit(group)}
-                            className="text-[#610027] hover:text-[#B45A69] transition-colors p-2"
-                            title="Edit tax group"
-                          >
-                            <Edit className="w-5 h-5" />
-                          </button>
+                          <div className="flex justify-end gap-2">
+                            <button
+                              onClick={() => handleEdit(group)}
+                              className="p-2 rounded-lg text-[#610027] hover:text-[#912B48] hover:bg-[#FFF0F3]/30 transition-all duration-200 ease-in-out hover:scale-110 active:scale-95 shadow-sm hover:shadow-md"
+                              title="Edit tax group"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => handleDelete(group.id)}
+                              className="p-2 rounded-lg text-[#912B48] hover:text-[#610027] hover:bg-red-50 transition-all duration-200 ease-in-out hover:scale-110 active:scale-95 shadow-sm hover:shadow-md"
+                              title="Delete tax group"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))

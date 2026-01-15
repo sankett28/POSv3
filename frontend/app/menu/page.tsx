@@ -442,33 +442,38 @@ export default function MenuPage() {
                 </div>
                 <div className="overflow-x-auto">
                   <table className="min-w-full leading-normal">
-                    <thead className="bg-[#B45A69]/20">
+                    <thead className="bg-gradient-to-r from-[#B45A69]/25 to-[#B45A69]/15 border-b-2 border-[#B45A69]/30">
                       <tr>
-                        <th className="px-6 py-3 text-left text-xs font-semibold text-[#610027] uppercase tracking-wider rounded-tl-xl">Item</th>
-                        <th className="px-6 py-3 text-left text-xs font-semibold text-[#610027] uppercase tracking-wider">Price</th>
-                        <th className="px-6 py-3 text-left text-xs font-semibold text-[#610027] uppercase tracking-wider">Tax Group</th>
-                        <th className="px-6 py-3 text-left text-xs font-semibold text-[#610027] uppercase tracking-wider">Status</th>
-                        <th className="px-6 py-3 text-left text-xs font-semibold text-[#610027] uppercase tracking-wider rounded-tr-xl">Actions</th>
+                        <th className="px-6 py-4 text-left text-xs font-extrabold text-[#610027] uppercase tracking-wider">Item</th>
+                        <th className="px-6 py-4 text-left text-xs font-extrabold text-[#610027] uppercase tracking-wider">Price</th>
+                        <th className="px-6 py-4 text-left text-xs font-extrabold text-[#610027] uppercase tracking-wider">Tax Group</th>
+                        <th className="px-6 py-4 text-left text-xs font-extrabold text-[#610027] uppercase tracking-wider">Status</th>
+                        <th className="px-6 py-4 text-left text-xs font-extrabold text-[#610027] uppercase tracking-wider">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {categoryProducts.map((product) => (
-                        <tr key={product.id} className="border-t border-[#E5E7EB] transition-all duration-200 ease-in-out hover:bg-[#FFF0F3]/10">
-                          <td className="px-6 py-4 font-medium text-[#1F1F1F]">{product.name}</td>
-                          <td className="px-6 py-4 text-[#1F1F1F]">₹{product.selling_price.toFixed(2)}</td>
-                          <td className="px-6 py-4 text-[#6B6B6B]">
+                      {categoryProducts.map((product, index) => (
+                        <tr 
+                          key={product.id} 
+                          className={`border-b border-[#E5E7EB]/50 transition-all duration-300 ease-in-out hover:bg-gradient-to-r hover:from-[#FFF0F3]/30 hover:to-[#FFF0F3]/10 hover:shadow-sm ${
+                            index % 2 === 0 ? 'bg-white' : 'bg-[#FFF0F3]/5'
+                          }`}
+                        >
+                          <td className="px-6 py-4 font-semibold text-[#610027] text-sm">{product.name}</td>
+                          <td className="px-6 py-4 text-[#610027] font-medium">₹{product.selling_price.toFixed(2)}</td>
+                          <td className="px-6 py-4 text-[#6B6B6B] text-sm">
                             {(() => {
                               const taxGroup = taxGroups.find(tg => tg.id === product.tax_group_id)
-                              if (!taxGroup) return 'No Tax Group'
+                              if (!taxGroup) return <span className="text-[#9CA3AF] italic">No Tax Group</span>
                               const inclusiveText = taxGroup.is_tax_inclusive ? ' (Inclusive)' : ' (Exclusive)'
                               return `${taxGroup.name}${inclusiveText}`
                             })()}
                           </td>
                           <td className="px-6 py-4">
-                            <span className={`px-3 py-1 text-xs rounded-full font-semibold ${
+                            <span className={`px-3 py-1.5 text-xs rounded-full font-bold shadow-sm ${
                               product.is_active 
-                                ? 'bg-green-100 text-green-700' 
-                                : 'bg-red-100 text-red-700'
+                                ? 'bg-gradient-to-r from-green-100 to-green-50 text-green-700 border border-green-200' 
+                                : 'bg-gradient-to-r from-red-100 to-red-50 text-red-700 border border-red-200'
                             }`}>
                               {product.is_active ? 'Active' : 'Inactive'}
                             </span>
@@ -477,14 +482,16 @@ export default function MenuPage() {
                             <div className="flex gap-3">
                               <button
                                 onClick={() => handleEditItem(product)}
-                                className="text-[#610027] hover:text-[#912B48] transition-all duration-200 ease-in-out hover:scale-[1.05] active:scale-[0.95]"
+                                className="p-2 rounded-lg text-[#610027] hover:text-[#912B48] hover:bg-[#FFF0F3]/30 transition-all duration-200 ease-in-out hover:scale-110 active:scale-95 shadow-sm hover:shadow-md"
+                                title="Edit item"
                               >
                                 <Edit className="w-4 h-4" />
                               </button>
                               {product.is_active && (
                                 <button
                                   onClick={() => handleDeactivateItem(product.id)}
-                                  className="text-[#912B48] hover:text-[#610027] transition-all duration-200 ease-in-out hover:scale-[1.05] active:scale-[0.95]"
+                                  className="p-2 rounded-lg text-[#912B48] hover:text-[#610027] hover:bg-red-50 transition-all duration-200 ease-in-out hover:scale-110 active:scale-95 shadow-sm hover:shadow-md"
+                                  title="Delete item"
                                 >
                                   <Trash2 className="w-4 h-4" />
                                 </button>
@@ -502,39 +509,44 @@ export default function MenuPage() {
 
           {/* Uncategorized Items */}
           {(!selectedCategory || selectedCategory === null) && uncategorizedProducts.length > 0 && (
-            <div className="bg-white rounded-2xl shadow-md border border-[#E5E7EB]">
-              <div className="p-6 border-b border-[#E5E7EB]">
+            <div className="bg-white rounded-2xl shadow-lg border border-[#E5E7EB] overflow-hidden">
+              <div className="p-6 border-b border-[#E5E7EB] bg-gradient-to-r from-white to-[#FFF0F3]/10">
                 <h3 className="text-xl font-bold text-[#610027]">Uncategorized</h3>
               </div>
               <div className="overflow-x-auto">
                 <table className="min-w-full leading-normal">
-                  <thead className="bg-[#B45A69]/20">
+                  <thead className="bg-gradient-to-r from-[#B45A69]/25 to-[#B45A69]/15 border-b-2 border-[#B45A69]/30">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-[#610027] uppercase tracking-wider rounded-tl-xl">Item</th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-[#610027] uppercase tracking-wider">Price</th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-[#610027] uppercase tracking-wider">Tax Group</th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-[#610027] uppercase tracking-wider">Status</th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-[#610027] uppercase tracking-wider rounded-tr-xl">Actions</th>
+                      <th className="px-6 py-4 text-left text-xs font-extrabold text-[#610027] uppercase tracking-wider">Item</th>
+                      <th className="px-6 py-4 text-left text-xs font-extrabold text-[#610027] uppercase tracking-wider">Price</th>
+                      <th className="px-6 py-4 text-left text-xs font-extrabold text-[#610027] uppercase tracking-wider">Tax Group</th>
+                      <th className="px-6 py-4 text-left text-xs font-extrabold text-[#610027] uppercase tracking-wider">Status</th>
+                      <th className="px-6 py-4 text-left text-xs font-extrabold text-[#610027] uppercase tracking-wider">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {uncategorizedProducts.map((product) => (
-                      <tr key={product.id} className="border-t border-[#E5E7EB] transition-all duration-200 ease-in-out hover:bg-[#FFF0F3]/10">
-                        <td className="px-6 py-4 font-medium text-[#1F1F1F]">{product.name}</td>
-                        <td className="px-6 py-4 text-[#1F1F1F]">₹{product.selling_price.toFixed(2)}</td>
-                        <td className="px-6 py-4 text-[#6B6B6B]">
+                    {uncategorizedProducts.map((product, index) => (
+                      <tr 
+                        key={product.id} 
+                        className={`border-b border-[#E5E7EB]/50 transition-all duration-300 ease-in-out hover:bg-gradient-to-r hover:from-[#FFF0F3]/30 hover:to-[#FFF0F3]/10 hover:shadow-sm ${
+                          index % 2 === 0 ? 'bg-white' : 'bg-[#FFF0F3]/5'
+                        }`}
+                      >
+                        <td className="px-6 py-4 font-semibold text-[#610027] text-sm">{product.name}</td>
+                        <td className="px-6 py-4 text-[#610027] font-medium">₹{product.selling_price.toFixed(2)}</td>
+                        <td className="px-6 py-4 text-[#6B6B6B] text-sm">
                           {(() => {
                             const taxGroup = taxGroups.find(tg => tg.id === product.tax_group_id)
-                            if (!taxGroup) return 'No Tax Group'
+                            if (!taxGroup) return <span className="text-[#9CA3AF] italic">No Tax Group</span>
                             const inclusiveText = taxGroup.is_tax_inclusive ? ' (Inclusive)' : ' (Exclusive)'
                             return `${taxGroup.name}${inclusiveText}`
                           })()}
                         </td>
                         <td className="px-6 py-4">
-                          <span className={`px-3 py-1 text-xs rounded-full font-semibold ${
+                          <span className={`px-3 py-1.5 rounded-full text-xs font-bold shadow-sm ${
                             product.is_active 
-                              ? 'bg-green-100 text-green-700' 
-                              : 'bg-red-100 text-red-700'
+                              ? 'bg-gradient-to-r from-green-100 to-green-50 text-green-700 border border-green-200' 
+                              : 'bg-gradient-to-r from-red-100 to-red-50 text-red-700 border border-red-200'
                           }`}>
                             {product.is_active ? 'Active' : 'Inactive'}
                           </span>
@@ -543,14 +555,16 @@ export default function MenuPage() {
                           <div className="flex gap-3">
                             <button
                               onClick={() => handleEditItem(product)}
-                              className="text-[#610027] hover:text-[#912B48] transition-all duration-200 ease-in-out hover:scale-[1.05] active:scale-[0.95]"
+                              className="p-2 rounded-lg text-[#610027] hover:text-[#912B48] hover:bg-[#FFF0F3]/30 transition-all duration-200 ease-in-out hover:scale-110 active:scale-95 shadow-sm hover:shadow-md"
+                              title="Edit item"
                             >
                               <Edit className="w-4 h-4" />
                             </button>
                             {product.is_active && (
                               <button
                                 onClick={() => handleDeactivateItem(product.id)}
-                                className="text-[#F4A261] hover:text-[#E08F50] transition-all duration-200 ease-in-out hover:scale-[1.05] active:scale-[0.95]"
+                                className="p-2 rounded-lg text-[#912B48] hover:text-[#610027] hover:bg-red-50 transition-all duration-200 ease-in-out hover:scale-110 active:scale-95 shadow-sm hover:shadow-md"
+                                title="Delete item"
                               >
                                 <Trash2 className="w-4 h-4" />
                               </button>

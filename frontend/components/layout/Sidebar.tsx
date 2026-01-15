@@ -4,7 +4,8 @@ import { memo } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 // Performance: Only import icons that are actually used
-import { Coffee, UtensilsCrossed, FileText, BarChart3, Settings } from 'lucide-react'
+import { UtensilsCrossed, FileText, BarChart3, Settings } from 'lucide-react'
+import Logo from '@/components/ui/Logo'
 
 // Performance: Memoize navItems to prevent recreation on every render
 const navItems = [
@@ -22,11 +23,8 @@ function Sidebar() {
     <div className="hidden md:block w-72 bg-gradient-to-b from-white to-[#FFF0F3] border-r border-gray-200 h-screen sticky top-0 shadow-lg rounded-r-2xl">
       <div className="p-8 border-b border-gray-200 bg-gradient-to-r from-white to-[#FFF0F3] rounded-tr-2xl">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 bg-gradient-to-br from-[#912B48] to-[#B45A69] rounded-xl flex items-center justify-center shadow-lg">
-            <Coffee className="w-7 h-7 text-white" />
-          </div>
+          <Logo size="lg" showAccent={true} />
           <div className="flex flex-col">
-            <span className="font-bold text-xl text-[#610027] leading-tight">Lichy POS</span>
             <span className="text-sm text-[#912B48] font-medium">Cafe Management</span>
           </div>
         </div>

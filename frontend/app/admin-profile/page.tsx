@@ -25,7 +25,7 @@ export default function AdminProfilePage() {
     name: 'Admin User',
     email: 'admin@retailboss.com',
     phone: '+91 98765 43210',
-    storeName: 'Lichy Cafe',
+    storeName: 'Lichi Cafe',
     address: '123 Main Street, City, State - 123456',
     role: 'Administrator',
     joinDate: 'January 2024',
