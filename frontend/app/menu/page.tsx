@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { api } from '@/lib/api'
-import { Plus, Edit, Trash2, Search, X, Settings, CheckCircle, AlertCircle } from 'lucide-react'
+import { Plus, Edit, Trash2, Search, X, Settings, CheckCircle, AlertCircle, Upload, FileText } from 'lucide-react'
 
 export interface Category {
   id: string
@@ -43,7 +43,12 @@ export default function MenuPage() {
   const [showItemModal, setShowItemModal] = useState(false)
   const [showCategoryModal, setShowCategoryModal] = useState(false)
   const [showBulkTaxModal, setShowBulkTaxModal] = useState(false)
+  const [showImportModal, setShowImportModal] = useState(false)
   const [showAdvanced, setShowAdvanced] = useState(false)
+  const [importFile, setImportFile] = useState<File | null>(null)
+  const [importErrors, setImportErrors] = useState<string[]>([])
+  const [isImporting, setIsImporting] = useState(false)
+  const [dragActive, setDragActive] = useState(false)
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
   const [editingCategory, setEditingCategory] = useState<Category | null>(null)
   const [selectedCategoryForBulk, setSelectedCategoryForBulk] = useState<Category | null>(null)
@@ -70,7 +75,7 @@ export default function MenuPage() {
 
   // Prevent body scroll when any modal is open
   useEffect(() => {
-    if (showItemModal || showCategoryModal || showBulkTaxModal) {
+    if (showItemModal || showCategoryModal || showBulkTaxModal || showImportModal) {
       document.body.style.overflow = 'hidden'
     } else {
       document.body.style.overflow = 'unset'
@@ -78,7 +83,7 @@ export default function MenuPage() {
     return () => {
       document.body.style.overflow = 'unset'
     }
-  }, [showItemModal, showCategoryModal, showBulkTaxModal])
+  }, [showItemModal, showCategoryModal, showBulkTaxModal, showImportModal])
 
   // Auto-dismiss toast after 3 seconds
   useEffect(() => {
@@ -307,6 +312,77 @@ export default function MenuPage() {
     setShowTaxConfirmation(false)
   }
 
+  const handleImportFile = async () => {
+    if (!importFile) return
+    
+    setIsImporting(true)
+    setImportErrors([])
+    
+    try {
+      const result = await api.importMenu(importFile)
+      
+      if (result.status === "success") {
+        showToast(
+          `Successfully imported ${result.inserted_items} items and created ${result.inserted_categories} categories`,
+          'success'
+        )
+        setShowImportModal(false)
+        setImportFile(null)
+        setImportErrors([])
+        loadData()
+      } else {
+        setImportErrors(result.errors || ["Import failed"])
+      }
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.detail || error?.message || 'Unknown error occurred'
+      const errorData = error?.response?.data
+      
+      if (errorData?.errors && Array.isArray(errorData.errors)) {
+        setImportErrors(errorData.errors)
+      } else {
+        setImportErrors([`Upload failed: ${errorMessage}`])
+      }
+    } finally {
+      setIsImporting(false)
+    }
+  }
+
+  const handleDrag = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true)
+    } else if (e.type === "dragleave") {
+      setDragActive(false)
+    }
+  }
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setDragActive(false)
+    
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      const file = e.dataTransfer.files[0]
+      if (file.name.endsWith('.csv') || file.name.endsWith('.xlsx')) {
+        setImportFile(file)
+      } else {
+        showToast('Only CSV or XLSX files are allowed', 'error')
+      }
+    }
+  }
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0]
+      if (file.name.endsWith('.csv') || file.name.endsWith('.xlsx')) {
+        setImportFile(file)
+      } else {
+        showToast('Only CSV or XLSX files are allowed', 'error')
+      }
+    }
+  }
+
   const filteredProducts = products.filter((p) => {
     const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesCategory = !selectedCategory || p.category_id === selectedCategory
@@ -346,6 +422,17 @@ export default function MenuPage() {
             >
               <Plus className="w-5 h-5" />
               Add Category
+            </button>
+            <button
+              onClick={() => {
+                setShowImportModal(true)
+                setImportFile(null)
+                setImportErrors([])
+              }}
+              className="bg-[#6B6B6B] text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2 text-base"
+            >
+              <Upload className="w-5 h-5" />
+              Import Menu
             </button>
             <button
               onClick={() => {
@@ -908,6 +995,142 @@ export default function MenuPage() {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        )}
+
+        {/* Import Menu Modal */}
+        {showImportModal && (
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+            onClick={() => {
+              setShowImportModal(false)
+              setImportFile(null)
+              setImportErrors([])
+            }}
+          >
+            <div 
+              className="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-fade-in animate-scale-in"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex justify-between items-center mb-6 pb-4 border-b border-[#E5E7EB]">
+                <h2 className="text-2xl font-bold text-[#3E2C24]">
+                  Import Menu Items
+                </h2>
+                <button
+                  onClick={() => {
+                    setShowImportModal(false)
+                    setImportFile(null)
+                    setImportErrors([])
+                  }}
+                  className="text-[#6B6B6B] hover:text-[#3E2C24] transition-all duration-200 ease-in-out active:scale-[0.9] p-2 rounded-full hover:bg-[#FAF7F2]"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              
+              <div className="space-y-5">
+                {/* Info Note */}
+                <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-xl">
+                  <p className="text-sm text-yellow-800">
+                    <strong>Note:</strong> Invalid rows will stop the entire import. Fix errors and re-upload.
+                  </p>
+                </div>
+                
+                {/* Template Download */}
+                <div className="flex items-center gap-2 text-sm text-[#6B6B6B]">
+                  <FileText className="w-4 h-4" />
+                  <span>Download template:</span>
+                  <a
+                    href="/menu-import-template.csv"
+                    download
+                    className="text-[#C89B63] hover:text-[#3E2C24] underline"
+                  >
+                    CSV Template
+                  </a>
+                </div>
+                
+                {/* Drag & Drop Area */}
+                <div
+                  className={`border-2 border-dashed rounded-xl p-8 text-center transition-all duration-200 ${
+                    dragActive
+                      ? 'border-[#C89B63] bg-[#C89B63]/10'
+                      : 'border-[#E5E7EB] bg-[#FAF7F2] hover:bg-white'
+                  }`}
+                  onDragEnter={handleDrag}
+                  onDragLeave={handleDrag}
+                  onDragOver={handleDrag}
+                  onDrop={handleDrop}
+                >
+                  {importFile ? (
+                    <div className="space-y-3">
+                      <FileText className="w-12 h-12 mx-auto text-[#C89B63]" />
+                      <p className="font-medium text-[#3E2C24]">{importFile.name}</p>
+                      <button
+                        onClick={() => setImportFile(null)}
+                        className="text-sm text-[#6B6B6B] hover:text-[#3E2C24]"
+                      >
+                        Remove file
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      <Upload className="w-12 h-12 mx-auto text-[#6B6B6B]" />
+                      <p className="text-[#6B6B6B]">
+                        Drag & drop your CSV or XLSX file here
+                      </p>
+                      <p className="text-sm text-[#9CA3AF]">or</p>
+                      <label className="inline-block">
+                        <span className="px-6 py-3 bg-[#3E2C24] text-white rounded-xl font-medium cursor-pointer hover:bg-[#2c1f19] transition-all duration-200 ease-in-out hover:scale-[1.02] active:scale-[0.98]">
+                          Browse Files
+                        </span>
+                        <input
+                          type="file"
+                          accept=".csv,.xlsx"
+                          onChange={handleFileSelect}
+                          className="hidden"
+                        />
+                      </label>
+                    </div>
+                  )}
+                </div>
+                
+                {/* Error Display */}
+                {importErrors.length > 0 && (
+                  <div className="p-4 bg-red-50 border border-red-200 rounded-xl">
+                    <h3 className="font-semibold text-red-800 mb-2">Import Errors:</h3>
+                    <ul className="list-disc list-inside space-y-1 text-sm text-red-700 max-h-60 overflow-y-auto">
+                      {importErrors.map((error, idx) => (
+                        <li key={idx}>{error}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                
+                {/* Action Buttons */}
+                <div className="flex gap-3 justify-end pt-4">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowImportModal(false)
+                      setImportFile(null)
+                      setImportErrors([])
+                    }}
+                    className="px-6 py-3 rounded-xl font-medium border border-[#3E2C24] text-[#3E2C24] hover:bg-[#3E2C24] hover:text-white transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
+                    disabled={isImporting}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleImportFile}
+                    disabled={!importFile || isImporting}
+                    className="px-6 py-3 bg-[#3E2C24] text-white rounded-xl font-medium hover:bg-[#2c1f19] transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isImporting ? 'Importing...' : 'Import'}
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         )}

@@ -3,8 +3,9 @@
 import { memo } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { logout } from '@/lib/auth'
 // Performance: Only import icons that are actually used
-import { BarChart3, FileText, Leaf, ReceiptText, Settings, User, UtensilsCrossed } from 'lucide-react'
+import { BarChart3, FileText, Leaf, LogOut, ReceiptText, Settings, User, UtensilsCrossed } from 'lucide-react'
 
 // Performance: Memoize navItems to prevent recreation on every render
 const navItems = [
@@ -26,7 +27,7 @@ function Sidebar() {
   }
 
   return (
-    <aside className="fixed left-0 top-0 z-40 h-screen w-16 md:w-64 bg-white border-r border-[#E5E7EB]">
+    <aside className="fixed left-0 top-0 z-40 h-screen w-16 md:w-64 bg-white border-r border-[#E5E7EB] flex flex-col">
       <div className="h-[72px] flex items-center justify-center md:justify-start px-4 border-b border-[#E5E7EB]">
         <div className="w-10 h-10 rounded-2xl bg-[#DC586D]/10 flex items-center justify-center">
           <Leaf className="w-5 h-5 text-[#DC586D]" />
@@ -37,7 +38,7 @@ function Sidebar() {
         </div>
       </div>
 
-      <nav className="px-3 py-4">
+      <nav className="px-3 py-4 flex-1">
         {navItems.map((item) => {
           const Icon = item.icon
           const isActive = isRouteActive(item.href)
@@ -62,6 +63,20 @@ function Sidebar() {
           )
         })}
       </nav>
+
+      <div className="px-3 pb-4">
+        <button
+          type="button"
+          onClick={logout}
+          title="Logout"
+          className="group w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors text-[#4C1D3D] hover:bg-[#DC586D]/10"
+        >
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-colors bg-[#F9F9F9] group-hover:bg-white">
+            <LogOut className="w-5 h-5 text-[#4C1D3D]" />
+          </div>
+          <span className="hidden md:inline text-sm font-medium">Logout</span>
+        </button>
+      </div>
     </aside>
   )
 }

@@ -4,7 +4,7 @@
 
 This document describes the architecture of the Cafe POS backend system. The backend follows a **clean architecture pattern** with clear separation of concerns across multiple layers.
 
-**Core Philosophy**: Orders are the single source of truth. Tax is captured at sale time. Reports derive exclusively from orders. Inventory does not exist in the system.
+**Core Philosophy**: Orders are the single source of truth. Tax is captured at sale time using TaxEngine. Products reference tax groups for flexible tax management. Reports derive exclusively from orders. Inventory does not exist in the system.
 
 ## System Flow (Core Path)
 
@@ -28,10 +28,13 @@ HTTP Request → Routes → Services → Repositories → Supabase Database
 2. **Business Logic in Services**: All business rules and validation logic lives in services
 3. **Data Access in Repositories**: Repositories handle all database operations
 4. **Immutable Orders**: Bills and bill items are immutable (audit-safe financial records)
-5. **Tax Snapshot**: Tax values are calculated and frozen at sale time
-6. **Billing Always Succeeds**: No blocking validations beyond product existence
-7. **Reports from Orders**: All reports derive exclusively from bills and bill_items
-8. **Product Snapshots**: Product information is snapshotted at sale time for historical accuracy
+5. **TaxEngine Centralization**: TaxEngine is the ONLY place for tax math
+6. **Tax Groups Architecture**: Products reference tax groups (not direct rates) for flexible tax management
+7. **Tax Snapshot**: Tax values are calculated and frozen at sale time
+8. **Billing Always Succeeds**: No blocking validations beyond product existence and tax group assignment
+9. **Reports from Orders**: All reports derive exclusively from bills and bill_items using snapshot fields
+10. **Product & Tax Group Snapshots**: Product and tax group information is snapshotted at sale time for historical accuracy
+11. **Service Charge Support**: Optional service charge with GST compliance
 
 ## Why Inventory Was Removed
 
@@ -75,8 +78,10 @@ HTTP Request → Routes → Services → Repositories → Supabase Database
 - `auth.py` - Authentication endpoints
 - `products.py` - Product (menu item) CRUD endpoints
 - `categories.py` - Category management endpoints
-- `billing.py` - Bill creation endpoints
-- `reports.py` - Sales and tax report endpoints
+- `tax_groups.py` - Tax group management endpoints
+- `billing.py` - Bill creation endpoints with service charge
+- `reports.py` - Sales and tax report endpoints (uses snapshot fields)
+- `health.py` - Health check endpoint
 
 **Example**:
 ```python
@@ -104,10 +109,10 @@ async def create_bill(
 - Generate reports from orders
 
 **Files**:
-- `product_service.py` - Product (menu item) business logic
+- `product_service.py` - Product (menu item) business logic, tax group validation
 - `category_service.py` - Category management logic
-- `billing_service.py` - Atomic bill creation with tax calculation and snapshots
-- `report_service.py` - Sales and tax reports derived from orders
+- `tax_group_service.py` - Tax group management logic
+- `billing_service.py` - Atomic bill creation with TaxEngine tax calculation, snapshots, and service charge
 
 **Example**:
 ```python
@@ -132,8 +137,8 @@ async def create_bill(self, bill_data: BillCreate, user_id: UUID) -> BillRespons
 **Files**:
 - `product_repo.py` - Product (menu item) CRUD operations
 - `category_repo.py` - Category CRUD operations
-- `bill_repo.py` - Bill and bill item operations
-- `report_repo.py` - Report queries (orders-only)
+- `tax_group_repo.py` - Tax group CRUD operations
+- `bill_repo.py` - Bill and bill item operations with snapshot fields
 
 **Example**:
 ```python
@@ -160,10 +165,10 @@ async def create_bill(self, bill: BillCreate, user_id: UUID) -> dict:
 - Document API contracts
 
 **Files**:
-- `product.py` - ProductCreate, ProductUpdate, ProductResponse
+- `product.py` - ProductCreate, ProductUpdate, ProductResponse (with tax_group_id)
 - `category.py` - CategoryCreate, CategoryUpdate, CategoryResponse
-- `bill.py` - BillCreate, BillItemCreate, BillResponse (with tax fields)
-- `report.py` - SalesReport, TaxReport, ReportResponse
+- `tax_group.py` - TaxGroupCreate, TaxGroupUpdate, TaxGroupResponse
+- `bill.py` - BillCreate, BillItemCreate, BillResponse (with tax snapshots and service charge)
 
 **Example**:
 ```python
@@ -205,8 +210,13 @@ class BillItemCreate(BaseModel):
 - Formatting utilities
 
 **Files**:
-- `calculations.py` - Tax calculations, bill totals, currency formatting
-- `report_utils.py` - Report aggregation and grouping
+- `tax_engine.py` - **TaxEngine** - Centralized tax calculation engine (the ONLY place for tax math)
+  - Handles inclusive and exclusive pricing
+  - CGST/SGST split for GST compliance
+  - Service charge tax calculations
+  - Pure functions with no side effects
+  - Uses Decimal precision for accuracy
+- `calculations.py` - Helper functions, currency formatting (deprecated in favor of TaxEngine)
 
 ## Data Flow Examples
 
@@ -220,35 +230,38 @@ class BillItemCreate(BaseModel):
    - Extracts user_id from JWT
    ↓
 3. Service: billing_service.py → create_bill()
-   - Validates all products exist and are active
-   - Snapshots product information (name, category, price, tax_rate)
-   - Calculates tax for each item (snapshot)
-   - Creates bill (via repository)
-   - Creates bill items with frozen tax values and snapshots
+   - Validates all products exist, are active, and have tax_group_id
+   - Fetches tax groups for each product
+   - Calculates tax using TaxEngine (the ONLY place for tax math)
+   - Snapshots product information (name, category, price)
+   - Snapshots tax group information (name, rate, inclusive/exclusive flag)
+   - Calculates service charge (if enabled) using TaxEngine
+   - Creates bill (via repository) with service charge snapshots
+   - Creates bill items with all frozen tax values and snapshots
    ↓
-4. Returns BillResponse with tax breakdown
+4. Returns BillResponse with tax breakdown (CGST/SGST split)
 ```
 
-**Key Point**: No inventory checks. Billing always proceeds. All product data is snapshotted.
+**Key Point**: No inventory checks. Billing always proceeds. TaxEngine is the ONLY place for tax math. All product and tax group data is snapshotted.
 
-### Example 2: Generating Sales Report
+### Example 2: Generating Tax Summary Report
 
 ```
-1. HTTP GET /api/v1/reports/sales?start_date=...&end_date=...
+1. HTTP GET /api/v1/reports/tax-summary?start_date=...&end_date=...
    ↓
-2. Route: reports.py → get_sales_report()
+2. Route: reports.py → get_tax_summary()
+   - Validates date format
    ↓
-3. Service: report_service.py → get_sales_report()
+3. Repository: Direct query to bill_items table
+   - Queries bill_items ONLY (no joins needed)
+   - Uses snapshot fields (tax_rate_snapshot, tax_group_name_snapshot)
+   - Sums frozen tax values (taxable_value, cgst_amount, sgst_amount, tax_amount)
+   - Groups by tax_rate_snapshot
    ↓
-4. Repository: report_repo.py → get_sales_report()
-   - Queries bills and bill_items ONLY
-   - Uses snapshot fields from bill_items
-   - Aggregates by date/product/category/tax
-   ↓
-5. Returns SalesReportResponse
+4. Returns TaxSummaryResponse with CGST/SGST breakdown
 ```
 
-**Key Point**: Reports derive exclusively from orders. Uses snapshots for historical accuracy.
+**Key Point**: Reports derive exclusively from orders. Uses snapshot fields for historical accuracy. No recalculation - all values are summed from frozen snapshots.
 
 ### Example 3: Getting Product (Menu Item)
 
@@ -280,16 +293,28 @@ class BillItemCreate(BaseModel):
 - Product reference
 - Quantity sold
 - Price at sale time (snapshot)
+- Tax group name (snapshot)
 - Tax rate (snapshot)
+- Tax inclusive/exclusive flag (snapshot)
+- Taxable value (frozen)
 - Tax amount (calculated and frozen)
+- CGST amount (calculated and frozen)
+- SGST amount (calculated and frozen)
 - Product name (snapshot)
 - Category name (snapshot)
 - Line subtotal and line total
 
+**Tax Groups** are tax configuration:
+- Owner-managed
+- Define tax rates, split types, inclusive/exclusive pricing
+- Products reference tax groups (not direct rates)
+- Can be activated/deactivated
+- Updates don't affect past bills
+
 **Products** are menu items:
 - Owner-managed
 - Can be activated/deactivated
-- Tax rate stored for calculation
+- Reference tax groups via tax_group_id (required)
 - Category assignment optional
 
 **Categories** are menu groupings:
@@ -302,15 +327,18 @@ class BillItemCreate(BaseModel):
 Orders are **never edited or deleted**. Once created:
 - Bill record is immutable
 - Bill items are immutable
-- Tax values are permanent snapshots
+- Tax values are permanent snapshots (taxable_value, cgst_amount, sgst_amount, tax_amount)
 - Product information is permanent snapshots
+- Tax group information is permanent snapshots
+- Service charge details are permanent snapshots
 
 This ensures:
 - Audit compliance
 - Financial integrity
-- Tax reporting accuracy
-- Historical accuracy
+- Tax reporting accuracy (GST compliance)
+- Historical accuracy even if products or tax groups change
 - No data tampering
+- Complete audit trail
 
 ## System Architecture Diagram
 
@@ -318,19 +346,26 @@ This ensures:
 ┌─────────────────────────────────────────────────────────┐
 │                    CORE FLOW                             │
 │                                                          │
-│  UI → Orders → Tax Calculation → Storage → Reports     │
+│  UI → Orders → TaxEngine → Tax Snapshots → Reports     │
 │                                                          │
 │  Billing (Always Proceeds)                              │
-│  - Product validation only                              │
-│  - Tax calculation & snapshot                           │
-│  - Product information snapshot                         │
+│  - Product & tax group validation                       │
+│  - Tax calculation via TaxEngine (ONLY place for math) │
+│  - Product & tax group snapshots                        │
+│  - Service charge with GST                              │
 └─────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────┐
 │              SUPPORTING ENTITIES                        │
 │                                                          │
+│  Tax Groups (Tax Configuration)                         │
+│  - Owner-managed                                         │
+│  - Define rates, split types, inclusive/exclusive      │
+│  - Products reference tax groups                        │
+│                                                          │
 │  Products (Menu Items)                                   │
 │  - Owner-managed                                         │
+│  - Reference tax groups (not direct rates)              │
 │  - Active/inactive control                               │
 │                                                          │
 │  Categories (Menu Groups)                                │
@@ -412,6 +447,7 @@ Tests are located in `app/tests/`:
 Routes → Services → Repositories → Supabase
 Routes → Schemas (for validation)
 Services → Repositories
+Services → TaxEngine (for tax calculations)
 Services → Utils
 ```
 
@@ -484,11 +520,15 @@ All APIs are versioned under `/api/v1/`:
 This architecture provides:
 
 ✅ **Order-Centric Design**: Orders are the single source of truth  
-✅ **Tax Accuracy**: Tax values frozen at sale time  
-✅ **Report Reliability**: Reports derive exclusively from orders  
+✅ **Tax Accuracy**: Tax values frozen at sale time via TaxEngine  
+✅ **Tax Groups Architecture**: Flexible tax management via tax groups  
+✅ **TaxEngine Centralization**: TaxEngine is the ONLY place for tax math  
+✅ **GST Compliance**: CGST/SGST split for Indian tax regulations  
+✅ **Service Charge Support**: Optional service charge with GST compliance  
+✅ **Report Reliability**: Reports derive exclusively from orders using snapshots  
 ✅ **Billing Guarantee**: Sales always proceed  
 ✅ **Audit Safety**: Immutable orders ensure financial integrity  
-✅ **Historical Accuracy**: Product snapshots ensure accurate reports  
+✅ **Historical Accuracy**: Product and tax group snapshots ensure accurate reports  
 ✅ **Simplicity**: No inventory complexity  
 ✅ **Clean Separation**: Each layer has a single responsibility  
 ✅ **Testability**: Easy to mock and test each layer  
@@ -498,4 +538,4 @@ This architecture provides:
 ---
 
 **Last Updated**: January 2025  
-**Version**: 3.0 (Cafe POS - Inventory Removed)
+**Version**: 3.0 (Cafe POS - Tax Groups Architecture, TaxEngine, Service Charge)
