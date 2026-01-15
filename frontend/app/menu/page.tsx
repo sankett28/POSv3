@@ -400,7 +400,7 @@ export default function MenuPage() {
     return (
       <div className="p-4 sm:p-8">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center text-gray-500 py-8">Loading...</div>
+          <div className="text-center text-grey-500 py-8">Loading...</div>
         </div>
       </div>
     )
@@ -429,7 +429,7 @@ export default function MenuPage() {
                 setImportFile(null)
                 setImportErrors([])
               }}
-              className="bg-[#6B6B6B] text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2 text-base"
+              className="bg-[#610027] text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2 text-base hover:bg-[#912B48]"
             >
               <Upload className="w-5 h-5" />
               Import Menu
@@ -1031,8 +1031,8 @@ export default function MenuPage() {
               
               <div className="space-y-5">
                 {/* Info Note */}
-                <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-xl">
-                  <p className="text-sm text-yellow-800">
+                <div className="p-4 bg-rose-50 border border-rose-200 rounded-xl">
+                  <p className="text-sm text-rose-800">
                     <strong>Note:</strong> Invalid rows will stop the entire import. Fix errors and re-upload.
                   </p>
                 </div>
@@ -1044,7 +1044,7 @@ export default function MenuPage() {
                   <a
                     href="/menu-import-template.csv"
                     download
-                    className="text-[#C89B63] hover:text-[#3E2C24] underline"
+                    className="text-rose-900 hover:text-rose-200 underline"
                   >
                     CSV Template
                   </a>
@@ -1055,7 +1055,7 @@ export default function MenuPage() {
                   className={`border-2 border-dashed rounded-xl p-8 text-center transition-all duration-200 ${
                     dragActive
                       ? 'border-[#C89B63] bg-[#C89B63]/10'
-                      : 'border-[#E5E7EB] bg-[#FAF7F2] hover:bg-white'
+                      : 'border-[#E5E7EB] bg-rose-50 hover:bg-white'
                   }`}
                   onDragEnter={handleDrag}
                   onDragLeave={handleDrag}
@@ -1064,7 +1064,7 @@ export default function MenuPage() {
                 >
                   {importFile ? (
                     <div className="space-y-3">
-                      <FileText className="w-12 h-12 mx-auto text-[#C89B63]" />
+                      <FileText className="w-12 h-12 mx-auto text-rose-700" />
                       <p className="font-medium text-[#3E2C24]">{importFile.name}</p>
                       <button
                         onClick={() => setImportFile(null)}
@@ -1076,12 +1076,12 @@ export default function MenuPage() {
                   ) : (
                     <div className="space-y-3">
                       <Upload className="w-12 h-12 mx-auto text-[#6B6B6B]" />
-                      <p className="text-[#6B6B6B]">
+                      <p className="text-rose-950">
                         Drag & drop your CSV or XLSX file here
                       </p>
-                      <p className="text-sm text-[#9CA3AF]">or</p>
+                      <p className="text-sm text-rose-950">or</p>
                       <label className="inline-block">
-                        <span className="px-6 py-3 bg-[#3E2C24] text-white rounded-xl font-medium cursor-pointer hover:bg-[#2c1f19] transition-all duration-200 ease-in-out hover:scale-[1.02] active:scale-[0.98]">
+                        <span className="px-6 py-3 bg-rose-950 text-white rounded-xl font-medium cursor-pointer hover:bg-rose-900 transition-all duration-200 ease-in-out hover:scale-[1.02] active:scale-[0.98]">
                           Browse Files
                         </span>
                         <input
@@ -1116,7 +1116,7 @@ export default function MenuPage() {
                       setImportFile(null)
                       setImportErrors([])
                     }}
-                    className="px-6 py-3 rounded-xl font-medium border border-[#3E2C24] text-[#3E2C24] hover:bg-[#3E2C24] hover:text-white transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
+                    className="px-6 py-3 rounded-xl font-medium border border-rose-300 text-rose-300 hover:bg-rose-50  transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
                     disabled={isImporting}
                   >
                     Cancel
@@ -1125,7 +1125,7 @@ export default function MenuPage() {
                     type="button"
                     onClick={handleImportFile}
                     disabled={!importFile || isImporting}
-                    className="px-6 py-3 bg-[#3E2C24] text-white rounded-xl font-medium hover:bg-[#2c1f19] transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-6 py-3 bg-rose-700 text-white rounded-xl font-medium hover:bg-rose-800 transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isImporting ? 'Importing...' : 'Import'}
                   </button>
