@@ -143,18 +143,17 @@ export default function ProductsPage() {
   });
 
   return (
-    <div className="min-h-screen bg-[#F5F3EE] p-4 pb-16 sm:p-8">
-      <div className="max-w-7xl mx-auto w-full">
+    <div className="max-w-7xl mx-auto w-full">
         {/* Header Section */}
-        <div className="bg-[#FAF7F2] rounded-2xl shadow-md p-6 mb-8 border border-[#E5E7EB]">
+        <div className="bg-white rounded-2xl shadow-md p-6 mb-8 border border-[#E5E7EB]">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 bg-[#3E2C24] rounded-xl flex items-center justify-center shadow-md">
+              <div className="w-14 h-14 bg-[#DC586D] rounded-xl flex items-center justify-center shadow-md">
                 <Package className="w-7 h-7 text-white" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-[#3E2C24]">Menu Items</h1>
-                <p className="text-[#6B6B6B]">Manage your cafe products and inventory</p>
+                <h1 className="text-3xl font-bold text-[#4C1D3D]">Menu Items</h1>
+                <p className="text-[#4C1D3D]/60">Manage your cafe products and inventory</p>
               </div>
             </div>
             <button
@@ -170,7 +169,7 @@ export default function ProductsPage() {
                 })
                 setShowModal(true)
               }}
-              className="bg-[#3E2C24] text-white px-6 py-4 rounded-xl font-medium hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] transition-all duration-200 ease-in-out flex items-center justify-center gap-3 text-base min-h-[52px]"
+              className="bg-[#DC586D] text-white px-6 py-4 rounded-xl font-medium hover:bg-[#A33757] hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] transition-all duration-200 ease-in-out flex items-center justify-center gap-3 text-base min-h-[52px]"
             >
               <Plus className="w-5 h-5" />
               Add New Item
@@ -188,10 +187,10 @@ export default function ProductsPage() {
                 placeholder="Search menu items by name, SKU, or barcode..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-12 pr-4 py-4 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63] bg-[#FAF7F2] hover:bg-white transition-all duration-200 text-[#1F1F1F] placeholder-[#9CA3AF]"
+                className="w-full pl-12 pr-4 py-4 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#DC586D]/30 focus:border-[#DC586D] bg-[#F9F9F9] hover:bg-white transition-all duration-200 text-[#4C1D3D] placeholder-[#9CA3AF]"
               />
             </div>
-            <div className="flex items-center gap-2 text-[#6B6B6B]">
+            <div className="flex items-center gap-2 text-[#4C1D3D]/60">
               <Tag className="w-5 h-5" />
               <span className="font-medium">{filteredProducts.length} items found</span>
             </div>
@@ -203,14 +202,14 @@ export default function ProductsPage() {
           <div className="rounded-2xl bg-white shadow-md p-12">
             <div className="flex items-center justify-center">
               <div className="text-center">
-                <div className="w-16 h-16 border-4 border-[#3E2C24] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                <p className="text-[#6B6B6B] text-lg">Loading menu items...</p>
+                <div className="w-16 h-16 border-4 border-[#DC586D] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                <p className="text-[#4C1D3D]/60 text-lg">Loading menu items...</p>
               </div>
             </div>
           </div>
         ) : filteredProducts.length === 0 ? (
 
-          <div className="rounded-2xl bg-white shadow-md p-12 text-center text-[#6B6B6B]">No products found. Add a new item to get started!</div>
+          <div className="rounded-2xl bg-white shadow-md p-12 text-center text-[#4C1D3D]/60">No products found. Add a new item to get started!</div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredProducts.map((product) => (
@@ -223,7 +222,7 @@ export default function ProductsPage() {
                 onClick={() => handleEdit(product)} // Make entire card clickable
               >
                 {/* Product Image Placeholder */}
-                <div className="h-24 w-full bg-gradient-to-br from-[#C89B63]/30 to-[#F4A261]/30 flex items-center justify-center">
+                <div className="h-24 w-full bg-gradient-to-br from-[#FB9590]/25 to-[#FFBB94]/25 flex items-center justify-center">
                   <span className="text-5xl">☕</span> {/* Cafe-friendly emoji fallback */}
                 </div>
                 
@@ -231,8 +230,8 @@ export default function ProductsPage() {
                 <div className="p-6">
                   <div className="flex items-start justify-between mb-4">
                     <div>
-                      <h3 className="text-xl font-bold text-[#1F1F1F] leading-tight mb-1">{product.name}</h3>
-                      <p className="text-[#6B6B6B] text-sm">SKU: {product.sku}</p>
+                      <h3 className="text-xl font-bold text-[#4C1D3D] leading-tight mb-1">{product.name}</h3>
+                      <p className="text-[#4C1D3D]/60 text-sm">SKU: {product.sku}</p>
                     </div>
                     <div className={`px-3 py-1 rounded-full text-xs font-semibold ${
                       product.is_active
@@ -244,17 +243,17 @@ export default function ProductsPage() {
                   </div>
 
                   <div className="flex items-center justify-between mb-6">
-                    <div className="text-3xl font-bold text-[#3E2C24]">
+                    <div className="text-3xl font-bold text-[#4C1D3D]">
                       ₹{product.selling_price.toFixed(2)}
                     </div>
-                    <div className="text-[#6B6B6B] text-sm">per {product.unit}</div>
+                    <div className="text-[#4C1D3D]/60 text-sm">per {product.unit}</div>
                   </div>
 
                   {/* Action Buttons */}
                   <div className="flex gap-3">
                     <button
                       onClick={(e) => {e.stopPropagation(); handleEdit(product);}}
-                      className="flex-1 bg-[#3E2C24] text-white py-3 px-4 rounded-xl font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2"
+                      className="flex-1 bg-[#DC586D] text-white py-3 px-4 rounded-xl font-medium transition-all duration-200 ease-in-out hover:bg-[#A33757] hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2"
                     >
                       <Edit className="w-4 h-4" />
                       Edit
@@ -262,7 +261,7 @@ export default function ProductsPage() {
                     {product.is_active && (
                       <button
                         onClick={(e) => {e.stopPropagation(); handleDeactivate(product.id);}}
-                        className="px-4 py-3 bg-[#F4A261] text-white rounded-xl font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
+                        className="px-4 py-3 bg-[#FB9590] text-white rounded-xl font-medium transition-all duration-200 ease-in-out hover:bg-[#A33757] hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
                         title="Deactivate product"
                       >
                         <EyeOff className="w-4 h-4" />
@@ -274,7 +273,6 @@ export default function ProductsPage() {
             ))}
           </div>
         )}
-      </div>
 
       {/* Add/Edit Product Modal */}
       {showModal && (
@@ -298,14 +296,14 @@ export default function ProductsPage() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center gap-4 mb-6">
-              <div className="w-12 h-12 bg-gradient-to-br from-[#C89B63] to-[#F4A261] rounded-xl flex items-center justify-center">
+              <div className="w-12 h-12 bg-[#DC586D] rounded-xl flex items-center justify-center">
                 <Package className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-[#3E2C24]">
+                <h2 className="text-2xl font-bold text-[#4C1D3D]">
                   {editingProduct ? 'Edit Menu Item' : 'Add New Item'}
                 </h2>
-                <p className="text-[#6B6B6B] text-sm">
+                <p className="text-[#4C1D3D]/60 text-sm">
                   {editingProduct ? 'Update item details' : 'Create a new menu item'}
                 </p>
               </div>
@@ -325,7 +323,7 @@ export default function ProductsPage() {
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   required
                   placeholder="e.g., Espresso, Cappuccino, Croissant"
-                  className="w-full px-4 py-4 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63] bg-[#FAF7F2] hover:bg-white transition-all duration-200 text-[#1F1F1F] placeholder-[#9CA3AF]"
+                  className="w-full px-4 py-4 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#DC586D]/30 focus:border-[#DC586D] bg-[#F9F9F9] hover:bg-white transition-all duration-200 text-[#4C1D3D] placeholder-[#9CA3AF]"
                 />
               </div>
               <div>
@@ -336,7 +334,7 @@ export default function ProductsPage() {
                   onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
                   required
                   placeholder="e.g., ESP-001, CAP-002"
-                  className="w-full px-4 py-4 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63] bg-[#FAF7F2] hover:bg-white transition-all duration-200 text-[#1F1F1F] placeholder-[#9CA3AF]"
+                  className="w-full px-4 py-4 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#DC586D]/30 focus:border-[#DC586D] bg-[#F9F9F9] hover:bg-white transition-all duration-200 text-[#4C1D3D] placeholder-[#9CA3AF]"
                 />
               </div>
               <div>
@@ -348,7 +346,7 @@ export default function ProductsPage() {
                   value={formData.selling_price}
                   onChange={(e) => setFormData({ ...formData, selling_price: e.target.value })}
                   required
-                  className="w-full px-4 py-4 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63] bg-[#FAF7F2] hover:bg-white transition-all duration-200 text-[#1F1F1F] placeholder-[#9CA3AF]"
+                  className="w-full px-4 py-4 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#DC586D]/30 focus:border-[#DC586D] bg-[#F9F9F9] hover:bg-white transition-all duration-200 text-[#4C1D3D] placeholder-[#9CA3AF]"
                 />
               </div>
               <div>
@@ -357,7 +355,7 @@ export default function ProductsPage() {
                   value={formData.unit}
                   onChange={(e) => setFormData({ ...formData, unit: e.target.value as 'pcs' | 'kg' | 'litre' })}
                   required
-                  className="w-full px-4 py-4 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63] bg-[#FAF7F2] hover:bg-white transition-all duration-200 text-[#1F1F1F]"
+                  className="w-full px-4 py-4 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#DC586D]/30 focus:border-[#DC586D] bg-[#F9F9F9] hover:bg-white transition-all duration-200 text-[#4C1D3D]"
                 >
                   <option value="pcs">Pieces (pcs)</option>
                   <option value="kg">Kilogram (kg)</option>
@@ -370,7 +368,7 @@ export default function ProductsPage() {
                     type="checkbox"
                     checked={formData.is_active}
                     onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-                    className="w-4 h-4 border border-[#E5E7EB] rounded focus:ring-2 focus:ring-[#C89B63]"
+                    className="w-4 h-4 border border-[#E5E7EB] rounded focus:ring-2 focus:ring-[#DC586D]/30 accent-[#DC586D]"
                   />
                   <span className="text-sm font-medium text-[#6B6B6B]">Active</span>
                 </label>
@@ -390,7 +388,7 @@ export default function ProductsPage() {
                       is_active: true
                     })
                   }}
-                  className="px-4 py-2 rounded-xl font-medium border border-[#3E2C24] text-[#3E2C24] hover:bg-[#3E2C24] hover:text-white transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
+                  className="px-4 py-2 rounded-xl font-medium border border-[#E5E7EB] text-[#4C1D3D] hover:bg-[#F9F9F9] transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
                 >
                   Cancel
                 </button>
@@ -411,7 +409,7 @@ export default function ProductsPage() {
                     } as React.FormEvent
                     await handleSubmit(fakeEvent)
                   }}
-                  className="px-4 py-2 bg-[#3E2C24] text-white rounded-xl font-medium hover:bg-[#2c1f19] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
+                  className="px-4 py-2 bg-[#DC586D] text-white rounded-xl font-medium hover:bg-[#A33757] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
                   disabled={!formData.name || !formData.sku || !formData.selling_price}
                 >
                   {editingProduct ? 'Update' : 'Create'}

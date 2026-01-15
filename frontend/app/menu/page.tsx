@@ -322,19 +322,19 @@ export default function MenuPage() {
 
   if (loading) {
     return (
-      <div className="p-4 sm:p-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center text-gray-500 py-8">Loading...</div>
-        </div>
+      <div className="max-w-7xl mx-auto">
+        <div className="text-center text-gray-500 py-8">Loading...</div>
       </div>
     )
   }
 
   return (
-    <div className="p-4 sm:p-8 bg-[#FFF0F3] min-h-screen">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-[#610027]">Menu</h1>
+    <div className="max-w-7xl mx-auto">
+        <div className="flex justify-between items-end mb-6">
+          <div>
+            <h1 className="text-3xl font-bold text-[#4C1D3D] mb-1">Menu</h1>
+            <p className="text-sm text-[#4C1D3D]/60">Manage categories, items, and tax groups.</p>
+          </div>
           <div className="flex gap-3">
             <button
               onClick={() => {
@@ -948,7 +948,6 @@ export default function MenuPage() {
             </div>
           </div>
         )}
-      </div>
     </div>
   )
 }

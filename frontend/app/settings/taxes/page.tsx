@@ -95,6 +95,19 @@ export default function TaxSettingsPage() {
     setSuccess(null)
   }
 
+  const handleDelete = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this tax group?')) return
+    setError(null)
+    setSuccess(null)
+    try {
+      await api.deleteTaxGroup(id)
+      setSuccess('Tax group deleted successfully')
+      loadTaxGroups()
+    } catch (err: any) {
+      setError(err?.response?.data?.detail || 'Failed to delete tax group')
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
@@ -124,14 +137,13 @@ export default function TaxSettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FFF0F3] p-4 pb-16 sm:p-8">
-      <div className="max-w-7xl mx-auto">
+    <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-2xl sm:text-[32px] font-bold text-[#610027] mb-1">
+          <h1 className="text-2xl sm:text-[32px] font-bold text-[#4C1D3D] mb-1">
             Tax Settings
           </h1>
-          <p className="text-[#6B6B6B]">
+          <p className="text-[#4C1D3D]/60">
             Manage tax groups for GST-compliant billing
           </p>
         </div>
@@ -424,7 +436,6 @@ export default function TaxSettingsPage() {
             </div>
           </div>
         )}
-      </div>
     </div>
   )
 }

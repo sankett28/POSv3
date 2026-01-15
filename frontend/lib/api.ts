@@ -254,6 +254,10 @@ class ApiClient {
     return response.data
   }
 
+  async deleteTaxGroup(id: string) {
+    await this.client.delete(`/tax-groups/${id}`)
+  }
+
   // Reports endpoints
   async getTaxSummary(startDate: string, endDate: string) {
     const response = await this.client.get(`/reports/tax-summary?start_date=${startDate}&end_date=${endDate}`)

@@ -295,19 +295,19 @@ export default function ReportsPage() {
 
   if (loading) {
     return (
-      <div className="p-4 sm:p-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center text-gray-500 py-8">Loading reports...</div>
-        </div>
+      <div className="max-w-7xl mx-auto">
+        <div className="text-center text-gray-500 py-8">Loading reports...</div>
       </div>
     )
   }
 
   return (
-    <div className="p-4 sm:p-8 bg-[#FFF0F3] min-h-screen">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-[#610027]">Reports</h1>
+    <div className="max-w-7xl mx-auto">
+        <div className="flex justify-between items-end mb-6">
+          <div>
+            <h1 className="text-3xl font-bold text-[#4C1D3D] mb-1">Reports</h1>
+            <p className="text-sm text-[#4C1D3D]/60">View sales analytics and export summaries.</p>
+          </div>
           <div className="flex gap-4 items-center">
             <input
               type="date"
@@ -612,7 +612,6 @@ export default function ReportsPage() {
             </div>
           </div>
         )}
-      </div>
     </div>
   )
 }

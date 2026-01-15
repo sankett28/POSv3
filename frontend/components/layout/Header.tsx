@@ -1,42 +1,19 @@
 'use client'
 
-import { useState, useCallback, useMemo } from 'react'
+import { useState, useCallback } from 'react'
+import { logout } from '@/lib/auth'
 
-import { logout, getCurrentUserId } from '@/lib/auth'
 // Performance: Only import icons that are actually used
-import { LogOut, User, Menu, X, UtensilsCrossed, FileText, BarChart3, Settings } from 'lucide-react'
+import { Bell, Leaf, LogOut, MessageCircle, Search, Settings, User } from 'lucide-react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import Logo from '@/components/ui/Logo'
-
-// Performance: Memoize navItems to prevent recreation on every render
-const navItems = [
-  { name: 'Orders', href: '/orders', icon: ({ className }: { className?: string }) => <span className={`flex items-center text-xl ${className}`}>₹</span> },
-  { name: 'Menu', href: '/menu', icon: UtensilsCrossed },
-  { name: 'Transactions', href: '/transactions', icon: FileText },
-  { name: 'Reports', href: '/reports', icon: BarChart3 },
-  // { name: 'Marketing', href: '/marketing', icon: Megaphone },
-  // { name: 'Customers', href: '/customers', icon: Users },
-]
 
 export default function Header() {
-  const pathname = usePathname()
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false)
+  const [searchValue, setSearchValue] = useState('')
 
   // Performance: Memoize logout handler to prevent recreation
   const handleLogout = useCallback(() => {
     logout()
-  }, [])
-
-  // Performance: Memoize mobile menu close handler
-  const handleMobileMenuClose = useCallback(() => {
-    setIsMobileMenuOpen(false)
-  }, [])
-
-  // Performance: Memoize mobile menu toggle handler
-  const handleMobileMenuToggle = useCallback(() => {
-    setIsMobileMenuOpen(true)
   }, [])
 
   // Performance: Memoize profile dropdown toggle handler
@@ -50,125 +27,75 @@ export default function Header() {
   }, [])
 
   return (
-    <header className="sticky top-0 z-50 shadow-md rounded-b-2xl bg-white">
-        <div className="px-4 py-4 sm:px-6 sm:py-5 flex items-center justify-between">
-          <button className="md:hidden p-3 rounded-xl bg-[#610027] text-white hover:bg-[#6B2440] transition-all duration-200 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]" onClick={handleMobileMenuToggle}>
-            <Menu className="w-6 h-6" />
-          </button>
-        {/* Left section: Logo */}
-        <div className="flex items-center gap-3">
-          <Link href="/" className="flex items-center gap-2 transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98]">
-            <Logo size="md" showAccent={true} />
-            <div className="flex flex-col">
-              <span className="text-xs text-[#9CA3AF] font-medium tracking-wide">Cafe Management</span>
-            </div>
-          </Link>
-        </div>
+    <header className="sticky top-0 z-50 bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/75 border-b border-[#E5E7EB] shadow-sm">
+      <div className="h-[72px] px-4 sm:px-6 flex items-center gap-4">
+        <Link href="/orders" className="flex items-center">
+          <div className="w-10 h-10 rounded-2xl bg-[#DC586D]/10 flex items-center justify-center">
+            <Leaf className="w-5 h-5 text-[#DC586D]" />
+          </div>
+        </Link>
 
-        {/* Middle section: Navigation Tabs */}
-        <nav className="hidden md:flex flex-grow justify-center">
-          <ul className="flex gap-3">
-            {navItems.map((item) => (
-              <li key={item.name}>
-                <Link href={item.href}>
-                  <span
-                    className={`flex items-center gap-2 px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] ${pathname === item.href ? 'bg-[#610027] text-white' : 'text-[#610027] hover:bg-[#B45A69]/10'}`}
-                  >
-                    <item.icon className={`w-5 h-5 ${pathname === item.href ? 'text-white' : 'text-[#610027]'}`} />
-                    {item.name}
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
-
-        {/* Right section: Profile Icon and Logout */}
-        <div className="relative flex items-center gap-3">
-          <button
-            onClick={handleProfileDropdownToggle}
-            className="p-3 rounded-xl bg-white border border-[#E5E7EB] transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
-          >
-            <User className="w-5 h-5 text-[#610027]" />
-          </button>
-
-          {isProfileDropdownOpen && (
-            <div className="absolute right-0 top-14 mt-2 w-48 bg-white rounded-xl shadow-lg border border-[#E5E7EB] py-1 z-50">
-              <Link href="/admin-profile" onClick={handleProfileDropdownClose} className="flex items-center gap-2 px-4 py-2 text-sm text-[#610027] hover:bg-[#FFF0F3]/20 hover:text-[#912B48] rounded-md transition-colors">
-                <User className="w-4 h-4" />
-                Profile
-              </Link>
-              <Link href="/settings/taxes" onClick={handleProfileDropdownClose} className="flex items-center gap-2 px-4 py-2 text-sm text-[#610027] hover:bg-[#FFF0F3]/20 hover:text-[#912B48] rounded-md transition-colors">
-                <Settings className="w-4 h-4" />
-                Settings
-              </Link>
-            </div>
-          )}
-
-          <button
-            onClick={handleLogout}
-            className="p-3 rounded-xl bg-[#912B48] text-white transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] hover:bg-[#B45A69]"
-          >
-            <LogOut className="w-5 h-5 text-white" />
-          </button>
-        </div>
-      </div>
-
-      {/* Mobile Menu Overlay */}
-      {isMobileMenuOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-60 z-50 md:hidden backdrop-blur-sm" onClick={handleMobileMenuClose}>
-            <div className="relative w-[72%] max-w-[320px] h-full bg-white shadow-2xl p-6 animate-slide-in-left rounded-r-2xl" onClick={(e) => e.stopPropagation()}>
-              <button className="absolute top-4 right-4 p-3 rounded-xl bg-[#610027] text-white hover:bg-[#6B2440] transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]" onClick={handleMobileMenuClose}>
-              <X className="w-6 h-6" />
-            </button>
-            <div className="flex items-center gap-3 mb-8 mt-4">
-              <Logo size="lg" showAccent={true} />
-              <div className="flex flex-col">
-                <span className="text-sm text-[#9CA3AF] font-medium tracking-wide">Cafe Management</span>
-              </div>
-            </div>
-            <nav className="flex flex-col gap-3">
-              {navItems.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  onClick={handleMobileMenuClose}
-                  className={`flex items-center gap-4 px-5 py-4 rounded-xl transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] ${pathname === item.href ? 'bg-[#610027] text-white shadow-lg' : 'text-[#610027] hover:bg-[#B45A69]/10'}`}
-                >
-                  <item.icon className={`w-6 h-6 ${pathname === item.href ? 'text-white' : 'text-[#610027]'}`} />
-                  <span className="font-semibold text-lg">{item.name}</span>
-                </Link>
-              ))}
-            </nav>
-            <div className="mt-8 pt-6 border-t border-[#E5E7EB]">
-              <Link href="/admin-profile"
-                className="flex items-center gap-4 px-5 py-4 rounded-xl text-[#610027] hover:bg-[#B45A69]/10 transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] mb-3"
-                onClick={handleMobileMenuClose}
-              >
-                <User className="w-6 h-6 text-[#610027]" />
-                <span className="font-semibold text-lg">Profile</span>
-              </Link>
-              <Link href="/settings/taxes"
-                className="flex items-center gap-4 px-5 py-4 rounded-xl text-[#610027] hover:bg-[#B45A69]/10 transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] mb-3"
-                onClick={handleMobileMenuClose}
-              >
-                <Settings className="w-6 h-6 text-[#610027]" />
-                <span className="font-semibold text-lg">Settings</span>
-              </Link>
-              <button
-                onClick={() => {
-                  handleLogout()
-                  handleMobileMenuClose()
-                }}
-                className="flex items-center gap-4 px-5 py-4 rounded-xl bg-[#912B48] text-white transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] w-full shadow-md hover:bg-[#B45A69]"
-              >
-                <LogOut className="w-6 h-6 text-white" />
-                <span className="font-semibold text-lg">Sign Out</span>
-              </button>
+        <div className="flex-1 flex justify-center">
+          <div className="w-full max-w-xl">
+            <div className="relative">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#4C1D3D]/55" />
+              <input
+                value={searchValue}
+                onChange={(e) => setSearchValue(e.target.value)}
+                placeholder="Search menu..."
+                className="w-full h-11 pl-11 pr-4 rounded-full bg-[#F9F9F9] border border-[#E5E7EB] text-sm text-[#4C1D3D] placeholder:text-[#4C1D3D]/45 focus:outline-none focus:ring-2 focus:ring-[#DC586D]/30 focus:border-[#DC586D]"
+              />
             </div>
           </div>
         </div>
-      )}
+
+        <div className="relative flex items-center gap-2">
+          <button className="w-10 h-10 rounded-xl bg-[#F9F9F9] border border-[#E5E7EB] flex items-center justify-center hover:bg-white transition-colors" type="button">
+            <MessageCircle className="w-5 h-5 text-[#4C1D3D]" />
+          </button>
+          <button className="w-10 h-10 rounded-xl bg-[#F9F9F9] border border-[#E5E7EB] flex items-center justify-center hover:bg-white transition-colors" type="button">
+            <Bell className="w-5 h-5 text-[#4C1D3D]" />
+          </button>
+
+          <button
+            onClick={handleProfileDropdownToggle}
+            className="w-10 h-10 rounded-xl bg-[#F9F9F9] border border-[#E5E7EB] flex items-center justify-center hover:bg-white transition-colors"
+            type="button"
+          >
+            <User className="w-5 h-5 text-[#4C1D3D]" />
+          </button>
+
+          {isProfileDropdownOpen && (
+            <div className="absolute right-0 top-12 w-52 bg-white rounded-2xl shadow-lg border border-[#E5E7EB] p-2 z-50">
+              <Link
+                href="/admin-profile"
+                onClick={handleProfileDropdownClose}
+                className="flex items-center gap-2 px-3 py-2 text-sm text-[#4C1D3D] hover:bg-[#DC586D]/10 rounded-xl transition-colors"
+              >
+                <User className="w-4 h-4" />
+                Profile
+              </Link>
+              <Link
+                href="/settings/taxes"
+                onClick={handleProfileDropdownClose}
+                className="flex items-center gap-2 px-3 py-2 text-sm text-[#4C1D3D] hover:bg-[#DC586D]/10 rounded-xl transition-colors"
+              >
+                <Settings className="w-4 h-4" />
+                Settings
+              </Link>
+              <div className="h-px bg-[#E5E7EB] my-2" />
+              <button
+                onClick={handleLogout}
+                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[#4C1D3D] hover:bg-[#DC586D]/10 rounded-xl transition-colors"
+                type="button"
+              >
+                <LogOut className="w-4 h-4" />
+                Sign out
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
     </header>
   )
 }

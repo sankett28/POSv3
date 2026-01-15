@@ -717,9 +717,9 @@ export default function OrdersPage() {
   const uncategorizedProducts = filteredProducts.filter(p => !p.category_id)
 
   return (
-    <div className="p-4 sm:p-8 bg-[#FFF0F3] min-h-screen">
-      <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold text-[#610027] mb-6">Orders</h1>
+    <div className="max-w-7xl mx-auto">
+        <h1 className="text-3xl font-bold text-[#4C1D3D] mb-1">Orders</h1>
+        <p className="text-sm text-[#4C1D3D]/60 mb-6">Create orders, add items, and complete billing.</p>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Left Sidebar: Categories */}
@@ -1231,7 +1231,6 @@ export default function OrdersPage() {
           </div>
         )}
 
-      </div>
     </div>
   )
 }

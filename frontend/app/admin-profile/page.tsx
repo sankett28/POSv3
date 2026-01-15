@@ -35,15 +35,14 @@ export default function AdminProfilePage() {
   const handleCancel = () => setIsEditing(false)
 
   return (
-    <div className="min-h-screen bg-[#FFF0F3] p-4 pb-16 sm:p-8">
-      <div className="max-w-7xl mx-auto">
+    <div className="max-w-7xl mx-auto">
 
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl sm:text-[32px] font-bold text-[#610027] mb-1">
+        <h1 className="text-2xl sm:text-[32px] font-bold text-[#4C1D3D] mb-1">
           Admin Profile
         </h1>
-        <p className="text-[#6B6B6B]">
+        <p className="text-[#4C1D3D]/60">
           Manage your account settings and preferences
         </p>
       </div>
@@ -165,7 +164,6 @@ export default function AdminProfilePage() {
             </div>
           </div>
         </div>
-      </div>
       </div>
     </div>
   )
