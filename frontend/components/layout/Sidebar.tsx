@@ -33,7 +33,7 @@ function Sidebar() {
           <Leaf className="w-5 h-5 text-[#DC586D]" />
         </div>
         <div className="hidden md:flex flex-col ml-3 leading-tight">
-          <span className="text-sm font-semibold text-[#4C1D3D]">LICHY</span>
+          <span className="text-sm font-semibold text-[#4C1D3D]">LICHI</span>
           <span className="text-xs text-[#4C1D3D]/60">Premium café POS</span>
         </div>
       </div>
@@ -47,13 +47,13 @@ function Sidebar() {
               key={item.href}
               href={item.href}
               title={item.label}
-              className={`group flex items-center gap-3 px-3 py-2.5 rounded-xl mb-1.5 transition-colors ${
+              className={`group mb-1.5 transition-colors flex items-center justify-center w-12 h-12 rounded-full md:w-auto md:h-auto md:justify-start md:gap-3 md:px-3 md:py-2.5 md:rounded-xl ${
                 isActive
                   ? 'bg-[#DC586D] text-white'
                   : 'text-[#4C1D3D] hover:bg-[#DC586D]/10'
               }`}
             >
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${
+              <div className={`w-10 h-10 rounded-full md:rounded-xl flex items-center justify-center transition-colors ${
                 isActive ? 'bg-white/15' : 'bg-[#F9F9F9] group-hover:bg-white'
               }`}>
                 <Icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-[#4C1D3D]'}`} />
@@ -69,9 +69,9 @@ function Sidebar() {
           type="button"
           onClick={logout}
           title="Logout"
-          className="group w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors text-[#4C1D3D] hover:bg-[#DC586D]/10"
+          className="group transition-colors text-[#4C1D3D] hover:bg-[#DC586D]/10 flex items-center justify-center w-12 h-12 rounded-full md:w-full md:h-auto md:justify-start md:gap-3 md:px-3 md:py-2.5 md:rounded-xl"
         >
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-colors bg-[#F9F9F9] group-hover:bg-white">
+          <div className="w-10 h-10 rounded-full md:rounded-xl flex items-center justify-center transition-colors bg-[#F9F9F9] group-hover:bg-white">
             <LogOut className="w-5 h-5 text-[#4C1D3D]" />
           </div>
           <span className="hidden md:inline text-sm font-medium">Logout</span>
