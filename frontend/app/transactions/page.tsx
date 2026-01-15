@@ -92,23 +92,23 @@ export default function TransactionsPage() {
   }
 
   return (
-    <div className="p-4 sm:p-8 bg-[#F5F3EE] min-h-screen">
+    <div className="p-4 sm:p-8 bg-[#FFF0F3] min-h-screen">
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-[#3E2C24]">Transactions</h1>
+          <h1 className="text-3xl font-bold text-[#610027]">Transactions</h1>
         </div>
 
         <div className="bg-white rounded-2xl shadow-md p-6 border border-[#E5E7EB]">
           <div className="overflow-x-auto">
             <table className="min-w-full leading-normal">
-              <thead className="bg-[#FAF7F2]">
+              <thead className="bg-[#B45A69]/20">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider rounded-tl-xl">Bill Number</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider">Date & Time</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider">Total Amount</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider">Tax Amount</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider">Payment Method</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider rounded-tr-xl">Actions</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-[#610027] uppercase tracking-wider rounded-tl-xl">Bill Number</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-[#610027] uppercase tracking-wider">Date & Time</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-[#610027] uppercase tracking-wider">Total Amount</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-[#610027] uppercase tracking-wider">Tax Amount</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-[#610027] uppercase tracking-wider">Payment Method</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-[#610027] uppercase tracking-wider rounded-tr-xl">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -120,10 +120,10 @@ export default function TransactionsPage() {
                   </tr>
                 ) : (
                   bills.map((bill) => (
-                    <tr key={bill.id} className="border-t border-[#E5E7EB] transition-all duration-200 ease-in-out hover:bg-[#FAF7F2]">
-                      <td className="px-4 py-3 font-medium text-[#1F1F1F]">{bill.bill_number}</td>
+                    <tr key={bill.id} className="border-t border-[#E5E7EB] transition-all duration-200 ease-in-out hover:bg-[#FFF0F3]/20">
+                      <td className="px-4 py-3 font-medium text-[#610027]">{bill.bill_number}</td>
                       <td className="px-4 py-3 text-[#6B6B6B]">{formatDate(bill.created_at)}</td>
-                      <td className="px-4 py-3 text-[#3E2C24] font-bold">₹{bill.total_amount.toFixed(2)}</td>
+                      <td className="px-4 py-3 text-[#912B48] font-bold">₹{bill.total_amount.toFixed(2)}</td>
                       <td className="px-4 py-3 text-[#6B6B6B]">₹{(bill.tax_amount || 0).toFixed(2)}</td>
                       <td className="px-4 py-3 text-[#6B6B6B]">{formatPaymentMethod(bill.payment_method)}</td>
                       <td className="px-4 py-3">
@@ -138,7 +138,7 @@ export default function TransactionsPage() {
                               // Optionally, set an error state or show a user-friendly message
                             }
                           }}
-                          className="text-[#3E2C24] hover:text-[#C89B63] flex items-center gap-1 transition-all duration-200 ease-in-out hover:scale-[1.05] active:scale-[0.95]"
+                          className="text-[#610027] hover:text-[#B45A69] flex items-center gap-1 transition-all duration-200 ease-in-out hover:scale-[1.05] active:scale-[0.95]"
                         >
                           <Eye className="w-4 h-4" />
                           <span>View</span>
@@ -162,59 +162,59 @@ export default function TransactionsPage() {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex justify-between items-center mb-6 pb-4 border-b border-[#E5E7EB]">
-                <h2 className="text-2xl font-bold text-[#3E2C24]">Order Details</h2>
+                <h2 className="text-2xl font-bold text-[#610027]">Order Details</h2>
                 <button
                   onClick={() => setSelectedBill(null)}
-                  className="text-[#6B6B6B] hover:text-[#3E2C24] transition-all duration-200 ease-in-out active:scale-[0.9] p-2 rounded-full hover:bg-[#FAF7F2]"
+                  className="text-[#6B6B6B] hover:text-[#610027] transition-all duration-200 ease-in-out active:scale-[0.9] p-2 rounded-full hover:bg-[#FFF0F3]/20"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
-              <div className="mb-6 p-4 bg-[#FAF7F2] rounded-xl border border-[#E5E7EB]">
+              <div className="mb-6 p-4 bg-[#FFF0F3]/20 rounded-xl border border-[#E5E7EB]">
                 <div className="flex justify-between items-center py-2 border-b border-[#E5E7EB]">
                   <span className="text-[#6B6B6B]">Bill Number:</span>
-                  <span className="font-bold text-[#3E2C24]">{selectedBill.bill_number}</span>
+                  <span className="font-bold text-[#610027]">{selectedBill.bill_number}</span>
                 </div>
                 <div className="flex justify-between items-center py-2 border-b border-[#E5E7EB]">
                   <span className="text-[#6B6B6B]">Date & Time:</span>
-                  <span className="text-[#3E2C24]">{formatDate(selectedBill.created_at)}</span>
+                  <span className="text-[#610027]">{formatDate(selectedBill.created_at)}</span>
                 </div>
                 <div className="flex justify-between items-center py-2 border-b border-[#E5E7EB]">
                   <span className="text-[#6B6B6B]">Payment Method:</span>
-                  <span className="text-[#3E2C24]">{formatPaymentMethod(selectedBill.payment_method)}</span>
+                  <span className="text-[#610027]">{formatPaymentMethod(selectedBill.payment_method)}</span>
                 </div>
                 <div className="flex justify-between items-center py-2">
                   <span className="text-[#6B6B6B]">Subtotal:</span>
-                  <span className="text-[#3E2C24]">₹{(selectedBill.subtotal || 0).toFixed(2)}</span>
+                  <span className="text-[#610027]">₹{(selectedBill.subtotal || 0).toFixed(2)}</span>
                 </div>
                 {selectedBill.items.some(item => item.cgst_amount || item.sgst_amount) ? (
                   <>
                     <div className="flex justify-between items-center">
                       <span className="text-[#6B6B6B] font-medium">CGST:</span>
-                      <span className="text-[#1F1F1F]">₹{(selectedBill.cgst || 0).toFixed(2)}</span>
+                      <span className="text-[#610027]">₹{(selectedBill.cgst || 0).toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-[#6B6B6B] font-medium">SGST:</span>
-                      <span className="text-[#1F1F1F]">₹{(selectedBill.sgst || 0).toFixed(2)}</span>
+                      <span className="text-[#610027]">₹{(selectedBill.sgst || 0).toFixed(2)}</span>
                     </div>
                   </>
                 ) : (
                   <div className="flex justify-between items-center">
                     <span className="text-[#6B6B6B] font-medium">Tax (GST):</span>
-                    <span className="text-[#1F1F1F]">₹{(selectedBill.tax_amount || 0).toFixed(2)}</span>
+                    <span className="text-[#610027]">₹{(selectedBill.tax_amount || 0).toFixed(2)}</span>
                   </div>
                 )}
               </div>
 
-              <div className="mb-6 p-4 bg-[#FAF7F2] rounded-xl border border-[#E5E7EB]">
-                <h3 className="font-bold text-xl text-[#3E2C24] mb-4">Items Ordered</h3>
+              <div className="mb-6 p-4 bg-[#FFF0F3]/20 rounded-xl border border-[#E5E7EB]">
+                <h3 className="font-bold text-xl text-[#610027] mb-4">Items Ordered</h3>
                 <div className="space-y-3">
                   {selectedBill.items.map((item) => (
                     <div key={item.id} className="flex flex-col gap-1 border-b border-[#f1ece6] py-3 last:border-none">
                       <div className="flex justify-between items-center">
-                        <span className="font-semibold text-[#3E2C24]">{item.product_name}</span>
-                        <span className="font-semibold text-[#3E2C24]">
+                        <span className="font-semibold text-[#610027]">{item.product_name}</span>
+                        <span className="font-semibold text-[#912B48]">
                           ₹{((item.unit_price * item.quantity) + (item.tax_amount || 0)).toFixed(2)}
                         </span>
                       </div>
@@ -236,7 +236,7 @@ export default function TransactionsPage() {
                 </div>
               </div>
 
-              <div className="p-4 bg-[#FAF7F2] rounded-xl border border-[#E5E7EB] space-y-3">
+              <div className="p-4 bg-[#FFF0F3]/20 rounded-xl border border-[#E5E7EB] space-y-3">
                 <div className="flex justify-between text-[#6B6B6B] text-base">
                   <span>Subtotal:</span>
                   <span>₹{(selectedBill.subtotal || 0).toFixed(2)}</span>
@@ -258,9 +258,9 @@ export default function TransactionsPage() {
                     <span>₹{(selectedBill.tax_amount || 0).toFixed(2)}</span>
                   </div>
                 )}
-                <div className="flex justify-between text-xl font-bold text-[#3E2C24] pt-4 border-t border-[#E5E7EB]">
+                <div className="flex justify-between text-xl font-bold text-[#610027] pt-4 border-t border-[#912B48]">
                   <span>Total:</span>
-                  <span>₹{selectedBill.total_amount.toFixed(2)}</span>
+                  <span className="text-[#912B48]">₹{selectedBill.total_amount.toFixed(2)}</span>
                 </div>
               </div>
             </div>

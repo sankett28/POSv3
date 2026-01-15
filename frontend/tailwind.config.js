@@ -8,7 +8,15 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary: '#000000',
+        // New Brand Color Palette
+        brand: {
+          'deep-burgundy': '#610027',
+          'medium-red': '#912B48',
+          'dusty-rose': '#B45A69',
+          'light-pink': '#FFF0F3',
+        },
+        // Legacy support - mapped to new brand colors
+        primary: '#912B48', // Medium-dark red for primary actions
         secondary: '#ffffff',
         gray: {
           50: '#fafafa',

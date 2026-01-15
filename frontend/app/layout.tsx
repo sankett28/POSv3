@@ -23,7 +23,11 @@ export default function RootLayout({
 
   return (
     <html lang="en">
-      <body className={`${inter.className} bg-[#F5F3EE]`}>
+      <head>
+        <title>Lichy - Cafe POS System</title>
+        <meta name="description" content="Lichy - Modern cafe management and POS system" />
+      </head>
+      <body className={`${inter.className} bg-[#FFF0F3]`}>
         {!isLoginPage && <Header />}
         {children}
       </body>

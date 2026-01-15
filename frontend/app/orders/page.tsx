@@ -347,7 +347,7 @@ export default function OrdersPage() {
             body {
               font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
               padding: 30px 15px;
-              background: #F5F3EE; /* Warm cream / off-white */
+              background: #FFF0F3; /* Light Pink */
               line-height: 1.5;
             }
             .invoice-container {
@@ -374,7 +374,7 @@ export default function OrdersPage() {
             .logo-box {
               width: 40px;
               height: 40px;
-              background: #3E2C24; /* Primary coffee brown */
+              background: #912B48; /* Lichy Primary Rose */
               color: white;
               display: flex;
               align-items: center;
@@ -386,7 +386,7 @@ export default function OrdersPage() {
             .header-left-content h1 {
               font-size: 24px;
               font-weight: 600;
-              color: #3E2C24; /* Primary coffee brown */
+              color: #610027; /* Lichy Deep Wine */
               margin: 0 0 2px 0;
               letter-spacing: -0.2px;
             }
@@ -397,7 +397,7 @@ export default function OrdersPage() {
               font-weight: 400;
             }
             .invoice-number-box {
-              background: #FAF7F2; /* Light background */
+              background: #FFF0F3; /* Light Pink */
               padding: 8px 12px;
               border-radius: 8px; /* rounded-xl */
               border: 1px solid #E5E7EB;
@@ -414,7 +414,7 @@ export default function OrdersPage() {
             .invoice-number-box p:last-child {
               font-size: 16px;
               font-weight: 600;
-              color: #3E2C24; /* Primary coffee brown */
+              color: #610027; /* Lichy Deep Wine */
               margin: 0;
               letter-spacing: 0.2px;
             }
@@ -445,7 +445,7 @@ export default function OrdersPage() {
             .detail-item p:last-child {
               font-size: 14px;
               font-weight: 500;
-              color: #3E2C24; /* Primary coffee brown */
+              color: #610027; /* Lichy Deep Wine */
               margin: 0;
             }
             .table-section {
@@ -454,7 +454,7 @@ export default function OrdersPage() {
             .table-title {
               font-size: 15px;
               font-weight: 600;
-              color: #3E2C24; /* Primary coffee brown */
+              color: #610027; /* Lichy Deep Wine */
               margin-bottom: 10px;
               padding-bottom: 6px;
               border-bottom: 1px solid #E5E7EB;
@@ -465,7 +465,7 @@ export default function OrdersPage() {
               margin-bottom: 0;
             }
             thead {
-              background: #FAF7F2; /* Light background */
+              background: #FFF0F3; /* Light Pink */
               color: #555;
             }
             thead tr {
@@ -488,7 +488,7 @@ export default function OrdersPage() {
               transition: background 0.1s;
             }
             tbody tr:hover {
-              background: #F5F3EE; /* Warm cream / off-white */
+              background: #FFF0F3; /* Light Pink */
             }
             tbody tr:last-child {
               border-bottom: none;
@@ -496,7 +496,7 @@ export default function OrdersPage() {
             td {
               padding: 12px;
               font-size: 12px;
-              color: #3E2C24; /* Primary coffee brown */
+              color: #610027; /* Lichy Deep Wine */
             }
             td:first-child {
               font-weight: 500;
@@ -507,10 +507,10 @@ export default function OrdersPage() {
             }
             td:nth-child(4) {
               font-weight: 500;
-              color: #3E2C24; /* Primary coffee brown */
+              color: #610027; /* Lichy Deep Wine */
             }
             .totals-section {
-              background: #FAF7F2; /* Light background */
+              background: #FFF0F3; /* Light Pink */
               padding: 18px 22px;
               border-radius: 8px; /* rounded-xl */
               border: 1px solid #E5E7EB;
@@ -538,7 +538,7 @@ export default function OrdersPage() {
               font-weight: 500;
             }
             .total-row span:last-child {
-              color: #3E2C24; /* Primary coffee brown */
+              color: #610027; /* Lichy Deep Wine */
               font-weight: 600;
             }
             .total-row:last-child {
@@ -546,12 +546,12 @@ export default function OrdersPage() {
               font-weight: 700;
               padding-top: 10px;
               margin-top: 5px;
-              border-top: 1px solid #C89B63; /* Accent color */
+              border-top: 1px solid #912B48; /* Lichy Primary Rose */
               margin-bottom: 0;
               padding-bottom: 0;
             }
             .total-row:last-child span {
-              color: #3E2C24; /* Primary coffee brown */
+              color: #610027; /* Lichy Deep Wine */
             }
             .footer {
               margin-top: 35px;
@@ -597,7 +597,7 @@ export default function OrdersPage() {
               <div class="header-left">
                 <div class="logo-box">BB</div>
                 <div class="header-left-content">
-                  <h1>BrewBite Cafe</h1>
+                  <h1>Lichy Cafe</h1>
                   <p>Your Daily Dose of Delight</p>
                 </div>
               </div>
@@ -698,20 +698,20 @@ export default function OrdersPage() {
   const uncategorizedProducts = filteredProducts.filter(p => !p.category_id)
 
   return (
-    <div className="p-4 sm:p-8 bg-[#F5F3EE] min-h-screen">
+    <div className="p-4 sm:p-8 bg-[#FFF0F3] min-h-screen">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold text-[#3E2C24] mb-6">Orders</h1>
+        <h1 className="text-3xl font-bold text-[#610027] mb-6">Orders</h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Left Sidebar: Categories */}
           <div className="lg:col-span-2 bg-white rounded-2xl shadow-md p-6 border border-[#E5E7EB]">
-            <h3 className="font-bold text-[#3E2C24] mb-4 text-xl">Categories</h3>
+            <h3 className="font-bold text-[#610027] mb-4 text-xl">Categories</h3>
             <div className="space-y-3">
               <button
                 onClick={() => setSelectedCategory(null)}
-                className={`w-full text-left px-4 py-3 rounded-xl font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring outline-none ${selectedCategory === null
-                    ? 'bg-[#3E2C24] text-white shadow-md'
-                    : 'bg-[#FAF7F2] text-[#3E2C24] hover:bg-[#C89B63]/10'
+                className={`w-full text-left px-4 py-3 rounded-full font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring outline-none ${selectedCategory === null
+                    ? 'bg-[#610027] text-white shadow-md'
+                    : 'bg-white text-[#610027] hover:bg-[#B45A69]/10 border border-[#E5E7EB]'
                 }`}
               >
                 All
@@ -720,9 +720,9 @@ export default function OrdersPage() {
                 <button
                   key={category.id}
                   onClick={() => setSelectedCategory(category.id)}
-                  className={`w-full text-left px-4 py-3 rounded-xl font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring outline-none ${selectedCategory === category.id
-                      ? 'bg-[#3E2C24] text-white shadow-md'
-                      : 'bg-[#FAF7F2] text-[#3E2C24] hover:bg-[#C89B63]/10'
+                  className={`w-full text-left px-4 py-3 rounded-full font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring outline-none ${selectedCategory === category.id
+                    ? 'bg-[#610027] text-white shadow-md'
+                    : 'bg-white text-[#610027] hover:bg-[#B45A69]/10 border border-[#E5E7EB]'
                   }`}
                 >
                   {category.name}
@@ -741,7 +741,7 @@ export default function OrdersPage() {
                   placeholder="Search menu items..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63] bg-[#FAF7F2] hover:bg-white transition-all duration-200 text-[#1F1F1F] placeholder-[#9CA3AF]"
+                  className="w-full pl-12 pr-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#912B48] focus:border-[#912B48] bg-white hover:bg-[#FFF0F3]/10 transition-all duration-200 text-[#610027] placeholder-[#9CA3AF]"
                 />
               </div>
             </div>
@@ -756,19 +756,19 @@ export default function OrdersPage() {
 
                   return (
                     <div key={category.id}>
-                      <h4 className="font-bold text-[#3E2C24] mb-4 text-xl">{category.name}</h4>
+                      <h4 className="font-bold text-[#610027] mb-4 text-xl">{category.name}</h4>
                       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                         {categoryProducts.map((product) => (
                           <button
                             key={product.id}
                             onClick={() => addToBill(product)}
                             className="group relative w-full bg-white rounded-xl shadow-sm border border-[#E5E7EB]
-                                       hover:shadow-md hover:border-[#C89B63] transition-all duration-200
+                                       hover:shadow-md hover:border-[#912B48] transition-all duration-200
                                        active:scale-[0.98] cursor-pointer flex flex-col overflow-hidden p-3"
                             style={{ aspectRatio: '4/5' }}
                           >
                             {/* Product Image Container - Takes ~60% of card */}
-                            <div className="w-full flex-[0_0_60%] flex items-center justify-center overflow-hidden bg-[#FAF7F2] rounded-lg mb-2">
+                            <div className="w-full flex-[0_0_60%] flex items-center justify-center overflow-hidden bg-[#FFF0F3]/20 rounded-lg mb-2">
                               {(() => {
                                 const categoryLower = product.category_name?.toLowerCase() || ''
                                 if (categoryLower.includes('idli')) {
@@ -834,7 +834,7 @@ export default function OrdersPage() {
                               <div className="font-semibold text-[#1F1F1F] text-xs sm:text-sm text-center mb-1 leading-tight break-words line-clamp-2 w-full overflow-hidden">
                                 <span className="block">{product.name}</span>
                               </div>
-                              <div className="font-bold text-[#3E2C24] text-xs sm:text-sm mt-auto">₹{product.selling_price.toFixed(2)}</div>
+                              <div className="font-bold text-[#912B48] text-xs sm:text-sm mt-auto">₹{product.selling_price.toFixed(2)}</div>
                             </div>
                           </button>
                         ))}
@@ -846,19 +846,19 @@ export default function OrdersPage() {
                 {/* Uncategorized Items */}
                 {(!selectedCategory || selectedCategory === null) && uncategorizedProducts.length > 0 && (
                   <div>
-                    <h4 className="font-bold text-[#3E2C24] mb-4 text-xl">Other Items</h4>
+                    <h4 className="font-bold text-[#610027] mb-4 text-xl">Other Items</h4>
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                       {uncategorizedProducts.map((product) => (
                         <button
                           key={product.id}
                           onClick={() => addToBill(product)}
                           className="group relative w-full bg-white rounded-xl shadow-sm border border-[#E5E7EB]
-                                     hover:shadow-md hover:border-[#C89B63] transition-all duration-200
+                                     hover:shadow-md hover:border-[#912B48] transition-all duration-200
                                      active:scale-[0.98] cursor-pointer flex flex-col overflow-hidden p-3"
                           style={{ aspectRatio: '4/5' }}
                         >
                           {/* Product Image Container - Takes ~60% of card */}
-                          <div className="w-full flex-[0_0_60%] flex items-center justify-center overflow-hidden bg-[#FAF7F2] rounded-lg mb-2">
+                          <div className="w-full flex-[0_0_60%] flex items-center justify-center overflow-hidden bg-[#FFF0F3]/20 rounded-lg mb-2">
                             {(() => {
                               const categoryLower = product.category_name?.toLowerCase() || ''
                               if (categoryLower.includes('idli')) {
@@ -924,7 +924,7 @@ export default function OrdersPage() {
                             <div className="font-semibold text-[#1F1F1F] text-xs sm:text-sm text-center mb-1 leading-tight break-words line-clamp-2 w-full overflow-hidden">
                               <span className="block">{product.name}</span>
                             </div>
-                            <div className="font-bold text-[#3E2C24] text-xs sm:text-sm mt-auto">₹{product.selling_price.toFixed(2)}</div>
+                            <div className="font-bold text-[#912B48] text-xs sm:text-sm mt-auto">₹{product.selling_price.toFixed(2)}</div>
                             {product.tax_group && (
                               <div className="text-[10px] text-[#6B6B6B] mt-0.5 text-center line-clamp-1">
                                 {product.tax_group.name}
@@ -944,10 +944,10 @@ export default function OrdersPage() {
           {/* Right: Order Summary */}
           <div className="lg:col-span-4 bg-white rounded-2xl shadow-md p-6 border border-[#E5E7EB] sticky top-4">
             <div className="flex justify-between items-center mb-4 pb-4 border-b border-[#E5E7EB]">
-              <h3 className="text-xl font-bold text-[#3E2C24]">Current Order</h3>
+              <h3 className="text-xl font-bold text-[#610027]">Current Order</h3>
               <button
                 onClick={() => setBillItems([])}
-                className="text-sm bg-[#F4A261] text-white hover:bg-[#E08F50] rounded-xl px-4 py-2 transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
+                className="text-sm bg-[#912B48] text-white hover:bg-[#610027] rounded-xl px-4 py-2 transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
               >
                 Clear
               </button>
@@ -966,10 +966,10 @@ export default function OrdersPage() {
                     const itemIsDosaOrUttapam = productImage?.category_name?.toLowerCase().includes('dosa') || productImage?.category_name?.toLowerCase().includes('uttapam')
 
                     return (
-                      <div key={item.product_id} className="flex gap-3 py-3 border-b border-[#E5E7EB] last:border-b-0 transition-all duration-200 ease-in-out hover:bg-[#FAF7F2] rounded-md px-2">
+                      <div key={item.product_id} className="flex gap-3 py-3 border-b border-[#E5E7EB] last:border-b-0 transition-all duration-200 ease-in-out hover:bg-[#FFF0F3]/10 rounded-md px-2">
                         {/* Left: Image */}
                         <div className="flex-shrink-0">
-                          <div className="h-16 w-16 flex items-center justify-center rounded-md overflow-hidden bg-[#FAF7F2]">
+                          <div className="h-16 w-16 flex items-center justify-center rounded-md overflow-hidden bg-[#FFF0F3]/20">
                             {(() => {
                               const categoryLower = productImage?.category_name?.toLowerCase() || ''
                               if (categoryLower.includes('idli')) {
@@ -1064,20 +1064,20 @@ export default function OrdersPage() {
                             <div className="flex items-center gap-2">
                               <button
                                 onClick={() => updateQuantity(item.product_id, -1)}
-                                className="p-1.5 rounded-full bg-[#FAF7F2] text-[#3E2C24] hover:bg-[#E5E7EB] transition-all duration-200 ease-in-out active:scale-[0.9] border border-[#E5E7EB]"
+                                className="p-1.5 rounded-full bg-white text-[#610027] hover:bg-[#FFF0F3]/20 transition-all duration-200 ease-in-out active:scale-[0.9] border border-[#E5E7EB]"
                               >
                                 <Minus className="w-4 h-4" />
                               </button>
                               <span className="font-bold text-sm text-[#1F1F1F] min-w-[30px] text-center">{item.quantity}</span>
                               <button
                                 onClick={() => updateQuantity(item.product_id, 1)}
-                                className="p-1.5 rounded-full bg-[#FAF7F2] text-[#3E2C24] hover:bg-[#E5E7EB] transition-all duration-200 ease-in-out active:scale-[0.9] border border-[#E5E7EB]"
+                                className="p-1.5 rounded-full bg-white text-[#610027] hover:bg-[#FFF0F3]/20 transition-all duration-200 ease-in-out active:scale-[0.9] border border-[#E5E7EB]"
                               >
                                 <Plus className="w-4 h-4" />
                               </button>
                               <button
                                 onClick={() => removeItem(item.product_id)}
-                                className="p-1.5 rounded-full bg-[#F5F3EE] text-[#EF4444] hover:bg-[#F4A261]/20 transition-all duration-200 ease-in-out active:scale-[0.9] ml-1"
+                                className="p-1.5 rounded-full bg-[#FFF0F3]/20 text-[#EF4444] hover:bg-[#912B48]/20 transition-all duration-200 ease-in-out active:scale-[0.9] ml-1"
                               >
                                 <Trash2 className="w-4 h-4" />
                               </button>
@@ -1122,9 +1122,9 @@ export default function OrdersPage() {
               )}
             </div>
 
-            <div className="flex justify-between items-center mb-6 pt-4 border-t-2 border-[#3E2C24]">
-              <span className="text-lg font-bold text-[#3E2C24]">Total</span>
-              <span className="text-lg font-bold text-[#3E2C24]">₹{grandTotal.toFixed(2)}</span>
+            <div className="flex justify-between items-center mb-6 pt-4 border-t-2 border-[#912B48]">
+              <span className="text-lg font-bold text-[#610027]">Total</span>
+              <span className="text-lg font-bold text-[#912B48]">₹{grandTotal.toFixed(2)}</span>
             </div>
 
             <div className="grid grid-cols-3 gap-3 mb-6">
@@ -1132,8 +1132,8 @@ export default function OrdersPage() {
                 onClick={() => setPaymentMethod('CASH')}
                 className={`flex flex-col items-center justify-center p-4 rounded-xl border border-[#E5E7EB] transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring outline-none ${
                   paymentMethod === 'CASH'
-                    ? 'bg-[#3E2C24] text-white shadow-md'
-                    : 'bg-[#FAF7F2] text-[#3E2C24] hover:bg-[#C89B63]/10'
+                    ? 'bg-[#610027] text-white shadow-md'
+                    : 'bg-white text-[#610027] hover:bg-[#B45A69]/10'
                 }`}
               >
                 <Wallet className="w-6 h-6 mb-2" />
@@ -1143,8 +1143,8 @@ export default function OrdersPage() {
                 onClick={() => setPaymentMethod('UPI')}
                 className={`flex flex-col items-center justify-center p-4 rounded-xl border border-[#E5E7EB] transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring outline-none ${
                   paymentMethod === 'UPI'
-                    ? 'bg-[#3E2C24] text-white shadow-md'
-                    : 'bg-[#FAF7F2] text-[#3E2C24] hover:bg-[#C89B63]/10'
+                    ? 'bg-[#610027] text-white shadow-md'
+                    : 'bg-white text-[#610027] hover:bg-[#B45A69]/10'
                 }`}
               >
                 <Smartphone className="w-6 h-6 mb-2" />
@@ -1154,8 +1154,8 @@ export default function OrdersPage() {
                 onClick={() => setPaymentMethod('CARD')}
                 className={`flex flex-col items-center justify-center p-4 rounded-xl border border-[#E5E7EB] transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring outline-none ${
                   paymentMethod === 'CARD'
-                    ? 'bg-[#3E2C24] text-white shadow-md'
-                    : 'bg-[#FAF7F2] text-[#3E2C24] hover:bg-[#C89B63]/10'
+                    ? 'bg-[#610027] text-white shadow-md'
+                    : 'bg-white text-[#610027] hover:bg-[#B45A69]/10'
                 }`}
               >
                 <CreditCard className="w-6 h-6 mb-2" />
@@ -1166,7 +1166,7 @@ export default function OrdersPage() {
             <button
               onClick={handleCompleteBill}
               disabled={billItems.length === 0}
-              className="w-full bg-[#3E2C24] text-white py-3 px-4 rounded-xl font-semibold
+              className="w-full bg-[#912B48] text-white py-3 px-4 rounded-xl font-semibold hover:bg-[#B45A69]
                          transition-all duration-200 ease-in-out
                          hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]
                          focus-visible:ring outline-none disabled:opacity-50 disabled:cursor-not-allowed text-lg flex items-center justify-center gap-2"
@@ -1187,13 +1187,13 @@ export default function OrdersPage() {
               onClick={(e) => e.stopPropagation()}
             >
               <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-              <h2 className="text-2xl font-bold text-[#3E2C24] mb-2">Order Completed!</h2>
+              <h2 className="text-2xl font-bold text-[#610027] mb-2">Order Completed!</h2>
               <p className="text-gray-700 mb-1">Bill Number: <span className="font-semibold">{billDetails.invoice_number}</span></p>
-              <p className="text-gray-700 mb-4">Total Amount: <span className="font-bold text-xl text-[#3E2C24]">₹{billDetails.total.toFixed(2)}</span></p>
+              <p className="text-gray-700 mb-4">Total Amount: <span className="font-bold text-xl text-[#912B48]">₹{billDetails.total.toFixed(2)}</span></p>
               <div className="flex justify-center gap-4 mt-6">
                 <button
                   onClick={handlePrintInvoice}
-                  className="bg-[#C89B63] text-white py-3 px-6 rounded-xl font-semibold
+                  className="bg-[#912B48] text-white py-3 px-6 rounded-xl font-semibold hover:bg-[#B45A69]
                              transition-all duration-200 ease-in-out
                              hover:scale-[1.05] hover:shadow-lg active:scale-[0.95]"
                 >
@@ -1201,7 +1201,7 @@ export default function OrdersPage() {
                 </button>
                 <button
                   onClick={() => setShowOrderSuccessModal(false)}
-                  className="bg-gray-300 text-[#3E2C24] py-3 px-6 rounded-xl font-semibold
+                  className="bg-gray-300 text-[#610027] py-3 px-6 rounded-xl font-semibold
                              transition-all duration-200 ease-in-out
                              hover:scale-[1.05] hover:shadow-lg active:scale-[0.95]"
                 >

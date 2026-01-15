@@ -194,7 +194,7 @@ export default function ReportsPage() {
 
     // Summary Sheet
     const summaryData = [
-      ['BrewBite Cafe - Sales Report'],
+      ['Lichy Cafe - Sales Report'],
       [''],
       ['Date Range:', `${formatDate(dateRange.start)} to ${formatDate(dateRange.end)}`],
       ['Generated on:', generatedDate],
@@ -287,7 +287,7 @@ export default function ReportsPage() {
     // Generate filename with date range
     const startDateStr = dateRange.start.replace(/-/g, '')
     const endDateStr = dateRange.end.replace(/-/g, '')
-    const filename = `BrewBite_Report_${startDateStr}_to_${endDateStr}.xlsx`
+    const filename = `Lichy_Report_${startDateStr}_to_${endDateStr}.xlsx`
 
     // Save the Excel file
     XLSX.writeFile(workbook, filename)
@@ -304,10 +304,10 @@ export default function ReportsPage() {
   }
 
   return (
-    <div className="p-4 sm:p-8">
+    <div className="p-4 sm:p-8 bg-[#FFF0F3] min-h-screen">
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-[#3E2C24]">Reports</h1>
+          <h1 className="text-3xl font-bold text-[#610027]">Reports</h1>
           <div className="flex gap-4 items-center">
             <input
               type="date"
@@ -320,7 +320,7 @@ export default function ReportsPage() {
                   setDateRange({ ...dateRange, start: newStart })
                 }
               }}
-              className="px-4 py-2 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63] bg-[#FAF7F2] hover:bg-white transition-all duration-200 text-[#1F1F1F]"
+              className="px-4 py-2 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#912B48] focus:border-[#912B48] bg-white hover:bg-[#FFF0F3]/10 transition-all duration-200 text-[#610027]"
             />
             <input
               type="date"
@@ -333,11 +333,11 @@ export default function ReportsPage() {
                   setDateRange({ ...dateRange, end: newEnd })
                 }
               }}
-              className="px-4 py-2 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63] bg-[#FAF7F2] hover:bg-white transition-all duration-200 text-[#1F1F1F]"
+              className="px-4 py-2 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#912B48] focus:border-[#912B48] bg-white hover:bg-[#FFF0F3]/10 transition-all duration-200 text-[#610027]"
             />
             <button
               onClick={() => exportToExcel().catch(console.error)}
-              className="px-6 py-2 bg-[#3E2C24] text-white rounded-xl font-medium hover:bg-[#2c1f19] transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] flex items-center gap-2"
+              className="px-6 py-2 bg-[#912B48] text-white rounded-xl font-medium hover:bg-[#B45A69] transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] flex items-center gap-2"
             >
               <Download className="w-4 h-4" />
               Export Data
@@ -350,10 +350,10 @@ export default function ReportsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-[#6B6B6B] text-sm font-medium">Total Sales</p>
-                <p className="text-3xl font-bold text-[#3E2C24] mt-2">₹{totalSales.toFixed(2)}</p>
+                <p className="text-3xl font-bold text-[#912B48] mt-2">₹{totalSales.toFixed(2)}</p>
               </div>
-              <div className="p-3 rounded-full bg-[#FAF7F2]">
-                <IndianRupee className="w-8 h-8 text-[#C89B63]" />
+              <div className="p-3 rounded-full bg-[#FFF0F3]/30">
+                <IndianRupee className="w-8 h-8 text-[#912B48]" />
               </div>
             </div>
           </div>
@@ -362,15 +362,15 @@ export default function ReportsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-[#6B6B6B] text-sm font-medium">Total Tax (GST)</p>
-                <p className="text-3xl font-bold text-[#3E2C24] mt-2">₹{totalTax.toFixed(2)}</p>
+                <p className="text-3xl font-bold text-[#912B48] mt-2">₹{totalTax.toFixed(2)}</p>
                 {(totalCGST > 0 || totalSGST > 0) && (
                   <div className="text-xs text-[#6B6B6B] mt-1">
                     CGST: ₹{totalCGST.toFixed(2)} | SGST: ₹{totalSGST.toFixed(2)}
                   </div>
                 )}
               </div>
-              <div className="p-3 rounded-full bg-[#FAF7F2]">
-                <TrendingUp className="w-8 h-8 text-[#C89B63]" />
+              <div className="p-3 rounded-full bg-[#FFF0F3]/30">
+                <TrendingUp className="w-8 h-8 text-[#912B48]" />
               </div>
             </div>
           </div>
@@ -379,10 +379,10 @@ export default function ReportsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-[#6B6B6B] text-sm font-medium">Transactions</p>
-                <p className="text-3xl font-bold text-[#3E2C24] mt-2">{transactionCount}</p>
+                <p className="text-3xl font-bold text-[#912B48] mt-2">{transactionCount}</p>
               </div>
-              <div className="p-3 rounded-full bg-[#FAF7F2]">
-                <FileText className="w-8 h-8 text-[#C89B63]" />
+              <div className="p-3 rounded-full bg-[#FFF0F3]/30">
+                <FileText className="w-8 h-8 text-[#912B48]" />
               </div>
             </div>
           </div>
@@ -391,7 +391,7 @@ export default function ReportsPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           {/* Payment Methods Pie Chart */}
           <div className="bg-white rounded-2xl shadow-md p-6 border border-[#E5E7EB]">
-            <h2 className="text-xl font-bold text-[#3E2C24] mb-6">Payment Methods</h2>
+            <h2 className="text-xl font-bold text-[#610027] mb-6">Payment Methods</h2>
             {Object.keys(paymentMethodBreakdown).length > 0 ? (
               <div className="flex flex-col items-center">
                 <ResponsiveContainer width="100%" height={350}>
@@ -415,7 +415,7 @@ export default function ReportsPage() {
                           <text 
                             x={x} 
                             y={y} 
-                            fill="#3E2C24" 
+                            fill="#610027" 
                             textAnchor={x > cx ? 'start' : 'end'} 
                             dominantBaseline="middle"
                             fontSize="12"
@@ -438,18 +438,18 @@ export default function ReportsPage() {
                     >
                       {Object.entries(paymentMethodBreakdown).map((entry, index) => {
                         const method = entry[0].toLowerCase()
-                        let color = '#C89B63' // default caramel
+                        let color = '#912B48' // default medium-dark red
                         
-                        // Assign specific colors based on payment method
+                        // Assign specific colors based on payment method using new theme
                         if (method === 'card') {
-                          color = '#F4A261' // lighter orange for Card (same as bar chart)
+                          color = '#B45A69' // dusty rose for Card
                         } else if (method === 'cash') {
-                          color = '#D4A574' // light caramel for Cash
+                          color = '#912B48' // medium-dark red for Cash
                         } else if (method === 'upi') {
-                          color = '#3E2C24' // dark brown for UPI
+                          color = '#610027' // deep burgundy for UPI
                         } else {
-                          // Fallback colors for other methods
-                          const fallbackColors = ['#C89B63', '#E5B88A', '#F4A261', '#F5C89B', '#FFB88C', '#FFA07A']
+                          // Fallback colors for other methods using theme palette
+                          const fallbackColors = ['#912B48', '#B45A69', '#610027', '#FFF0F3']
                           color = fallbackColors[index % fallbackColors.length]
                         }
                         
@@ -459,17 +459,17 @@ export default function ReportsPage() {
                     <Tooltip 
                       formatter={(value: any) => value !== undefined && value !== null ? `₹${Number(value).toFixed(2)}` : ''}
                       contentStyle={{
-                        backgroundColor: '#FAF7F2',
+                        backgroundColor: '#FFF0F3',
                         border: '1px solid #E5E7EB',
                         borderRadius: '8px',
-                        color: '#3E2C24'
+                        color: '#610027'
                       }}
                     />
                     <Legend 
                       wrapperStyle={{ paddingTop: '20px' }}
                       formatter={(value) => (
                         <span style={{ 
-                          color: '#3E2C24', 
+                          color: '#610027', 
                           fontWeight: '600',
                           fontSize: '13px'
                         }}>
@@ -484,7 +484,7 @@ export default function ReportsPage() {
                   {Object.entries(paymentMethodBreakdown).map(([method, amount]) => (
                     <div key={method} className="flex justify-between items-center py-2 border-b border-[#E5E7EB] last:border-b-0">
                       <span className="text-[#6B6B6B] capitalize">{method.toLowerCase()}</span>
-                      <span className="font-semibold text-[#3E2C24]">₹{amount.toFixed(2)}</span>
+                      <span className="font-semibold text-[#912B48]">₹{amount.toFixed(2)}</span>
                     </div>
                   ))}
                 </div>
@@ -496,7 +496,7 @@ export default function ReportsPage() {
 
           {/* Sales by Category Bar Chart */}
           <div className="bg-white rounded-2xl shadow-md p-6 border border-[#E5E7EB]">
-            <h2 className="text-xl font-bold text-[#3E2C24] mb-6">Sales by Category</h2>
+            <h2 className="text-xl font-bold text-[#610027] mb-6">Sales by Category</h2>
             {salesByCategory && salesByCategory.summary.length > 0 ? (
               <div>
                 <ResponsiveContainer width="100%" height={300}>
@@ -524,15 +524,15 @@ export default function ReportsPage() {
                     <Tooltip 
                       formatter={(value: any) => value !== undefined && value !== null ? `₹${Number(value).toFixed(2)}` : ''}
                       contentStyle={{
-                        backgroundColor: '#FAF7F2',
+                        backgroundColor: '#FFF0F3',
                         border: '1px solid #E5E7EB',
                         borderRadius: '8px',
-                        color: '#3E2C24'
+                        color: '#610027'
                       }}
                     />
                     <Bar 
                       dataKey="sales" 
-                      fill="#C89B63"
+                      fill="#912B48"
                       radius={[8, 8, 0, 0]}
                       animationBegin={0}
                       animationDuration={800}
@@ -541,7 +541,8 @@ export default function ReportsPage() {
                       {salesByCategory.summary
                         .sort((a, b) => b.total_sales - a.total_sales)
                         .map((entry, index) => {
-                          const colors = ['#3E2C24', '#C89B63', '#F4A261', '#D4A574', '#E5B88A']
+                          // Use theme colors: deep burgundy, medium-dark red, dusty rose, light pink
+                          const colors = ['#610027', '#912B48', '#B45A69', '#FFF0F3']
                           return <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
                         })}
                     </Bar>
@@ -553,7 +554,7 @@ export default function ReportsPage() {
                     .map((item) => (
                       <div key={item.category_name} className="flex justify-between items-center py-2 border-b border-[#E5E7EB] last:border-b-0">
                         <span className="text-[#6B6B6B]">{item.category_name}</span>
-                        <span className="font-semibold text-[#3E2C24]">₹{item.total_sales.toFixed(2)}</span>
+                        <span className="font-semibold text-[#912B48]">₹{item.total_sales.toFixed(2)}</span>
                       </div>
                     ))}
                 </div>
@@ -567,38 +568,38 @@ export default function ReportsPage() {
         {/* Tax Summary by Tax Rate */}
         {taxSummary && taxSummary.summary.length > 0 && (
           <div className="bg-white rounded-2xl shadow-md p-6 border border-[#E5E7EB]">
-            <h2 className="text-xl font-bold text-[#3E2C24] mb-6">Tax Summary by Tax Rate</h2>
+            <h2 className="text-xl font-bold text-[#610027] mb-6">Tax Summary by Tax Rate</h2>
             <div className="overflow-x-auto">
               <table className="min-w-full">
-                <thead className="bg-[#FAF7F2]">
+                <thead className="bg-[#B45A69]/20">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider">Tax Rate</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider">Tax Group</th>
-                    <th className="px-4 py-3 text-right text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider">Taxable Value</th>
-                    <th className="px-4 py-3 text-right text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider">CGST</th>
-                    <th className="px-4 py-3 text-right text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider">SGST</th>
-                    <th className="px-4 py-3 text-right text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider">Total Tax</th>
-                    <th className="px-4 py-3 text-right text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider">Items</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-[#610027] uppercase tracking-wider">Tax Rate</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-[#610027] uppercase tracking-wider">Tax Group</th>
+                    <th className="px-4 py-3 text-right text-xs font-semibold text-[#610027] uppercase tracking-wider">Taxable Value</th>
+                    <th className="px-4 py-3 text-right text-xs font-semibold text-[#610027] uppercase tracking-wider">CGST</th>
+                    <th className="px-4 py-3 text-right text-xs font-semibold text-[#610027] uppercase tracking-wider">SGST</th>
+                    <th className="px-4 py-3 text-right text-xs font-semibold text-[#610027] uppercase tracking-wider">Total Tax</th>
+                    <th className="px-4 py-3 text-right text-xs font-semibold text-[#610027] uppercase tracking-wider">Items</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#E5E7EB]">
                   {taxSummary.summary.map((item, idx) => (
-                    <tr key={idx} className="hover:bg-[#FAF7F2] transition-colors">
-                      <td className="px-4 py-3 text-[#1F1F1F] font-medium">{item.tax_rate_snapshot}%</td>
+                    <tr key={idx} className="hover:bg-[#FFF0F3]/20 transition-colors">
+                      <td className="px-4 py-3 text-[#610027] font-medium">{item.tax_rate_snapshot}%</td>
                       <td className="px-4 py-3 text-[#6B6B6B]">{item.tax_group_name || 'N/A'}</td>
-                      <td className="px-4 py-3 text-right text-[#1F1F1F]">₹{item.total_taxable_value.toFixed(2)}</td>
-                      <td className="px-4 py-3 text-right text-[#1F1F1F]">₹{item.total_cgst.toFixed(2)}</td>
-                      <td className="px-4 py-3 text-right text-[#1F1F1F]">₹{item.total_sgst.toFixed(2)}</td>
-                      <td className="px-4 py-3 text-right font-semibold text-[#3E2C24]">₹{item.total_tax.toFixed(2)}</td>
+                      <td className="px-4 py-3 text-right text-[#610027]">₹{item.total_taxable_value.toFixed(2)}</td>
+                      <td className="px-4 py-3 text-right text-[#610027]">₹{item.total_cgst.toFixed(2)}</td>
+                      <td className="px-4 py-3 text-right text-[#610027]">₹{item.total_sgst.toFixed(2)}</td>
+                      <td className="px-4 py-3 text-right font-semibold text-[#912B48]">₹{item.total_tax.toFixed(2)}</td>
                       <td className="px-4 py-3 text-right text-[#6B6B6B]">{item.item_count}</td>
                     </tr>
                   ))}
-                  <tr className="bg-[#FAF7F2] font-bold">
-                    <td colSpan={2} className="px-4 py-3 text-[#3E2C24]">Grand Total</td>
-                    <td className="px-4 py-3 text-right text-[#3E2C24]">₹{taxSummary.grand_total_taxable_value.toFixed(2)}</td>
-                    <td className="px-4 py-3 text-right text-[#3E2C24]">₹{taxSummary.grand_total_cgst.toFixed(2)}</td>
-                    <td className="px-4 py-3 text-right text-[#3E2C24]">₹{taxSummary.grand_total_sgst.toFixed(2)}</td>
-                    <td className="px-4 py-3 text-right text-[#3E2C24]">₹{taxSummary.grand_total_tax.toFixed(2)}</td>
+                  <tr className="bg-[#FFF0F3]/30 font-bold">
+                    <td colSpan={2} className="px-4 py-3 text-[#610027]">Grand Total</td>
+                    <td className="px-4 py-3 text-right text-[#912B48]">₹{taxSummary.grand_total_taxable_value.toFixed(2)}</td>
+                    <td className="px-4 py-3 text-right text-[#912B48]">₹{taxSummary.grand_total_cgst.toFixed(2)}</td>
+                    <td className="px-4 py-3 text-right text-[#912B48]">₹{taxSummary.grand_total_sgst.toFixed(2)}</td>
+                    <td className="px-4 py-3 text-right text-[#912B48]">₹{taxSummary.grand_total_tax.toFixed(2)}</td>
                     <td className="px-4 py-3"></td>
                   </tr>
                 </tbody>

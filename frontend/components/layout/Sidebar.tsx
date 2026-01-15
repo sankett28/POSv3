@@ -19,15 +19,15 @@ function Sidebar() {
   const pathname = usePathname()
 
   return (
-    <div className="hidden md:block w-72 bg-gradient-to-b from-white to-warm-cream border-r border-gray-200 h-screen sticky top-0 shadow-lg rounded-r-2xl">
-      <div className="p-8 border-b border-gray-200 bg-gradient-to-r from-white to-warm-cream rounded-tr-2xl">
+    <div className="hidden md:block w-72 bg-gradient-to-b from-white to-[#FFF0F3] border-r border-gray-200 h-screen sticky top-0 shadow-lg rounded-r-2xl">
+      <div className="p-8 border-b border-gray-200 bg-gradient-to-r from-white to-[#FFF0F3] rounded-tr-2xl">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 bg-gradient-to-br from-coffee-brown to-caramel rounded-xl flex items-center justify-center shadow-lg">
+          <div className="w-12 h-12 bg-gradient-to-br from-[#912B48] to-[#B45A69] rounded-xl flex items-center justify-center shadow-lg">
             <Coffee className="w-7 h-7 text-white" />
           </div>
           <div className="flex flex-col">
-            <span className="font-bold text-xl text-coffee-brown leading-tight">BrewBite POS</span>
-            <span className="text-sm text-caramel font-medium">Cafe Management</span>
+            <span className="font-bold text-xl text-[#610027] leading-tight">Lichy POS</span>
+            <span className="text-sm text-[#912B48] font-medium">Cafe Management</span>
           </div>
         </div>
       </div>
@@ -41,8 +41,8 @@ function Sidebar() {
               href={item.href}
               className={`flex items-center gap-4 px-5 py-4 rounded-xl mb-3 transition-all duration-200 hover:scale-105 active:scale-95 ${
                 isActive
-                  ? 'bg-coffee-brown text-white shadow-lg hover:shadow-xl'
-                  : 'text-secondary-text hover:bg-white hover:text-coffee-brown hover:shadow-md'
+                  ? 'bg-[#610027] text-white shadow-lg hover:shadow-xl'
+                  : 'text-[#610027] hover:bg-white hover:text-[#912B48] hover:shadow-md'
               }`}
             >
               <Icon className="w-6 h-6" />

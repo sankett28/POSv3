@@ -331,10 +331,10 @@ export default function MenuPage() {
   }
 
   return (
-    <div className="p-4 sm:p-8 bg-[#F5F3EE] min-h-screen">
+    <div className="p-4 sm:p-8 bg-[#FFF0F3] min-h-screen">
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-[#3E2C24]">Menu</h1>
+          <h1 className="text-3xl font-bold text-[#610027]">Menu</h1>
           <div className="flex gap-3">
             <button
               onClick={() => {
@@ -342,7 +342,7 @@ export default function MenuPage() {
                 resetCategoryForm()
                 setShowCategoryModal(true)
               }}
-              className="bg-[#C89B63] text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2 text-base"
+              className="bg-[#912B48] text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2 text-base hover:bg-[#B45A69]"
             >
               <Plus className="w-5 h-5" />
               Add Category
@@ -353,7 +353,7 @@ export default function MenuPage() {
                 resetItemForm()
                 setShowItemModal(true)
               }}
-              className="bg-[#3E2C24] text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2 text-base"
+              className="bg-[#610027] text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2 text-base hover:bg-[#912B48]"
             >
               <Plus className="w-5 h-5" />
               Add Menu Item
@@ -363,14 +363,14 @@ export default function MenuPage() {
 
         {/* Categories Section */}
         <div className="bg-white rounded-2xl shadow-md mb-6 p-6 border border-[#E5E7EB]">
-          <h2 className="text-xl font-bold text-[#3E2C24] mb-4">Categories</h2>
+          <h2 className="text-xl font-bold text-[#610027] mb-4">Categories</h2>
           <div className="flex flex-wrap gap-3">
             <button
               onClick={() => setSelectedCategory(null)}
-              className={`px-4 py-2 rounded-xl font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring outline-none ${
+              className={`px-5 py-2.5 rounded-full font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring outline-none ${
                 selectedCategory === null
-                  ? 'bg-[#3E2C24] text-white shadow-md'
-                  : 'bg-[#FAF7F2] text-[#3E2C24] hover:bg-[#C89B63]/10'
+                  ? 'bg-[#610027] text-white shadow-md'
+                  : 'bg-white text-[#610027] hover:bg-[#B45A69]/10 border border-[#E5E7EB]'
               }`}
             >
               All
@@ -382,10 +382,10 @@ export default function MenuPage() {
               >
                 <button
                   onClick={() => setSelectedCategory(category.id)}
-                  className={`px-4 py-2 rounded-xl font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring outline-none ${
+                  className={`px-5 py-2.5 rounded-full font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring outline-none ${
                     selectedCategory === category.id
-                      ? 'bg-[#3E2C24] text-white shadow-md'
-                      : 'bg-[#FAF7F2] text-[#3E2C24] hover:bg-[#C89B63]/10'
+                      ? 'bg-[#610027] text-white shadow-md'
+                      : 'bg-white text-[#610027] hover:bg-[#B45A69]/10 border border-[#E5E7EB]'
                   }`}
                 >
                   {category.name}
@@ -414,7 +414,7 @@ export default function MenuPage() {
               placeholder="Search menu items..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63] bg-[#FAF7F2] hover:bg-white transition-all duration-200 text-[#1F1F1F] placeholder-[#9CA3AF]"
+              className="w-full pl-12 pr-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#912B48] focus:border-[#912B48] bg-white hover:bg-[#FFF0F3]/10 transition-all duration-200 text-[#610027] placeholder-[#9CA3AF]"
             />
           </div>
         </div>
@@ -428,10 +428,10 @@ export default function MenuPage() {
             return (
               <div key={category.id} className="bg-white rounded-2xl shadow-md border border-[#E5E7EB]">
                 <div className="p-6 border-b border-[#E5E7EB] flex justify-between items-center">
-                  <h3 className="text-xl font-bold text-[#3E2C24]">{category.name}</h3>
+                  <h3 className="text-xl font-bold text-[#610027]">{category.name}</h3>
                   <button
                     onClick={() => handleBulkTaxGroupAssign(category)}
-                    className="px-4 py-2 bg-[#C89B63] text-white rounded-xl font-medium text-sm
+                    className="px-4 py-2 bg-[#912B48] text-white rounded-xl font-medium text-sm hover:bg-[#B45A69]
                              transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg 
                              active:scale-[0.98] flex items-center gap-2"
                     title="Assign tax group to all products in this category"
@@ -442,18 +442,18 @@ export default function MenuPage() {
                 </div>
                 <div className="overflow-x-auto">
                   <table className="min-w-full leading-normal">
-                    <thead className="bg-[#FAF7F2]">
+                    <thead className="bg-[#B45A69]/20">
                       <tr>
-                        <th className="px-6 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider rounded-tl-xl">Item</th>
-                        <th className="px-6 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider">Price</th>
-                        <th className="px-6 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider">Tax Group</th>
-                        <th className="px-6 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider">Status</th>
-                        <th className="px-6 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider rounded-tr-xl">Actions</th>
+                        <th className="px-6 py-3 text-left text-xs font-semibold text-[#610027] uppercase tracking-wider rounded-tl-xl">Item</th>
+                        <th className="px-6 py-3 text-left text-xs font-semibold text-[#610027] uppercase tracking-wider">Price</th>
+                        <th className="px-6 py-3 text-left text-xs font-semibold text-[#610027] uppercase tracking-wider">Tax Group</th>
+                        <th className="px-6 py-3 text-left text-xs font-semibold text-[#610027] uppercase tracking-wider">Status</th>
+                        <th className="px-6 py-3 text-left text-xs font-semibold text-[#610027] uppercase tracking-wider rounded-tr-xl">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
                       {categoryProducts.map((product) => (
-                        <tr key={product.id} className="border-t border-[#E5E7EB] transition-all duration-200 ease-in-out hover:bg-[#FAF7F2]">
+                        <tr key={product.id} className="border-t border-[#E5E7EB] transition-all duration-200 ease-in-out hover:bg-[#FFF0F3]/10">
                           <td className="px-6 py-4 font-medium text-[#1F1F1F]">{product.name}</td>
                           <td className="px-6 py-4 text-[#1F1F1F]">₹{product.selling_price.toFixed(2)}</td>
                           <td className="px-6 py-4 text-[#6B6B6B]">
@@ -477,14 +477,14 @@ export default function MenuPage() {
                             <div className="flex gap-3">
                               <button
                                 onClick={() => handleEditItem(product)}
-                                className="text-[#3E2C24] hover:text-[#C89B63] transition-all duration-200 ease-in-out hover:scale-[1.05] active:scale-[0.95]"
+                                className="text-[#610027] hover:text-[#912B48] transition-all duration-200 ease-in-out hover:scale-[1.05] active:scale-[0.95]"
                               >
                                 <Edit className="w-4 h-4" />
                               </button>
                               {product.is_active && (
                                 <button
                                   onClick={() => handleDeactivateItem(product.id)}
-                                  className="text-[#F4A261] hover:text-[#E08F50] transition-all duration-200 ease-in-out hover:scale-[1.05] active:scale-[0.95]"
+                                  className="text-[#912B48] hover:text-[#610027] transition-all duration-200 ease-in-out hover:scale-[1.05] active:scale-[0.95]"
                                 >
                                   <Trash2 className="w-4 h-4" />
                                 </button>
@@ -504,22 +504,22 @@ export default function MenuPage() {
           {(!selectedCategory || selectedCategory === null) && uncategorizedProducts.length > 0 && (
             <div className="bg-white rounded-2xl shadow-md border border-[#E5E7EB]">
               <div className="p-6 border-b border-[#E5E7EB]">
-                <h3 className="text-xl font-bold text-[#3E2C24]">Uncategorized</h3>
+                <h3 className="text-xl font-bold text-[#610027]">Uncategorized</h3>
               </div>
               <div className="overflow-x-auto">
                 <table className="min-w-full leading-normal">
-                  <thead className="bg-[#FAF7F2]">
+                  <thead className="bg-[#B45A69]/20">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider rounded-tl-xl">Item</th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider">Price</th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider">Tax Group</th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider">Status</th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider rounded-tr-xl">Actions</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-[#610027] uppercase tracking-wider rounded-tl-xl">Item</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-[#610027] uppercase tracking-wider">Price</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-[#610027] uppercase tracking-wider">Tax Group</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-[#610027] uppercase tracking-wider">Status</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-[#610027] uppercase tracking-wider rounded-tr-xl">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {uncategorizedProducts.map((product) => (
-                      <tr key={product.id} className="border-t border-[#E5E7EB] transition-all duration-200 ease-in-out hover:bg-[#FAF7F2]">
+                      <tr key={product.id} className="border-t border-[#E5E7EB] transition-all duration-200 ease-in-out hover:bg-[#FFF0F3]/10">
                         <td className="px-6 py-4 font-medium text-[#1F1F1F]">{product.name}</td>
                         <td className="px-6 py-4 text-[#1F1F1F]">₹{product.selling_price.toFixed(2)}</td>
                         <td className="px-6 py-4 text-[#6B6B6B]">
@@ -543,7 +543,7 @@ export default function MenuPage() {
                           <div className="flex gap-3">
                             <button
                               onClick={() => handleEditItem(product)}
-                              className="text-[#3E2C24] hover:text-[#C89B63] transition-all duration-200 ease-in-out hover:scale-[1.05] active:scale-[0.95]"
+                              className="text-[#610027] hover:text-[#912B48] transition-all duration-200 ease-in-out hover:scale-[1.05] active:scale-[0.95]"
                             >
                               <Edit className="w-4 h-4" />
                             </button>
@@ -581,7 +581,7 @@ export default function MenuPage() {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex justify-between items-center mb-6 pb-4 border-b border-[#E5E7EB]">
-                <h2 className="text-2xl font-bold text-[#3E2C24]">
+                <h2 className="text-2xl font-bold text-[#610027]">
                   {editingProduct ? 'Edit Menu Item' : 'Add Menu Item'}
                 </h2>
                 <button
@@ -590,7 +590,7 @@ export default function MenuPage() {
                     setEditingProduct(null)
                     resetItemForm()
                   }}
-                  className="text-[#6B6B6B] hover:text-[#3E2C24] transition-all duration-200 ease-in-out active:scale-[0.9] p-2 rounded-full hover:bg-[#FAF7F2]"
+                  className="text-[#6B6B6B] hover:text-[#610027] transition-all duration-200 ease-in-out active:scale-[0.9] p-2 rounded-full hover:bg-[#FFF0F3]/20"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -603,7 +603,7 @@ export default function MenuPage() {
                     value={itemFormData.name}
                     onChange={(e) => setItemFormData({ ...itemFormData, name: e.target.value })}
                     required
-                    className="w-full px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63] bg-[#FAF7F2] hover:bg-white transition-all duration-200 text-[#1F1F1F] placeholder-[#9CA3AF]"
+                    className="w-full px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#912B48] focus:border-[#912B48] bg-white hover:bg-[#FFF0F3]/10 transition-all duration-200 text-[#610027] placeholder-[#9CA3AF]"
                   />
                 </div>
                 <div>
@@ -611,7 +611,7 @@ export default function MenuPage() {
                   <select
                     value={itemFormData.category_id}
                     onChange={(e) => setItemFormData({ ...itemFormData, category_id: e.target.value })}
-                    className="w-full px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63] bg-[#FAF7F2] hover:bg-white transition-all duration-200 text-[#1F1F1F]"
+                    className="w-full px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#912B48] focus:border-[#912B48] bg-white hover:bg-[#FFF0F3]/10 transition-all duration-200 text-[#610027]"
                   >
                     <option value="">No Category</option>
                     {categories.map((cat) => (
@@ -628,7 +628,7 @@ export default function MenuPage() {
                     value={itemFormData.selling_price}
                     onChange={(e) => setItemFormData({ ...itemFormData, selling_price: e.target.value })}
                     required
-                    className="w-full px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63] bg-[#FAF7F2] hover:bg-white transition-all duration-200 text-[#1F1F1F] placeholder-[#9CA3AF]"
+                    className="w-full px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#912B48] focus:border-[#912B48] bg-white hover:bg-[#FFF0F3]/10 transition-all duration-200 text-[#610027] placeholder-[#9CA3AF]"
                   />
                 </div>
                 <div>
@@ -637,7 +637,7 @@ export default function MenuPage() {
                     value={itemFormData.tax_group_id}
                     onChange={(e) => setItemFormData({ ...itemFormData, tax_group_id: e.target.value })}
                     required
-                    className="w-full px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63] bg-[#FAF7F2] hover:bg-white transition-all duration-200 text-[#1F1F1F]"
+                    className="w-full px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#912B48] focus:border-[#912B48] bg-white hover:bg-[#FFF0F3]/10 transition-all duration-200 text-[#610027]"
                   >
                     <option value="">Select Tax Group</option>
                     {taxGroups.map((tg) => (
@@ -653,7 +653,7 @@ export default function MenuPage() {
                       type="checkbox"
                       checked={itemFormData.is_active}
                       onChange={(e) => setItemFormData({ ...itemFormData, is_active: e.target.checked })}
-                      className="w-5 h-5 border border-[#E5E7EB] rounded focus:ring-2 focus:ring-[#C89B63] accent-[#3E2C24]"
+                      className="w-5 h-5 border border-[#E5E7EB] rounded focus:ring-2 focus:ring-[#912B48] accent-[#912B48]"
                     />
                     <span className="text-sm font-semibold text-[#6B6B6B]">Active</span>
                   </label>
@@ -661,7 +661,7 @@ export default function MenuPage() {
                 <button
                   type="button"
                   onClick={() => setShowAdvanced(!showAdvanced)}
-                  className="text-sm text-[#6B6B6B] hover:text-[#3E2C24] flex items-center gap-1 transition-all duration-200 ease-in-out active:scale-[0.95] focus-visible:ring outline-none"
+                  className="text-sm text-[#6B6B6B] hover:text-[#610027] flex items-center gap-1 transition-all duration-200 ease-in-out active:scale-[0.95] focus-visible:ring outline-none"
                 >
                   <Settings className="w-4 h-4" />
                   {showAdvanced ? 'Hide' : 'Show'} Advanced Settings
@@ -672,7 +672,7 @@ export default function MenuPage() {
                     <select
                       value={itemFormData.unit}
                       onChange={(e) => setItemFormData({ ...itemFormData, unit: e.target.value })}
-                      className="w-full px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63] bg-[#FAF7F2] hover:bg-white transition-all duration-200 text-[#1F1F1F]"
+                      className="w-full px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#912B48] focus:border-[#912B48] bg-white hover:bg-[#FFF0F3]/10 transition-all duration-200 text-[#610027]"
                     >
                       <option value="">No Unit</option>
                       <option value="pcs">Pieces (pcs)</option>
@@ -696,13 +696,13 @@ export default function MenuPage() {
                       setEditingProduct(null)
                       resetItemForm()
                     }}
-                    className="px-6 py-3 rounded-xl font-medium border border-[#3E2C24] text-[#3E2C24] hover:bg-[#3E2C24] hover:text-white transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
+                    className="px-6 py-3 rounded-xl font-medium border border-[#912B48] text-[#610027] hover:bg-[#912B48] hover:text-white transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="px-6 py-3 bg-[#3E2C24] text-white rounded-xl font-medium hover:bg-[#2c1f19] transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
+                    className="px-6 py-3 bg-[#912B48] text-white rounded-xl font-medium hover:bg-[#B45A69] transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
                   >
                     {editingProduct ? 'Update' : 'Create'}
                   </button>
@@ -727,7 +727,7 @@ export default function MenuPage() {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex justify-between items-center mb-6 pb-4 border-b border-[#E5E7EB]">
-                <h2 className="text-2xl font-bold text-[#3E2C24]">
+                <h2 className="text-2xl font-bold text-[#610027]">
                   {editingCategory ? 'Edit Category' : 'Add Category'}
                 </h2>
                 <button
@@ -736,7 +736,7 @@ export default function MenuPage() {
                     setEditingCategory(null)
                     resetCategoryForm()
                   }}
-                  className="text-[#6B6B6B] hover:text-[#3E2C24] transition-all duration-200 ease-in-out active:scale-[0.9] p-2 rounded-full hover:bg-[#FAF7F2]"
+                  className="text-[#6B6B6B] hover:text-[#610027] transition-all duration-200 ease-in-out active:scale-[0.9] p-2 rounded-full hover:bg-[#FFF0F3]/20"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -749,7 +749,7 @@ export default function MenuPage() {
                     value={categoryFormData.name}
                     onChange={(e) => setCategoryFormData({ ...categoryFormData, name: e.target.value })}
                     required
-                    className="w-full px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63] bg-[#FAF7F2] hover:bg-white transition-all duration-200 text-[#1F1F1F] placeholder-[#9CA3AF]"
+                    className="w-full px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#912B48] focus:border-[#912B48] bg-white hover:bg-[#FFF0F3]/10 transition-all duration-200 text-[#610027] placeholder-[#9CA3AF]"
                   />
                 </div>
                 <div>
@@ -758,7 +758,7 @@ export default function MenuPage() {
                     type="number"
                     value={categoryFormData.display_order}
                     onChange={(e) => setCategoryFormData({ ...categoryFormData, display_order: parseInt(e.target.value) || 0 })}
-                    className="w-full px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63] bg-[#FAF7F2] hover:bg-white transition-all duration-200 text-[#1F1F1F] placeholder-[#9CA3AF]"
+                    className="w-full px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#912B48] focus:border-[#912B48] bg-white hover:bg-[#FFF0F3]/10 transition-all duration-200 text-[#610027] placeholder-[#9CA3AF]"
                   />
                 </div>
                 <div>
@@ -767,7 +767,7 @@ export default function MenuPage() {
                       type="checkbox"
                       checked={categoryFormData.is_active}
                       onChange={(e) => setCategoryFormData({ ...categoryFormData, is_active: e.target.checked })}
-                      className="w-5 h-5 border border-[#E5E7EB] rounded focus:ring-2 focus:ring-[#C89B63] accent-[#3E2C24]"
+                      className="w-5 h-5 border border-[#E5E7EB] rounded focus:ring-2 focus:ring-[#912B48] accent-[#912B48]"
                     />
                     <span className="text-sm font-semibold text-[#6B6B6B]">Active</span>
                   </label>
@@ -780,13 +780,13 @@ export default function MenuPage() {
                       setEditingCategory(null)
                       resetCategoryForm()
                     }}
-                    className="px-6 py-3 rounded-xl font-medium border border-[#3E2C24] text-[#3E2C24] hover:bg-[#3E2C24] hover:text-white transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
+                    className="px-6 py-3 rounded-xl font-medium border border-[#912B48] text-[#610027] hover:bg-[#912B48] hover:text-white transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="px-6 py-3 bg-[#3E2C24] text-white rounded-xl font-medium hover:bg-[#2c1f19] transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
+                    className="px-6 py-3 bg-[#912B48] text-white rounded-xl font-medium hover:bg-[#B45A69] transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
                   >
                     {editingCategory ? 'Update' : 'Create'}
                   </button>
@@ -812,7 +812,7 @@ export default function MenuPage() {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex justify-between items-center mb-6 pb-4 border-b border-[#E5E7EB]">
-                <h2 className="text-2xl font-bold text-[#3E2C24]">
+                <h2 className="text-2xl font-bold text-[#610027]">
                   Assign Tax Group to Category
                 </h2>
                 <button
@@ -822,7 +822,7 @@ export default function MenuPage() {
                     setBulkTaxGroupId('')
                     setShowTaxConfirmation(false)
                   }}
-                  className="text-[#6B6B6B] hover:text-[#3E2C24] transition-all duration-200 ease-in-out active:scale-[0.9] p-2 rounded-full hover:bg-[#FAF7F2]"
+                  className="text-[#6B6B6B] hover:text-[#610027] transition-all duration-200 ease-in-out active:scale-[0.9] p-2 rounded-full hover:bg-[#FFF0F3]/20"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -839,7 +839,7 @@ export default function MenuPage() {
                     value={bulkTaxGroupId}
                     onChange={(e) => setBulkTaxGroupId(e.target.value)}
                     required
-                    className="w-full px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63] bg-[#FAF7F2] hover:bg-white transition-all duration-200 text-[#1F1F1F]"
+                    className="w-full px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#912B48] focus:border-[#912B48] bg-white hover:bg-[#FFF0F3]/10 transition-all duration-200 text-[#610027]"
                   >
                     <option value="">Select Tax Group</option>
                     {taxGroups.map((tg) => (
@@ -851,22 +851,22 @@ export default function MenuPage() {
                 </div>
                 {/* Confirmation Notification */}
                 {showTaxConfirmation && (
-                  <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-xl">
-                    <p className="text-sm text-yellow-800 mb-4">
+                  <div className="mt-4 p-4 bg-[#FFF0F3] border border-[#B45A69] rounded-xl">
+                    <p className="text-sm text-[#610027] mb-4">
                       Are you sure you want to assign this tax group to <strong>ALL products</strong> in &quot;{selectedCategoryForBulk?.name}&quot;?
                     </p>
                     <div className="flex gap-3 justify-end">
                       <button
                         type="button"
                         onClick={handleCancelTaxConfirmation}
-                        className="px-4 py-2 rounded-xl font-medium border border-yellow-600 text-yellow-700 hover:bg-yellow-100 transition-all duration-200 ease-in-out hover:scale-[1.02] active:scale-[0.98]"
+                        className="px-4 py-2 rounded-xl font-medium border border-[#912B48] text-[#610027] hover:bg-[#FFF0F3] transition-all duration-200 ease-in-out hover:scale-[1.02] active:scale-[0.98]"
                       >
                         Cancel
                       </button>
                       <button
                         type="button"
                         onClick={handleConfirmTaxAssignment}
-                        className="px-4 py-2 bg-yellow-600 text-white rounded-xl font-medium hover:bg-yellow-700 transition-all duration-200 ease-in-out hover:scale-[1.02] active:scale-[0.98]"
+                        className="px-4 py-2 bg-[#912B48] text-white rounded-xl font-medium hover:bg-[#B45A69] transition-all duration-200 ease-in-out hover:scale-[1.02] active:scale-[0.98]"
                       >
                         OK
                       </button>
@@ -882,13 +882,13 @@ export default function MenuPage() {
                       setBulkTaxGroupId('')
                       setShowTaxConfirmation(false)
                     }}
-                    className="px-6 py-3 rounded-xl font-medium border border-[#3E2C24] text-[#3E2C24] hover:bg-[#3E2C24] hover:text-white transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
+                    className="px-6 py-3 rounded-xl font-medium border border-[#912B48] text-[#610027] hover:bg-[#912B48] hover:text-white transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="px-6 py-3 bg-[#3E2C24] text-white rounded-xl font-medium hover:bg-[#2c1f19] transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
+                    className="px-6 py-3 bg-[#912B48] text-white rounded-xl font-medium hover:bg-[#B45A69] transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
                   >
                     Assign to All Products
                   </button>
@@ -921,13 +921,13 @@ export default function MenuPage() {
                 </div>
               )}
               <p className={`text-sm font-semibold flex-1 ${
-                toast.type === 'success' ? 'text-[#3E2C24]' : 'text-[#3E2C24]'
+                toast.type === 'success' ? 'text-[#610027]' : 'text-[#610027]'
               }`}>
                 {toast.message}
               </p>
               <button
                 onClick={() => setToast(null)}
-                className="flex-shrink-0 p-1 rounded-full text-[#6B6B6B] hover:text-[#3E2C24] hover:bg-[#FAF7F2] transition-colors"
+                className="flex-shrink-0 p-1 rounded-full text-[#6B6B6B] hover:text-[#610027] hover:bg-[#FFF0F3]/20 transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>

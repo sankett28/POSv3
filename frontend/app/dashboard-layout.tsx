@@ -27,7 +27,7 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="flex flex-col h-screen bg-[#F5F3EE]">
+    <div className="flex flex-col h-screen bg-[#FFF0F3]">
       <Header />
       <div className="flex flex-1 overflow-hidden">
         <Sidebar />
