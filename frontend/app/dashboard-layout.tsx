@@ -13,18 +13,21 @@ export default function DashboardLayout({
 }) {
   const router = useRouter()
 
+  // Performance: Check auth once per render
+  const authenticated = isAuthenticated()
+
   useEffect(() => {
-    if (!isAuthenticated()) {
+    if (!authenticated) {
       router.push('/login')
     }
-  }, [router])
+  }, [router, authenticated])
 
-  if (!isAuthenticated()) {
+  if (!authenticated) {
     return null
   }
 
   return (
-    <div className="flex flex-col h-screen bg-[#F5F3EE]">
+    <div className="flex flex-col h-screen bg-[#FFF0F3]">
       <Header />
       <div className="flex flex-1 overflow-hidden">
         <Sidebar />

@@ -2,26 +2,32 @@
 @tailwind components;
 @tailwind utilities;
 
-/* BrewBite Cafe POS Color Scheme */
+/* New Brand Color Scheme */
 :root {
-  /* Primary (Brand / CTA) */
-  --coffee-brown: #3E2C24;
+  /* New Brand Colors */
+  --brand-deep-burgundy: #610027;
+  --brand-medium-red: #912B48;
+  --brand-dusty-rose: #B45A69;
+  --brand-light-pink: #FFF0F3;
 
-  /* Secondary (Background / Surfaces) */
-  --warm-cream: #FAF7F2;
+  /* Primary (Brand / CTA) - Medium-dark red */
+  --coffee-brown: #912B48;
+
+  /* Secondary (Background / Surfaces) - Light pink */
+  --warm-cream: #FFF0F3;
 
   /* Accent Colors */
-  --caramel: #C89B63;
+  --caramel: #B45A69; /* Dusty rose for hover/selected */
   --leaf-green: #4CAF50;
-  --soft-orange: #F4A261;
+  --soft-orange: #912B48; /* Medium red for badges/totals */
 
   /* Neutrals */
-  --app-background: #F5F3EE;
+  --app-background: #FFF0F3; /* Light pink or white */
   --card-background: #FFFFFF;
   --border: #E5E7EB;
 
   /* Text */
-  --primary-text: #1F1F1F;
+  --primary-text: #610027; /* Deep burgundy on light background */
   --secondary-text: #6B6B6B;
   --muted-text: #9CA3AF;
 
@@ -30,16 +36,16 @@
   --warning: #F59E0B;
   --error: #EF4444;
 
-  /* Legacy colors for compatibility */
-  --primary: #3E2C24;
+  /* Legacy colors for compatibility - mapped to new brand */
+  --primary: #912B48;
   --secondary: #FFFFFF;
-  --gray-50: #FAF7F2;
-  --gray-100: #F5F3EE;
+  --gray-50: #FFF0F3;
+  --gray-100: #FFF0F3;
   --gray-200: #E5E7EB;
   --gray-300: #D1D5DB;
   --gray-500: #6B6B6B;
   --gray-600: #4B5563;
-  --gray-900: #1F1F1F;
+  --gray-900: #610027;
 }
 
 * {
@@ -57,7 +63,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* BrewBite Cafe POS Animations */
+/* Lichy Cafe POS Animations */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -168,7 +174,7 @@ body {
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
-/* BrewBite Cafe POS Focus States */
+/* Lichy Cafe POS Focus States */
 button:focus-visible,
 input:focus-visible,
 select:focus-visible,
@@ -197,12 +203,12 @@ textarea,
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--caramel);
+  background: var(--brand-dusty-rose);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--coffee-brown);
+  background: var(--brand-medium-red);
 }
 
 /* Custom scrollbar for modals - subtle and elegant */
@@ -215,19 +221,19 @@ textarea,
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(200, 155, 99, 0.3);
+  background: rgba(180, 90, 105, 0.3);
   border-radius: 10px;
   transition: background 0.2s ease;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(200, 155, 99, 0.5);
+  background: rgba(180, 90, 105, 0.5);
 }
 
 /* Firefox scrollbar */
 .custom-scrollbar {
   scrollbar-width: thin;
-  scrollbar-color: rgba(200, 155, 99, 0.3) transparent;
+  scrollbar-color: rgba(180, 90, 105, 0.3) transparent;
 }
 
 /* Alternative: Completely invisible scrollbar (uncomment to use) */
@@ -245,8 +251,8 @@ textarea,
 
 /* Selection colors */
 ::selection {
-  background: rgba(200, 155, 99, 0.3);
-  color: var(--coffee-brown);
+  background: rgba(180, 90, 105, 0.3);
+  color: var(--brand-deep-burgundy);
 }
 
 /* Placeholder text colors */

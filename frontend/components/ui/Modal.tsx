@@ -1,4 +1,4 @@
-import { ReactNode, useEffect } from 'react'
+import { ReactNode, useEffect, memo, useCallback } from 'react'
 import { X } from 'lucide-react'
 
 interface ModalProps {
@@ -8,7 +8,8 @@ interface ModalProps {
   children: ReactNode
 }
 
-export default function Modal({ isOpen, onClose, title, children }: ModalProps) {
+function Modal({ isOpen, onClose, title, children }: ModalProps) {
+  // Performance: Memoize body overflow handling
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden'
@@ -20,17 +21,23 @@ export default function Modal({ isOpen, onClose, title, children }: ModalProps) 
     }
   }, [isOpen])
 
+  // Performance: Memoize close handler
+  const handleClose = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation()
+    onClose()
+  }, [onClose])
+
   if (!isOpen) return null
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={onClose}>
       <div
         className="bg-white rounded-2xl p-4 sm:p-6 max-w-md w-full mx-4 animate-fade-in animate-scale-in shadow-md"
-        onClick={(e) => e.stopPropagation()}
+        onClick={handleClose}
       >
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg sm:text-xl font-bold text-[#1F1F1F]">{title}</h2>
-          <button onClick={onClose} className="text-[#1F1F1F] hover:text-[#6B6B6B]">
+          <h2 className="text-lg sm:text-xl font-bold text-[#610027]">{title}</h2>
+          <button onClick={onClose} className="text-[#610027] hover:text-[#6B6B6B]">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -39,4 +46,7 @@ export default function Modal({ isOpen, onClose, title, children }: ModalProps) 
     </div>
   )
 }
+
+// Performance: Memoize Modal to prevent unnecessary re-renders
+export default memo(Modal)
 

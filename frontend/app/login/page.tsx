@@ -2,7 +2,8 @@
 
 import { useState } from 'react'
 import { login } from '@/lib/auth'
-import { Store, Mail, Lock, Coffee, ChefHat, Star } from 'lucide-react'
+import { Mail, Lock, ChefHat } from 'lucide-react'
+import Logo from '@/components/ui/Logo'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -53,20 +54,14 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#F5F3EE] py-8 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-[#FFF0F3] py-8 px-4">
       <div className="max-w-md w-full bg-white rounded-2xl shadow-2xl p-8 border border-[#E5E7EB] animate-fade-in">
           <div className="flex flex-col items-center mb-8">
-          <div className="relative mb-6">
-            <div className="w-20 h-20 bg-gradient-to-br from-[#3E2C24] to-[#C89B63] rounded-2xl flex items-center justify-center shadow-xl animate-bounce-in">
-              <Coffee className="w-10 h-10 text-white" />
-            </div>
-            <div className="absolute -top-2 -right-2 w-8 h-8 bg-[#F4A261] rounded-full flex items-center justify-center shadow-lg">
-              <Star className="w-4 h-4 text-white fill-current" />
-            </div>
+          <div className="mb-6 animate-bounce-in">
+            <Logo size="xl" showAccent={true} />
           </div>
           <div className="text-center mb-6">
-            <h1 className="text-3xl font-bold text-[#3E2C24] mb-2 leading-tight">BrewBite POS</h1>
-            <h2 className="text-2xl font-semibold text-[#1F1F1F] mb-2">Welcome Back</h2>
+            <h2 className="text-2xl font-semibold text-[#610027] mb-2">Welcome Back</h2>
             <p className="text-[#6B6B6B]">Your cafe management starts here</p>
           </div>
         </div>
@@ -93,8 +88,8 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                placeholder="manager@brewbite.com"
-                className="w-full pl-12 pr-4 py-4 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63] bg-[#FAF7F2] hover:bg-white transition-all duration-200 text-[#1F1F1F] placeholder-[#9CA3AF]"
+                placeholder="manager@lichy.com"
+                className="w-full pl-12 pr-4 py-4 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#912B48] focus:border-[#912B48] bg-white hover:bg-[#FFF0F3]/10 transition-all duration-200 text-[#610027] placeholder-[#9CA3AF]"
               />
             </div>
           </div>
@@ -110,18 +105,15 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 placeholder="Enter your password"
-                className="w-full pl-12 pr-4 py-4 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63] bg-[#FAF7F2] hover:bg-white transition-all duration-200 text-[#1F1F1F] placeholder-[#9CA3AF]"
+                className="w-full pl-12 pr-4 py-4 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#912B48] focus:border-[#912B48] bg-white hover:bg-[#FFF0F3]/10 transition-all duration-200 text-[#610027] placeholder-[#9CA3AF]"
               />
-            </div>
-            <div className="text-right mt-3">
-              <a href="#" className="text-sm font-medium text-[#3E2C24] hover:text-[#C89B63] hover:underline transition-colors">Forgot password?</a>
             </div>
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[#3E2C24] text-white py-4 px-6 rounded-xl font-bold text-lg hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2"
+            className="w-full bg-[#912B48] text-white py-4 px-6 rounded-xl font-bold text-lg hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2 hover:bg-[#B45A69]"
           >
             {loading ? (
               <>
@@ -138,11 +130,8 @@ export default function LoginPage() {
         </form>
 
         <div className="mt-8 text-center">
-          <p className="text-[#6B6B6B] text-sm">
-            New to BrewBite? <a href="#" className="text-[#3E2C24] hover:text-[#C89B63] font-semibold hover:underline transition-colors">Contact support</a>
-          </p>
-          <div className="mt-4 flex items-center justify-center gap-2">
-            <div className="w-2 h-2 bg-[#3E2C24] rounded-full animate-pulse"></div>
+          <div className="flex items-center justify-center gap-2">
+            <div className="w-2 h-2 bg-[#912B48] rounded-full animate-pulse"></div>
             <span className="text-xs text-[#9CA3AF] font-medium">Secure & Encrypted</span>
           </div>
         </div>
