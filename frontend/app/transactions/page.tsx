@@ -99,7 +99,7 @@ export default function TransactionsPage() {
         <div className="bg-white rounded-2xl shadow-lg p-6 border border-[#E5E7EB] overflow-hidden">
           <div className="overflow-x-auto">
             <table className="min-w-full leading-normal">
-              <thead className="bg-gradient-to-r from-[#B45A69]/25 to-[#B45A69]/15 border-b-2 border-[#B45A69]/30">
+              <thead className="bg-linear-to-r from-[#B45A69]/25 to-[#B45A69]/15 border-b-2 border-[#B45A69]/30">
                 <tr>
                   <th className="px-6 py-4 text-left text-xs font-extrabold text-[#610027] uppercase tracking-wider">Bill Number</th>
                   <th className="px-6 py-4 text-left text-xs font-extrabold text-[#610027] uppercase tracking-wider">Date & Time</th>
@@ -120,7 +120,7 @@ export default function TransactionsPage() {
                   bills.map((bill, index) => (
                     <tr 
                       key={bill.id} 
-                      className={`border-b border-[#E5E7EB]/50 transition-all duration-300 ease-in-out hover:bg-gradient-to-r hover:from-[#FFF0F3]/30 hover:to-[#FFF0F3]/10 hover:shadow-sm ${
+                      className={`border-b border-[#E5E7EB]/50 transition-all duration-300 ease-in-out hover:bg-linear-to-r hover:from-[#FFF0F3]/30 hover:to-[#FFF0F3]/10 hover:shadow-xs ${
                         index % 2 === 0 ? 'bg-white' : 'bg-[#FFF0F3]/5'
                       }`}
                     >
@@ -144,7 +144,7 @@ export default function TransactionsPage() {
                               console.error("Failed to fetch full bill details:", error);
                             }
                           }}
-                          className="px-4 py-2 rounded-lg text-[#610027] hover:text-white hover:bg-[#912B48] flex items-center gap-2 transition-all duration-200 ease-in-out hover:scale-105 active:scale-95 shadow-sm hover:shadow-md font-medium text-sm"
+                          className="px-4 py-2 rounded-lg text-[#610027] hover:text-white hover:bg-[#912B48] flex items-center gap-2 transition-all duration-200 ease-in-out hover:scale-105 active:scale-95 shadow-xs hover:shadow-md font-medium text-sm"
                         >
                           <Eye className="w-4 h-4" />
                           <span>View</span>
@@ -160,7 +160,7 @@ export default function TransactionsPage() {
 
         {selectedBill && (
           <div 
-            className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+            className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-xs flex items-center justify-center z-50 p-4"
             onClick={() => setSelectedBill(null)}
           >
             <div 

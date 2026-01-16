@@ -4,8 +4,8 @@ import { memo } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { logout } from '@/lib/auth'
-// Performance: Only import icons that are actually used
-import { BarChart3, FileText, Leaf, LogOut, ReceiptText, Settings, User, UtensilsCrossed } from 'lucide-react'
+import { BarChart3, FileText, LogOut, ReceiptText, Settings, User, UtensilsCrossed } from 'lucide-react'
+import Logo from '@/components/ui/Logo'
 
 // Performance: Memoize navItems to prevent recreation on every render
 const navItems = [
@@ -27,14 +27,13 @@ function Sidebar() {
   }
 
   return (
-    <aside className="fixed left-0 top-0 z-40 h-screen w-16 md:w-64 bg-white border-r border-[#E5E7EB] flex flex-col">
-      <div className="h-[72px] flex items-center justify-center md:justify-start px-4 border-b border-[#E5E7EB]">
-        <div className="w-10 h-10 rounded-2xl bg-[#DC586D]/10 flex items-center justify-center">
-          <Leaf className="w-5 h-5 text-[#DC586D]" />
-        </div>
-        <div className="hidden md:flex flex-col ml-3 leading-tight">
-          <span className="text-sm font-semibold text-[#4C1D3D]">LICHI</span>
-          <span className="text-xs text-[#4C1D3D]/60">Premium café POS</span>
+    <aside className="hidden md:block w-72 bg-linear-to-b from-card-background to-warm-cream border-r border-border h-screen sticky top-0 shadow-lg rounded-r-2xl">
+      <div className="p-8 border-b border-border bg-linear-to-r from-card-background to-warm-cream rounded-tr-2xl">
+        <div className="flex items-center gap-3">
+          <Logo size="lg" showAccent={true} />
+          <div className="flex flex-col">
+            <span className="text-sm text-coffee-brown font-medium">Cafe Management</span>
+          </div>
         </div>
       </div>
 
@@ -49,14 +48,14 @@ function Sidebar() {
               title={item.label}
               className={`group mb-1.5 transition-colors flex items-center justify-center w-12 h-12 rounded-full md:w-auto md:h-auto md:justify-start md:gap-3 md:px-3 md:py-2.5 md:rounded-xl ${
                 isActive
-                  ? 'bg-[#DC586D] text-white'
-                  : 'text-[#4C1D3D] hover:bg-[#DC586D]/10'
+                  ? 'bg-coffee-brown text-white'
+                  : 'text-primary-text hover:bg-brand-dusty-rose/10'
               }`}
             >
               <div className={`w-10 h-10 rounded-full md:rounded-xl flex items-center justify-center transition-colors ${
-                isActive ? 'bg-white/15' : 'bg-[#F9F9F9] group-hover:bg-white'
+                isActive ? 'bg-white/15' : 'bg-warm-cream group-hover:bg-card-background'
               }`}>
-                <Icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-[#4C1D3D]'}`} />
+                <Icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-primary-text'}`} />
               </div>
               <span className="hidden md:inline text-sm font-medium">{item.label}</span>
             </Link>
@@ -69,10 +68,10 @@ function Sidebar() {
           type="button"
           onClick={logout}
           title="Logout"
-          className="group transition-colors text-[#4C1D3D] hover:bg-[#DC586D]/10 flex items-center justify-center w-12 h-12 rounded-full md:w-full md:h-auto md:justify-start md:gap-3 md:px-3 md:py-2.5 md:rounded-xl"
+          className="group transition-colors text-primary-text hover:bg-brand-dusty-rose/10 flex items-center justify-center w-12 h-12 rounded-full md:w-full md:h-auto md:justify-start md:gap-3 md:px-3 md:py-2.5 md:rounded-xl"
         >
-          <div className="w-10 h-10 rounded-full md:rounded-xl flex items-center justify-center transition-colors bg-[#F9F9F9] group-hover:bg-white">
-            <LogOut className="w-5 h-5 text-[#4C1D3D]" />
+          <div className="w-10 h-10 rounded-full md:rounded-xl flex items-center justify-center transition-colors bg-warm-cream group-hover:bg-card-background">
+            <LogOut className="w-5 h-5 text-primary-text" />
           </div>
           <span className="hidden md:inline text-sm font-medium">Logout</span>
         </button>

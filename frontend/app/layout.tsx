@@ -5,13 +5,11 @@ import { usePathname } from 'next/navigation'
 import './globals.css'
 import Sidebar from '@/components/layout/Sidebar'
 
-// Performance: Optimize font loading with display swap to prevent render blocking
-const inter = Inter({ 
+const inter = Inter({
   subsets: ['latin'],
-  display: 'swap', // Prevents invisible text during font load
-  preload: true, // Preloads font for better performance
+  display: 'swap',
+  preload: true,
 })
-
 
 export default function RootLayout({
   children,
@@ -22,19 +20,24 @@ export default function RootLayout({
   const isLoginPage = pathname === '/login'
 
   return (
-    <html lang="en">
+    <html lang="en" className="h-full">
       <head>
         <title>Lichi - Cafe POS System</title>
         <meta name="description" content="Lichi - Modern cafe management and POS system" />
       </head>
-      <body className={`${inter.className} bg-[#F9F9F9]`}>
+      <body className={`${inter.className} h-full bg-app-background antialiased`}>
         {isLoginPage ? (
           children
         ) : (
-          <div className="min-h-screen bg-[#F9F9F9]">
-            <Sidebar />
-            <div className="md:pl-64 pl-16">
-              <main className="min-h-screen px-4 py-5 sm:px-6 sm:py-6">
+          <div className="relative flex min-h-screen w-full">
+            {/* Sidebar - fixed on large screens, overlay or hidden on mobile */}
+            <div className="fixed inset-y-0 left-0 z-30 md:static md:z-auto">
+              <Sidebar />
+            </div>
+
+            {/* Main content area */}
+            <div className="flex-1  ml-0 transition-all duration-300">
+              <main className="min-h-screen px-4 py-5 sm:px-6 lg:px-8">
                 {children}
               </main>
             </div>
@@ -44,4 +47,3 @@ export default function RootLayout({
     </html>
   )
 }
-

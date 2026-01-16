@@ -1,15 +1,24 @@
 'use client'
 
 import { useState, useCallback } from 'react'
+import { usePathname } from 'next/navigation'
 import { logout } from '@/lib/auth'
-
-// Performance: Only import icons that are actually used
-import { Bell, Leaf, LogOut, MessageCircle, Search, Settings, User } from 'lucide-react'
+import { Bell, LogOut, MessageCircle, Settings, User, X, ReceiptText, UtensilsCrossed, FileText, BarChart3 } from 'lucide-react'
 import Link from 'next/link'
+import Logo from '@/components/ui/Logo'
+
+// Navigation items
+const navItems = [
+  { name: 'Orders', href: '/orders', icon: ReceiptText },
+  { name: 'Menu', href: '/menu', icon: UtensilsCrossed },
+  { name: 'Transactions', href: '/transactions', icon: FileText },
+  { name: 'Reports', href: '/reports', icon: BarChart3 },
+]
 
 export default function Header() {
+  const pathname = usePathname()
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false)
-  const [searchValue, setSearchValue] = useState('')
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   // Performance: Memoize logout handler to prevent recreation
   const handleLogout = useCallback(() => {
@@ -26,51 +35,71 @@ export default function Header() {
     setIsProfileDropdownOpen(false)
   }, [])
 
+  // Performance: Memoize mobile menu close handler
+  const handleMobileMenuClose = useCallback(() => {
+    setIsMobileMenuOpen(false)
+  }, [])
+
   return (
-    <header className="sticky top-0 z-50 bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/75 border-b border-[#E5E7EB] shadow-sm">
-      <div className="h-[72px] px-4 sm:px-6 flex items-center gap-4">
+    <header className="sticky top-0 z-50 bg-white/90 backdrop-blur supports-backdrop-filter:bg-white/75 border-b border-border shadow-sm">
+      <div className="h-18 px-4 sm:px-6 flex items-center gap-4">
+        {/* Logo */}
         <Link href="/orders" className="flex items-center">
-          <div className="w-10 h-10 rounded-2xl bg-[#DC586D]/10 flex items-center justify-center">
-            <Leaf className="w-5 h-5 text-[#DC586D]" />
-          </div>
+          <Logo size="md" showAccent={true} />
         </Link>
 
-        <div className="flex-1 flex justify-center">
-          <div className="w-full max-w-xl">
-            <div className="relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#4C1D3D]/55" />
-              <input
-                value={searchValue}
-                onChange={(e) => setSearchValue(e.target.value)}
-                placeholder="Search menu..."
-                className="w-full h-11 pl-11 pr-4 rounded-full bg-[#F9F9F9] border border-[#E5E7EB] text-sm text-[#4C1D3D] placeholder:text-[#4C1D3D]/45 focus:outline-none focus:ring-2 focus:ring-[#DC586D]/30 focus:border-[#DC586D]"
-              />
-            </div>
-          </div>
-        </div>
+        {/* Middle section: Navigation Tabs */}
+        <nav className="hidden md:flex grow justify-center">
+          <ul className="flex gap-3">
+            {navItems.map((item) => (
+              <li key={item.name}>
+                <Link href={item.href}>
+                  <span
+                    className={`flex items-center gap-2 px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] ${
+                      pathname === item.href 
+                        ? 'bg-coffee-brown text-white' 
+                        : 'text-primary-text hover:bg-brand-dusty-rose/10'
+                    }`}
+                  >
+                    <item.icon className={`w-5 h-5 ${pathname === item.href ? 'text-white' : 'text-primary-text'}`} />
+                    {item.name}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
 
+        {/* Right section: Actions */}
         <div className="relative flex items-center gap-2">
-          <button className="w-10 h-10 rounded-xl bg-[#F9F9F9] border border-[#E5E7EB] flex items-center justify-center hover:bg-white transition-colors" type="button">
-            <MessageCircle className="w-5 h-5 text-[#4C1D3D]" />
+          <button 
+            className="w-10 h-10 rounded-xl bg-warm-cream border border-border flex items-center justify-center hover:bg-card-background transition-colors" 
+            type="button"
+          >
+            <MessageCircle className="w-5 h-5 text-primary-text" />
           </button>
-          <button className="w-10 h-10 rounded-xl bg-[#F9F9F9] border border-[#E5E7EB] flex items-center justify-center hover:bg-white transition-colors" type="button">
-            <Bell className="w-5 h-5 text-[#4C1D3D]" />
+          
+          <button 
+            className="w-10 h-10 rounded-xl bg-warm-cream border border-border flex items-center justify-center hover:bg-card-background transition-colors" 
+            type="button"
+          >
+            <Bell className="w-5 h-5 text-primary-text" />
           </button>
 
           <button
             onClick={handleProfileDropdownToggle}
-            className="w-10 h-10 rounded-xl bg-[#F9F9F9] border border-[#E5E7EB] flex items-center justify-center hover:bg-white transition-colors"
+            className="w-10 h-10 rounded-xl bg-warm-cream border border-border flex items-center justify-center hover:bg-card-background transition-colors"
             type="button"
           >
-            <User className="w-5 h-5 text-[#4C1D3D]" />
+            <User className="w-5 h-5 text-primary-text" />
           </button>
 
           {isProfileDropdownOpen && (
-            <div className="absolute right-0 top-12 w-52 bg-white rounded-2xl shadow-lg border border-[#E5E7EB] p-2 z-50">
+            <div className="absolute right-0 top-12 w-52 bg-card-background rounded-2xl shadow-lg border border-border p-2 z-50">
               <Link
                 href="/admin-profile"
                 onClick={handleProfileDropdownClose}
-                className="flex items-center gap-2 px-3 py-2 text-sm text-[#4C1D3D] hover:bg-[#DC586D]/10 rounded-xl transition-colors"
+                className="flex items-center gap-2 px-3 py-2 text-sm text-primary-text hover:bg-brand-dusty-rose/10 rounded-xl transition-colors"
               >
                 <User className="w-4 h-4" />
                 Profile
@@ -78,15 +107,15 @@ export default function Header() {
               <Link
                 href="/settings/taxes"
                 onClick={handleProfileDropdownClose}
-                className="flex items-center gap-2 px-3 py-2 text-sm text-[#4C1D3D] hover:bg-[#DC586D]/10 rounded-xl transition-colors"
+                className="flex items-center gap-2 px-3 py-2 text-sm text-primary-text hover:bg-brand-dusty-rose/10 rounded-xl transition-colors"
               >
                 <Settings className="w-4 h-4" />
                 Settings
               </Link>
-              <div className="h-px bg-[#E5E7EB] my-2" />
+              <div className="h-px bg-border my-2" />
               <button
                 onClick={handleLogout}
-                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[#4C1D3D] hover:bg-[#DC586D]/10 rounded-xl transition-colors"
+                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-primary-text hover:bg-brand-dusty-rose/10 rounded-xl transition-colors"
                 type="button"
               >
                 <LogOut className="w-4 h-4" />
@@ -96,6 +125,76 @@ export default function Header() {
           )}
         </div>
       </div>
+
+      {/* Mobile Menu Overlay */}
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-60 z-50 md:hidden backdrop-blur-xs" onClick={handleMobileMenuClose}>
+          <div className="relative w-[72%] max-w-[320px] h-full bg-card-background shadow-2xl p-6 animate-slide-in-left rounded-r-2xl" onClick={(e) => e.stopPropagation()}>
+            <button 
+              className="absolute top-4 right-4 p-3 rounded-xl bg-coffee-brown text-white hover:bg-brand-dusty-rose transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]" 
+              onClick={handleMobileMenuClose}
+            >
+              <X className="w-6 h-6" />
+            </button>
+            
+            <div className="flex items-center gap-3 mb-8 mt-4">
+              <Logo size="lg" showAccent={true} />
+              <div className="flex flex-col">
+                <span className="text-sm text-muted-text font-medium tracking-wide">Cafe Management</span>
+              </div>
+            </div>
+            
+            <nav className="flex flex-col gap-3">
+              {navItems.map((item) => (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  onClick={handleMobileMenuClose}
+                  className={`flex items-center gap-4 px-5 py-4 rounded-xl transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] ${
+                    pathname === item.href 
+                      ? 'bg-coffee-brown text-white shadow-lg' 
+                      : 'text-primary-text hover:bg-brand-dusty-rose/10'
+                  }`}
+                >
+                  <item.icon className={`w-6 h-6 ${pathname === item.href ? 'text-white' : 'text-primary-text'}`} />
+                  <span className="font-semibold text-lg">{item.name}</span>
+                </Link>
+              ))}
+            </nav>
+            
+            <div className="mt-8 pt-6 border-t border-border">
+              <Link 
+                href="/admin-profile"
+                className="flex items-center gap-4 px-5 py-4 rounded-xl text-primary-text hover:bg-brand-dusty-rose/10 transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] mb-3"
+                onClick={handleMobileMenuClose}
+              >
+                <User className="w-6 h-6 text-primary-text" />
+                <span className="font-semibold text-lg">Profile</span>
+              </Link>
+              
+              <Link 
+                href="/settings/taxes"
+                className="flex items-center gap-4 px-5 py-4 rounded-xl text-primary-text hover:bg-brand-dusty-rose/10 transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] mb-3"
+                onClick={handleMobileMenuClose}
+              >
+                <Settings className="w-6 h-6 text-primary-text" />
+                <span className="font-semibold text-lg">Settings</span>
+              </Link>
+              
+              <button
+                onClick={() => {
+                  handleLogout()
+                  handleMobileMenuClose()
+                }}
+                className="flex items-center gap-4 px-5 py-4 rounded-xl bg-coffee-brown text-white transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] w-full shadow-md hover:bg-brand-dusty-rose"
+              >
+                <LogOut className="w-6 h-6 text-white" />
+                <span className="font-semibold text-lg">Sign Out</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   )
 }

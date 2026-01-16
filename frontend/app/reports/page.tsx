@@ -320,7 +320,7 @@ export default function ReportsPage() {
                   setDateRange({ ...dateRange, start: newStart })
                 }
               }}
-              className="px-4 py-2 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#912B48] focus:border-[#912B48] bg-white hover:bg-[#FFF0F3]/10 transition-all duration-200 text-[#610027]"
+              className="px-4 py-2 border border-[#E5E7EB] rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#912B48] focus:border-[#912B48] bg-white hover:bg-[#FFF0F3]/10 transition-all duration-200 text-[#610027]"
             />
             <input
               type="date"
@@ -333,7 +333,7 @@ export default function ReportsPage() {
                   setDateRange({ ...dateRange, end: newEnd })
                 }
               }}
-              className="px-4 py-2 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#912B48] focus:border-[#912B48] bg-white hover:bg-[#FFF0F3]/10 transition-all duration-200 text-[#610027]"
+              className="px-4 py-2 border border-[#E5E7EB] rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#912B48] focus:border-[#912B48] bg-white hover:bg-[#FFF0F3]/10 transition-all duration-200 text-[#610027]"
             />
             <button
               onClick={() => exportToExcel().catch(console.error)}
@@ -571,7 +571,7 @@ export default function ReportsPage() {
             <h2 className="text-xl font-bold text-[#610027] mb-6">Tax Summary by Tax Rate</h2>
             <div className="overflow-x-auto">
               <table className="min-w-full">
-                <thead className="bg-gradient-to-r from-[#B45A69]/25 to-[#B45A69]/15 border-b-2 border-[#B45A69]/30">
+                <thead className="bg-linear-to-r from-[#B45A69]/25 to-[#B45A69]/15 border-b-2 border-[#B45A69]/30">
                   <tr>
                     <th className="px-6 py-4 text-left text-xs font-extrabold text-[#610027] uppercase tracking-wider">Tax Rate</th>
                     <th className="px-6 py-4 text-left text-xs font-extrabold text-[#610027] uppercase tracking-wider">Tax Group</th>
@@ -586,7 +586,7 @@ export default function ReportsPage() {
                   {taxSummary.summary.map((item, idx) => (
                     <tr 
                       key={idx} 
-                      className={`transition-all duration-300 ease-in-out hover:bg-gradient-to-r hover:from-[#FFF0F3]/30 hover:to-[#FFF0F3]/10 hover:shadow-sm ${
+                      className={`transition-all duration-300 ease-in-out hover:bg-linear-to-r hover:from-[#FFF0F3]/30 hover:to-[#FFF0F3]/10 hover:shadow-xs ${
                         idx % 2 === 0 ? 'bg-white' : 'bg-[#FFF0F3]/5'
                       }`}
                     >
@@ -599,7 +599,7 @@ export default function ReportsPage() {
                       <td className="px-6 py-4 text-right text-[#6B6B6B] font-medium">{item.item_count}</td>
                     </tr>
                   ))}
-                  <tr className="bg-gradient-to-r from-[#FFF0F3]/40 to-[#FFF0F3]/20 font-bold border-t-2 border-[#B45A69]/30">
+                  <tr className="bg-linear-to-r from-[#FFF0F3]/40 to-[#FFF0F3]/20 font-bold border-t-2 border-[#B45A69]/30">
                     <td colSpan={2} className="px-6 py-4 text-[#610027] text-base">Grand Total</td>
                     <td className="px-6 py-4 text-right text-[#912B48] text-base">₹{taxSummary.grand_total_taxable_value.toFixed(2)}</td>
                     <td className="px-6 py-4 text-right text-[#912B48] text-base">₹{taxSummary.grand_total_cgst.toFixed(2)}</td>

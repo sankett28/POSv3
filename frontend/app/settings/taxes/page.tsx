@@ -150,7 +150,7 @@ export default function TaxSettingsPage() {
 
         {/* Warning Banner */}
         <div className="bg-[#FFF0F3] border border-[#B45A69] rounded-xl p-4 mb-6 flex items-start gap-3">
-          <AlertTriangle className="w-5 h-5 text-[#912B48] flex-shrink-0 mt-0.5" />
+          <AlertTriangle className="w-5 h-5 text-[#912B48] shrink-0 mt-0.5" />
           <div className="flex-1">
             <p className="text-sm font-semibold text-[#610027] mb-1">
               Important: Tax Group Changes
@@ -202,7 +202,7 @@ export default function TaxSettingsPage() {
           <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-[#E5E7EB]">
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-gradient-to-r from-[#B45A69]/25 to-[#B45A69]/15 border-b-2 border-[#B45A69]/30">
+                <thead className="bg-linear-to-r from-[#B45A69]/25 to-[#B45A69]/15 border-b-2 border-[#B45A69]/30">
                   <tr>
                     <th className="px-6 py-4 text-left text-xs font-extrabold text-[#610027] uppercase tracking-wider">
                       Name
@@ -232,7 +232,7 @@ export default function TaxSettingsPage() {
                     taxGroups.map((group, index) => (
                       <tr 
                         key={group.id} 
-                        className={`transition-all duration-300 ease-in-out hover:bg-gradient-to-r hover:from-[#FFF0F3]/30 hover:to-[#FFF0F3]/10 hover:shadow-sm ${
+                        className={`transition-all duration-300 ease-in-out hover:bg-linear-to-r hover:from-[#FFF0F3]/30 hover:to-[#FFF0F3]/10 hover:shadow-xs ${
                           index % 2 === 0 ? 'bg-white' : 'bg-[#FFF0F3]/5'
                         }`}
                       >
@@ -245,19 +245,19 @@ export default function TaxSettingsPage() {
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          <span className={`px-3 py-1.5 rounded-full text-xs font-bold shadow-sm ${
+                          <span className={`px-3 py-1.5 rounded-full text-xs font-bold shadow-xs ${
                             group.is_tax_inclusive
-                              ? 'bg-gradient-to-r from-blue-100 to-blue-50 text-blue-800 border border-blue-200'
-                              : 'bg-gradient-to-r from-green-100 to-green-50 text-green-800 border border-green-200'
+                              ? 'bg-linear-to-r from-blue-100 to-blue-50 text-blue-800 border border-blue-200'
+                              : 'bg-linear-to-r from-green-100 to-green-50 text-green-800 border border-green-200'
                           }`}>
                             {group.is_tax_inclusive ? 'Inclusive' : 'Exclusive'}
                           </span>
                         </td>
                         <td className="px-6 py-4">
-                          <span className={`px-3 py-1.5 rounded-full text-xs font-bold shadow-sm ${
+                          <span className={`px-3 py-1.5 rounded-full text-xs font-bold shadow-xs ${
                             group.is_active
-                              ? 'bg-gradient-to-r from-green-100 to-green-50 text-green-700 border border-green-200'
-                              : 'bg-gradient-to-r from-gray-100 to-gray-50 text-gray-700 border border-gray-200'
+                              ? 'bg-linear-to-r from-green-100 to-green-50 text-green-700 border border-green-200'
+                              : 'bg-linear-to-r from-gray-100 to-gray-50 text-gray-700 border border-gray-200'
                           }`}>
                             {group.is_active ? 'Active' : 'Inactive'}
                           </span>
@@ -266,14 +266,14 @@ export default function TaxSettingsPage() {
                           <div className="flex justify-end gap-2">
                             <button
                               onClick={() => handleEdit(group)}
-                              className="p-2 rounded-lg text-[#610027] hover:text-[#912B48] hover:bg-[#FFF0F3]/30 transition-all duration-200 ease-in-out hover:scale-110 active:scale-95 shadow-sm hover:shadow-md"
+                              className="p-2 rounded-lg text-[#610027] hover:text-[#912B48] hover:bg-[#FFF0F3]/30 transition-all duration-200 ease-in-out hover:scale-110 active:scale-95 shadow-xs hover:shadow-md"
                               title="Edit tax group"
                             >
                               <Edit className="w-4 h-4" />
                             </button>
                             <button
                               onClick={() => handleDelete(group.id)}
-                              className="p-2 rounded-lg text-[#912B48] hover:text-[#610027] hover:bg-red-50 transition-all duration-200 ease-in-out hover:scale-110 active:scale-95 shadow-sm hover:shadow-md"
+                              className="p-2 rounded-lg text-[#912B48] hover:text-[#610027] hover:bg-red-50 transition-all duration-200 ease-in-out hover:scale-110 active:scale-95 shadow-xs hover:shadow-md"
                               title="Delete tax group"
                             >
                               <Trash2 className="w-4 h-4" />
@@ -332,7 +332,7 @@ export default function TaxSettingsPage() {
                     required
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl border border-[#E5E7EB] focus:outline-none focus:ring-2 focus:ring-[#912B48] focus:border-[#912B48] bg-white hover:bg-[#FFF0F3]/10 text-[#610027] placeholder-[#9CA3AF]"
+                    className="w-full px-4 py-3 rounded-xl border border-[#E5E7EB] focus:outline-hidden focus:ring-2 focus:ring-[#912B48] focus:border-[#912B48] bg-white hover:bg-[#FFF0F3]/10 text-[#610027] placeholder-[#9CA3AF]"
                     placeholder="e.g., GST 18%"
                   />
                 </div>
@@ -350,7 +350,7 @@ export default function TaxSettingsPage() {
                     step="0.01"
                     value={formData.total_rate}
                     onChange={(e) => setFormData({ ...formData, total_rate: parseFloat(e.target.value) || 0 })}
-                    className="w-full px-4 py-3 rounded-xl border border-[#E5E7EB] focus:outline-none focus:ring-2 focus:ring-[#912B48] focus:border-[#912B48] bg-white hover:bg-[#FFF0F3]/10 text-[#610027] placeholder-[#9CA3AF]"
+                    className="w-full px-4 py-3 rounded-xl border border-[#E5E7EB] focus:outline-hidden focus:ring-2 focus:ring-[#912B48] focus:border-[#912B48] bg-white hover:bg-[#FFF0F3]/10 text-[#610027] placeholder-[#9CA3AF]"
                     placeholder="0.00"
                   />
                 </div>
@@ -363,13 +363,13 @@ export default function TaxSettingsPage() {
                   <select
                     value={formData.split_type}
                     onChange={(e) => setFormData({ ...formData, split_type: e.target.value as 'GST_50_50' | 'NO_SPLIT' })}
-                    className="w-full px-4 py-3 rounded-xl border border-[#E5E7EB] focus:outline-none focus:ring-2 focus:ring-[#912B48] focus:border-[#912B48] bg-white hover:bg-[#FFF0F3]/10 text-[#610027] placeholder-[#9CA3AF]"
+                    className="w-full px-4 py-3 rounded-xl border border-[#E5E7EB] focus:outline-hidden focus:ring-2 focus:ring-[#912B48] focus:border-[#912B48] bg-white hover:bg-[#FFF0F3]/10 text-[#610027] placeholder-[#9CA3AF]"
                   >
                     <option value="GST_50_50">GST 50/50 (CGST + SGST)</option>
                     <option value="NO_SPLIT">No Split</option>
                   </select>
                   <p className="mt-2 text-xs text-[#6B6B6B] flex items-start gap-2">
-                    <Info className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                    <Info className="w-4 h-4 shrink-0 mt-0.5" />
                     <span>
                       GST 50/50 splits tax into Central GST (CGST) and State GST (SGST) equally.
                       No Split keeps all tax in a single component.
@@ -384,7 +384,7 @@ export default function TaxSettingsPage() {
                       type="checkbox"
                       checked={formData.is_tax_inclusive}
                       onChange={(e) => setFormData({ ...formData, is_tax_inclusive: e.target.checked })}
-                      className="w-5 h-5 rounded border-[#912B48] text-[#610027] focus:ring-[#912B48] accent-[#912B48]"
+                      className="w-5 h-5 rounded-sm border-[#912B48] text-[#610027] focus:ring-[#912B48] accent-[#912B48]"
                     />
                     <span className="text-sm font-semibold text-[#6B6B6B]">
                       Tax Inclusive Pricing
@@ -403,7 +403,7 @@ export default function TaxSettingsPage() {
                       type="checkbox"
                       checked={formData.is_active}
                       onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-                      className="w-5 h-5 rounded border-[#912B48] text-[#610027] focus:ring-[#912B48] accent-[#912B48]"
+                      className="w-5 h-5 rounded-sm border-[#912B48] text-[#610027] focus:ring-[#912B48] accent-[#912B48]"
                     />
                     <span className="text-sm font-semibold text-[#6B6B6B]">
                       Active
