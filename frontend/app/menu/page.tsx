@@ -454,7 +454,7 @@ export default function MenuPage() {
           <div className="flex flex-wrap gap-3">
             <button
               onClick={() => setSelectedCategory(null)}
-              className={`px-5 py-2.5 rounded-full font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring outline-none ${
+              className={`px-5 py-2.5 rounded-full font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring-3 outline-hidden ${
                 selectedCategory === null
                   ? 'bg-[#610027] text-white shadow-md'
                   : 'bg-white text-[#610027] hover:bg-[#B45A69]/10 border border-[#E5E7EB]'
@@ -469,7 +469,7 @@ export default function MenuPage() {
               >
                 <button
                   onClick={() => setSelectedCategory(category.id)}
-                  className={`px-5 py-2.5 rounded-full font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring outline-none ${
+                  className={`px-5 py-2.5 rounded-full font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring-3 outline-hidden ${
                     selectedCategory === category.id
                       ? 'bg-[#610027] text-white shadow-md'
                       : 'bg-white text-[#610027] hover:bg-[#B45A69]/10 border border-[#E5E7EB]'
@@ -501,7 +501,7 @@ export default function MenuPage() {
               placeholder="Search menu items..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#912B48] focus:border-[#912B48] bg-white hover:bg-[#FFF0F3]/10 transition-all duration-200 text-[#610027] placeholder-[#9CA3AF]"
+              className="w-full pl-12 pr-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#912B48] focus:border-[#912B48] bg-white hover:bg-[#FFF0F3]/10 transition-all duration-200 text-[#610027] placeholder-[#9CA3AF]"
             />
           </div>
         </div>
@@ -529,7 +529,7 @@ export default function MenuPage() {
                 </div>
                 <div className="overflow-x-auto">
                   <table className="min-w-full leading-normal">
-                    <thead className="bg-gradient-to-r from-[#B45A69]/25 to-[#B45A69]/15 border-b-2 border-[#B45A69]/30">
+                    <thead className="bg-linear-to-r from-[#B45A69]/25 to-[#B45A69]/15 border-b-2 border-[#B45A69]/30">
                       <tr>
                         <th className="px-6 py-4 text-left text-xs font-extrabold text-[#610027] uppercase tracking-wider">Item</th>
                         <th className="px-6 py-4 text-left text-xs font-extrabold text-[#610027] uppercase tracking-wider">Price</th>
@@ -542,7 +542,7 @@ export default function MenuPage() {
                       {categoryProducts.map((product, index) => (
                         <tr 
                           key={product.id} 
-                          className={`border-b border-[#E5E7EB]/50 transition-all duration-300 ease-in-out hover:bg-gradient-to-r hover:from-[#FFF0F3]/30 hover:to-[#FFF0F3]/10 hover:shadow-sm ${
+                          className={`border-b border-[#E5E7EB]/50 transition-all duration-300 ease-in-out hover:bg-linear-to-r hover:from-[#FFF0F3]/30 hover:to-[#FFF0F3]/10 hover:shadow-xs ${
                             index % 2 === 0 ? 'bg-white' : 'bg-[#FFF0F3]/5'
                           }`}
                         >
@@ -557,10 +557,10 @@ export default function MenuPage() {
                             })()}
                           </td>
                           <td className="px-6 py-4">
-                            <span className={`px-3 py-1.5 text-xs rounded-full font-bold shadow-sm ${
+                            <span className={`px-3 py-1.5 text-xs rounded-full font-bold shadow-xs ${
                               product.is_active 
-                                ? 'bg-gradient-to-r from-green-100 to-green-50 text-green-700 border border-green-200' 
-                                : 'bg-gradient-to-r from-red-100 to-red-50 text-red-700 border border-red-200'
+                                ? 'bg-linear-to-r from-green-100 to-green-50 text-green-700 border border-green-200' 
+                                : 'bg-linear-to-r from-red-100 to-red-50 text-red-700 border border-red-200'
                             }`}>
                               {product.is_active ? 'Active' : 'Inactive'}
                             </span>
@@ -569,7 +569,7 @@ export default function MenuPage() {
                             <div className="flex gap-3">
                               <button
                                 onClick={() => handleEditItem(product)}
-                                className="p-2 rounded-lg text-[#610027] hover:text-[#912B48] hover:bg-[#FFF0F3]/30 transition-all duration-200 ease-in-out hover:scale-110 active:scale-95 shadow-sm hover:shadow-md"
+                                className="p-2 rounded-lg text-[#610027] hover:text-[#912B48] hover:bg-[#FFF0F3]/30 transition-all duration-200 ease-in-out hover:scale-110 active:scale-95 shadow-xs hover:shadow-md"
                                 title="Edit item"
                               >
                                 <Edit className="w-4 h-4" />
@@ -577,7 +577,7 @@ export default function MenuPage() {
                               {product.is_active && (
                                 <button
                                   onClick={() => handleDeactivateItem(product.id)}
-                                  className="p-2 rounded-lg text-[#912B48] hover:text-[#610027] hover:bg-red-50 transition-all duration-200 ease-in-out hover:scale-110 active:scale-95 shadow-sm hover:shadow-md"
+                                  className="p-2 rounded-lg text-[#912B48] hover:text-[#610027] hover:bg-red-50 transition-all duration-200 ease-in-out hover:scale-110 active:scale-95 shadow-xs hover:shadow-md"
                                   title="Delete item"
                                 >
                                   <Trash2 className="w-4 h-4" />
@@ -597,12 +597,12 @@ export default function MenuPage() {
           {/* Uncategorized Items */}
           {(!selectedCategory || selectedCategory === null) && uncategorizedProducts.length > 0 && (
             <div className="bg-white rounded-2xl shadow-lg border border-[#E5E7EB] overflow-hidden">
-              <div className="p-6 border-b border-[#E5E7EB] bg-gradient-to-r from-white to-[#FFF0F3]/10">
+              <div className="p-6 border-b border-[#E5E7EB] bg-linear-to-r from-white to-[#FFF0F3]/10">
                 <h3 className="text-xl font-bold text-[#610027]">Uncategorized</h3>
               </div>
               <div className="overflow-x-auto">
                 <table className="min-w-full leading-normal">
-                  <thead className="bg-gradient-to-r from-[#B45A69]/25 to-[#B45A69]/15 border-b-2 border-[#B45A69]/30">
+                  <thead className="bg-linear-to-r from-[#B45A69]/25 to-[#B45A69]/15 border-b-2 border-[#B45A69]/30">
                     <tr>
                       <th className="px-6 py-4 text-left text-xs font-extrabold text-[#610027] uppercase tracking-wider">Item</th>
                       <th className="px-6 py-4 text-left text-xs font-extrabold text-[#610027] uppercase tracking-wider">Price</th>
@@ -615,7 +615,7 @@ export default function MenuPage() {
                     {uncategorizedProducts.map((product, index) => (
                       <tr 
                         key={product.id} 
-                        className={`border-b border-[#E5E7EB]/50 transition-all duration-300 ease-in-out hover:bg-gradient-to-r hover:from-[#FFF0F3]/30 hover:to-[#FFF0F3]/10 hover:shadow-sm ${
+                        className={`border-b border-[#E5E7EB]/50 transition-all duration-300 ease-in-out hover:bg-linear-to-r hover:from-[#FFF0F3]/30 hover:to-[#FFF0F3]/10 hover:shadow-xs ${
                           index % 2 === 0 ? 'bg-white' : 'bg-[#FFF0F3]/5'
                         }`}
                       >
@@ -630,10 +630,10 @@ export default function MenuPage() {
                           })()}
                         </td>
                         <td className="px-6 py-4">
-                          <span className={`px-3 py-1.5 rounded-full text-xs font-bold shadow-sm ${
+                          <span className={`px-3 py-1.5 rounded-full text-xs font-bold shadow-xs ${
                             product.is_active 
-                              ? 'bg-gradient-to-r from-green-100 to-green-50 text-green-700 border border-green-200' 
-                              : 'bg-gradient-to-r from-red-100 to-red-50 text-red-700 border border-red-200'
+                              ? 'bg-linear-to-r from-green-100 to-green-50 text-green-700 border border-green-200' 
+                              : 'bg-linear-to-r from-red-100 to-red-50 text-red-700 border border-red-200'
                           }`}>
                             {product.is_active ? 'Active' : 'Inactive'}
                           </span>
@@ -642,7 +642,7 @@ export default function MenuPage() {
                           <div className="flex gap-3">
                             <button
                               onClick={() => handleEditItem(product)}
-                              className="p-2 rounded-lg text-[#610027] hover:text-[#912B48] hover:bg-[#FFF0F3]/30 transition-all duration-200 ease-in-out hover:scale-110 active:scale-95 shadow-sm hover:shadow-md"
+                              className="p-2 rounded-lg text-[#610027] hover:text-[#912B48] hover:bg-[#FFF0F3]/30 transition-all duration-200 ease-in-out hover:scale-110 active:scale-95 shadow-xs hover:shadow-md"
                               title="Edit item"
                             >
                               <Edit className="w-4 h-4" />
@@ -650,7 +650,7 @@ export default function MenuPage() {
                             {product.is_active && (
                               <button
                                 onClick={() => handleDeactivateItem(product.id)}
-                                className="p-2 rounded-lg text-[#912B48] hover:text-[#610027] hover:bg-red-50 transition-all duration-200 ease-in-out hover:scale-110 active:scale-95 shadow-sm hover:shadow-md"
+                                className="p-2 rounded-lg text-[#912B48] hover:text-[#610027] hover:bg-red-50 transition-all duration-200 ease-in-out hover:scale-110 active:scale-95 shadow-xs hover:shadow-md"
                                 title="Delete item"
                               >
                                 <Trash2 className="w-4 h-4" />
@@ -670,7 +670,7 @@ export default function MenuPage() {
         {/* Menu Item Modal */}
         {showItemModal && (
           <div 
-            className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+            className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-xs flex items-center justify-center z-50 p-4"
             onClick={() => {
               setShowItemModal(false)
               setEditingProduct(null)
@@ -704,7 +704,7 @@ export default function MenuPage() {
                     value={itemFormData.name}
                     onChange={(e) => setItemFormData({ ...itemFormData, name: e.target.value })}
                     required
-                    className="w-full px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#912B48] focus:border-[#912B48] bg-white hover:bg-[#FFF0F3]/10 transition-all duration-200 text-[#610027] placeholder-[#9CA3AF]"
+                    className="w-full px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#912B48] focus:border-[#912B48] bg-white hover:bg-[#FFF0F3]/10 transition-all duration-200 text-[#610027] placeholder-[#9CA3AF]"
                   />
                 </div>
                 <div>
@@ -712,7 +712,7 @@ export default function MenuPage() {
                   <select
                     value={itemFormData.category_id}
                     onChange={(e) => setItemFormData({ ...itemFormData, category_id: e.target.value })}
-                    className="w-full px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#912B48] focus:border-[#912B48] bg-white hover:bg-[#FFF0F3]/10 transition-all duration-200 text-[#610027]"
+                    className="w-full px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#912B48] focus:border-[#912B48] bg-white hover:bg-[#FFF0F3]/10 transition-all duration-200 text-[#610027]"
                   >
                     <option value="">No Category</option>
                     {categories.map((cat) => (
@@ -729,7 +729,7 @@ export default function MenuPage() {
                     value={itemFormData.selling_price}
                     onChange={(e) => setItemFormData({ ...itemFormData, selling_price: e.target.value })}
                     required
-                    className="w-full px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#912B48] focus:border-[#912B48] bg-white hover:bg-[#FFF0F3]/10 transition-all duration-200 text-[#610027] placeholder-[#9CA3AF]"
+                    className="w-full px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#912B48] focus:border-[#912B48] bg-white hover:bg-[#FFF0F3]/10 transition-all duration-200 text-[#610027] placeholder-[#9CA3AF]"
                   />
                 </div>
                 <div>
@@ -738,7 +738,7 @@ export default function MenuPage() {
                     value={itemFormData.tax_group_id}
                     onChange={(e) => setItemFormData({ ...itemFormData, tax_group_id: e.target.value })}
                     required
-                    className="w-full px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#912B48] focus:border-[#912B48] bg-white hover:bg-[#FFF0F3]/10 transition-all duration-200 text-[#610027]"
+                    className="w-full px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#912B48] focus:border-[#912B48] bg-white hover:bg-[#FFF0F3]/10 transition-all duration-200 text-[#610027]"
                   >
                     <option value="">Select Tax Group</option>
                     {taxGroups.map((tg) => (
@@ -754,7 +754,7 @@ export default function MenuPage() {
                       type="checkbox"
                       checked={itemFormData.is_active}
                       onChange={(e) => setItemFormData({ ...itemFormData, is_active: e.target.checked })}
-                      className="w-5 h-5 border border-[#E5E7EB] rounded focus:ring-2 focus:ring-[#912B48] accent-[#912B48]"
+                      className="w-5 h-5 border border-[#E5E7EB] rounded-sm focus:ring-2 focus:ring-[#912B48] accent-[#912B48]"
                     />
                     <span className="text-sm font-semibold text-[#6B6B6B]">Active</span>
                   </label>
@@ -762,7 +762,7 @@ export default function MenuPage() {
                 <button
                   type="button"
                   onClick={() => setShowAdvanced(!showAdvanced)}
-                  className="text-sm text-[#6B6B6B] hover:text-[#610027] flex items-center gap-1 transition-all duration-200 ease-in-out active:scale-[0.95] focus-visible:ring outline-none"
+                  className="text-sm text-[#6B6B6B] hover:text-[#610027] flex items-center gap-1 transition-all duration-200 ease-in-out active:scale-[0.95] focus-visible:ring-3 outline-hidden"
                 >
                   <Settings className="w-4 h-4" />
                   {showAdvanced ? 'Hide' : 'Show'} Advanced Settings
@@ -773,7 +773,7 @@ export default function MenuPage() {
                     <select
                       value={itemFormData.unit}
                       onChange={(e) => setItemFormData({ ...itemFormData, unit: e.target.value })}
-                      className="w-full px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#912B48] focus:border-[#912B48] bg-white hover:bg-[#FFF0F3]/10 transition-all duration-200 text-[#610027]"
+                      className="w-full px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#912B48] focus:border-[#912B48] bg-white hover:bg-[#FFF0F3]/10 transition-all duration-200 text-[#610027]"
                     >
                       <option value="">No Unit</option>
                       <option value="pcs">Pieces (pcs)</option>
@@ -816,7 +816,7 @@ export default function MenuPage() {
         {/* Category Modal */}
         {showCategoryModal && (
           <div 
-            className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+            className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-xs flex items-center justify-center z-50 p-4"
             onClick={() => {
               setShowCategoryModal(false)
               setEditingCategory(null)
@@ -850,7 +850,7 @@ export default function MenuPage() {
                     value={categoryFormData.name}
                     onChange={(e) => setCategoryFormData({ ...categoryFormData, name: e.target.value })}
                     required
-                    className="w-full px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#912B48] focus:border-[#912B48] bg-white hover:bg-[#FFF0F3]/10 transition-all duration-200 text-[#610027] placeholder-[#9CA3AF]"
+                    className="w-full px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#912B48] focus:border-[#912B48] bg-white hover:bg-[#FFF0F3]/10 transition-all duration-200 text-[#610027] placeholder-[#9CA3AF]"
                   />
                 </div>
                 <div>
@@ -859,7 +859,7 @@ export default function MenuPage() {
                     type="number"
                     value={categoryFormData.display_order}
                     onChange={(e) => setCategoryFormData({ ...categoryFormData, display_order: parseInt(e.target.value) || 0 })}
-                    className="w-full px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#912B48] focus:border-[#912B48] bg-white hover:bg-[#FFF0F3]/10 transition-all duration-200 text-[#610027] placeholder-[#9CA3AF]"
+                    className="w-full px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#912B48] focus:border-[#912B48] bg-white hover:bg-[#FFF0F3]/10 transition-all duration-200 text-[#610027] placeholder-[#9CA3AF]"
                   />
                 </div>
                 <div>
@@ -868,7 +868,7 @@ export default function MenuPage() {
                       type="checkbox"
                       checked={categoryFormData.is_active}
                       onChange={(e) => setCategoryFormData({ ...categoryFormData, is_active: e.target.checked })}
-                      className="w-5 h-5 border border-[#E5E7EB] rounded focus:ring-2 focus:ring-[#912B48] accent-[#912B48]"
+                      className="w-5 h-5 border border-[#E5E7EB] rounded-sm focus:ring-2 focus:ring-[#912B48] accent-[#912B48]"
                     />
                     <span className="text-sm font-semibold text-[#6B6B6B]">Active</span>
                   </label>
@@ -900,7 +900,7 @@ export default function MenuPage() {
         {/* Bulk Tax Group Assignment Modal */}
         {showBulkTaxModal && selectedCategoryForBulk && (
           <div 
-            className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+            className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-xs flex items-center justify-center z-50 p-4"
             onClick={() => {
               setShowBulkTaxModal(false)
               setSelectedCategoryForBulk(null)
@@ -940,7 +940,7 @@ export default function MenuPage() {
                     value={bulkTaxGroupId}
                     onChange={(e) => setBulkTaxGroupId(e.target.value)}
                     required
-                    className="w-full px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#912B48] focus:border-[#912B48] bg-white hover:bg-[#FFF0F3]/10 transition-all duration-200 text-[#610027]"
+                    className="w-full px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#912B48] focus:border-[#912B48] bg-white hover:bg-[#FFF0F3]/10 transition-all duration-200 text-[#610027]"
                   >
                     <option value="">Select Tax Group</option>
                     {taxGroups.map((tg) => (
@@ -1002,7 +1002,7 @@ export default function MenuPage() {
         {/* Import Menu Modal */}
         {showImportModal && (
           <div 
-            className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+            className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-xs flex items-center justify-center z-50 p-4"
             onClick={() => {
               setShowImportModal(false)
               setImportFile(null)
@@ -1138,7 +1138,7 @@ export default function MenuPage() {
         {/* Toast Notification */}
         {toast && (
           <div 
-            className="fixed bottom-6 right-6 z-[9999]"
+            className="fixed bottom-6 right-6 z-9999"
             style={{
               animation: 'slideInRight 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
             }}
@@ -1149,11 +1149,11 @@ export default function MenuPage() {
                 : 'border-red-200'
             }`}>
               {toast.type === 'success' ? (
-                <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+                <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center shrink-0">
                   <CheckCircle className="w-5 h-5 text-green-600" />
                 </div>
               ) : (
-                <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
+                <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center shrink-0">
                   <AlertCircle className="w-5 h-5 text-red-600" />
                 </div>
               )}
@@ -1164,7 +1164,7 @@ export default function MenuPage() {
               </p>
               <button
                 onClick={() => setToast(null)}
-                className="flex-shrink-0 p-1 rounded-full text-[#6B6B6B] hover:text-[#610027] hover:bg-[#FFF0F3]/20 transition-colors"
+                className="shrink-0 p-1 rounded-full text-[#6B6B6B] hover:text-[#610027] hover:bg-[#FFF0F3]/20 transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>

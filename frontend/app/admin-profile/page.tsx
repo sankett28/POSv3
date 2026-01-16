@@ -54,7 +54,7 @@ export default function AdminProfilePage() {
         <div>
           <div className="bg-white shadow-md border border-[#E5E7EB] rounded-2xl p-6 text-center">
             <div className="relative inline-block mb-4">
-              <div className="w-28 h-28 rounded-full bg-gradient-to-br from-[#912B48] to-[#B45A69] text-white flex items-center justify-center shadow-lg">
+              <div className="w-28 h-28 rounded-full bg-linear-to-br from-[#912B48] to-[#B45A69] text-white flex items-center justify-center shadow-lg">
                 <UserCircle className="w-16 h-16" />
               </div>
               {isEditing && (
@@ -131,7 +131,7 @@ export default function AdminProfilePage() {
                           [value]: e.target.value,
                         })
                       }
-                      className="w-full px-4 py-2.5 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#912B48] focus:border-[#912B48] bg-white hover:bg-[#FFF0F3]/10 transition-all duration-200 text-[#610027] placeholder-[#9CA3AF]"
+                      className="w-full px-4 py-2.5 border border-[#E5E7EB] rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#912B48] focus:border-[#912B48] bg-white hover:bg-[#FFF0F3]/10 transition-all duration-200 text-[#610027] placeholder-[#9CA3AF]"
                     />
                   ) : (
                     <div className="flex items-center gap-3 px-4 py-2.5 bg-[#FFF0F3]/20 rounded-xl text-[#610027] border border-[#E5E7EB]">
@@ -153,7 +153,7 @@ export default function AdminProfilePage() {
                     onChange={(e) =>
                       setProfileData({ ...profileData, address: e.target.value })
                     }
-                    className="w-full px-4 py-2.5 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63] bg-white hover:bg-white transition-all duration-200 text-[#1F1F1F] placeholder-[#9CA3AF]"
+                    className="w-full px-4 py-2.5 border border-[#E5E7EB] rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63] bg-white hover:bg-white transition-all duration-200 text-[#1F1F1F] placeholder-[#9CA3AF]"
                   />
                 ) : (
                   <div className="flex gap-3 px-4 py-2.5 bg-[#FFF0F3]/20 rounded-xl text-[#610027] border border-[#E5E7EB]">

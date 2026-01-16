@@ -66,7 +66,7 @@ export default function Header() {
         </div>
 
         {/* Middle section: Navigation Tabs */}
-        <nav className="hidden md:flex flex-grow justify-center">
+        <nav className="hidden md:flex grow justify-center">
           <ul className="flex gap-3">
             {navItems.map((item) => (
               <li key={item.name}>
@@ -116,7 +116,7 @@ export default function Header() {
 
       {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-60 z-50 md:hidden backdrop-blur-sm" onClick={handleMobileMenuClose}>
+        <div className="fixed inset-0 bg-black bg-opacity-60 z-50 md:hidden backdrop-blur-xs" onClick={handleMobileMenuClose}>
             <div className="relative w-[72%] max-w-[320px] h-full bg-white shadow-2xl p-6 animate-slide-in-left rounded-r-2xl" onClick={(e) => e.stopPropagation()}>
               <button className="absolute top-4 right-4 p-3 rounded-xl bg-[#610027] text-white hover:bg-[#6B2440] transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]" onClick={handleMobileMenuClose}>
               <X className="w-6 h-6" />

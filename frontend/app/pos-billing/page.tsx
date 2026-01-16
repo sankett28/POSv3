@@ -572,7 +572,7 @@ export default function PosBillingPage() {
           <div className="relative mb-4">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9CA3AF] w-5 h-5" />
             <input
-              className="w-full pl-12 pr-4 py-3 rounded-xl border border-[#E5E7EB] focus:outline-none focus:ring-2 focus:ring-[#912B48] focus:border-[#912B48] bg-white hover:bg-[#FFF0F3]/10 transition-all duration-200 text-[#610027] placeholder-[#9CA3AF]"
+              className="w-full pl-12 pr-4 py-3 rounded-xl border border-[#E5E7EB] focus:outline-hidden focus:ring-2 focus:ring-[#912B48] focus:border-[#912B48] bg-white hover:bg-[#FFF0F3]/10 transition-all duration-200 text-[#610027] placeholder-[#9CA3AF]"
               placeholder="Search menu..."
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
@@ -670,7 +670,7 @@ export default function PosBillingPage() {
             className="w-full bg-[#912B48] text-white py-3 rounded-xl
                        transition-all duration-200 ease-in-out
                        hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]
-                       focus-visible:ring outline-none hover:bg-[#B45A69]"
+                       focus-visible:ring-3 outline-hidden hover:bg-[#B45A69]"
           >
             <Receipt className="inline mr-2" />
             Complete Order

@@ -29,7 +29,7 @@ export default function CustomersPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Main Coming Soon Card */}
           <div className="bg-white rounded-2xl shadow-md p-8 text-center border border-[#E5E7EB]">
-            <div className="w-20 h-20 bg-gradient-to-br from-[#C89B63] to-[#F4A261] rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+            <div className="w-20 h-20 bg-linear-to-br from-[#C89B63] to-[#F4A261] rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
               <Heart className="w-10 h-10 text-white" />
             </div>
             <h2 className="text-2xl font-bold text-[#3E2C24] mb-4">Customer Loyalty Program</h2>
@@ -78,18 +78,18 @@ export default function CustomersPage() {
         </div>
 
         {/* Future Features Teaser */}
-        <div className="mt-8 bg-gradient-to-r from-[#3E2C24] to-[#C89B63] rounded-2xl p-8 text-white text-center shadow-lg">
+        <div className="mt-8 bg-linear-to-r from-[#3E2C24] to-[#C89B63] rounded-2xl p-8 text-white text-center shadow-lg">
           <h3 className="text-2xl font-bold mb-4">Exciting Features Coming Soon</h3>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-4xl mx-auto">
-            <div className="bg-white bg-opacity-10 rounded-xl p-4 backdrop-blur-sm">
+            <div className="bg-white bg-opacity-10 rounded-xl p-4 backdrop-blur-xs">
               <div className="text-lg font-semibold mb-2">📱 Mobile App Integration</div>
               <div className="text-sm opacity-90">Let customers order ahead and earn rewards</div>
             </div>
-            <div className="bg-white bg-opacity-10 rounded-xl p-4 backdrop-blur-sm">
+            <div className="bg-white bg-opacity-10 rounded-xl p-4 backdrop-blur-xs">
               <div className="text-lg font-semibold mb-2">📊 Advanced Analytics</div>
               <div className="text-sm opacity-90">Understand customer behavior and preferences</div>
             </div>
-            <div className="bg-white bg-opacity-10 rounded-xl p-4 backdrop-blur-sm">
+            <div className="bg-white bg-opacity-10 rounded-xl p-4 backdrop-blur-xs">
               <div className="text-lg font-semibold mb-2">🎯 Targeted Marketing</div>
               <div className="text-sm opacity-90">Send personalized offers and promotions</div>
             </div>

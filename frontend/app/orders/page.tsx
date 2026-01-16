@@ -728,7 +728,7 @@ export default function OrdersPage() {
             <div className="space-y-3">
               <button
                 onClick={() => setSelectedCategory(null)}
-                className={`w-full text-left px-4 py-3 rounded-full font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring outline-none ${selectedCategory === null
+                className={`w-full text-left px-4 py-3 rounded-full font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring-3 outline-hidden ${selectedCategory === null
                     ? 'bg-[#610027] text-white shadow-md'
                     : 'bg-white text-[#610027] hover:bg-[#B45A69]/10 border border-[#E5E7EB]'
                 }`}
@@ -739,7 +739,7 @@ export default function OrdersPage() {
                 <button
                   key={category.id}
                   onClick={() => setSelectedCategory(category.id)}
-                  className={`w-full text-left px-4 py-3 rounded-full font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring outline-none ${selectedCategory === category.id
+                  className={`w-full text-left px-4 py-3 rounded-full font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring-3 outline-hidden ${selectedCategory === category.id
                     ? 'bg-[#610027] text-white shadow-md'
                     : 'bg-white text-[#610027] hover:bg-[#B45A69]/10 border border-[#E5E7EB]'
                   }`}
@@ -760,7 +760,7 @@ export default function OrdersPage() {
                   placeholder="Search menu items..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#912B48] focus:border-[#912B48] bg-white hover:bg-[#FFF0F3]/10 transition-all duration-200 text-[#610027] placeholder-[#9CA3AF]"
+                  className="w-full pl-12 pr-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#912B48] focus:border-[#912B48] bg-white hover:bg-[#FFF0F3]/10 transition-all duration-200 text-[#610027] placeholder-[#9CA3AF]"
                 />
               </div>
             </div>
@@ -781,7 +781,7 @@ export default function OrdersPage() {
                           <button
                             key={product.id}
                             onClick={() => addToBill(product)}
-                            className="group relative w-full bg-white rounded-xl shadow-sm border border-[#E5E7EB]
+                            className="group relative w-full bg-white rounded-xl shadow-xs border border-[#E5E7EB]
                                        hover:shadow-md hover:border-[#912B48] transition-all duration-200
                                        active:scale-[0.98] cursor-pointer flex flex-col overflow-hidden p-3"
                             style={{ aspectRatio: '4/5' }}
@@ -850,7 +850,7 @@ export default function OrdersPage() {
                             
                             {/* Product Details - Takes remaining ~40% of card */}
                             <div className="flex flex-col justify-center items-center w-full flex-1 px-1 min-h-0 gap-1">
-                              <div className="font-semibold text-[#1F1F1F] text-xs sm:text-sm text-center mb-1 leading-tight break-words line-clamp-2 w-full overflow-hidden">
+                              <div className="font-semibold text-[#1F1F1F] text-xs sm:text-sm text-center mb-1 leading-tight wrap-break-word line-clamp-2 w-full overflow-hidden">
                                 <span className="block">{product.name}</span>
                               </div>
                               <div className="font-bold text-[#912B48] text-xs sm:text-sm mt-auto">₹{product.selling_price.toFixed(2)}</div>
@@ -871,7 +871,7 @@ export default function OrdersPage() {
                         <button
                           key={product.id}
                           onClick={() => addToBill(product)}
-                          className="group relative w-full bg-white rounded-xl shadow-sm border border-[#E5E7EB]
+                          className="group relative w-full bg-white rounded-xl shadow-xs border border-[#E5E7EB]
                                      hover:shadow-md hover:border-[#912B48] transition-all duration-200
                                      active:scale-[0.98] cursor-pointer flex flex-col overflow-hidden p-3"
                           style={{ aspectRatio: '4/5' }}
@@ -940,7 +940,7 @@ export default function OrdersPage() {
                           
                           {/* Product Details - Takes remaining ~40% of card */}
                           <div className="flex flex-col justify-center items-center w-full flex-1 px-1 min-h-0 gap-1">
-                            <div className="font-semibold text-[#1F1F1F] text-xs sm:text-sm text-center mb-1 leading-tight break-words line-clamp-2 w-full overflow-hidden">
+                            <div className="font-semibold text-[#1F1F1F] text-xs sm:text-sm text-center mb-1 leading-tight wrap-break-word line-clamp-2 w-full overflow-hidden">
                               <span className="block">{product.name}</span>
                             </div>
                             <div className="font-bold text-[#912B48] text-xs sm:text-sm mt-auto">₹{product.selling_price.toFixed(2)}</div>
@@ -987,7 +987,7 @@ export default function OrdersPage() {
                     return (
                       <div key={item.product_id} className="flex gap-3 py-3 border-b border-[#E5E7EB] last:border-b-0 transition-all duration-200 ease-in-out hover:bg-[#FFF0F3]/10 rounded-md px-2">
                         {/* Left: Image */}
-                        <div className="flex-shrink-0">
+                        <div className="shrink-0">
                           <div className="h-16 w-16 flex items-center justify-center rounded-md overflow-hidden bg-[#FFF0F3]/20">
                             {(() => {
                               const categoryLower = productImage?.category_name?.toLowerCase() || ''
@@ -1149,7 +1149,7 @@ export default function OrdersPage() {
             <div className="grid grid-cols-3 gap-3 mb-6">
               <button
                 onClick={() => setPaymentMethod('CASH')}
-                className={`flex flex-col items-center justify-center p-4 rounded-xl border border-[#E5E7EB] transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring outline-none ${
+                className={`flex flex-col items-center justify-center p-4 rounded-xl border border-[#E5E7EB] transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring-3 outline-hidden ${
                   paymentMethod === 'CASH'
                     ? 'bg-[#610027] text-white shadow-md'
                     : 'bg-white text-[#610027] hover:bg-[#B45A69]/10'
@@ -1160,7 +1160,7 @@ export default function OrdersPage() {
               </button>
               <button
                 onClick={() => setPaymentMethod('UPI')}
-                className={`flex flex-col items-center justify-center p-4 rounded-xl border border-[#E5E7EB] transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring outline-none ${
+                className={`flex flex-col items-center justify-center p-4 rounded-xl border border-[#E5E7EB] transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring-3 outline-hidden ${
                   paymentMethod === 'UPI'
                     ? 'bg-[#610027] text-white shadow-md'
                     : 'bg-white text-[#610027] hover:bg-[#B45A69]/10'
@@ -1171,7 +1171,7 @@ export default function OrdersPage() {
               </button>
               <button
                 onClick={() => setPaymentMethod('CARD')}
-                className={`flex flex-col items-center justify-center p-4 rounded-xl border border-[#E5E7EB] transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring outline-none ${
+                className={`flex flex-col items-center justify-center p-4 rounded-xl border border-[#E5E7EB] transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring-3 outline-hidden ${
                   paymentMethod === 'CARD'
                     ? 'bg-[#610027] text-white shadow-md'
                     : 'bg-white text-[#610027] hover:bg-[#B45A69]/10'
@@ -1188,7 +1188,7 @@ export default function OrdersPage() {
               className="w-full bg-[#912B48] text-white py-3 px-4 rounded-xl font-semibold hover:bg-[#B45A69]
                          transition-all duration-200 ease-in-out
                          hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]
-                         focus-visible:ring outline-none disabled:opacity-50 disabled:cursor-not-allowed text-lg flex items-center justify-center gap-2"
+                         focus-visible:ring-3 outline-hidden disabled:opacity-50 disabled:cursor-not-allowed text-lg flex items-center justify-center gap-2"
             >
               <CheckCircle className="w-5 h-5" />
               Complete Order

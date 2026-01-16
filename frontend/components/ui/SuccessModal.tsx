@@ -437,7 +437,7 @@ export default function SuccessModal({ isOpen, onClose, billData, invoiceNumber 
   return (
     <>
     <div
-        className="fixed inset-0 bg-black/50 z-[1000] flex items-center justify-center p-4"
+        className="fixed inset-0 bg-black/50 z-1000 flex items-center justify-center p-4"
       onClick={onClose}
     >
       <div

@@ -188,7 +188,7 @@ export default function ProductsPage() {
                 placeholder="Search menu items by name, SKU, or barcode..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-12 pr-4 py-4 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63] bg-[#FAF7F2] hover:bg-white transition-all duration-200 text-[#1F1F1F] placeholder-[#9CA3AF]"
+                className="w-full pl-12 pr-4 py-4 border border-[#E5E7EB] rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63] bg-[#FAF7F2] hover:bg-white transition-all duration-200 text-[#1F1F1F] placeholder-[#9CA3AF]"
               />
             </div>
             <div className="flex items-center gap-2 text-[#6B6B6B]">
@@ -223,7 +223,7 @@ export default function ProductsPage() {
                 onClick={() => handleEdit(product)} // Make entire card clickable
               >
                 {/* Product Image Placeholder */}
-                <div className="h-24 w-full bg-gradient-to-br from-[#C89B63]/30 to-[#F4A261]/30 flex items-center justify-center">
+                <div className="h-24 w-full bg-linear-to-br from-[#C89B63]/30 to-[#F4A261]/30 flex items-center justify-center">
                   <span className="text-5xl">☕</span> {/* Cafe-friendly emoji fallback */}
                 </div>
                 
@@ -279,7 +279,7 @@ export default function ProductsPage() {
       {/* Add/Edit Product Modal */}
       {showModal && (
         <div 
-          className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+          className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-xs flex items-center justify-center z-50 p-4"
           onClick={() => {
             setShowModal(false)
             setEditingProduct(null)
@@ -298,7 +298,7 @@ export default function ProductsPage() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center gap-4 mb-6">
-              <div className="w-12 h-12 bg-gradient-to-br from-[#C89B63] to-[#F4A261] rounded-xl flex items-center justify-center">
+              <div className="w-12 h-12 bg-linear-to-br from-[#C89B63] to-[#F4A261] rounded-xl flex items-center justify-center">
                 <Package className="w-6 h-6 text-white" />
               </div>
               <div>
@@ -325,7 +325,7 @@ export default function ProductsPage() {
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   required
                   placeholder="e.g., Espresso, Cappuccino, Croissant"
-                  className="w-full px-4 py-4 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63] bg-[#FAF7F2] hover:bg-white transition-all duration-200 text-[#1F1F1F] placeholder-[#9CA3AF]"
+                  className="w-full px-4 py-4 border border-[#E5E7EB] rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63] bg-[#FAF7F2] hover:bg-white transition-all duration-200 text-[#1F1F1F] placeholder-[#9CA3AF]"
                 />
               </div>
               <div>
@@ -336,7 +336,7 @@ export default function ProductsPage() {
                   onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
                   required
                   placeholder="e.g., ESP-001, CAP-002"
-                  className="w-full px-4 py-4 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63] bg-[#FAF7F2] hover:bg-white transition-all duration-200 text-[#1F1F1F] placeholder-[#9CA3AF]"
+                  className="w-full px-4 py-4 border border-[#E5E7EB] rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63] bg-[#FAF7F2] hover:bg-white transition-all duration-200 text-[#1F1F1F] placeholder-[#9CA3AF]"
                 />
               </div>
               <div>
@@ -348,7 +348,7 @@ export default function ProductsPage() {
                   value={formData.selling_price}
                   onChange={(e) => setFormData({ ...formData, selling_price: e.target.value })}
                   required
-                  className="w-full px-4 py-4 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63] bg-[#FAF7F2] hover:bg-white transition-all duration-200 text-[#1F1F1F] placeholder-[#9CA3AF]"
+                  className="w-full px-4 py-4 border border-[#E5E7EB] rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63] bg-[#FAF7F2] hover:bg-white transition-all duration-200 text-[#1F1F1F] placeholder-[#9CA3AF]"
                 />
               </div>
               <div>
@@ -357,7 +357,7 @@ export default function ProductsPage() {
                   value={formData.unit}
                   onChange={(e) => setFormData({ ...formData, unit: e.target.value as 'pcs' | 'kg' | 'litre' })}
                   required
-                  className="w-full px-4 py-4 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63] bg-[#FAF7F2] hover:bg-white transition-all duration-200 text-[#1F1F1F]"
+                  className="w-full px-4 py-4 border border-[#E5E7EB] rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63] bg-[#FAF7F2] hover:bg-white transition-all duration-200 text-[#1F1F1F]"
                 >
                   <option value="pcs">Pieces (pcs)</option>
                   <option value="kg">Kilogram (kg)</option>
@@ -370,7 +370,7 @@ export default function ProductsPage() {
                     type="checkbox"
                     checked={formData.is_active}
                     onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-                    className="w-4 h-4 border border-[#E5E7EB] rounded focus:ring-2 focus:ring-[#C89B63]"
+                    className="w-4 h-4 border border-[#E5E7EB] rounded-sm focus:ring-2 focus:ring-[#C89B63]"
                   />
                   <span className="text-sm font-medium text-[#6B6B6B]">Active</span>
                 </label>

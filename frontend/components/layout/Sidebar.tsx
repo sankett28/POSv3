@@ -20,8 +20,8 @@ function Sidebar() {
   const pathname = usePathname()
 
   return (
-    <div className="hidden md:block w-72 bg-gradient-to-b from-white to-[#FFF0F3] border-r border-gray-200 h-screen sticky top-0 shadow-lg rounded-r-2xl">
-      <div className="p-8 border-b border-gray-200 bg-gradient-to-r from-white to-[#FFF0F3] rounded-tr-2xl">
+    <div className="hidden md:block w-72 bg-linear-to-b from-white to-[#FFF0F3] border-r border-gray-200 h-screen sticky top-0 shadow-lg rounded-r-2xl">
+      <div className="p-8 border-b border-gray-200 bg-linear-to-r from-white to-[#FFF0F3] rounded-tr-2xl">
         <div className="flex items-center gap-3">
           <Logo size="lg" showAccent={true} />
           <div className="flex flex-col">

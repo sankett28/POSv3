@@ -50,7 +50,7 @@ export default function Logo({ size = 'md', showAccent = true, className = '' }:
       </span>
       {showAccent && (
         <Leaf 
-          className={`${accentSizeClasses[size]} flex-shrink-0`} 
+          className={`${accentSizeClasses[size]} shrink-0`} 
           style={{ color: '#FB9590' }}
         />
       )}
