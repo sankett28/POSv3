@@ -261,3 +261,5 @@ textarea,
   opacity: 1;
 }
 
+@custom-variant active (&:active);
+@custom-variant disabled (&:disabled);
