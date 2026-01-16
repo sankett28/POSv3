@@ -399,18 +399,20 @@ export default function MenuPage() {
   if (loading) {
     return (
       <div className="p-4 sm:p-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center text-grey-500 py-8">Loading...</div>
-        </div>
+      <div className="max-w-7xl mx-auto">
+        <div className="text-center text-gray-500 py-8">Loading...</div>
       </div>
+    </div>
     )
   }
 
   return (
-    <div className="p-4 sm:p-8 bg-[#FFF0F3] min-h-screen">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-[#610027]">Menu</h1>
+    <div className="max-w-7xl mx-auto">
+        <div className="flex justify-between items-end mb-6">
+          <div>
+            <h1 className="text-3xl font-bold text-primary mb-1">Menu</h1>
+            <p className="text-sm text-primary/60">Manage categories, items, and tax groups.</p>
+          </div>
           <div className="flex gap-3">
             <button
               onClick={() => {
@@ -418,7 +420,7 @@ export default function MenuPage() {
                 resetCategoryForm()
                 setShowCategoryModal(true)
               }}
-              className="bg-[#912B48] text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2 text-base hover:bg-[#B45A69]"
+              className="btn-primary px-6 py-3 rounded-xl font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2 text-base"
             >
               <Plus className="w-5 h-5" />
               Add Category
@@ -429,7 +431,7 @@ export default function MenuPage() {
                 setImportFile(null)
                 setImportErrors([])
               }}
-              className="bg-[#610027] text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2 text-base hover:bg-[#912B48]"
+              className="bg-primary text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2 text-base"
             >
               <Upload className="w-5 h-5" />
               Import Menu
@@ -440,7 +442,7 @@ export default function MenuPage() {
                 resetItemForm()
                 setShowItemModal(true)
               }}
-              className="bg-[#610027] text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2 text-base hover:bg-[#912B48]"
+              className="btn-primary px-6 py-3 rounded-xl font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2 text-base"
             >
               <Plus className="w-5 h-5" />
               Add Menu Item
@@ -509,6 +511,7 @@ export default function MenuPage() {
         {/* Menu Items by Category */}
         <div className="space-y-6">
           {categories.map((category) => {
+            if (selectedCategory && selectedCategory !== category.id) return null
             const categoryProducts = filteredProducts.filter(p => p.category_id === category.id)
             if (categoryProducts.length === 0 && !selectedCategory) return null
 
@@ -1143,7 +1146,7 @@ export default function MenuPage() {
               animation: 'slideInRight 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
             }}
           >
-            <div className={`flex items-center gap-3 px-6 py-4 rounded-xl shadow-2xl min-w-[300px] max-w-md bg-white border ${
+            <div className={`flex items-center gap-3 px-6 py-4 rounded-xl shadow-2xl min-w-75 max-w-md bg-white border ${
               toast.type === 'success' 
                 ? 'border-green-200' 
                 : 'border-red-200'
@@ -1171,7 +1174,6 @@ export default function MenuPage() {
             </div>
           </div>
         )}
-      </div>
     </div>
   )
 }

@@ -717,9 +717,9 @@ export default function OrdersPage() {
   const uncategorizedProducts = filteredProducts.filter(p => !p.category_id)
 
   return (
-    <div className="p-4 sm:p-8 bg-[#FFF0F3] min-h-screen">
-      <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold text-[#610027] mb-6">Orders</h1>
+    <div className="max-w-7xl mx-auto">
+        <h1 className="text-3xl font-bold text-[#4C1D3D] mb-1">Orders</h1>
+        <p className="text-sm text-[#4C1D3D]/60 mb-6">Create orders, add items, and complete billing.</p>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Left Sidebar: Categories */}
@@ -1087,7 +1087,7 @@ export default function OrdersPage() {
                               >
                                 <Minus className="w-4 h-4" />
                               </button>
-                              <span className="font-bold text-sm text-[#1F1F1F] min-w-[30px] text-center">{item.quantity}</span>
+                              <span className="font-bold text-sm text-[#1F1F1F] min-w-75 text-center">{item.quantity}</span>
                               <button
                                 onClick={() => updateQuantity(item.product_id, 1)}
                                 className="p-1.5 rounded-full bg-white text-[#610027] hover:bg-[#FFF0F3]/20 transition-all duration-200 ease-in-out active:scale-[0.9] border border-[#E5E7EB]"
@@ -1231,7 +1231,6 @@ export default function OrdersPage() {
           </div>
         )}
 
-      </div>
     </div>
   )
 }

@@ -83,19 +83,17 @@ export default function TransactionsPage() {
 
   if (loading) {
     return (
-      <div className="p-4 sm:p-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center text-gray-500 py-8">Loading transactions...</div>
-        </div>
+      <div className="max-w-7xl mx-auto">
+        <div className="text-center text-gray-500 py-8">Loading transactions...</div>
       </div>
     )
   }
 
   return (
-    <div className="p-4 sm:p-8 bg-[#FFF0F3] min-h-screen">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-[#610027]">Transactions</h1>
+    <div className="max-w-7xl mx-auto">
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold text-[#4C1D3D] mb-1">Transactions</h1>
+          <p className="text-sm text-[#4C1D3D]/60">Review bills and reprint invoices.</p>
         </div>
 
         <div className="bg-white rounded-2xl shadow-lg p-6 border border-[#E5E7EB] overflow-hidden">
@@ -274,7 +272,6 @@ export default function TransactionsPage() {
             </div>
           </div>
         )}
-      </div>
     </div>
   )
 }

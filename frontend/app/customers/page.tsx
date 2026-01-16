@@ -4,21 +4,20 @@ import { Users, UserPlus, Star, Heart, Coffee } from 'lucide-react'
 
 export default function CustomersPage() {
   return (
-    <div className="min-h-screen bg-[#F5F3EE] p-4 pb-16 sm:p-8">
-      <div className="max-w-7xl mx-auto">
+    <div className="max-w-7xl mx-auto">
         {/* Header Section */}
-        <div className="bg-[#FAF7F2] rounded-2xl shadow-md p-6 mb-8 border border-[#E5E7EB]">
+        <div className="bg-white rounded-2xl shadow-md p-6 mb-8 border border-[#E5E7EB]">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 bg-[#3E2C24] rounded-xl flex items-center justify-center shadow-md">
+              <div className="w-14 h-14 bg-[#DC586D] rounded-xl flex items-center justify-center shadow-md">
                 <Users className="w-7 h-7 text-white" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-[#3E2C24]">Customer Management</h1>
-                <p className="text-[#6B6B6B]">Build relationships with your cafe guests</p>
+                <h1 className="text-3xl font-bold text-[#4C1D3D]">Customer Management</h1>
+                <p className="text-[#4C1D3D]/60">Build relationships with your cafe guests</p>
               </div>
             </div>
-            <button className="bg-[#3E2C24] text-white px-6 py-4 rounded-xl font-medium hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 ease-in-out flex items-center justify-center gap-3 text-base opacity-60 cursor-not-allowed">
+            <button className="bg-[#DC586D] text-white px-6 py-4 rounded-xl font-medium hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 ease-in-out flex items-center justify-center gap-3 text-base opacity-60 cursor-not-allowed">
               <UserPlus className="w-5 h-5" />
               Add Customer
             </button>
@@ -32,14 +31,14 @@ export default function CustomersPage() {
             <div className="w-20 h-20 bg-linear-to-br from-[#C89B63] to-[#F4A261] rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
               <Heart className="w-10 h-10 text-white" />
             </div>
-            <h2 className="text-2xl font-bold text-[#3E2C24] mb-4">Customer Loyalty Program</h2>
-            <p className="text-[#6B6B6B] text-lg mb-6 leading-relaxed">
+            <h2 className="text-2xl font-bold text-[#4C1D3D] mb-4">Customer Loyalty Program</h2>
+            <p className="text-[#4C1D3D]/60 text-lg mb-6 leading-relaxed">
               Track your favorite customers, manage loyalty points, and create personalized experiences
               that keep guests coming back to your cafe.
             </p>
-            <div className="bg-[#FAF7F2] rounded-xl p-4">
-              <p className="text-[#1F1F1F] font-medium">Coming Soon</p>
-              <p className="text-[#6B6B6B] text-sm mt-1">Advanced customer management features</p>
+            <div className="bg-[#F9F9F9] rounded-xl p-4 border border-[#E5E7EB]">
+              <p className="text-[#4C1D3D] font-medium">Coming Soon</p>
+              <p className="text-[#4C1D3D]/60 text-sm mt-1">Advanced customer management features</p>
             </div>
           </div>
 
@@ -95,7 +94,6 @@ export default function CustomersPage() {
             </div>
           </div>
         </div>
-      </div>
     </div>
   )
 }
