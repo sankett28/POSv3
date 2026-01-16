@@ -3,6 +3,54 @@
 @custom-variant active (&:active);
 @custom-variant disabled (&:disabled);
 
+@theme inline {
+  /* ===== Brand Colors ===== */
+  --color-brand-deep-burgundy: var(--brand-deep-burgundy);
+  --color-brand-medium-red: var(--brand-medium-red);
+  --color-brand-dusty-rose: var(--brand-dusty-rose);
+  --color-brand-light-pink: var(--brand-light-pink);
+  
+  /* ===== Primary Colors ===== */
+  --color-coffee-brown: var(--coffee-brown);
+  --color-laalhai: var(--laalhai);
+  
+  /* ===== Background Colors ===== */
+  --color-warm-cream: var(--warm-cream);
+  --color-app-background: var(--app-background);
+  --color-card-background: var(--card-background);
+  
+  /* ===== Accent Colors ===== */
+  --color-caramel: var(--caramel);
+  --color-leaf-green: var(--leaf-green);
+  --color-soft-orange: var(--soft-orange);
+  
+  /* ===== Text Colors ===== */
+  --color-primary-text: var(--primary-text);
+  --color-secondary-text: var(--secondary-text);
+  --color-muted-text: var(--muted-text);
+  
+  /* ===== Status Colors ===== */
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-error: var(--error);
+  
+  /* ===== UI Colors ===== */
+  --color-border: var(--border);
+  
+  /* ===== Legacy Colors ===== */
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  
+  /* ===== Gray Scale ===== */
+  --color-gray-50: var(--gray-50);
+  --color-gray-100: var(--gray-100);
+  --color-gray-200: var(--gray-200);
+  --color-gray-300: var(--gray-300);
+  --color-gray-500: var(--gray-500);
+  --color-gray-600: var(--gray-600);
+  --color-gray-900: var(--gray-900);
+}
+
 /*
   The default border color has changed to `currentcolor` in Tailwind CSS v4,
   so we've added these compatibility styles to make sure everything still
@@ -22,13 +70,16 @@
 }
 
 @layer utilities {
-  /* New Brand Color Scheme */
+  /* New Brand Color Scheme - Root Variables */
   :root {
     /* New Brand Colors */
     --brand-deep-burgundy: #610027;
     --brand-medium-red: #912b48;
     --brand-dusty-rose: #b45a69;
     --brand-light-pink: #fff0f3;
+    
+    /* Special Colors */
+    --laalhai: #ff00dd;
 
     /* Primary (Brand / CTA) - Medium-dark red */
     --coffee-brown: #912b48;
@@ -37,17 +88,17 @@
     --warm-cream: #fff0f3;
 
     /* Accent Colors */
-    --caramel: #b45a69; /* Dusty rose for hover/selected */
+    --caramel: #b45a69;
     --leaf-green: #4caf50;
-    --soft-orange: #912b48; /* Medium red for badges/totals */
+    --soft-orange: #912b48;
 
     /* Neutrals */
-    --app-background: #fff0f3; /* Light pink or white */
+    --app-background: #fff0f3;
     --card-background: #ffffff;
     --border: #e5e7eb;
 
     /* Text */
-    --primary-text: #610027; /* Deep burgundy on light background */
+    --primary-text: #610027;
     --secondary-text: #6b6b6b;
     --muted-text: #9ca3af;
 
@@ -257,19 +308,6 @@
     scrollbar-width: thin;
     scrollbar-color: rgba(180, 90, 105, 0.3) transparent;
   }
-
-  /* Alternative: Completely invisible scrollbar (uncomment to use) */
-  /*
-.custom-scrollbar::-webkit-scrollbar {
-  width: 0px;
-  background: transparent;
-}
-
-.custom-scrollbar {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-*/
 
   /* Selection colors */
   ::selection {
