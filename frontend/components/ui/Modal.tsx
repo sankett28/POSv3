@@ -36,8 +36,8 @@ function Modal({ isOpen, onClose, title, children }: ModalProps) {
         onClick={handleClose}
       >
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg sm:text-xl font-bold text-[#610027]">{title}</h2>
-          <button onClick={onClose} className="text-[#610027] hover:text-[#6B6B6B]">
+          <h2 className="text-lg sm:text-xl font-bold text-primary-text">{title}</h2>
+          <button onClick={onClose} className="text-primary-text hover:text-secondary-text">
             <X className="w-5 h-5" />
           </button>
         </div>
