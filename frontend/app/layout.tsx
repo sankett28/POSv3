@@ -2,7 +2,7 @@
 
 import { Inter } from 'next/font/google'
 import { usePathname } from 'next/navigation'
-import '../styles/globals.css'
+import './globals.css'
 import Sidebar from '@/components/layout/Sidebar'
 
 // Performance: Optimize font loading with display swap to prevent render blocking
