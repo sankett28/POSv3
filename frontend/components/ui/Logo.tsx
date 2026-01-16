@@ -32,7 +32,7 @@ export default function Logo({ size = 'md', showAccent = true, className = '' }:
 
   return (
     <div className={`flex items-center gap-1.5 ${className}`}>
-      <span className={`font-bold ${sizeClasses[size]} tracking-tight`} style={{ color: '#610027' }}>
+      <span className={`font-bold ${sizeClasses[size]} tracking-tight whitespace-nowrap`} style={{ color: '#610027' }}>
         L
         <span className="relative inline-block">
           i

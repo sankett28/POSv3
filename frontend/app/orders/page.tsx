@@ -739,7 +739,7 @@ export default function OrdersPage() {
                 <button
                   key={category.id}
                   onClick={() => setSelectedCategory(category.id)}
-                  className={`w-full text-left px-4 py-3 rounded-full font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring-3 outline-hidden ${selectedCategory === category.id
+                  className={`w-full text-left px-4 my-1 white py-3 rounded-full font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring-3 outline-hidden ${selectedCategory === category.id
                     ? 'bg-[#610027] text-white shadow-md'
                     : 'bg-white text-[#610027] hover:bg-[#B45A69]/10 border border-[#E5E7EB]'
                   }`}
@@ -1079,7 +1079,7 @@ export default function OrdersPage() {
                           )}
 
                           {/* Quantity Controls and Total */}
-                          <div className="flex items-center justify-between">
+                          <div className="flex items-center w-fit">
                             <div className="flex items-center gap-2">
                               <button
                                 onClick={() => updateQuantity(item.product_id, -1)}
@@ -1087,7 +1087,7 @@ export default function OrdersPage() {
                               >
                                 <Minus className="w-4 h-4" />
                               </button>
-                              <span className="font-bold text-sm text-[#1F1F1F] min-w-75 text-center">{item.quantity}</span>
+                              <span className="font-bold text-sm text-[#1F1F1F] w-10 text-center">{item.quantity}</span>
                               <button
                                 onClick={() => updateQuantity(item.product_id, 1)}
                                 className="p-1.5 rounded-full bg-white text-[#610027] hover:bg-[#FFF0F3]/20 transition-all duration-200 ease-in-out active:scale-[0.9] border border-[#E5E7EB]"
