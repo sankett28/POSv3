@@ -27,8 +27,8 @@ function Sidebar() {
   }
 
   return (
-    <aside className="hidden md:block w-72 bg-linear-to-b from-card-background to-warm-cream border-r border-border h-screen sticky top-0 shadow-lg rounded-r-2xl">
-      <div className="p-8 border-b border-border bg-linear-to-r from-card-background to-warm-cream rounded-tr-2xl">
+    <aside className="hidden md:block w-64 bg-linear-to-b from-card-background to-warm-cream border-r border-border h-screen sticky top-0 shadow-lg rounded-r-2xl">
+      <div className="px-6 py-8 border-b border-border bg-linear-to-r from-card-background to-warm-cream rounded-tr-2xl">
         <div className="flex items-center gap-3">
           <Logo size="lg" showAccent={true} />
           <div className="flex flex-col">

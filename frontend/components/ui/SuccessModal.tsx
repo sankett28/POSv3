@@ -87,7 +87,7 @@ export default function SuccessModal({ isOpen, onClose, billData, invoiceNumber 
             .logo-text {
               font-size: 24px;
               font-weight: 700;
-              color: #610027; /* Lichy Deep Burgundy */
+              color: var(--primary-text); /* Lichy Deep Burgundy */
               margin: 0;
               letter-spacing: -0.2px;
               display: inline-block;
@@ -113,7 +113,7 @@ export default function SuccessModal({ isOpen, onClose, billData, invoiceNumber 
             .header-left-content h1 {
               font-size: 24px;
               font-weight: 600;
-              color: #610027; /* Lichy Deep Burgundy */
+              color: var(--primary-text); /* Lichy Deep Burgundy */
               margin: 0 0 2px 0;
               letter-spacing: -0.2px;
             }
@@ -146,7 +146,7 @@ export default function SuccessModal({ isOpen, onClose, billData, invoiceNumber 
               letter-spacing: 0.2px;
             }
             .details-section {
-              background: #fdfdfd;
+              background: var(--card-background);
               padding: 18px;
               border-radius: 6px;
               margin-bottom: 25px;
@@ -237,7 +237,7 @@ export default function SuccessModal({ isOpen, onClose, billData, invoiceNumber 
               color: #333;
             }
             .totals-section {
-              background: #fdfdfd;
+              background: var(--card-background);
               padding: 18px 22px;
               border-radius: 6px;
               border: 1px solid #eee;
@@ -353,28 +353,28 @@ export default function SuccessModal({ isOpen, onClose, billData, invoiceNumber 
             </div>
 
             <div class="table-title">Items Ordered</div>
-            <div class="bg-[#FFF0F3]/20 rounded-xl p-4 space-y-3">
+            <div class="bg-warm-cream/20 rounded-xl p-4 space-y-3">
               ${billData.items.map((item: any) => `
-                <div class="flex flex-col gap-1 border-b border-[#f1ece6] py-3 last:border-none">
+                <div class="flex flex-col gap-1 border-b border-border-light py-3 last:border-none">
                   <div class="flex justify-between items-center">
-                    <span class="font-semibold text-[#610027]">${item.product_name}</span>
-                    <span class="font-semibold text-[#912B48]">
+                    <span class="font-semibold text-primary-text">${item.product_name}</span>
+                    <span class="font-semibold text-coffee-brown">
                       ₹${(item.total_price || item.line_total || item.unit_price * item.quantity).toFixed(2)}
                     </span>
                   </div>
 
-                  <div class="text-sm text-[#6B6B6B]">
+                  <div class="text-sm text-secondary-text">
                     ₹${item.unit_price.toFixed(2)} × ${item.quantity}
                     (${item.tax_group ? `GST ${item.tax_group.total_rate}%` : 'No Tax'})
                   </div>
 
                   ${item.preview_tax_amount > 0 ? `
-                    <div class="text-xs text-[#9CA3AF]">
+                    <div class="text-xs text-muted-text">
                       CGST: ₹${(item.preview_tax_amount / 2).toFixed(2)}, SGST: ₹{(item.preview_tax_amount / 2).toFixed(2)}
                     </div>
                   ` : ''}
 
-                  <div class="text-right text-sm font-medium text-[#610027] mt-1">
+                  <div class="text-right text-sm font-medium text-primary-text mt-1">
                     Item Total: ₹${(item.unit_price * item.quantity + item.preview_tax_amount).toFixed(2)}
                   </div>
                 </div>
@@ -447,18 +447,18 @@ export default function SuccessModal({ isOpen, onClose, billData, invoiceNumber 
           <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4 sm:mb-6">
             <CheckCircle className="w-8 h-8 sm:w-10 sm:h-10 text-green-700" />
         </div>
-          <h3 className="text-xl sm:text-2xl font-semibold text-[#610027] mb-2">Bill Generated Successfully!</h3>
-          <p className="text-sm sm:text-base text-[#6B6B6B] mb-6 sm:mb-8">Invoice #{invoiceNumber} created</p>
+          <h3 className="text-xl sm:text-2xl font-semibold text-primary-text mb-2">Bill Generated Successfully!</h3>
+          <p className="text-sm sm:text-base text-secondary-text mb-6 sm:mb-8">Invoice #{invoiceNumber} created</p>
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
           <button
             onClick={onClose}
-              className="flex-1 bg-white text-[#610027] border border-[#E5E7EB] px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base font-semibold cursor-pointer transition-all hover:bg-[#FFF0F3]/20 hover:border-[#912B48] hover:scale-[1.02] active:scale-[0.98]"
+              className="flex-1 bg-white text-primary-text border border-border px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base font-semibold cursor-pointer transition-all hover:bg-warm-cream/20 hover:border-coffee-brown hover:scale-[1.02] active:scale-[0.98]"
           >
             Close
           </button>
             <button
               onClick={handlePrint}
-              className="flex-1 bg-[#912B48] text-white border-none px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base font-semibold cursor-pointer flex items-center justify-center gap-2 transition-all hover:bg-[#B45A69] hover:scale-[1.02] active:scale-[0.98] shadow-md"
+              className="flex-1 bg-coffee-brown text-white border-none px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base font-semibold cursor-pointer flex items-center justify-center gap-2 transition-all hover:bg-brand-dusty-rose hover:scale-[1.02] active:scale-[0.98] shadow-md"
             >
               <Printer className="w-4 h-4 sm:w-5 sm:h-5" />
             Print Invoice

@@ -23,11 +23,17 @@
   --color-caramel: var(--caramel);
   --color-leaf-green: var(--leaf-green);
   --color-soft-orange: var(--soft-orange);
+  --color-accent-pink: var(--accent-pink);
+  --color-accent-pink-dark: var(--accent-pink-dark);
+  --color-accent-gold: var(--accent-gold);
+  --color-accent-orange: var(--accent-orange);
+  --color-dark-brown: var(--dark-brown);
   
   /* ===== Text Colors ===== */
   --color-primary-text: var(--primary-text);
   --color-secondary-text: var(--secondary-text);
   --color-muted-text: var(--muted-text);
+  --color-text-dark: var(--text-dark);
   
   /* ===== Status Colors ===== */
   --color-success: var(--success);
@@ -36,6 +42,7 @@
   
   /* ===== UI Colors ===== */
   --color-border: var(--border);
+  --color-border-light: var(--border-light);
   
   /* ===== Legacy Colors ===== */
   --color-primary: var(--primary);
@@ -91,16 +98,23 @@
     --caramel: #b45a69;
     --leaf-green: #4caf50;
     --soft-orange: #912b48;
+    --accent-pink: #DC586D;
+    --accent-pink-dark: #A33757;
+    --accent-gold: #C89B63;
+    --accent-orange: #F4A261;
+    --dark-brown: #3E2C24;
 
     /* Neutrals */
     --app-background: #fff0f3;
     --card-background: #ffffff;
     --border: #e5e7eb;
+    --border-light: #f1ece6;
 
     /* Text */
     --primary-text: #610027;
     --secondary-text: #6b6b6b;
     --muted-text: #9ca3af;
+    --text-dark: #1F1F1F;
 
     /* Status */
     --success: #22c55e;

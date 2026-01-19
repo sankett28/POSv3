@@ -182,7 +182,7 @@ export default function PosBillingPage() {
               align-items: center;
               margin-bottom: 30px;
               padding-bottom: 15px;
-              border-bottom: 1px solid #E5E7EB;
+              border-bottom: 1px solid var(--border);
             }
             .header-left {
               display: flex;
@@ -192,7 +192,7 @@ export default function PosBillingPage() {
             .logo-text {
               font-size: 24px;
               font-weight: 700;
-              color: #610027; /* Lichy Deep Burgundy */
+              color: var(--primary-text); /* Lichy Deep Burgundy */
               margin: 0;
               letter-spacing: -0.2px;
               display: inline-block;
@@ -218,13 +218,13 @@ export default function PosBillingPage() {
             .header-left-content h1 {
               font-size: 24px;
               font-weight: 600;
-              color: #610027; /* Lichy Deep Burgundy */
+              color: var(--primary-text); /* Lichy Deep Burgundy */
               margin: 0 0 2px 0;
               letter-spacing: -0.2px;
             }
             .header-left-content p {
               font-size: 11px;
-              color: #6B6B6B;
+              color: var(--secondary-text);
               margin: 0;
               font-weight: 400;
             }
@@ -232,12 +232,12 @@ export default function PosBillingPage() {
               background: #FAF7F2; /* Light background */
               padding: 8px 12px;
               border-radius: 8px; /* rounded-xl */
-              border: 1px solid #E5E7EB;
+              border: 1px solid var(--border);
               text-align: right;
             }
             .invoice-number-box p:first-child {
               font-size: 9px;
-              color: #6B6B6B;
+              color: var(--secondary-text);
               margin-bottom: 3px;
               text-transform: uppercase;
               letter-spacing: 0.6px;
@@ -246,12 +246,12 @@ export default function PosBillingPage() {
             .invoice-number-box p:last-child {
               font-size: 16px;
               font-weight: 600;
-              color: #610027; /* Lichy Deep Wine */
+              color: var(--primary-text); /* Lichy Deep Wine */
               margin: 0;
               letter-spacing: 0.2px;
             }
             .details-section {
-              background: #fdfdfd;
+              background: var(--card-background);
               padding: 18px;
               border-radius: 6px;
               margin-bottom: 25px;
@@ -268,7 +268,7 @@ export default function PosBillingPage() {
             }
             .detail-item p:first-child {
               font-size: 9px;
-              color: #6B6B6B;
+              color: var(--secondary-text);
               margin-bottom: 3px;
               text-transform: uppercase;
               letter-spacing: 0.3px;
@@ -277,7 +277,7 @@ export default function PosBillingPage() {
             .detail-item p:last-child {
               font-size: 14px;
               font-weight: 500;
-              color: #610027; /* Lichy Deep Wine */
+              color: var(--primary-text); /* Lichy Deep Wine */
               margin: 0;
             }
             .table-section {
@@ -286,10 +286,10 @@ export default function PosBillingPage() {
             .table-title {
               font-size: 15px;
               font-weight: 600;
-              color: #610027; /* Lichy Deep Wine */
+              color: var(--primary-text); /* Lichy Deep Wine */
               margin-bottom: 10px;
               padding-bottom: 6px;
-              border-bottom: 1px solid #E5E7EB;
+              border-bottom: 1px solid var(--border);
             }
             table {
               width: 100%;
@@ -301,14 +301,14 @@ export default function PosBillingPage() {
               color: #555;
             }
             thead tr {
-              border-bottom: 1px solid #E5E7EB;
+              border-bottom: 1px solid var(--border);
             }
             th {
               text-align: left;
               padding: 10px 12px;
               font-size: 10px;
               font-weight: 600;
-              color: #6B6B6B;
+              color: var(--secondary-text);
               text-transform: uppercase;
               letter-spacing: 0.7px;
             }
@@ -316,7 +316,7 @@ export default function PosBillingPage() {
               text-align: right;
             }
             tbody tr {
-              border-bottom: 1px solid #E5E7EB;
+              border-bottom: 1px solid var(--border);
               transition: background 0.1s;
             }
             tbody tr:hover {
@@ -328,7 +328,7 @@ export default function PosBillingPage() {
             td {
               padding: 12px;
               font-size: 12px;
-              color: #610027; /* Lichy Deep Wine */
+              color: var(--primary-text); /* Lichy Deep Wine */
             }
             td:first-child {
               font-weight: 500;
@@ -339,13 +339,13 @@ export default function PosBillingPage() {
             }
             td:nth-child(4) {
               font-weight: 500;
-              color: #610027; /* Lichy Deep Wine */
+              color: var(--primary-text); /* Lichy Deep Wine */
             }
             .totals-section {
               background: #FAF7F2; /* Light background */
               padding: 18px 22px;
               border-radius: 8px; /* rounded-xl */
-              border: 1px solid #E5E7EB;
+              border: 1px solid var(--border);
               margin-top: 20px;
             }
             .totals {
@@ -366,11 +366,11 @@ export default function PosBillingPage() {
               border-bottom: 1px dashed #E5E7EB;
             }
             .total-row span:first-child {
-              color: #6B6B6B;
+              color: var(--secondary-text);
               font-weight: 500;
             }
             .total-row span:last-child {
-              color: #912B48; /* Lichy Berry */
+              color: var(--coffee-brown); /* Lichy Berry */
               font-weight: 600;
             }
             .total-row:last-child {
@@ -378,28 +378,28 @@ export default function PosBillingPage() {
               font-weight: 700;
               padding-top: 10px;
               margin-top: 5px;
-              border-top: 1px solid #912B48; /* Lichy Primary Rose */
+              border-top: 1px solid var(--coffee-brown); /* Lichy Primary Rose */
               margin-bottom: 0;
               padding-bottom: 0;
             }
             .total-row:last-child span {
-              color: #610027; /* Lichy Deep Wine */
+              color: var(--primary-text); /* Lichy Deep Wine */
             }
             .footer {
               margin-top: 35px;
               padding-top: 20px;
-              border-top: 1px solid #E5E7EB;
+              border-top: 1px solid var(--border);
               text-align: center;
             }
             .footer p:first-child {
               font-size: 12px;
-              color: #6B6B6B;
+              color: var(--secondary-text);
               margin-bottom: 5px;
               font-weight: 500;
             }
             .footer p:last-child {
               font-size: 9px;
-              color: #9CA3AF;
+              color: var(--muted-text);
               margin: 0;
             }
             .divider {
@@ -550,29 +550,29 @@ export default function PosBillingPage() {
   )
 
   return (
-    <div className="h-screen flex bg-[#FFF0F3]">
+    <div className="h-screen flex bg-warm-cream">
       {/* CATEGORIES SECTION */}
       <div className="w-56 bg-white rounded-2xl shadow-md m-4 p-6 flex flex-col">
-        <h2 className="text-xl font-bold text-[#610027] mb-4">Categories</h2>
+        <h2 className="text-xl font-bold text-primary-text mb-4">Categories</h2>
         <div className="flex flex-col gap-3">
           {/* Example Category Buttons (replace with actual data mapping) */}
-          <button className="w-full text-left px-4 py-3 rounded-full font-medium bg-[#610027] text-white transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]">All</button>
-          <button className="w-full text-left px-4 py-3 rounded-full font-medium text-[#610027] hover:bg-[#B45A69]/10 border border-[#E5E7EB] transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]">Drinks</button>
-          <button className="w-full text-left px-4 py-3 rounded-full font-medium text-[#610027] hover:bg-[#B45A69]/10 border border-[#E5E7EB] transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]">Food</button>
-          <button className="w-full text-left px-4 py-3 rounded-full font-medium text-[#610027] hover:bg-[#B45A69]/10 border border-[#E5E7EB] transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]">Cocktails</button>
+          <button className="w-full text-left px-4 py-3 rounded-full font-medium bg-brand-deep-burgundy text-white transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]">All</button>
+          <button className="w-full text-left px-4 py-3 rounded-full font-medium text-primary-text hover:bg-brand-dusty-rose/10 border border-border transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]">Drinks</button>
+          <button className="w-full text-left px-4 py-3 rounded-full font-medium text-primary-text hover:bg-brand-dusty-rose/10 border border-border transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]">Food</button>
+          <button className="w-full text-left px-4 py-3 rounded-full font-medium text-primary-text hover:bg-brand-dusty-rose/10 border border-border transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]">Cocktails</button>
         </div>
       </div>
 
       {/* LEFT MENU */}
-      <div className="flex-1 flex flex-col bg-[#FFF0F3] p-4">
+      <div className="flex-1 flex flex-col bg-warm-cream p-4">
         <div className="bg-white rounded-2xl shadow-md p-6 mb-4">
           <div className="flex items-center gap-3 mb-4">
             <Logo size="lg" showAccent={true} />
         </div>
           <div className="relative mb-4">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9CA3AF] w-5 h-5" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-text w-5 h-5" />
             <input
-              className="w-full pl-12 pr-4 py-3 rounded-xl border border-[#E5E7EB] focus:outline-hidden focus:ring-2 focus:ring-[#912B48] focus:border-[#912B48] bg-white hover:bg-[#FFF0F3]/10 transition-all duration-200 text-[#610027] placeholder-[#9CA3AF]"
+              className="w-full pl-12 pr-4 py-3 rounded-xl border border-border focus:outline-hidden focus:ring-2 focus:ring-coffee-brown focus:border-coffee-brown bg-white hover:bg-warm-cream/10 transition-all duration-200 text-primary-text placeholder-muted-text"
               placeholder="Search menu..."
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
@@ -581,12 +581,12 @@ export default function PosBillingPage() {
           </div>
 
         <div className="bg-white rounded-2xl shadow-md p-6 mb-4 flex-1 overflow-y-auto">
-          <h2 className="text-xl font-bold text-[#610027] mb-4">Menu Items</h2>
+          <h2 className="text-xl font-bold text-primary-text mb-4">Menu Items</h2>
           {loading ? (
             <div className="flex items-center justify-center h-48">
               <div className="text-center">
-                <div className="w-12 h-12 border-4 border-[#912B48] border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-                <p className="text-[#6B6B6B]">Loading menu items...</p>
+                <div className="w-12 h-12 border-4 border-coffee-brown border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+                <p className="text-secondary-text">Loading menu items...</p>
               </div>
             </div>
           ) : (
@@ -595,16 +595,16 @@ export default function PosBillingPage() {
                 <button
                   key={p.id}
                   onClick={() => addToBill(p)}
-                  className="bg-white rounded-2xl p-4 shadow-md border border-[#E5E7EB]
+                  className="bg-white rounded-2xl p-4 shadow-md border border-border
                              transition-all duration-200 ease-in-out
                              hover:-translate-y-1 hover:scale-[1.02] hover:shadow-xl
                              active:scale-[0.98] cursor-pointer group"
                 >
-                  <div className="w-14 h-14 bg-[#912B48] text-white rounded-xl flex items-center justify-center mx-auto mb-3 text-xl">
+                  <div className="w-14 h-14 bg-coffee-brown text-white rounded-xl flex items-center justify-center mx-auto mb-3 text-xl">
                     {p.name[0]}
                   </div>
-                  <h3 className="font-semibold text-[#610027] mb-1">{p.name}</h3>
-                  <p className="text-[#912B48] font-bold text-lg">₹{p.selling_price}</p>
+                  <h3 className="font-semibold text-primary-text mb-1">{p.name}</h3>
+                  <p className="text-coffee-brown font-bold text-lg">₹{p.selling_price}</p>
                 </button>
               ))}
             </div>
@@ -614,7 +614,7 @@ export default function PosBillingPage() {
 
       {/* RIGHT CART */}
       <div className="w-96 bg-white border-l flex flex-col rounded-2xl shadow-lg m-4">
-        <div className="p-6 bg-[#610027] text-white flex items-center gap-3">
+        <div className="p-6 bg-brand-deep-burgundy text-white flex items-center gap-3">
           <ShoppingCart />
           <h2 className="font-bold">Order</h2>
         </div>
@@ -627,7 +627,7 @@ export default function PosBillingPage() {
             </div>
           ) : (
             billItems.map(i => (
-              <div key={i.product_id} className="flex items-center justify-between mb-3 transition-all duration-200 ease-in-out hover:bg-[#FFF0F3]/10 rounded-xl p-2">
+              <div key={i.product_id} className="flex items-center justify-between mb-3 transition-all duration-200 ease-in-out hover:bg-warm-cream/10 rounded-xl p-2">
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => updateQuantity(i.product_id, -1)}
@@ -662,15 +662,15 @@ export default function PosBillingPage() {
           <div className="flex justify-between font-bold mb-4">
             <span>Subtotal</span>
             <span>₹{subtotal.toFixed(2)}</span>
-            <div className="text-xs text-[#6B6B6B] mt-1">Tax calculated by backend</div>
+            <div className="text-xs text-secondary-text mt-1">Tax calculated by backend</div>
           </div>
 
           <button
             onClick={handleCompleteBill}
-            className="w-full bg-[#912B48] text-white py-3 rounded-xl
+            className="w-full bg-coffee-brown text-white py-3 rounded-xl
                        transition-all duration-200 ease-in-out
                        hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]
-                       focus-visible:ring-3 outline-hidden hover:bg-[#B45A69]"
+                       focus-visible:ring-3 outline-hidden hover:bg-brand-dusty-rose"
           >
             <Receipt className="inline mr-2" />
             Complete Order

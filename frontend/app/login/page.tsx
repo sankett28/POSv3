@@ -54,15 +54,15 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#FFF0F3] py-8 px-4">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-2xl p-8 border border-[#E5E7EB] animate-fade-in">
+    <div className="min-h-screen flex items-center justify-center bg-warm-cream py-8 px-4">
+      <div className="max-w-md w-full bg-white rounded-2xl shadow-2xl p-8 border border-border animate-fade-in">
           <div className="flex flex-col items-center mb-8">
           <div className="mb-6 animate-bounce-in">
             <Logo size="xl" showAccent={true} />
           </div>
           <div className="text-center mb-6">
-            <h2 className="text-2xl font-semibold text-[#610027] mb-2">Welcome Back</h2>
-            <p className="text-[#6B6B6B]">Your cafe management starts here</p>
+            <h2 className="text-2xl font-semibold text-primary-text mb-2">Welcome Back</h2>
+            <p className="text-secondary-text">Your cafe management starts here</p>
           </div>
         </div>
 
@@ -79,9 +79,9 @@ export default function LoginPage() {
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label htmlFor="email" className="block text-sm font-semibold text-[#6B6B6B] mb-2">Email Address</label>
+            <label htmlFor="email" className="block text-sm font-semibold text-secondary-text mb-2">Email Address</label>
             <div className="relative">
-              <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#9CA3AF]" />
+              <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-text" />
               <input
                 id="email"
                 type="email"
@@ -89,15 +89,15 @@ export default function LoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 placeholder="manager@lichy.com"
-                className="w-full pl-12 pr-4 py-4 border border-[#E5E7EB] rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#912B48] focus:border-[#912B48] bg-white hover:bg-[#FFF0F3]/10 transition-all duration-200 text-[#610027] placeholder-[#9CA3AF]"
+                className="w-full pl-12 pr-4 py-4 border border-border rounded-xl focus:outline-hidden focus:ring-2 focus:ring-coffee-brown focus:border-coffee-brown bg-white hover:bg-warm-cream/10 transition-all duration-200 text-primary-text placeholder-muted-text"
               />
             </div>
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-semibold text-[#6B6B6B] mb-2">Password</label>
+            <label htmlFor="password" className="block text-sm font-semibold text-secondary-text mb-2">Password</label>
             <div className="relative">
-              <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#9CA3AF]" />
+              <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-text" />
               <input
                 id="password"
                 type="password"
@@ -105,7 +105,7 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 placeholder="Enter your password"
-                className="w-full pl-12 pr-4 py-4 border border-[#E5E7EB] rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#912B48] focus:border-[#912B48] bg-white hover:bg-[#FFF0F3]/10 transition-all duration-200 text-[#610027] placeholder-[#9CA3AF]"
+                className="w-full pl-12 pr-4 py-4 border border-border rounded-xl focus:outline-hidden focus:ring-2 focus:ring-coffee-brown focus:border-coffee-brown bg-white hover:bg-warm-cream/10 transition-all duration-200 text-primary-text placeholder-muted-text"
               />
             </div>
           </div>
@@ -113,7 +113,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[#912B48] text-white py-4 px-6 rounded-xl font-bold text-lg hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2 hover:bg-[#B45A69]"
+            className="w-full bg-coffee-brown text-white py-4 px-6 rounded-xl font-bold text-lg hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2 hover:bg-brand-dusty-rose"
           >
             {loading ? (
               <>
@@ -131,8 +131,8 @@ export default function LoginPage() {
 
         <div className="mt-8 text-center">
           <div className="flex items-center justify-center gap-2">
-            <div className="w-2 h-2 bg-[#912B48] rounded-full animate-pulse"></div>
-            <span className="text-xs text-[#9CA3AF] font-medium">Secure & Encrypted</span>
+            <div className="w-2 h-2 bg-coffee-brown rounded-full animate-pulse"></div>
+            <span className="text-xs text-muted-text font-medium">Secure & Encrypted</span>
           </div>
         </div>
       </div>

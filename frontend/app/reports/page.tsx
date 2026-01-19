@@ -305,8 +305,8 @@ export default function ReportsPage() {
     <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-end mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-[#4C1D3D] mb-1">Reports</h1>
-            <p className="text-sm text-[#4C1D3D]/60">View sales analytics and export summaries.</p>
+            <h1 className="text-3xl font-bold text-primary-text mb-1">Reports</h1>
+            <p className="text-sm text-primary-text/60">View sales analytics and export summaries.</p>
           </div>
           <div className="flex gap-4 items-center">
             <input
@@ -320,7 +320,7 @@ export default function ReportsPage() {
                   setDateRange({ ...dateRange, start: newStart })
                 }
               }}
-              className="px-4 py-2 border border-[#E5E7EB] rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#912B48] focus:border-[#912B48] bg-white hover:bg-[#FFF0F3]/10 transition-all duration-200 text-[#610027]"
+              className="px-4 py-2 border border-border rounded-xl focus:outline-hidden focus:ring-2 focus:ring-coffee-brown focus:border-coffee-brown bg-white hover:bg-warm-cream/10 transition-all duration-200 text-primary-text"
             />
             <input
               type="date"
@@ -333,11 +333,11 @@ export default function ReportsPage() {
                   setDateRange({ ...dateRange, end: newEnd })
                 }
               }}
-              className="px-4 py-2 border border-[#E5E7EB] rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#912B48] focus:border-[#912B48] bg-white hover:bg-[#FFF0F3]/10 transition-all duration-200 text-[#610027]"
+              className="px-4 py-2 border border-border rounded-xl focus:outline-hidden focus:ring-2 focus:ring-coffee-brown focus:border-coffee-brown bg-white hover:bg-warm-cream/10 transition-all duration-200 text-primary-text"
             />
             <button
               onClick={() => exportToExcel().catch(console.error)}
-              className="px-6 py-2 bg-[#912B48] text-white rounded-xl font-medium hover:bg-[#B45A69] transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] flex items-center gap-2"
+              className="px-6 py-2 bg-coffee-brown text-white rounded-xl font-medium hover:bg-brand-dusty-rose transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] flex items-center gap-2"
             >
               <Download className="w-4 h-4" />
               Export Data
@@ -346,43 +346,43 @@ export default function ReportsPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white rounded-2xl shadow-md p-6 border border-[#E5E7EB]">
+          <div className="bg-white rounded-2xl shadow-md p-6 border border-border">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-[#6B6B6B] text-sm font-medium">Total Sales</p>
-                <p className="text-3xl font-bold text-[#912B48] mt-2">₹{totalSales.toFixed(2)}</p>
+                <p className="text-secondary-text text-sm font-medium">Total Sales</p>
+                <p className="text-3xl font-bold text-coffee-brown mt-2">₹{totalSales.toFixed(2)}</p>
               </div>
-              <div className="p-3 rounded-full bg-[#FFF0F3]/30">
-                <IndianRupee className="w-8 h-8 text-[#912B48]" />
+              <div className="p-3 rounded-full bg-warm-cream/30">
+                <IndianRupee className="w-8 h-8 text-coffee-brown" />
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-md p-6 border border-[#E5E7EB]">
+          <div className="bg-white rounded-2xl shadow-md p-6 border border-border">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-[#6B6B6B] text-sm font-medium">Total Tax (GST)</p>
-                <p className="text-3xl font-bold text-[#912B48] mt-2">₹{totalTax.toFixed(2)}</p>
+                <p className="text-secondary-text text-sm font-medium">Total Tax (GST)</p>
+                <p className="text-3xl font-bold text-coffee-brown mt-2">₹{totalTax.toFixed(2)}</p>
                 {(totalCGST > 0 || totalSGST > 0) && (
-                  <div className="text-xs text-[#6B6B6B] mt-1">
+                  <div className="text-xs text-secondary-text mt-1">
                     CGST: ₹{totalCGST.toFixed(2)} | SGST: ₹{totalSGST.toFixed(2)}
                   </div>
                 )}
               </div>
-              <div className="p-3 rounded-full bg-[#FFF0F3]/30">
-                <TrendingUp className="w-8 h-8 text-[#912B48]" />
+              <div className="p-3 rounded-full bg-warm-cream/30">
+                <TrendingUp className="w-8 h-8 text-coffee-brown" />
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-md p-6 border border-[#E5E7EB]">
+          <div className="bg-white rounded-2xl shadow-md p-6 border border-border">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-[#6B6B6B] text-sm font-medium">Transactions</p>
-                <p className="text-3xl font-bold text-[#912B48] mt-2">{transactionCount}</p>
+                <p className="text-secondary-text text-sm font-medium">Transactions</p>
+                <p className="text-3xl font-bold text-coffee-brown mt-2">{transactionCount}</p>
               </div>
-              <div className="p-3 rounded-full bg-[#FFF0F3]/30">
-                <FileText className="w-8 h-8 text-[#912B48]" />
+              <div className="p-3 rounded-full bg-warm-cream/30">
+                <FileText className="w-8 h-8 text-coffee-brown" />
               </div>
             </div>
           </div>
@@ -390,8 +390,8 @@ export default function ReportsPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           {/* Payment Methods Pie Chart */}
-          <div className="bg-white rounded-2xl shadow-md p-6 border border-[#E5E7EB]">
-            <h2 className="text-xl font-bold text-[#610027] mb-6">Payment Methods</h2>
+          <div className="bg-white rounded-2xl shadow-md p-6 border border-border">
+            <h2 className="text-xl font-bold text-primary-text mb-6">Payment Methods</h2>
             {Object.keys(paymentMethodBreakdown).length > 0 ? (
               <div className="flex flex-col items-center">
                 <ResponsiveContainer width="100%" height={350}>
@@ -482,21 +482,21 @@ export default function ReportsPage() {
                 </ResponsiveContainer>
                 <div className="mt-4 space-y-2 w-full">
                   {Object.entries(paymentMethodBreakdown).map(([method, amount]) => (
-                    <div key={method} className="flex justify-between items-center py-2 border-b border-[#E5E7EB] last:border-b-0">
-                      <span className="text-[#6B6B6B] capitalize">{method.toLowerCase()}</span>
-                      <span className="font-semibold text-[#912B48]">₹{amount.toFixed(2)}</span>
+                    <div key={method} className="flex justify-between items-center py-2 border-b border-border last:border-b-0">
+                      <span className="text-secondary-text capitalize">{method.toLowerCase()}</span>
+                      <span className="font-semibold text-coffee-brown">₹{amount.toFixed(2)}</span>
                     </div>
                   ))}
                 </div>
               </div>
             ) : (
-              <div className="text-[#6B6B6B] text-sm py-8 text-center">No payment data available</div>
+              <div className="text-secondary-text text-sm py-8 text-center">No payment data available</div>
             )}
           </div>
 
           {/* Sales by Category Bar Chart */}
-          <div className="bg-white rounded-2xl shadow-md p-6 border border-[#E5E7EB]">
-            <h2 className="text-xl font-bold text-[#610027] mb-6">Sales by Category</h2>
+          <div className="bg-white rounded-2xl shadow-md p-6 border border-border">
+            <h2 className="text-xl font-bold text-primary-text mb-6">Sales by Category</h2>
             {salesByCategory && salesByCategory.summary.length > 0 ? (
               <div>
                 <ResponsiveContainer width="100%" height={300}>
@@ -552,59 +552,59 @@ export default function ReportsPage() {
                   {salesByCategory.summary
                     .sort((a, b) => b.total_sales - a.total_sales)
                     .map((item) => (
-                      <div key={item.category_name} className="flex justify-between items-center py-2 border-b border-[#E5E7EB] last:border-b-0">
-                        <span className="text-[#6B6B6B]">{item.category_name}</span>
-                        <span className="font-semibold text-[#912B48]">₹{item.total_sales.toFixed(2)}</span>
+                      <div key={item.category_name} className="flex justify-between items-center py-2 border-b border-border last:border-b-0">
+                        <span className="text-secondary-text">{item.category_name}</span>
+                        <span className="font-semibold text-coffee-brown">₹{item.total_sales.toFixed(2)}</span>
                       </div>
                     ))}
                 </div>
               </div>
             ) : (
-              <div className="text-[#6B6B6B] text-sm py-8 text-center">No sales data available for the selected date range</div>
+              <div className="text-secondary-text text-sm py-8 text-center">No sales data available for the selected date range</div>
             )}
           </div>
         </div>
 
         {/* Tax Summary by Tax Rate */}
         {taxSummary && taxSummary.summary.length > 0 && (
-          <div className="bg-white rounded-2xl shadow-lg p-6 border border-[#E5E7EB] overflow-hidden">
-            <h2 className="text-xl font-bold text-[#610027] mb-6">Tax Summary by Tax Rate</h2>
+          <div className="bg-white rounded-2xl shadow-lg p-6 border border-border overflow-hidden">
+            <h2 className="text-xl font-bold text-primary-text mb-6">Tax Summary by Tax Rate</h2>
             <div className="overflow-x-auto">
               <table className="min-w-full">
-                <thead className="bg-linear-to-r from-[#B45A69]/25 to-[#B45A69]/15 border-b-2 border-[#B45A69]/30">
+                <thead className="bg-linear-to-r from-brand-dusty-rose/25 to-brand-dusty-rose/15 border-b-2 border-brand-dusty-rose/30">
                   <tr>
-                    <th className="px-6 py-4 text-left text-xs font-extrabold text-[#610027] uppercase tracking-wider">Tax Rate</th>
-                    <th className="px-6 py-4 text-left text-xs font-extrabold text-[#610027] uppercase tracking-wider">Tax Group</th>
-                    <th className="px-6 py-4 text-right text-xs font-extrabold text-[#610027] uppercase tracking-wider">Taxable Value</th>
-                    <th className="px-6 py-4 text-right text-xs font-extrabold text-[#610027] uppercase tracking-wider">CGST</th>
-                    <th className="px-6 py-4 text-right text-xs font-extrabold text-[#610027] uppercase tracking-wider">SGST</th>
-                    <th className="px-6 py-4 text-right text-xs font-extrabold text-[#610027] uppercase tracking-wider">Total Tax</th>
-                    <th className="px-6 py-4 text-right text-xs font-extrabold text-[#610027] uppercase tracking-wider">Items</th>
+                    <th className="px-6 py-4 text-left text-xs font-extrabold text-primary-text uppercase tracking-wider">Tax Rate</th>
+                    <th className="px-6 py-4 text-left text-xs font-extrabold text-primary-text uppercase tracking-wider">Tax Group</th>
+                    <th className="px-6 py-4 text-right text-xs font-extrabold text-primary-text uppercase tracking-wider">Taxable Value</th>
+                    <th className="px-6 py-4 text-right text-xs font-extrabold text-primary-text uppercase tracking-wider">CGST</th>
+                    <th className="px-6 py-4 text-right text-xs font-extrabold text-primary-text uppercase tracking-wider">SGST</th>
+                    <th className="px-6 py-4 text-right text-xs font-extrabold text-primary-text uppercase tracking-wider">Total Tax</th>
+                    <th className="px-6 py-4 text-right text-xs font-extrabold text-primary-text uppercase tracking-wider">Items</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#E5E7EB]/50">
                   {taxSummary.summary.map((item, idx) => (
                     <tr 
                       key={idx} 
-                      className={`transition-all duration-300 ease-in-out hover:bg-linear-to-r hover:from-[#FFF0F3]/30 hover:to-[#FFF0F3]/10 hover:shadow-xs ${
-                        idx % 2 === 0 ? 'bg-white' : 'bg-[#FFF0F3]/5'
+                      className={`transition-all duration-300 ease-in-out hover:bg-linear-to-r hover:from-warm-cream/30 hover:to-warm-cream/10 hover:shadow-xs ${
+                        idx % 2 === 0 ? 'bg-white' : 'bg-warm-cream/5'
                       }`}
                     >
-                      <td className="px-6 py-4 text-[#610027] font-bold text-sm">{item.tax_rate_snapshot}%</td>
-                      <td className="px-6 py-4 text-[#6B6B6B] text-sm font-medium">{item.tax_group_name || 'N/A'}</td>
-                      <td className="px-6 py-4 text-right text-[#610027] font-semibold">₹{item.total_taxable_value.toFixed(2)}</td>
-                      <td className="px-6 py-4 text-right text-[#610027] font-semibold">₹{item.total_cgst.toFixed(2)}</td>
-                      <td className="px-6 py-4 text-right text-[#610027] font-semibold">₹{item.total_sgst.toFixed(2)}</td>
-                      <td className="px-6 py-4 text-right font-bold text-[#912B48] text-base">₹{item.total_tax.toFixed(2)}</td>
-                      <td className="px-6 py-4 text-right text-[#6B6B6B] font-medium">{item.item_count}</td>
+                      <td className="px-6 py-4 text-primary-text font-bold text-sm">{item.tax_rate_snapshot}%</td>
+                      <td className="px-6 py-4 text-secondary-text text-sm font-medium">{item.tax_group_name || 'N/A'}</td>
+                      <td className="px-6 py-4 text-right text-primary-text font-semibold">₹{item.total_taxable_value.toFixed(2)}</td>
+                      <td className="px-6 py-4 text-right text-primary-text font-semibold">₹{item.total_cgst.toFixed(2)}</td>
+                      <td className="px-6 py-4 text-right text-primary-text font-semibold">₹{item.total_sgst.toFixed(2)}</td>
+                      <td className="px-6 py-4 text-right font-bold text-coffee-brown text-base">₹{item.total_tax.toFixed(2)}</td>
+                      <td className="px-6 py-4 text-right text-secondary-text font-medium">{item.item_count}</td>
                     </tr>
                   ))}
-                  <tr className="bg-linear-to-r from-[#FFF0F3]/40 to-[#FFF0F3]/20 font-bold border-t-2 border-[#B45A69]/30">
-                    <td colSpan={2} className="px-6 py-4 text-[#610027] text-base">Grand Total</td>
-                    <td className="px-6 py-4 text-right text-[#912B48] text-base">₹{taxSummary.grand_total_taxable_value.toFixed(2)}</td>
-                    <td className="px-6 py-4 text-right text-[#912B48] text-base">₹{taxSummary.grand_total_cgst.toFixed(2)}</td>
-                    <td className="px-6 py-4 text-right text-[#912B48] text-base">₹{taxSummary.grand_total_sgst.toFixed(2)}</td>
-                    <td className="px-6 py-4 text-right text-[#912B48] text-lg">₹{taxSummary.grand_total_tax.toFixed(2)}</td>
+                  <tr className="bg-linear-to-r from-warm-cream/40 to-warm-cream/20 font-bold border-t-2 border-brand-dusty-rose/30">
+                    <td colSpan={2} className="px-6 py-4 text-primary-text text-base">Grand Total</td>
+                    <td className="px-6 py-4 text-right text-coffee-brown text-base">₹{taxSummary.grand_total_taxable_value.toFixed(2)}</td>
+                    <td className="px-6 py-4 text-right text-coffee-brown text-base">₹{taxSummary.grand_total_cgst.toFixed(2)}</td>
+                    <td className="px-6 py-4 text-right text-coffee-brown text-base">₹{taxSummary.grand_total_sgst.toFixed(2)}</td>
+                    <td className="px-6 py-4 text-right text-coffee-brown text-lg">₹{taxSummary.grand_total_tax.toFixed(2)}</td>
                     <td className="px-6 py-4"></td>
                   </tr>
                 </tbody>
