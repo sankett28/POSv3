@@ -1,6 +1,7 @@
 fastapi==0.115.0
 uvicorn[standard]==0.30.0
 supabase==2.17.0
+websockets>=12.0  # Required for Supabase realtime
 pydantic>=2.11.7,<3.0.0
 pydantic-settings==2.5.0
 python-dotenv==1.0.1
