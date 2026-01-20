@@ -12,6 +12,7 @@ export default function Button({ variant = 'primary', children, className = '', 
     primary: 'bg-coffee-brown text-white hover:bg-brand-dusty-rose',
     secondary: 'bg-brand-deep-burgundy text-white hover:bg-coffee-brown',
     outline: 'border border-coffee-brown text-primary-text hover:bg-coffee-brown hover:text-white',
+    'outline-solid': 'border border-coffee-brown text-primary-text hover:bg-coffee-brown hover:text-white',
   }
 
   return (

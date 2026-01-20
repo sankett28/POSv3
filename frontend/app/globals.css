@@ -1,61 +1,114 @@
-@import 'tailwindcss';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-@custom-variant active (&:active);
-@custom-variant disabled (&:disabled);
+@layer base {
+  :root {
+    /* Brand Colors */
+    --brand-deep-burgundy: #610027;
+    --brand-medium-red: #912b48;
+    --brand-dusty-rose: #d4a5a5;
+    --brand-light-pink: #fff0f3;
+    
+    /* Primary Colors */
+    --coffee-brown: #6f4e37;
+    --laalhai: #1e3a8a;
+    
+    /* Background Colors */
+    --warm-cream: #f5f0e6;
+    --app-background: #ffffff;
+    --card-background: #ffffff;
+    
+    /* Accent Colors */
+    --caramel: #d4a76a;
+    --leaf-green: #22c55e;
+    --soft-orange: #f59e0b;
+    --accent-pink: #f9a8d4;
+    --accent-pink-dark: #ec4899;
+    --accent-gold: #fbbf24;
+    --accent-orange: #f97316;
+    --dark-brown: #431407;
+    
+    /* Text Colors */
+    --primary-text: #1f2937;
+    --secondary-text: #4b5563;
+    --muted-text: #9ca3af;
+    --text-dark: #1f1f1f;
+    
+    /* Status Colors */
+    --success: #22c55e;
+    --warning: #f59e0b;
+    --error: #ef4444;
+    
+    /* UI Colors */
+    --border: #e5e7eb;
+    --border-light: #f1ece6;
+    --input: #ffffff;
+    --ring: #9ca3af;
+    --background: #ffffff;
+    --foreground: #1f2937;
+    
+    /* Legacy Colors */
+    --primary: #912b48;
+    --secondary: #ffffff;
+    --gray-50: #fff0f3;
+    --gray-100: #fff0f3;
+    --gray-200: #e5e7eb;
+    --gray-300: #d1d5db;
+    --gray-500: #6b6b6b;
+    --gray-600: #4b5563;
+    --gray-900: #610027;
+    
+    /* Radix UI Variables */
+    --radius: 0.5rem;
+  }
+  
+  .dark {
+    --background: #0a0a0a;
+    --foreground: #f8fafc;
+    --card: #0f172a;
+    --card-foreground: #f8fafc;
+    --popover: #0f172a;
+    --popover-foreground: #f8fafc;
+    --primary: #f8fafc;
+    --primary-foreground: #0f172a;
+    --secondary: #1e293b;
+    --secondary-foreground: #f8fafc;
+    --muted: #1e293b;
+    --muted-foreground: #94a3b8;
+    --accent: #1e293b;
+    --accent-foreground: #f8fafc;
+    --destructive: #7f1d1d;
+    --destructive-foreground: #f8fafc;
+    --border: #1e293b;
+    --input: #1e293b;
+    --ring: #94a3b8;
+  }
+}
 
-@theme inline {
-  /* ===== Brand Colors ===== */
-  --color-brand-deep-burgundy: var(--brand-deep-burgundy);
-  --color-brand-medium-red: var(--brand-medium-red);
-  --color-brand-dusty-rose: var(--brand-dusty-rose);
-  --color-brand-light-pink: var(--brand-light-pink);
+/* Additional global styles */
+@layer base {
+  * {
+    @apply border border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
   
-  /* ===== Primary Colors ===== */
-  --color-coffee-brown: var(--coffee-brown);
-  --color-laalhai: var(--laalhai);
+  /* Ensure border utility is properly configured */
+  .border-border {
+    border-color: var(--border);
+  }
   
-  /* ===== Background Colors ===== */
-  --color-warm-cream: var(--warm-cream);
-  --color-app-background: var(--app-background);
-  --color-card-background: var(--card-background);
+  /* Add focus styles */
+  .focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
   
-  /* ===== Accent Colors ===== */
-  --color-caramel: var(--caramel);
-  --color-leaf-green: var(--leaf-green);
-  --color-soft-orange: var(--soft-orange);
-  --color-accent-pink: var(--accent-pink);
-  --color-accent-pink-dark: var(--accent-pink-dark);
-  --color-accent-gold: var(--accent-gold);
-  --color-accent-orange: var(--accent-orange);
-  --color-dark-brown: var(--dark-brown);
-  
-  /* ===== Text Colors ===== */
-  --color-primary-text: var(--primary-text);
-  --color-secondary-text: var(--secondary-text);
-  --color-muted-text: var(--muted-text);
-  --color-text-dark: var(--text-dark);
-  
-  /* ===== Status Colors ===== */
-  --color-success: var(--success);
-  --color-warning: var(--warning);
-  --color-error: var(--error);
-  
-  /* ===== UI Colors ===== */
-  --color-border: var(--border);
-  --color-border-light: var(--border-light);
-  
-  /* ===== Legacy Colors ===== */
-  --color-primary: var(--primary);
-  --color-secondary: var(--secondary);
-  
-  /* ===== Gray Scale ===== */
-  --color-gray-50: var(--gray-50);
-  --color-gray-100: var(--gray-100);
-  --color-gray-200: var(--gray-200);
-  --color-gray-300: var(--gray-300);
-  --color-gray-500: var(--gray-500);
-  --color-gray-600: var(--gray-600);
-  --color-gray-900: var(--gray-900);
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
 }
 
 /*
