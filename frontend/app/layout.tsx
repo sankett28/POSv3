@@ -20,6 +20,9 @@ export default function RootLayout({
 }) {
   const pathname = usePathname()
   const isLoginPage = pathname === '/login'
+  const isLandingPage = pathname === '/'
+  const isOnboardingPage = pathname === '/onboarding'
+  const showSidebar = !isLoginPage && !isLandingPage && !isOnboardingPage
 
   // Initialize theme on app bootstrap
   useEffect(() => {
@@ -48,9 +51,7 @@ export default function RootLayout({
         <meta name="description" content="Lichi - Modern cafe management and POS system" />
       </head>
       <body className={`${inter.className} h-full bg-app-background antialiased`}>
-        {isLoginPage ? (
-          children
-        ) : (
+        {showSidebar ? (
           <div className="relative flex min-h-screen w-full">
             {/* Sidebar - fixed on large screens, overlay or hidden on mobile */}
             <div className="fixed inset-y-0 left-0 z-30 md:static md:z-auto">
@@ -64,6 +65,8 @@ export default function RootLayout({
               </main>
             </div>
           </div>
+        ) : (
+          children
         )}
       </body>
     </html>

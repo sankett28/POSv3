@@ -6,13 +6,19 @@ export function middleware(request: NextRequest) {
   const token = request.cookies.get('access_token')?.value || 
                 request.headers.get('authorization')?.replace('Bearer ', '')
   
-  // Protect all routes except login and static assets
-  if (!request.nextUrl.pathname.startsWith('/login')) {
+  // Public routes that don't require authentication
+  const publicRoutes = ['/', '/login', '/onboarding']
+  const isPublicRoute = publicRoutes.some(route => 
+    request.nextUrl.pathname === route || request.nextUrl.pathname.startsWith(route + '/')
+  )
+  
+  // Protect all routes except public routes and static assets
+  if (!isPublicRoute) {
     if (!token) {
       // Redirect to login if not authenticated
       return NextResponse.redirect(new URL('/login', request.url))
     }
-  } else {
+  } else if (request.nextUrl.pathname === '/login') {
     // If on login page and already authenticated, redirect to orders
     if (token) {
       return NextResponse.redirect(new URL('/orders', request.url))
