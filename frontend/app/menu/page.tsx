@@ -420,7 +420,7 @@ export default function MenuPage() {
                 resetCategoryForm()
                 setShowCategoryModal(true)
               }}
-              className="btn-primary px-6 py-3 rounded-xl font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2 text-base"
+              className="bg-primary text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2 text-base"
             >
               <Plus className="w-5 h-5" />
               Add Category
@@ -442,7 +442,7 @@ export default function MenuPage() {
                 resetItemForm()
                 setShowItemModal(true)
               }}
-              className="btn-primary px-6 py-3 rounded-xl font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2 text-base"
+              className="bg-primary text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2 text-base"
             >
               <Plus className="w-5 h-5" />
               Add Menu Item

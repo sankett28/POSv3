@@ -4,22 +4,27 @@
 @custom-variant disabled (&:disabled);
 
 @theme inline {
-  /* ===== Brand Colors ===== */
+  /* ===== SEMANTIC THEME SLOTS (Runtime Dynamic) ===== */
+  /* These map to CSS variables that can be overridden at runtime */
+  --color-primary: var(--theme-primary);
+  --color-secondary: var(--theme-secondary);
+  --color-background: var(--theme-background);
+  --color-foreground: var(--theme-foreground);
+  --color-accent: var(--theme-accent);
+  --color-danger: var(--theme-danger);
+  --color-success: var(--theme-success);
+  --color-warning: var(--theme-warning);
+  
+  /* ===== LEGACY BRAND COLORS (Preserved for compatibility) ===== */
   --color-brand-deep-burgundy: var(--brand-deep-burgundy);
   --color-brand-medium-red: var(--brand-medium-red);
   --color-brand-dusty-rose: var(--brand-dusty-rose);
   --color-brand-light-pink: var(--brand-light-pink);
-  
-  /* ===== Primary Colors ===== */
   --color-coffee-brown: var(--coffee-brown);
   --color-laalhai: var(--laalhai);
-  
-  /* ===== Background Colors ===== */
   --color-warm-cream: var(--warm-cream);
   --color-app-background: var(--app-background);
   --color-card-background: var(--card-background);
-  
-  /* ===== Accent Colors ===== */
   --color-caramel: var(--caramel);
   --color-leaf-green: var(--leaf-green);
   --color-soft-orange: var(--soft-orange);
@@ -28,25 +33,12 @@
   --color-accent-gold: var(--accent-gold);
   --color-accent-orange: var(--accent-orange);
   --color-dark-brown: var(--dark-brown);
-  
-  /* ===== Text Colors ===== */
   --color-primary-text: var(--primary-text);
   --color-secondary-text: var(--secondary-text);
   --color-muted-text: var(--muted-text);
   --color-text-dark: var(--text-dark);
-  
-  /* ===== Status Colors ===== */
-  --color-success: var(--success);
-  --color-warning: var(--warning);
-  --color-error: var(--error);
-  
-  /* ===== UI Colors ===== */
   --color-border: var(--border);
   --color-border-light: var(--border-light);
-  
-  /* ===== Legacy Colors ===== */
-  --color-primary: var(--primary);
-  --color-secondary: var(--secondary);
   
   /* ===== Gray Scale ===== */
   --color-gray-50: var(--gray-50);
@@ -79,7 +71,20 @@
 @layer utilities {
   /* New Brand Color Scheme - Root Variables */
   :root {
-    /* New Brand Colors */
+    /* ===== SEMANTIC THEME SLOTS (Runtime Dynamic) ===== */
+    /* These are the ONLY variables that should be modified at runtime */
+    /* Default values map to existing brand colors */
+    --theme-primary: #912b48;        /* Primary brand/CTA color */
+    --theme-secondary: #ffffff;      /* Secondary color */
+    --theme-background: #fff0f3;     /* Main background */
+    --theme-foreground: #610027;     /* Primary text color */
+    --theme-accent: #b45a69;         /* Accent color */
+    --theme-danger: #ef4444;         /* Error/danger color */
+    --theme-success: #22c55e;        /* Success color */
+    --theme-warning: #f59e0b;        /* Warning color */
+    
+    /* ===== STATIC BRAND COLORS (Never modified at runtime) ===== */
+    /* These preserve the original Lichy Cafe brand identity */
     --brand-deep-burgundy: #610027;
     --brand-medium-red: #912b48;
     --brand-dusty-rose: #b45a69;

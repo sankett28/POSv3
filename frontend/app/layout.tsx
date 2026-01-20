@@ -2,8 +2,10 @@
 
 import { Inter } from 'next/font/google'
 import { usePathname } from 'next/navigation'
+import { useEffect } from 'react'
 import './globals.css'
 import Sidebar from '@/components/layout/Sidebar'
+import { initializeTheme } from '@/lib/theme'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -18,6 +20,26 @@ export default function RootLayout({
 }) {
   const pathname = usePathname()
   const isLoginPage = pathname === '/login'
+
+  // Initialize theme on app bootstrap
+  useEffect(() => {
+    initializeTheme()
+    
+    // Listen for theme updates from other tabs/windows
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'theme-updated') {
+        console.log('🔄 Theme updated in another tab, reloading...')
+        // Reload theme when another tab saves changes
+        initializeTheme()
+      }
+    }
+    
+    window.addEventListener('storage', handleStorageChange)
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange)
+    }
+  }, [])
 
   return (
     <html lang="en" className="h-full">
