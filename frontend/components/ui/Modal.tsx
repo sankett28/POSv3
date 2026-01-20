@@ -21,24 +21,23 @@ function Modal({ isOpen, onClose, title, children }: ModalProps) {
     }
   }, [isOpen])
 
-  // Performance: Memoize close handler
-  const handleClose = useCallback((e: React.MouseEvent) => {
+  // Performance: Stop propagation so clicks inside modal don't close it
+  const handleContentClick = useCallback((e: React.MouseEvent) => {
     e.stopPropagation()
-    onClose()
-  }, [onClose])
+  }, [])
 
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={onClose}>
+    <div className="onboarding-modal-overlay" onClick={onClose}>
       <div
-        className="bg-white rounded-2xl p-4 sm:p-6 max-w-md w-full mx-4 animate-fade-in animate-scale-in shadow-md"
-        onClick={handleClose}
+        className="onboarding-modal"
+        onClick={handleContentClick}
       >
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg sm:text-xl font-bold text-primary-text">{title}</h2>
-          <button onClick={onClose} className="text-primary-text hover:text-secondary-text">
-            <X className="w-5 h-5" />
+        <div className="onboarding-modal-header">
+          <h2 className="onboarding-modal-title">{title}</h2>
+          <button type="button" onClick={onClose} className="onboarding-modal-close" aria-label="Close">
+            <X />
           </button>
         </div>
         {children}
