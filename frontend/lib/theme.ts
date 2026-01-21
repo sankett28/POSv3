@@ -107,12 +107,22 @@ export function resetTheme(): void {
 export async function fetchTheme(): Promise<Theme> {
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+    
+    // Get auth token from localStorage
+    const token = localStorage.getItem('access_token');
+    
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
+    };
+    
+    // Add Authorization header if token exists
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    
     const response = await fetch(`${apiUrl}/api/v1/themes`, {
       method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        // TODO: Add Authorization header when auth is implemented
-      },
+      headers,
       credentials: 'include', // Include cookies for auth
     });
     
@@ -165,12 +175,22 @@ export async function initializeTheme(): Promise<void> {
 export async function saveTheme(theme: Theme): Promise<any> {
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+    
+    // Get auth token from localStorage
+    const token = localStorage.getItem('access_token');
+    
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
+    };
+    
+    // Add Authorization header if token exists
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    
     const response = await fetch(`${apiUrl}/api/v1/themes`, {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        // TODO: Add Authorization header when auth is implemented
-      },
+      headers,
       credentials: 'include',
       body: JSON.stringify({
         primary_color: theme.primary,
@@ -215,11 +235,22 @@ export async function validateTheme(theme: Theme): Promise<{
 }> {
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+    
+    // Get auth token from localStorage
+    const token = localStorage.getItem('access_token');
+    
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
+    };
+    
+    // Add Authorization header if token exists
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    
     const response = await fetch(`${apiUrl}/api/v1/themes/validate`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers,
       credentials: 'include',
       body: JSON.stringify({
         primary_color: theme.primary,

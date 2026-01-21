@@ -13,12 +13,12 @@ export function Hero() {
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link href="/login">
-            <Button size="lg" className="bg-coffee-brown hover:bg-coffee-brown/90 text-lg px-8 py-6">
+            <Button className="bg-coffee-brown hover:bg-coffee-brown/90 text-lg px-8 py-6">
               Get Started - It's Free
             </Button>
           </Link>
           <Link href="#features">
-            <Button variant="outline" size="lg" className="text-lg px-8 py-6">
+            <Button variant="outline-solid" className="text-lg px-8 py-6">
               Learn More
             </Button>
           </Link>

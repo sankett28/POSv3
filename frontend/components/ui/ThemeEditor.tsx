@@ -48,21 +48,43 @@ export default function ThemeEditor() {
     setIsLoading(true)
     try {
       const currentTheme = await fetchTheme()
-      if (Object.keys(currentTheme).length > 0) {
-        setTheme({
-          primary: currentTheme.primary || '#912b48',
-          secondary: currentTheme.secondary || '#ffffff',
-          background: currentTheme.background || '#fff0f3',
-          foreground: currentTheme.foreground || '#610027',
-          accent: currentTheme.accent || '#b45a69',
-          danger: currentTheme.danger || '#ef4444',
-          success: currentTheme.success || '#22c55e',
-          warning: currentTheme.warning || '#f59e0b',
-        })
-        setOriginalTheme(currentTheme)
+      
+      // Map backend response to editor state
+      // Backend returns: { primary, secondary, background, foreground, accent, danger, success, warning }
+      // All fields are optional - use defaults if not provided
+      const loadedTheme: Theme = {
+        primary: currentTheme.primary || '#912b48',
+        secondary: currentTheme.secondary || '#ffffff',
+        background: currentTheme.background || '#fff0f3',
+        foreground: currentTheme.foreground || '#610027',
+        accent: currentTheme.accent || '#b45a69',
+        danger: currentTheme.danger || '#ef4444',
+        success: currentTheme.success || '#22c55e',
+        warning: currentTheme.warning || '#f59e0b',
       }
-    } catch (error) {
+      
+      setTheme(loadedTheme)
+      setOriginalTheme(loadedTheme)
+      
+      // Apply the loaded theme immediately
+      applyTheme(loadedTheme)
+      
+      console.log('✅ Theme loaded from database:', loadedTheme)
+    } catch (error: any) {
       console.error('Failed to load theme:', error)
+      
+      // Check if it's an auth error
+      if (error.message && (error.message.includes('401') || error.message.includes('404'))) {
+        setMessage({ 
+          type: 'error', 
+          text: 'Please log in to load your theme settings.' 
+        })
+      } else {
+        setMessage({ 
+          type: 'error', 
+          text: 'Failed to load theme from server. Using defaults.' 
+        })
+      }
     } finally {
       setIsLoading(false)
     }
@@ -127,9 +149,26 @@ export default function ThemeEditor() {
       
       console.log('✅ Theme applied in real-time:', theme)
     } catch (error: any) {
+      console.error('Error saving theme:', error)
+      
+      // Provide specific error messages
+      let errorMessage = 'Failed to save theme'
+      
+      if (error.message) {
+        if (error.message.includes('401') || error.message.includes('Unauthorized')) {
+          errorMessage = 'Please log in to save theme settings'
+        } else if (error.message.includes('404')) {
+          errorMessage = 'Business not found. Please complete onboarding first.'
+        } else if (error.message.includes('validation')) {
+          errorMessage = 'Theme validation failed: ' + error.message
+        } else {
+          errorMessage = error.message
+        }
+      }
+      
       setMessage({ 
         type: 'error', 
-        text: error.message || 'Failed to save theme' 
+        text: errorMessage
       })
     } finally {
       setIsSaving(false)

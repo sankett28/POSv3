@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import clsx from 'clsx';
 import Modal from '@/components/ui/Modal';
 import ThemeEditor from '@/components/ui/ThemeEditor';
+import { submitOnboarding, OnboardingPayload } from '@/lib/api/onboarding';
 
 type BusinessType = 'cafe' | 'restaurant' | 'cloud-kitchen' | null;
 type Revenue = 'less-10l' | '10l-50l' | '50l-2cr' | '2cr-plus' | 'not-sure' | null;
@@ -44,6 +45,77 @@ export default function OnboardingPage() {
   const [primaryColor, setPrimaryColor] = useState('#1f2937');
   const [isGenerating, setIsGenerating] = useState(false);
 
+  // Load cached data from localStorage on mount
+  useEffect(() => {
+    const cached = localStorage.getItem('onboarding_data');
+    if (cached) {
+      try {
+        const data = JSON.parse(cached);
+        setBusinessName(data.businessName || '');
+        setBusinessType(data.businessType || null);
+        setRevenue(data.revenue || null);
+        setHasGST(data.hasGST || '');
+        setGstNumber(data.gstNumber || '');
+        setServiceCharge(data.serviceCharge || 'yes');
+        setBillingType(data.billingType || '');
+        setPriceType(data.priceType || '');
+        setTableService(data.tableService || '');
+        setKitchenTickets(data.kitchenTickets || '');
+        setRestaurantServiceCharge(data.restaurantServiceCharge || '');
+        setNumberOfTables(data.numberOfTables || '');
+        setWebsiteUrl(data.websiteUrl || '');
+        setBrandPrompt(data.brandPrompt || '');
+        setBrandingChoice(data.brandingChoice || null);
+        setThemeMode(data.themeMode || 'light');
+        setPrimaryColor(data.primaryColor || '#1f2937');
+      } catch (e) {
+        console.error('Failed to load cached onboarding data:', e);
+      }
+    }
+  }, []);
+
+  // Save to localStorage whenever form data changes
+  useEffect(() => {
+    const data = {
+      businessName,
+      businessType,
+      revenue,
+      hasGST,
+      gstNumber,
+      serviceCharge,
+      billingType,
+      priceType,
+      tableService,
+      kitchenTickets,
+      restaurantServiceCharge,
+      numberOfTables,
+      websiteUrl,
+      brandPrompt,
+      brandingChoice,
+      themeMode,
+      primaryColor,
+    };
+    localStorage.setItem('onboarding_data', JSON.stringify(data));
+  }, [
+    businessName,
+    businessType,
+    revenue,
+    hasGST,
+    gstNumber,
+    serviceCharge,
+    billingType,
+    priceType,
+    tableService,
+    kitchenTickets,
+    restaurantServiceCharge,
+    numberOfTables,
+    websiteUrl,
+    brandPrompt,
+    brandingChoice,
+    themeMode,
+    primaryColor,
+  ]);
+
   // Apply theme changes live
   useEffect(() => {
     if (step === 4) {
@@ -79,34 +151,99 @@ export default function OnboardingPage() {
     }
   };
 
-  const handleFinish = () => {
+  const handleFinish = async () => {
     setIsGenerating(true);
     
-    // Save to localStorage
-    const config = {
-      businessName,
-      businessType,
-      revenue,
-      hasGST,
-      gstNumber,
-      serviceCharge,
-      billingType,
-      priceType,
-      tableService,
-      kitchenTickets,
-      restaurantServiceCharge,
-      numberOfTables,
-      websiteUrl,
-      brandingChoice,
-      themeMode,
-      primaryColor,
-    };
-    localStorage.setItem('lichy-onboarding', JSON.stringify(config));
+    try {
+      // Validate required fields before submission
+      if (!businessName || !businessType || !revenue || !hasGST) {
+        throw new Error('Please complete all required fields in Step 2');
+      }
 
-    // Simulate generation
-    setTimeout(() => {
-      router.push('/pos-billing');
-    }, 2000);
+      // Log the data being sent for debugging
+      console.log('Submitting onboarding data:', {
+        businessName,
+        businessType,
+        revenue,
+        hasGST,
+        gstNumber,
+        serviceCharge,
+        billingType,
+        priceType,
+        tableService,
+        kitchenTickets,
+        restaurantServiceCharge,
+        numberOfTables,
+        websiteUrl,
+        brandPrompt,
+        brandingChoice,
+        themeMode,
+        primaryColor,
+      });
+
+      // Prepare onboarding payload with proper field names matching backend schema (snake_case)
+      const payload: OnboardingPayload = {
+        business_name: businessName.trim(),
+        business_type: businessType as 'cafe' | 'restaurant' | 'cloud-kitchen',
+        revenue: revenue as 'less-10l' | '10l-50l' | '50l-2cr' | '2cr-plus' | 'not-sure',
+        has_gst: hasGST as 'yes' | 'no',
+        gst_number: hasGST === 'yes' && gstNumber ? gstNumber.trim() : undefined,
+        
+        // Cafe fields
+        service_charge: serviceCharge ? (serviceCharge as 'yes' | 'no') : undefined,
+        billing_type: billingType ? (billingType as 'counter' | 'table') : undefined,
+        price_type: priceType ? (priceType as 'inclusive' | 'exclusive') : undefined,
+        
+        // Restaurant fields
+        table_service: tableService ? (tableService as 'yes' | 'no') : undefined,
+        kitchen_tickets: kitchenTickets ? (kitchenTickets as 'yes' | 'no') : undefined,
+        restaurant_service_charge: restaurantServiceCharge ? (restaurantServiceCharge as 'yes' | 'no') : undefined,
+        number_of_tables: numberOfTables ? parseInt(numberOfTables) : undefined,
+        
+        // Branding (optional)
+        website_url: websiteUrl ? websiteUrl.trim() : undefined,
+        brand_prompt: brandPrompt ? brandPrompt.trim() : undefined,
+        branding_choice: brandingChoice || undefined,
+        
+        // Theme (optional - backend will apply defaults)
+        theme_mode: themeMode || undefined,
+        primary_color: primaryColor || undefined,
+        secondary_color: '#ffffff',
+        background_color: themeMode === 'light' ? '#ffffff' : '#0a0a0a',
+        foreground_color: themeMode === 'light' ? '#000000' : '#ffffff',
+      };
+
+      console.log('Payload being sent to API:', payload);
+      
+      // Submit to backend
+      const response = await submitOnboarding(payload);
+      
+      console.log('Onboarding successful:', response);
+      
+      // Clear cached data after successful submission
+      localStorage.removeItem('onboarding_data');
+      
+      // Mark onboarding as completed
+      localStorage.setItem('onboarding_completed', 'true');
+      
+      // Redirect to orders page
+      setTimeout(() => {
+        router.push('/orders');
+      }, 1500);
+    } catch (error: any) {
+      console.error('Onboarding failed:', error);
+      setIsGenerating(false);
+      
+      // Handle authentication errors
+      if (error.message && error.message.includes('Authentication')) {
+        alert('Your session has expired. Please sign up again.');
+        router.push('/signup');
+        return;
+      }
+      
+      // Show error to user
+      alert(error.message || 'Failed to complete onboarding. Please try again.');
+    }
   };
 
   const canProceedStep2 = businessName.trim() !== '' && 
@@ -590,6 +727,19 @@ export default function OnboardingPage() {
               Choose Manually
             </button>
 
+            <button
+              onClick={handleFinish}
+              className="onboarding-btn-primary w-full"
+              style={{ 
+                background: 'transparent',
+                color: '#666666',
+                border: '1.5px solid #e0e0e0',
+                marginTop: '0.5rem'
+              }}
+            >
+              Skip for Now
+            </button>
+
             <div style={{ 
               marginTop: '1.5rem',
               padding: '1rem',
@@ -619,9 +769,18 @@ export default function OnboardingPage() {
             <div className="bg-white rounded-lg border border-border shadow-sm">
               <ThemeEditor />
             </div>
-            <div className="mt-4 flex justify-end">
-              <button onClick={handleFinish} className="onboarding-btn-primary">
-                Continue to POS
+            <div className="mt-4 flex justify-between gap-3">
+              <button 
+                onClick={handleFinish}
+                className="onboarding-btn-secondary flex-1"
+              >
+                Skip Theme Setup
+              </button>
+              <button 
+                onClick={handleFinish} 
+                className="onboarding-btn-primary flex-1"
+              >
+                Continue to Orders
               </button>
             </div>
           </div>

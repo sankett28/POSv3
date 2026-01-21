@@ -5,6 +5,7 @@ Handles business logic, validation, and orchestration.
 This is the authoritative layer - all LLM suggestions pass through here.
 """
 from typing import Optional, Tuple
+from supabase import Client
 from app.repositories.theme_repo import ThemeRepository
 from app.schemas.theme import (
     ThemeCreate,
@@ -24,14 +25,208 @@ from app.core.logging import logger
 class ThemeService:
     """Service for theme business logic and validation."""
     
-    def __init__(self, theme_repo: ThemeRepository):
+    def __init__(self, theme_repo: ThemeRepository = None, supabase: Client = None):
         """
         Initialize theme service.
         
         Args:
-            theme_repo: Theme repository instance
+            theme_repo: Theme repository instance (optional if supabase is provided)
+            supabase: Supabase client instance (optional if theme_repo is provided)
         """
-        self.theme_repo = theme_repo
+        if theme_repo is not None:
+            self.theme_repo = theme_repo
+        elif supabase is not None:
+            self.theme_repo = ThemeRepository(supabase)
+        else:
+            raise ValueError("Either theme_repo or supabase must be provided")
+    
+    async def create_theme(
+        self,
+        business_id: str,
+        theme_mode: str,
+        primary_color: str,
+        secondary_color: Optional[str] = None,
+        background_color: Optional[str] = None,
+        foreground_color: Optional[str] = None,
+        accent_color: Optional[str] = None,
+        danger_color: Optional[str] = None,
+        success_color: Optional[str] = None,
+        warning_color: Optional[str] = None,
+        branding_choice: str = 'manual',
+        website_url: Optional[str] = None,
+        brand_prompt: Optional[str] = None,
+        changed_by_email: Optional[str] = None,
+        ip_address: Optional[str] = None
+    ) -> ThemeResponse:
+        """
+        Create a theme for a business during onboarding.
+        
+        This function handles conditional branding field storage based on branding_choice:
+        - 'url': Stores website_url for theme extraction
+        - 'prompt': Stores brand_prompt for AI-based theme generation
+        - 'manual': Stores only manually selected theme colors
+        
+        Args:
+            business_id: Business UUID (foreign key to businesses table)
+            theme_mode: Theme mode ('light' or 'dark')
+            primary_color: Primary brand color (hex, required)
+            secondary_color: Secondary color (hex, optional)
+            background_color: Background color (hex, optional)
+            foreground_color: Foreground/text color (hex, optional)
+            accent_color: Accent color (hex, optional)
+            danger_color: Danger/error color (hex, optional)
+            success_color: Success color (hex, optional)
+            warning_color: Warning color (hex, optional)
+            branding_choice: How branding was chosen ('url', 'prompt', 'manual')
+            website_url: Website URL (stored when branding_choice is 'url')
+            brand_prompt: Brand description (stored when branding_choice is 'prompt')
+            changed_by_email: Email of user creating theme (for audit)
+            ip_address: IP address of request (for audit)
+        
+        Returns:
+            ThemeResponse containing the created theme record
+        
+        Raises:
+            ValueError: If required fields are missing or validation fails
+            Exception: If database operation fails
+        
+        Examples:
+            >>> service = ThemeService(theme_repo)
+            >>> # Manual theme selection
+            >>> theme = await service.create_theme(
+            ...     business_id="123e4567-e89b-12d3-a456-426614174000",
+            ...     theme_mode="light",
+            ...     primary_color="#912b48",
+            ...     secondary_color="#ffffff",
+            ...     background_color="#fff0f3",
+            ...     foreground_color="#610027",
+            ...     branding_choice="manual"
+            ... )
+            >>> 
+            >>> # URL-based theme
+            >>> theme = await service.create_theme(
+            ...     business_id="123e4567-e89b-12d3-a456-426614174000",
+            ...     theme_mode="light",
+            ...     primary_color="#912b48",
+            ...     branding_choice="url",
+            ...     website_url="https://example.com"
+            ... )
+            >>> 
+            >>> # Prompt-based theme
+            >>> theme = await service.create_theme(
+            ...     business_id="123e4567-e89b-12d3-a456-426614174000",
+            ...     theme_mode="dark",
+            ...     primary_color="#912b48",
+            ...     branding_choice="prompt",
+            ...     brand_prompt="Modern coffee shop with warm, inviting atmosphere"
+            ... )
+        
+        Validates: Requirements 5.1, 5.2, 5.3, 5.4, 5.5
+        """
+        # Validate business_id
+        if not business_id:
+            raise ValueError("business_id is required")
+        
+        # Validate branding_choice
+        valid_branding_choices = ['url', 'prompt', 'manual']
+        if branding_choice not in valid_branding_choices:
+            raise ValueError(
+                f"Invalid branding_choice '{branding_choice}'. "
+                f"Must be one of: {', '.join(valid_branding_choices)}"
+            )
+        
+        # Set default colors based on theme_mode if not provided
+        if secondary_color is None:
+            secondary_color = "#ffffff" if theme_mode == "light" else "#1a1a1a"
+        
+        if background_color is None:
+            background_color = "#ffffff" if theme_mode == "light" else "#0a0a0a"
+        
+        if foreground_color is None:
+            foreground_color = "#000000" if theme_mode == "light" else "#ffffff"
+        
+        # Set default optional colors if not provided
+        if accent_color is None:
+            accent_color = "#b45a69"  # Default accent
+        
+        if danger_color is None:
+            danger_color = "#ef4444"  # Default error red
+        
+        if success_color is None:
+            success_color = "#22c55e"  # Default success green
+        
+        if warning_color is None:
+            warning_color = "#f59e0b"  # Default warning orange
+        
+        # Determine source based on branding_choice
+        source = 'manual'
+        source_url = None
+        
+        if branding_choice == 'url':
+            source = 'brand_api'
+            source_url = website_url
+            if not website_url:
+                raise ValueError("website_url is required when branding_choice is 'url'")
+        elif branding_choice == 'prompt':
+            source = 'auto_generated'
+            # brand_prompt is stored in business_configurations, not in theme
+            if not brand_prompt:
+                raise ValueError("brand_prompt is required when branding_choice is 'prompt'")
+        
+        try:
+            # Create theme schema
+            theme_create = ThemeCreate(
+                primary_color=primary_color,
+                secondary_color=secondary_color,
+                background_color=background_color,
+                foreground_color=foreground_color,
+                accent_color=accent_color,
+                danger_color=danger_color,
+                success_color=success_color,
+                warning_color=warning_color,
+                source=source,
+                source_url=source_url
+            )
+            
+            # Validate theme colors
+            validation_result = await self.validate_theme(theme_create)
+            
+            if not validation_result.is_valid:
+                raise ValueError(
+                    f"Theme validation failed: {', '.join(validation_result.errors)}"
+                )
+            
+            # Create theme via repository
+            created_theme = await self.theme_repo.create_theme(
+                business_id=business_id,
+                theme=theme_create,
+                changed_by_email=changed_by_email,
+                ip_address=ip_address
+            )
+            
+            logger.info(
+                f"Created theme for business {business_id} during onboarding "
+                f"(branding_choice: {branding_choice}, source: {source})"
+            )
+            
+            return created_theme
+        
+        except ValueError:
+            # Re-raise validation errors as-is
+            raise
+        
+        except Exception as e:
+            logger.error(
+                f"Error creating theme for business {business_id}: {e}"
+            )
+            # Check if it's an RLS policy violation
+            error_str = str(e).lower()
+            if 'policy' in error_str or '403' in error_str or 'permission' in error_str:
+                raise PermissionError(
+                    "Permission denied: Unable to create theme. "
+                    "Please ensure you own this business."
+                )
+            raise
     
     async def get_theme(self, business_id: str) -> ThemePublic:
         """

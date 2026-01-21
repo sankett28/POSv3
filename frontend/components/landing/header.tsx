@@ -24,7 +24,7 @@ export function Header() {
         </nav>
         <div className="flex items-center space-x-4">
           <Link href="/login">
-            <Button variant="outline" className="hidden md:inline-flex">
+            <Button variant="outline-solid" className="hidden md:inline-flex">
               Sign In
             </Button>
           </Link>
