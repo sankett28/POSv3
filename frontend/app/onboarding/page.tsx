@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import clsx from 'clsx';
+import Modal from '@/components/ui/Modal';
+import ThemeEditor from '@/components/ui/ThemeEditor';
 
 type BusinessType = 'cafe' | 'restaurant' | 'cloud-kitchen' | null;
 type Revenue = 'less-10l' | '10l-50l' | '50l-2cr' | '2cr-plus' | 'not-sure' | null;
@@ -33,6 +35,9 @@ export default function OnboardingPage() {
   const [brandPrompt, setBrandPrompt] = useState<string>('');
   const [brandingChoice, setBrandingChoice] = useState<'url' | 'prompt' | 'manual' | null>(null);
   const [showUrlInput, setShowUrlInput] = useState<boolean>(false);
+  const [isUrlModalOpen, setIsUrlModalOpen] = useState(false);
+  const [urlDraft, setUrlDraft] = useState('');
+  const [urlError, setUrlError] = useState<string>('');
   
   const [themeMode, setThemeMode] = useState<ThemeMode>('light');
   const [primaryColor, setPrimaryColor] = useState('#1f2937');
@@ -110,6 +115,103 @@ export default function OnboardingPage() {
   return (
     <div className="onboarding-container">
       <div className="w-full max-w-3xl px-4">
+        <Modal
+          isOpen={isUrlModalOpen}
+          onClose={() => {
+            setIsUrlModalOpen(false);
+            setUrlError('');
+          }}
+          title="Add your website URL"
+        >
+          <div className="onboarding-modal-body">
+            <div className="form-field" style={{ marginBottom: '1rem' }}>
+              <label>Website URL</label>
+              <input
+                className="onboarding-input"
+                placeholder="example.com or https://example.com"
+                value={urlDraft}
+                onChange={(e) => {
+                  setUrlDraft(e.target.value);
+                  if (urlError) setUrlError('');
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const raw = urlDraft.trim();
+                    if (!raw) {
+                      setUrlError('Please enter a URL.');
+                      return;
+                    }
+
+                    const normalized = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
+
+                    try {
+                      // eslint-disable-next-line no-new
+                      new URL(normalized);
+                    } catch {
+                      setUrlError('Please enter a valid URL (e.g. example.com).');
+                      return;
+                    }
+
+                    setWebsiteUrl(normalized);
+                    setShowUrlInput(true);
+                    setBrandingChoice('url');
+                    setIsUrlModalOpen(false);
+                    setUrlError('');
+                  }
+                }}
+              />
+              {urlError && (
+                <div className="onboarding-modal-error" role="alert">
+                  {urlError}
+                </div>
+              )}
+            </div>
+
+            <div className="onboarding-modal-actions">
+              <button
+                type="button"
+                className="onboarding-btn-secondary"
+                onClick={() => {
+                  setIsUrlModalOpen(false);
+                  setUrlError('');
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="onboarding-btn-primary"
+                onClick={() => {
+                  const raw = urlDraft.trim();
+                  if (!raw) {
+                    setUrlError('Please enter a URL.');
+                    return;
+                  }
+
+                  const normalized = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
+
+                  try {
+                    // eslint-disable-next-line no-new
+                    new URL(normalized);
+                  } catch {
+                    setUrlError('Please enter a valid URL (e.g. example.com).');
+                    return;
+                  }
+
+                  setWebsiteUrl(normalized);
+                  setShowUrlInput(true);
+                  setBrandingChoice('url');
+                  setIsUrlModalOpen(false);
+                  setUrlError('');
+                }}
+              >
+                Add URL
+              </button>
+            </div>
+          </div>
+        </Modal>
+
         {/* Step 1: Welcome */}
         {step === 1 && (
           <div className="onboarding-card fade-in-up text-center">
@@ -149,14 +251,7 @@ export default function OnboardingPage() {
               <select
                 value={businessType || ''}
                 onChange={(e) => setBusinessType(e.target.value as BusinessType)}
-                className="onboarding-input"
-                style={{
-                  appearance: 'none',
-                  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666666' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
-                  backgroundRepeat: 'no-repeat',
-                  backgroundPosition: 'right 1rem center',
-                  paddingRight: '3rem'
-                }}
+                className="onboarding-input onboarding-select"
               >
                 <option value="" disabled>Select business type</option>
                 <option value="cafe">Café - Coffee shops & tea houses</option>
@@ -169,14 +264,7 @@ export default function OnboardingPage() {
               <select
                 value={revenue || ''}
                 onChange={(e) => setRevenue(e.target.value as Revenue)}
-                className="onboarding-input"
-                style={{
-                  appearance: 'none',
-                  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666666' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
-                  backgroundRepeat: 'no-repeat',
-                  backgroundPosition: 'right 1rem center',
-                  paddingRight: '3rem'
-                }}
+                className="onboarding-input onboarding-select"
               >
                 <option value="" disabled>Select annual income</option>
                 <option value="less-10l">Less than ₹10L</option>
@@ -197,14 +285,7 @@ export default function OnboardingPage() {
                     setGstNumber('');
                   }
                 }}
-                className="onboarding-input"
-                style={{
-                  appearance: 'none',
-                  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666666' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
-                  backgroundRepeat: 'no-repeat',
-                  backgroundPosition: 'right 1rem center',
-                  paddingRight: '3rem'
-                }}
+                className="onboarding-input onboarding-select"
               >
                 <option value="" disabled>Select option</option>
                 <option value="yes">Yes</option>
@@ -250,14 +331,7 @@ export default function OnboardingPage() {
               <select
                 value={serviceCharge}
                 onChange={(e) => setServiceCharge(e.target.value)}
-                className="onboarding-input"
-                style={{
-                  appearance: 'none',
-                  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666666' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
-                  backgroundRepeat: 'no-repeat',
-                  backgroundPosition: 'right 1rem center',
-                  paddingRight: '3rem'
-                }}
+                className="onboarding-input onboarding-select"
               >
                 <option value="yes">Yes (Default)</option>
                 <option value="no">No</option>
@@ -269,14 +343,7 @@ export default function OnboardingPage() {
               <select
                 value={billingType}
                 onChange={(e) => setBillingType(e.target.value)}
-                className="onboarding-input"
-                style={{
-                  appearance: 'none',
-                  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666666' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
-                  backgroundRepeat: 'no-repeat',
-                  backgroundPosition: 'right 1rem center',
-                  paddingRight: '3rem'
-                }}
+                className="onboarding-input onboarding-select"
               >
                 <option value="" disabled>Select billing type</option>
                 <option value="counter">Counter Billing</option>
@@ -289,14 +356,7 @@ export default function OnboardingPage() {
               <select
                 value={priceType}
                 onChange={(e) => setPriceType(e.target.value)}
-                className="onboarding-input"
-                style={{
-                  appearance: 'none',
-                  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666666' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
-                  backgroundRepeat: 'no-repeat',
-                  backgroundPosition: 'right 1rem center',
-                  paddingRight: '3rem'
-                }}
+                className="onboarding-input onboarding-select"
               >
                 <option value="" disabled>Select price type</option>
                 <option value="inclusive">Inclusive (Tax included in price)</option>
@@ -327,14 +387,7 @@ export default function OnboardingPage() {
               <select
                 value={tableService}
                 onChange={(e) => setTableService(e.target.value)}
-                className="onboarding-input"
-                style={{
-                  appearance: 'none',
-                  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666666' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
-                  backgroundRepeat: 'no-repeat',
-                  backgroundPosition: 'right 1rem center',
-                  paddingRight: '3rem'
-                }}
+                className="onboarding-input onboarding-select"
               >
                 <option value="" disabled>Select option</option>
                 <option value="yes">Yes</option>
@@ -347,14 +400,7 @@ export default function OnboardingPage() {
               <select
                 value={kitchenTickets}
                 onChange={(e) => setKitchenTickets(e.target.value)}
-                className="onboarding-input"
-                style={{
-                  appearance: 'none',
-                  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666666' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
-                  backgroundRepeat: 'no-repeat',
-                  backgroundPosition: 'right 1rem center',
-                  paddingRight: '3rem'
-                }}
+                className="onboarding-input onboarding-select"
               >
                 <option value="" disabled>Select option</option>
                 <option value="yes">Yes</option>
@@ -367,14 +413,7 @@ export default function OnboardingPage() {
               <select
                 value={restaurantServiceCharge}
                 onChange={(e) => setRestaurantServiceCharge(e.target.value)}
-                className="onboarding-input"
-                style={{
-                  appearance: 'none',
-                  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666666' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
-                  backgroundRepeat: 'no-repeat',
-                  backgroundPosition: 'right 1rem center',
-                  paddingRight: '3rem'
-                }}
+                className="onboarding-input onboarding-select"
               >
                 <option value="" disabled>Select option</option>
                 <option value="yes">Yes</option>
@@ -448,12 +487,9 @@ export default function OnboardingPage() {
                 <button 
                   className="attach-button"
                   onClick={() => {
-                    const url = prompt('Enter your website URL:');
-                    if (url) {
-                      setWebsiteUrl(url);
-                      setShowUrlInput(true);
-                      setBrandingChoice('url');
-                    }
+                    setUrlDraft(websiteUrl || '');
+                    setUrlError('');
+                    setIsUrlModalOpen(true);
                   }}
                 >
                   <span>+</span>
@@ -532,119 +568,24 @@ export default function OnboardingPage() {
           </div>
         )}
 
-        {/* Step 5: Manual Color Selection or Confirmation */}
+        {/* Step 5: Manual Color Selection - Full Theme Editor */}
         {step === 5 && brandingChoice === 'manual' && (
-          <div className="onboarding-card fade-in-up">
-            <div className="step-badge">Step 5 of 5</div>
-            <h2 className="onboarding-title">Choose your colors</h2>
-
-            <div className="mb-6">
-              <label className="block text-sm font-medium mb-3" style={{ color: '#666666' }}>
-                Theme mode
-              </label>
-              <div style={{ display: 'flex', gap: '1rem' }}>
-                <label style={{ 
-                  flex: 1,
-                  padding: '1rem',
-                  border: `2px solid ${themeMode === 'light' ? '#1a1a1a' : '#e0e0e0'}`,
-                  borderRadius: '0.5rem',
-                  cursor: 'pointer',
-                  textAlign: 'center',
-                  transition: 'all 0.2s ease'
-                }}>
-                  <input
-                    type="radio"
-                    checked={themeMode === 'light'}
-                    onChange={() => setThemeMode('light')}
-                    style={{ display: 'none' }}
-                  />
-                  <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>☀️</div>
-                  <div style={{ fontWeight: '600', color: '#1a1a1a' }}>Light</div>
-                </label>
-                <label style={{ 
-                  flex: 1,
-                  padding: '1rem',
-                  border: `2px solid ${themeMode === 'dark' ? '#1a1a1a' : '#e0e0e0'}`,
-                  borderRadius: '0.5rem',
-                  cursor: 'pointer',
-                  textAlign: 'center',
-                  transition: 'all 0.2s ease'
-                }}>
-                  <input
-                    type="radio"
-                    checked={themeMode === 'dark'}
-                    onChange={() => setThemeMode('dark')}
-                    style={{ display: 'none' }}
-                  />
-                  <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>🌙</div>
-                  <div style={{ fontWeight: '600', color: '#1a1a1a' }}>Dark</div>
-                </label>
-              </div>
+          <div className="fade-in-up">
+            <div className="mb-4 flex items-center justify-between">
+              <button onClick={handleBack} className="back-button">
+                ← Back
+              </button>
+              <div className="step-badge">Step 5 of 5</div>
             </div>
-
-            <div className="mb-6">
-              <label className="block text-sm font-medium mb-2" style={{ color: '#666666' }}>
-                Primary color
-              </label>
-              <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                <input
-                  type="color"
-                  value={primaryColor}
-                  onChange={(e) => setPrimaryColor(e.target.value)}
-                  style={{
-                    width: '4rem',
-                    height: '3rem',
-                    border: '1.5px solid #e0e0e0',
-                    borderRadius: '0.5rem',
-                    cursor: 'pointer'
-                  }}
-                />
-                <input
-                  type="text"
-                  value={primaryColor}
-                  onChange={(e) => setPrimaryColor(e.target.value)}
-                  className="onboarding-input"
-                  style={{ flex: 1 }}
-                  placeholder="#1f2937"
-                />
-              </div>
+            {/* Reuse the full ThemeEditor UI, like in Settings → Theme */}
+            <div className="bg-white rounded-lg border border-border shadow-sm">
+              <ThemeEditor />
             </div>
-
-            <div style={{
-              padding: '2rem',
-              background: themeMode === 'light' ? '#f9fafb' : '#1a1a1a',
-              borderRadius: '0.5rem',
-              textAlign: 'center',
-              marginBottom: '1.5rem'
-            }}>
-              <p style={{ 
-                fontSize: '0.875rem', 
-                color: themeMode === 'light' ? '#666666' : '#999999',
-                marginBottom: '1rem'
-              }}>
-                Preview
-              </p>
-              <button
-                style={{
-                  padding: '0.875rem 2rem',
-                  background: primaryColor,
-                  color: themeMode === 'light' ? '#ffffff' : '#0a0a0a',
-                  border: 'none',
-                  borderRadius: '0.5rem',
-                  fontWeight: '600',
-                  cursor: 'default'
-                }}
-              >
-                Sample Button
+            <div className="mt-4 flex justify-end">
+              <button onClick={handleFinish} className="onboarding-btn-primary">
+                Continue to POS
               </button>
             </div>
-
-            <button
-              onClick={handleFinish}
-              className="onboarding-btn-primary w-full"
-            >
-              Complete Setup
-            </button>
           </div>
         )}
 
