@@ -1,8 +1,42 @@
 'use client';
 
 import Link from 'next/link';
+import { useState } from 'react';
 
 export default function LandingPage() {
+  const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
+
+  const toggleFaq = (index: number) => {
+    setOpenFaqIndex(openFaqIndex === index ? null : index);
+  };
+
+  const faqs = [
+    {
+      question: 'What is a POS (Point of Sale) system?',
+      answer: 'A POS system is software that helps you manage sales, billing, inventory, and customer transactions. Lichi POS is designed specifically for cafes, restaurants, bakeries, and cloud kitchens, making it easy to run your food business efficiently. It handles everything from taking orders and processing payments to tracking inventory levels and generating detailed sales reports. With Lichi, you get a complete business management solution that streamlines your operations, reduces errors, and helps you make data-driven decisions to grow your business.'
+    },
+    {
+      question: 'How do I take payments with Lichi Point of Sale?',
+      answer: 'Lichi supports multiple payment methods including cash, credit/debit cards, UPI, and digital wallets. You can accept payments through any method your customers prefer, and all transactions are automatically recorded in your sales reports. The system integrates seamlessly with popular payment gateways, ensuring secure and fast transactions. Whether your customer wants to pay with cash, swipe a card, scan a QR code for UPI payment, or use digital wallets like Paytm, PhonePe, or Google Pay, Lichi handles it all effortlessly. Every payment is logged with complete details including timestamp, payment method, and customer information for easy reconciliation and accounting.'
+    },
+    {
+      question: 'How long does it take to set up my point of sale?',
+      answer: 'With Lichi, setup takes just minutes! Simply choose your business type, select your brand colors, and your fully-functional POS is ready to use. No technical knowledge required, no lengthy configuration process. Unlike traditional POS systems that can take weeks or even months to implement, Lichi uses intelligent automation to generate a customized system tailored to your specific business needs instantly. You can start taking orders and processing payments the same day you sign up. The intuitive interface means your staff can learn to use it quickly without extensive training, getting you up and running faster than ever before.'
+    },
+    {
+      question: 'How does Lichi Point of Sale work for different business types?',
+      answer: 'Lichi adapts to your specific business needs. Cafes get quick counter billing and table management features perfect for fast-paced service. Restaurants receive comprehensive table management, kitchen order tickets (KOT), and multi-course meal handling capabilities. Bakeries get specialized product categorization for baked goods, custom orders, and pre-order management. Cloud kitchens receive delivery-focused features with integration capabilities for online food aggregators. Each setup is intelligently tailored to your business type, ensuring you only see the features you need without unnecessary complexity. The system understands the unique workflows of different food businesses and configures itself accordingly.'
+    },
+    {
+      question: 'Can I change my plan after I choose one?',
+      answer: 'Yes! You can upgrade or change your plan at any time. Your data and settings remain intact, and you can switch between plans based on your business needs without any hassle. Whether you want to upgrade to access more advanced features, downgrade to a simpler plan, or switch to a different business type configuration, Lichi makes it seamless. All your historical data, including sales records, inventory information, customer details, and reports, are preserved during the transition. There are no penalties for changing plans, and the switch happens instantly without any downtime to your business operations.'
+    },
+    {
+      question: 'Do I need to purchase hardware to use Lichi Point of Sale?',
+      answer: 'No special hardware is required! Lichi works on any device with a web browser - your laptop, tablet, or smartphone. However, you can connect receipt printers, barcode scanners, and card readers if you want to enhance your setup. The cloud-based system means you can access your POS from anywhere, on any device, giving you complete flexibility. Start with just your existing computer or tablet, and add hardware peripherals as your business grows. Lichi is compatible with most standard POS hardware including thermal printers, cash drawers, and payment terminals, so you can create a setup that perfectly matches your operational needs and budget.'
+    }
+  ];
+
   return (
     <div style={{ background: 'var(--color-bg)' }}>
       {/* Hero Section - Split Screen */}
@@ -92,7 +126,7 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto">
           <h2 className="landing-section-title">Everything You Need to Succeed</h2>
           <p className="landing-section-subtitle">
-            Lichy comes packed with powerful features to streamline your operations and boost your growth.
+            Lichi comes packed with powerful features to streamline your operations and boost your growth.
           </p>
 
           <div className="landing-grid-4">
@@ -213,7 +247,7 @@ export default function LandingPage() {
                 />
               </div>
               <p className="brand-demo-text">
-                Watch the POS dashboard on the right change instantly. This is the power of Lichy—total brand control, delivered in minutes.
+                Watch the POS dashboard on the right change instantly. This is the power of Lichi—total brand control, delivered in minutes.
               </p>
             </div>
 
@@ -289,7 +323,7 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto">
           <h2 className="landing-section-title">Built for Every Food Business</h2>
           <p className="landing-section-subtitle">
-            Whether you run a cozy cafe or a bustling cloud kitchen, Lichy adapts to your unique needs.
+            Whether you run a cozy cafe or a bustling cloud kitchen, Lichi adapts to your unique needs.
           </p>
 
           <div className="landing-grid-4">
@@ -343,7 +377,7 @@ export default function LandingPage() {
             <div className="landing-split-content">
               <h2>Focus on Your Food, Not Your Software</h2>
               <p>
-                We built Lichy to be incredibly simple and powerful, so you can spend more time doing what you love.
+                We built Lichi to be incredibly simple and powerful, so you can spend more time doing what you love.
               </p>
               <ul className="landing-feature-list">
                 <li className="landing-feature-item">
@@ -406,7 +440,7 @@ export default function LandingPage() {
                 <span>⭐</span>
               </div>
               <p className="testimonial-text">
-                "Lichy is a game-changer. We had a beautiful, branded POS running in one afternoon. Our staff loves it, and customers compliment the clean interface!"
+                "Lichi is a game-changer. We had a beautiful, branded POS running in one afternoon. Our staff loves it, and customers compliment the clean interface!"
               </p>
               <div className="testimonial-author">
                 <div className="testimonial-avatar">AK</div>
@@ -426,7 +460,7 @@ export default function LandingPage() {
                 <span>⭐</span>
               </div>
               <p className="testimonial-text">
-                "The sales and inventory reports are incredibly detailed. We've cut down on waste and optimized our menu, all thanks to Lichy's insights. Setup was instant!"
+                "The sales and inventory reports are incredibly detailed. We've cut down on waste and optimized our menu, all thanks to Lichi's insights. Setup was instant!"
               </p>
               <div className="testimonial-author">
                 <div className="testimonial-avatar">RV</div>
@@ -446,7 +480,7 @@ export default function LandingPage() {
                 <span>⭐</span>
               </div>
               <p className="testimonial-text">
-                "I'm not a tech person, but Lichy made it so simple. Choosing my brand colors and seeing the POS update instantly was like magic. Highly recommended!"
+                "I'm not a tech person, but Lichi made it so simple. Choosing my brand colors and seeing the POS update instantly was like magic. Highly recommended!"
               </p>
               <div className="testimonial-author">
                 <div className="testimonial-avatar">PP</div>
@@ -456,6 +490,36 @@ export default function LandingPage() {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="landing-section landing-section-alt">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="landing-section-title">Frequently Asked Questions</h2>
+          <p className="landing-section-subtitle">
+            Everything you need to know about Lichi POS
+          </p>
+
+          <div className="faq-container">
+            {faqs.map((faq, index) => (
+              <div key={index} className="faq-item">
+                <button
+                  className="faq-question"
+                  onClick={() => toggleFaq(index)}
+                  aria-expanded={openFaqIndex === index}
+                >
+                  <span>{faq.question}</span>
+                  <span className={`faq-icon ${openFaqIndex === index ? 'open' : ''}`}>
+                    +
+                  </span>
+                </button>
+                <div className={`faq-answer ${openFaqIndex === index ? 'open' : ''}`}>
+                  <p>{faq.answer}</p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>

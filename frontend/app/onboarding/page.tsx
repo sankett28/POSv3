@@ -123,11 +123,18 @@ export default function OnboardingPage() {
           }}
           title="Add your website URL"
         >
-          <div className="onboarding-modal-body">
-            <div className="form-field" style={{ marginBottom: '1rem' }}>
-              <label>Website URL</label>
+          <div>
+            <div className="modal-form-field">
+              <label
+                htmlFor="website-url"
+                className="modal-form-label"
+              >
+                Website URL
+              </label>
               <input
-                className="onboarding-input"
+                id="website-url"
+                type="text"
+                className="modal-form-input"
                 placeholder="example.com or https://example.com"
                 value={urlDraft}
                 onChange={(e) => {
@@ -146,7 +153,6 @@ export default function OnboardingPage() {
                     const normalized = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
 
                     try {
-                      // eslint-disable-next-line no-new
                       new URL(normalized);
                     } catch {
                       setUrlError('Please enter a valid URL (e.g. example.com).');
@@ -162,16 +168,16 @@ export default function OnboardingPage() {
                 }}
               />
               {urlError && (
-                <div className="onboarding-modal-error" role="alert">
+                <div role="alert" className="modal-error-message">
                   {urlError}
                 </div>
               )}
             </div>
 
-            <div className="onboarding-modal-actions">
+            <div className="modal-actions-custom">
               <button
                 type="button"
-                className="onboarding-btn-secondary"
+                className="modal-btn-cancel"
                 onClick={() => {
                   setIsUrlModalOpen(false);
                   setUrlError('');
@@ -181,7 +187,7 @@ export default function OnboardingPage() {
               </button>
               <button
                 type="button"
-                className="onboarding-btn-primary"
+                className="modal-btn-primary"
                 onClick={() => {
                   const raw = urlDraft.trim();
                   if (!raw) {
@@ -192,7 +198,6 @@ export default function OnboardingPage() {
                   const normalized = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
 
                   try {
-                    // eslint-disable-next-line no-new
                     new URL(normalized);
                   } catch {
                     setUrlError('Please enter a valid URL (e.g. example.com).');
@@ -216,7 +221,7 @@ export default function OnboardingPage() {
         {step === 1 && (
           <div className="onboarding-card fade-in-up text-center">
             <div className="step-badge">Step 1 of 5</div>
-            <h1 className="onboarding-title">Welcome to Lichy</h1>
+            <h1 className="onboarding-title">Welcome to Lichi</h1>
             <p className="onboarding-subtitle">
               Let's set up your POS in just a few steps.
             </p>
@@ -618,7 +623,51 @@ export default function OnboardingPage() {
         {/* Step Indicator */}
         <div className="step-indicator">
           {[1, 2, 3, 4, 5].map((s) => (
-            <div key={s} className={clsx('step-dot', s === step && 'active')} />
+            <button
+              key={s}
+              type="button"
+              className={clsx('step-dot', s === step && 'active')}
+              onClick={() => {
+                // Allow navigation to step 1 always
+                if (s === 1) {
+                  setStep(s);
+                  return;
+                }
+                
+                // For step 2, need to complete step 1 (just click Get Started)
+                if (s === 2 && step >= 1) {
+                  setStep(s);
+                  return;
+                }
+                
+                // For step 3, need to complete step 2
+                if (s === 3 && step >= 2 && canProceedStep2) {
+                  setStep(s);
+                  return;
+                }
+                
+                // For step 4, need to complete step 3
+                if (s === 4 && step >= 3 && canProceedStep3) {
+                  setStep(s);
+                  return;
+                }
+                
+                // For step 5, need to complete step 4
+                if (s === 5 && step >= 4 && (brandingChoice !== null)) {
+                  setStep(s);
+                  return;
+                }
+                
+                // If conditions not met, don't navigate
+              }}
+              aria-label={`Go to step ${s}`}
+              disabled={
+                (s === 2 && step < 1) ||
+                (s === 3 && (step < 2 || !canProceedStep2)) ||
+                (s === 4 && (step < 3 || !canProceedStep3)) ||
+                (s === 5 && (step < 4 || brandingChoice === null))
+              }
+            />
           ))}
         </div>
       </div>
