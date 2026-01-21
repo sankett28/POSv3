@@ -170,21 +170,17 @@ class ThemeRepository:
             # Mark as validated after backend processing
             update_data['is_validated'] = True
             
-            # Update theme - MUST use .select() to return updated data
+            # Update theme
             response = self.supabase.table('business_themes') \
                 .update(update_data) \
                 .eq('business_id', business_id) \
                 .execute()
             
-            # Supabase PATCH returns empty data by default
-            # Fetch the updated theme explicitly
-            if not response.data or len(response.data) == 0:
-                # Re-fetch the updated theme
-                updated_theme = await self.get_theme_by_business_id(business_id)
-                if not updated_theme:
-                    raise Exception("Failed to update theme - theme not found after update")
-            else:
-                updated_theme = ThemeResponse(**response.data[0])
+            # Supabase Python client doesn't return updated data by default
+            # Re-fetch the updated theme
+            updated_theme = await self.get_theme_by_business_id(business_id)
+            if not updated_theme:
+                raise Exception("Failed to update theme - theme not found after update")
             
             # Log audit entry
             await self._log_theme_change(
@@ -351,10 +347,19 @@ class ThemeRepository:
             change_reason: Optional reason for change
         """
         try:
+            # Remove datetime fields from theme data for JSONB storage
+            def sanitize_theme_for_audit(theme_dict: Optional[dict]) -> Optional[dict]:
+                if theme_dict is None:
+                    return None
+                # Create a copy and remove non-serializable fields
+                sanitized = {k: v for k, v in theme_dict.items() 
+                           if k not in ['created_at', 'updated_at', 'id']}
+                return sanitized
+            
             audit_data = {
                 'business_id': business_id,
-                'old_theme': old_theme,
-                'new_theme': new_theme,
+                'old_theme': sanitize_theme_for_audit(old_theme),
+                'new_theme': sanitize_theme_for_audit(new_theme),
                 'change_type': change_type,
                 'changed_by_email': changed_by_email,
                 'changed_by_user_id': changed_by_user_id,
