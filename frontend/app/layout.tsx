@@ -6,6 +6,7 @@ import { useEffect } from 'react'
 import './globals.css'
 import Sidebar from '@/components/layout/Sidebar'
 import { initializeTheme } from '@/lib/theme'
+import { Toaster } from '@/components/ui/toast'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -19,10 +20,12 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   const pathname = usePathname()
-  const isLoginPage = pathname === '/login'
+  
+  // Pages that should not have sidebar
+  const isAuthPage = pathname === '/login' || pathname === '/signup'
   const isLandingPage = pathname === '/'
   const isOnboardingPage = pathname === '/onboarding'
-  const showSidebar = !isLoginPage && !isLandingPage && !isOnboardingPage
+  const showSidebar = !isAuthPage && !isLandingPage && !isOnboardingPage
 
   // Initialize theme on app bootstrap
   useEffect(() => {
@@ -68,6 +71,7 @@ export default function RootLayout({
         ) : (
           children
         )}
+        <Toaster />
       </body>
     </html>
   )

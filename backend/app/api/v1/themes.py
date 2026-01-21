@@ -11,6 +11,7 @@ Provides REST API for theme management:
 """
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from app.core.database import get_supabase
+from app.api.v1.auth import get_current_user_id
 from app.repositories.theme_repo import ThemeRepository
 from app.services.theme_service import ThemeService
 from app.schemas.theme import (
@@ -35,17 +36,47 @@ def get_theme_service() -> ThemeService:
     return ThemeService(theme_repo)
 
 
-# Dependency to get current business ID
-# TODO: Extract from JWT token when auth is implemented
-# For now, use default business ID from migration
-def get_current_business_id() -> str:
+# Dependency to get current business ID from authenticated user
+async def get_current_business_id(
+    user_id: str = Depends(get_current_user_id)
+) -> str:
     """
-    Get current business ID from auth context.
+    Get current business ID for authenticated user.
     
-    TODO: Extract from JWT token when multi-tenant auth is implemented.
-    For now, returns default business ID.
+    Looks up the business owned by the current user.
+    
+    Args:
+        user_id: Authenticated user ID from JWT token
+    
+    Returns:
+        Business ID (UUID string)
+    
+    Raises:
+        HTTPException: 404 if user has no business
     """
-    return "00000000-0000-0000-0000-000000000001"
+    try:
+        db = get_supabase()
+        response = db.table('businesses') \
+            .select('id') \
+            .eq('owner_id', user_id) \
+            .limit(1) \
+            .execute()
+        
+        if not response.data or len(response.data) == 0:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="No business found for current user. Please complete onboarding first."
+            )
+        
+        return response.data[0]['id']
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error fetching business for user {user_id}: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to fetch business information"
+        )
 
 
 # Helper to extract client IP

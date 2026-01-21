@@ -12,20 +12,13 @@ export function FinalCta() {
           Join thousands of businesses that trust Lichi POS to power their operations. Get started today with our 14-day free trial.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Link href="/login">
-            <Button 
-              size="lg" 
-              className="bg-white text-coffee-brown hover:bg-gray-100 text-lg px-8 py-6"
-            >
+          <Link href="/signup">
+            <Button className="bg-white text-coffee-brown hover:bg-gray-100 text-lg px-8 py-6">
               Start Free Trial
             </Button>
           </Link>
           <Link href="#features">
-            <Button 
-              variant="outline" 
-              size="lg" 
-              className="border-white text-white hover:bg-white/10 text-lg px-8 py-6"
-            >
+            <Button variant="outline-solid" className="border-white text-white hover:bg-white/10 text-lg px-8 py-6">
               Learn More
             </Button>
           </Link>

@@ -418,6 +418,27 @@ class ApiClient {
     })
     return response.data
   }
+
+  // Generic HTTP methods for custom endpoints
+  async post<T = any>(url: string, data?: any, config?: any) {
+    const response = await this.client.post<T>(url, data, config)
+    return response
+  }
+
+  async get<T = any>(url: string, config?: any) {
+    const response = await this.client.get<T>(url, config)
+    return response
+  }
+
+  async put<T = any>(url: string, data?: any, config?: any) {
+    const response = await this.client.put<T>(url, data, config)
+    return response
+  }
+
+  async delete<T = any>(url: string, config?: any) {
+    const response = await this.client.delete<T>(url, config)
+    return response
+  }
 }
 
 export const api = new ApiClient()
