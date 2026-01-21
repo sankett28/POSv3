@@ -126,7 +126,7 @@ function Sidebar() {
               className={cn(
                 'group flex items-center px-3 py-2.5 mx-2 rounded-xl text-sm font-medium transition-colors',
                 isActive 
-                  ? 'bg-coffee-brown text-white shadow-md' 
+                  ? 'bg-primary text-white shadow-md' 
                   : 'text-primary-text hover:bg-brand-dusty-rose/10 hover:text-coffee-brown',
                 'mb-1.5'
               )}

@@ -737,7 +737,7 @@ export default function OrdersPage() {
               <button
                 onClick={() => setSelectedCategory(null)}
                 className={`w-full text-left px-4 py-3 rounded-full font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring-3 outline-hidden ${selectedCategory === null
-                    ? 'bg-brand-deep-burgundy text-white shadow-md'
+                    ? 'bg-primary text-white shadow-md'
                     : 'bg-white text-primary-text hover:bg-brand-dusty-rose/10 border border-border'
                 }`}
               >
@@ -748,7 +748,7 @@ export default function OrdersPage() {
                   key={category.id}
                   onClick={() => setSelectedCategory(category.id)}
                   className={`w-full text-left px-4 my-1 white py-3 rounded-full font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring-3 outline-hidden ${selectedCategory === category.id
-                    ? 'bg-brand-deep-burgundy text-white shadow-md'
+                    ? 'bg-primary text-white shadow-md'
                     : 'bg-white text-primary-text hover:bg-brand-dusty-rose/10 border border-border'
                   }`}
                 >
@@ -974,7 +974,7 @@ export default function OrdersPage() {
               <h3 className="text-xl font-bold text-primary-text">Current Order</h3>
               <button
                 onClick={() => setBillItems([])}
-                className="text-sm bg-coffee-brown text-white hover:bg-brand-deep-burgundy rounded-xl px-4 py-2 transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
+                className="text-sm bg-coffee-brown text-white hover:bg-primary rounded-xl px-4 py-2 transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
               >
                 Clear
               </button>
@@ -1159,7 +1159,7 @@ export default function OrdersPage() {
                 onClick={() => setPaymentMethod('CASH')}
                 className={`flex flex-col items-center justify-center p-4 rounded-xl border border-border transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring-3 outline-hidden ${
                   paymentMethod === 'CASH'
-                    ? 'bg-brand-deep-burgundy text-white shadow-md'
+                    ? 'bg-primary text-white shadow-md'
                     : 'bg-white text-primary-text hover:bg-brand-dusty-rose/10'
                 }`}
               >
@@ -1170,7 +1170,7 @@ export default function OrdersPage() {
                 onClick={() => setPaymentMethod('UPI')}
                 className={`flex flex-col items-center justify-center p-4 rounded-xl border border-border transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring-3 outline-hidden ${
                   paymentMethod === 'UPI'
-                    ? 'bg-brand-deep-burgundy text-white shadow-md'
+                    ? 'bg-primary text-white shadow-md'
                     : 'bg-white text-primary-text hover:bg-brand-dusty-rose/10'
                 }`}
               >
@@ -1181,7 +1181,7 @@ export default function OrdersPage() {
                 onClick={() => setPaymentMethod('CARD')}
                 className={`flex flex-col items-center justify-center p-4 rounded-xl border border-border transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring-3 outline-hidden ${
                   paymentMethod === 'CARD'
-                    ? 'bg-brand-deep-burgundy text-white shadow-md'
+                    ? 'bg-primary text-white shadow-md'
                     : 'bg-white text-primary-text hover:bg-brand-dusty-rose/10'
                 }`}
               >
