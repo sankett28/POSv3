@@ -3,13 +3,12 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { api } from '@/lib/api';
 
 export default function LoginPage() {
   const router = useRouter();
-  const [isSignup, setIsSignup] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -19,29 +18,28 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      if (isSignup) {
-        // Signup validation
-        if (password !== confirmPassword) {
-          throw new Error('Passwords do not match');
-        }
-        if (password.length < 6) {
-          throw new Error('Password must be at least 6 characters');
-        }
-        
-        // Simulate signup - replace with actual API call
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // After successful signup, redirect to onboarding
-        router.push('/onboarding');
+      // Login via API
+      const response = await api.login(email, password);
+      
+      // Store user info
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('user_id', response.user_id);
+        localStorage.setItem('user_email', response.email);
+      }
+      
+      // Check if user has completed onboarding
+      const onboardingComplete = localStorage.getItem('onboarding_completed');
+      
+      if (onboardingComplete === 'true') {
+        // User has completed onboarding, go to orders page
+        router.push('/orders');
       } else {
-        // Login - replace with actual API call
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // After successful login, redirect to onboarding
+        // User hasn't completed onboarding, redirect there
         router.push('/onboarding');
       }
     } catch (err: any) {
-      setError(err.message || 'An error occurred. Please try again.');
+      console.error('Login error:', err);
+      setError(err.message || 'Invalid email or password. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -57,13 +55,13 @@ export default function LoginPage() {
             color: 'var(--color-text)',
             marginBottom: '0.5rem'
           }}>
-            {isSignup ? 'Create Account' : 'Welcome Back'}
+            Welcome Back
           </h1>
           <p style={{ 
             fontSize: '0.9375rem', 
             color: 'var(--color-text-muted)' 
           }}>
-            {isSignup ? 'Sign up to get started with Lichy' : 'Sign in to continue to Lichy'}
+            Sign in to continue to Lichi
           </p>
         </div>
 
@@ -130,39 +128,13 @@ export default function LoginPage() {
             />
           </div>
 
-          {isSignup && (
-            <div style={{ marginBottom: '1.25rem' }}>
-              <label 
-                htmlFor="confirmPassword"
-                style={{ 
-                  display: 'block',
-                  fontSize: '0.875rem',
-                  fontWeight: '500',
-                  color: 'var(--color-text-muted)',
-                  marginBottom: '0.5rem'
-                }}
-              >
-                Confirm password
-              </label>
-              <input
-                id="confirmPassword"
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-                placeholder="Confirm your password"
-                className="onboarding-input"
-              />
-            </div>
-          )}
-
           <button
             type="submit"
             disabled={loading}
             className="onboarding-btn-primary"
             style={{ width: '100%', marginTop: '0.5rem' }}
           >
-            {loading ? 'Please wait...' : (isSignup ? 'Create Account' : 'Sign In')}
+            {loading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
 
@@ -172,26 +144,17 @@ export default function LoginPage() {
           fontSize: '0.875rem',
           color: 'var(--color-text-muted)'
         }}>
-          {isSignup ? 'Already have an account?' : "Don't have an account?"}{' '}
-          <button
-            onClick={() => {
-              setIsSignup(!isSignup);
-              setError('');
-              setEmail('');
-              setPassword('');
-              setConfirmPassword('');
-            }}
+          Don't have an account?{' '}
+          <Link
+            href="/signup"
             style={{
               color: 'var(--color-primary)',
               fontWeight: '600',
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
               textDecoration: 'underline'
             }}
           >
-            {isSignup ? 'Sign in' : 'Sign up'}
-          </button>
+            Sign up
+          </Link>
         </div>
 
         <div style={{ 
