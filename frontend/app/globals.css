@@ -1,207 +1,186 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme inline {
+  /* Map CSS variables to Tailwind color tokens */
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-primary: var(--primary);
+  --color-text: var(--text);
+  --color-text-muted: var(--text-muted);
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+  
+  /* Brand Colors */
+  --color-brand-deep-burgundy: var(--brand-deep-burgundy);
+  --color-brand-medium-red: var(--brand-medium-red);
+  --color-brand-dusty-rose: var(--brand-dusty-rose);
+  --color-brand-light-pink: var(--brand-light-pink);
+  
+  /* Primary Colors */
+  --color-coffee-brown: var(--coffee-brown);
+  --color-laalhai: var(--laalhai);
+  
+  /* Background Colors */
+  --color-warm-cream: var(--warm-cream);
+  --color-app-background: var(--app-background);
+  --color-card-background: var(--card-background);
+  
+  /* Accent Colors */
+  --color-caramel: var(--caramel);
+  --color-leaf-green: var(--leaf-green);
+  --color-soft-orange: var(--soft-orange);
+  --color-accent-pink: var(--accent-pink);
+  --color-accent-pink-dark: var(--accent-pink-dark);
+  --color-accent-gold: var(--accent-gold);
+  --color-accent-orange: var(--accent-orange);
+  --color-dark-brown: var(--dark-brown);
+  
+  /* Text Colors */
+  --color-primary-text: var(--primary-text);
+  --color-secondary-text: var(--secondary-text);
+  --color-muted-text: var(--muted-text);
+  --color-text-dark: var(--text-dark);
+  
+  /* Status Colors */
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-error: var(--error);
+  
+  /* UI Colors */
+  --color-border-light: var(--border-light);
+  --color-input: var(--input);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  
+  /* Legacy Colors */
+  --color-secondary: var(--secondary);
+  --color-gray-50: var(--gray-50);
+  --color-gray-100: var(--gray-100);
+  --color-gray-200: var(--gray-200);
+  --color-gray-300: var(--gray-300);
+  --color-gray-500: var(--gray-500);
+  --color-gray-600: var(--gray-600);
+  --color-gray-900: var(--gray-900);
+  
+  /* Theme Slots (Runtime Dynamic) */
+  --color-theme-primary: var(--theme-primary);
+  --color-theme-secondary: var(--theme-secondary);
+  --color-theme-background: var(--theme-background);
+  --color-theme-foreground: var(--theme-foreground);
+  --color-theme-accent: var(--theme-accent);
+  --color-theme-danger: var(--theme-danger);
+  --color-theme-success: var(--theme-success);
+  --color-theme-warning: var(--theme-warning);
+  
+  /* Radius */
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+}
+
+:root {
+  /* Monochrome Theme Variables */
+  --bg: #fafafa;
+  --surface: #ffffff;
+  --primary: #bc6565;
+  --text: #1a1a1a;
+  --text-muted: #666666;
+  --border: #e0e0e0;
+  --ring: #1a1a1a;
+  
+  /* Brand Colors */
+  --brand-deep-burgundy: #610027;
+  --brand-medium-red: #912b48;
+  --brand-dusty-rose: #d4a5a5;
+  --brand-light-pink: #fff0f3;
+  
+  /* Primary Colors */
+  --coffee-brown: #6f4e37;
+  --laalhai: #1e3a8a;
+  
+  /* Background Colors */
+  --warm-cream: #f5f0e6;
+  --app-background: #ffffff;
+  --card-background: #ffffff;
+  
+  /* Accent Colors */
+  --caramel: #d46a6f;
+  --leaf-green: #22c55e;
+  --soft-orange: #f59e0b;
+  --accent-pink: #f9a8d4;
+  --accent-pink-dark: #ec4899;
+  --accent-gold: #fbbf24;
+  --accent-orange: #f97316;
+  --dark-brown: #431407;
+  
+  /* Text Colors */
+  --primary-text: #1f2937;
+  --secondary-text: #4b5563;
+  --muted-text: #9ca3af;
+  --text-dark: #1f1f1f;
+  
+  /* Status Colors */
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --error: #ef4444;
+  
+  /* UI Colors */
+  --border-light: #f1ece6;
+  --input: #ffffff;
+  --background: #ffffff;
+  --foreground: #1f2937;
+  
+  /* Legacy Colors */
+  --secondary: #ffffff;
+  --gray-50: #fff0f3;
+  --gray-100: #fff0f3;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-500: #6b6b6b;
+  --gray-600: #4b5563;
+  --gray-900: #610027;
+  
+  /* Radix UI Variables */
+  --radius: 0.5rem;
+  
+  /* ===== SEMANTIC THEME SLOTS (Runtime Dynamic) ===== */
+  --theme-primary: #912b48;
+  --theme-secondary: #ffffff;
+  --theme-background: #fff0f3;
+  --theme-foreground: #610027;
+  --theme-accent: #b45a69;
+  --theme-danger: #ef4444;
+  --theme-success: #22c55e;
+  --theme-warning: #f59e0b;
+}
+
+.dark {
+  --background: #0a0a0a;
+  --foreground: #f8fafc;
+  --primary: #f8fafc;
+  --border: #1e293b;
+  --input: #1e293b;
+  --ring: #94a3b8;
+}
 
 @layer base {
-  :root {
-    /* Monochrome Theme Variables */
-    --color-bg: #fafafa;
-    --color-surface: #ffffff;
-    --color-primary: #1a1a1a;
-    --color-text: #1a1a1a;
-    --color-text-muted: #666666;
-    --color-border: #e0e0e0;
-    --color-ring: #1a1a1a;
-    
-    /* Brand Colors */
-    --brand-deep-burgundy: #610027;
-    --brand-medium-red: #912b48;
-    --brand-dusty-rose: #d4a5a5;
-    --brand-light-pink: #fff0f3;
-    
-    /* Primary Colors */
-    --coffee-brown: #6f4e37;
-    --laalhai: #1e3a8a;
-    
-    /* Background Colors */
-    --warm-cream: #f5f0e6;
-    --app-background: #ffffff;
-    --card-background: #ffffff;
-    
-    /* Accent Colors */
-    --caramel: #d4a76a;
-    --leaf-green: #22c55e;
-    --soft-orange: #f59e0b;
-    --accent-pink: #f9a8d4;
-    --accent-pink-dark: #ec4899;
-    --accent-gold: #fbbf24;
-    --accent-orange: #f97316;
-    --dark-brown: #431407;
-    
-    /* Text Colors */
-    --primary-text: #1f2937;
-    --secondary-text: #4b5563;
-    --muted-text: #9ca3af;
-    --text-dark: #1f1f1f;
-    
-    /* Status Colors */
-    --success: #22c55e;
-    --warning: #f59e0b;
-    --error: #ef4444;
-    
-    /* UI Colors */
-    --border: #e5e7eb;
-    --border-light: #f1ece6;
-    --input: #ffffff;
-    --ring: #9ca3af;
-    --background: #ffffff;
-    --foreground: #1f2937;
-    
-    /* Legacy Colors */
-    --primary: #912b48;
-    --secondary: #ffffff;
-    --gray-50: #fff0f3;
-    --gray-100: #fff0f3;
-    --gray-200: #e5e7eb;
-    --gray-300: #d1d5db;
-    --gray-500: #6b6b6b;
-    --gray-600: #4b5563;
-    --gray-900: #610027;
-    
-    /* Radix UI Variables */
-    --radius: 0.5rem;
+  * {
+    @apply border-border;
   }
   
-  .dark {
-    --background: #0a0a0a;
-    --foreground: #f8fafc;
-    --card: #0f172a;
-    --card-foreground: #f8fafc;
-    --popover: #0f172a;
-    --popover-foreground: #f8fafc;
-    --primary: #f8fafc;
-    --primary-foreground: #0f172a;
-    --secondary: #1e293b;
-    --secondary-foreground: #f8fafc;
-    --muted: #1e293b;
-    --muted-foreground: #94a3b8;
-    --accent: #1e293b;
-    --accent-foreground: #f8fafc;
-    --destructive: #7f1d1d;
-    --destructive-foreground: #f8fafc;
-    --border: #1e293b;
-    --input: #1e293b;
-    --ring: #94a3b8;
-  }
-}
-
-
-
-/*
-  The default border color has changed to `currentcolor` in Tailwind CSS v4,
-  so we've added these compatibility styles to make sure everything still
-  looks the same as it did with Tailwind CSS v3.
-
-  If we ever want to remove these styles, we need to add an explicit border
-  color utility to any element that depends on these defaults.
-*/
-@layer base {
-  *,
-  ::after,
-  ::before,
-  ::backdrop,
-  ::file-selector-button {
-    border-color: var(--color-gray-200, currentcolor);
-  }
-}
-
-@layer utilities {
-  /* New Brand Color Scheme - Root Variables */
-  :root {
-    /* ===== SEMANTIC THEME SLOTS (Runtime Dynamic) ===== */
-    /* These are the ONLY variables that should be modified at runtime */
-    /* Default values map to existing brand colors */
-    --theme-primary: #912b48;        /* Primary brand/CTA color */
-    --theme-secondary: #ffffff;      /* Secondary color */
-    --theme-background: #fff0f3;     /* Main background */
-    --theme-foreground: #610027;     /* Primary text color */
-    --theme-accent: #b45a69;         /* Accent color */
-    --theme-danger: #ef4444;         /* Error/danger color */
-    --theme-success: #22c55e;        /* Success color */
-    --theme-warning: #f59e0b;        /* Warning color */
-    
-    /* ===== STATIC BRAND COLORS (Never modified at runtime) ===== */
-    /* These preserve the original Lichy Cafe brand identity */
-    --brand-deep-burgundy: #610027;
-    --brand-medium-red: #912b48;
-    --brand-dusty-rose: #b45a69;
-    --brand-light-pink: #fff0f3;
-    
-    /* Special Colors */
-    --laalhai: #ff00dd;
-
-    /* Primary (Brand / CTA) - Medium-dark red */
-    --coffee-brown: #912b48;
-
-    /* Secondary (Background / Surfaces) - Light pink */
-    --warm-cream: #fff0f3;
-
-    /* Accent Colors */
-    --caramel: #b45a69;
-    --leaf-green: #4caf50;
-    --soft-orange: #912b48;
-    --accent-pink: #DC586D;
-    --accent-pink-dark: #A33757;
-    --accent-gold: #C89B63;
-    --accent-orange: #F4A261;
-    --dark-brown: #3E2C24;
-
-    /* Neutrals */
-    --app-background: #fff0f3;
-    --card-background: #ffffff;
-    --border: #e5e7eb;
-    --border-light: #f1ece6;
-
-    /* Text */
-    --primary-text: #610027;
-    --secondary-text: #6b6b6b;
-    --muted-text: #9ca3af;
-    --text-dark: #1F1F1F;
-
-    /* Status */
-    --success: #22c55e;
-    --warning: #f59e0b;
-    --error: #ef4444;
-
-    /* Legacy colors for compatibility - mapped to new brand */
-    --primary: #912b48;
-    --secondary: #ffffff;
-    --gray-50: #fff0f3;
-    --gray-100: #fff0f3;
-    --gray-200: #e5e7eb;
-    --gray-300: #d1d5db;
-    --gray-500: #6b6b6b;
-    --gray-600: #4b5563;
-    --gray-900: #610027;
-  }
-
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
-
   body {
-    font-family:
-      -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
-    background: var(--app-background);
-    color: var(--primary-text);
+    @apply bg-app-background text-primary-text;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
+}
 
-  /* Lichy Cafe POS Animations */
+@layer utilities {
+  /* Animations */
   @keyframes fadeIn {
     from {
       opacity: 0;
@@ -265,8 +244,7 @@
   }
 
   @keyframes pulse {
-    0%,
-    100% {
+    0%, 100% {
       opacity: 1;
     }
     50% {
@@ -282,6 +260,23 @@
     to {
       opacity: 1;
       transform: scale(1);
+    }
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(0.5rem);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
     }
   }
 
@@ -313,7 +308,11 @@
     animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
 
-  /* Lichy Cafe POS Focus States */
+  .fade-in-up {
+    animation: fadeInUp 0.3s ease;
+  }
+
+  /* Focus States */
   button:focus-visible,
   input:focus-visible,
   select:focus-visible,
@@ -323,7 +322,7 @@
     box-shadow: 0 0 0 3px rgba(62, 44, 36, 0.1);
   }
 
-  /* Smooth transitions for all interactive elements */
+  /* Smooth transitions */
   button,
   input,
   select,
@@ -332,7 +331,7 @@
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  /* Custom scrollbar for cafe aesthetic */
+  /* Custom scrollbar */
   ::-webkit-scrollbar {
     width: 8px;
   }
@@ -350,7 +349,6 @@
     background: var(--brand-medium-red);
   }
 
-  /* Custom scrollbar for modals - subtle and elegant */
   .custom-scrollbar::-webkit-scrollbar {
     width: 6px;
   }
@@ -369,7 +367,6 @@
     background: rgba(180, 90, 105, 0.5);
   }
 
-  /* Firefox scrollbar */
   .custom-scrollbar {
     scrollbar-width: thin;
     scrollbar-color: rgba(180, 90, 105, 0.3) transparent;
@@ -381,15 +378,13 @@
     color: var(--brand-deep-burgundy);
   }
 
-  /* Placeholder text colors */
+  /* Placeholder text */
   ::placeholder {
     color: var(--muted-text);
     opacity: 1;
   }
 
-  /* ===== ONBOARDING PAGE STYLES - MONOCHROME THEME ===== */
-  
-  /* Onboarding container - Clean white background like Square */
+  /* ===== ONBOARDING PAGE STYLES ===== */
   .onboarding-container {
     min-height: 100vh;
     background: #fafafa;
@@ -399,7 +394,6 @@
     padding: 2rem 1rem;
   }
 
-  /* Onboarding card - Minimal, no shadows */
   .onboarding-card {
     background: #ffffff;
     border: 1px solid #e0e0e0;
@@ -411,7 +405,6 @@
     transition: all 0.2s ease;
   }
 
-  /* Step badge - Subtle and minimal */
   .step-badge {
     display: inline-block;
     padding: 0.375rem 1rem;
@@ -428,7 +421,6 @@
     margin-top: 1rem;
   }
 
-  /* Onboarding title - Bold and clean */
   .onboarding-title {
     font-size: 1.875rem;
     font-weight: 700;
@@ -444,7 +436,6 @@
     }
   }
 
-  /* Onboarding subtitle - Lighter text */
   .onboarding-subtitle {
     font-size: 0.9375rem;
     color: #666666;
@@ -453,7 +444,6 @@
     font-weight: 400;
   }
 
-  /* Primary button - Black with rounded corners */
   .onboarding-btn-primary {
     display: inline-block;
     padding: 0.875rem 1.75rem;
@@ -470,7 +460,6 @@
 
   .onboarding-btn-primary:hover:not(:disabled) {
     background: #1a1a1a;
-    transform: none;
   }
 
   .onboarding-btn-primary:active:not(:disabled) {
@@ -485,7 +474,6 @@
     color: #999999;
   }
 
-  /* Option card - Clean borders, no shadows */
   .option-card {
     padding: 1.25rem 1.5rem;
     border: 1.5px solid #e0e0e0;
@@ -498,8 +486,6 @@
 
   .option-card:hover {
     border-color: #1a1a1a;
-    transform: none;
-    box-shadow: none;
   }
 
   .option-card.selected {
@@ -508,7 +494,6 @@
     color: #ffffff;
   }
 
-  /* Input field - Clean and minimal */
   .onboarding-input {
     width: 100%;
     padding: 0.875rem 1rem;
@@ -532,7 +517,6 @@
     font-weight: 400;
   }
 
-  /* Theme preset card - Minimal style */
   .theme-preset-card {
     padding: 1.5rem 1.25rem;
     border: 1.5px solid #e0e0e0;
@@ -545,8 +529,6 @@
 
   .theme-preset-card:hover {
     border-color: #1a1a1a;
-    transform: none;
-    box-shadow: none;
   }
 
   .theme-preset-card.selected {
@@ -555,7 +537,6 @@
     color: #ffffff;
   }
 
-  /* Preview container - Subtle border */
   .theme-preview-container {
     padding: 1.5rem;
     border: 1px solid #e0e0e0;
@@ -572,7 +553,6 @@
     transition: all 0.2s ease;
   }
 
-  /* Loading spinner - Simple black */
   .onboarding-spinner {
     width: 3rem;
     height: 3rem;
@@ -582,13 +562,6 @@
     animation: spin 0.8s linear infinite;
   }
 
-  @keyframes spin {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-
-  /* Step indicator dots - Minimal */
   .step-indicator {
     display: flex;
     justify-content: center;
@@ -618,6 +591,7 @@
     background: #1a1a1a;
   }
 
+<<<<<<< HEAD
   .step-dot:disabled {
     cursor: not-allowed;
     opacity: 0.5;
@@ -644,6 +618,8 @@
   }
 
   /* Color picker - Clean style */
+=======
+>>>>>>> e8d3b744c1f857b817957c437eecb52427d00ff3
   input[type="color"] {
     width: 4rem;
     height: 2.5rem;
@@ -655,7 +631,6 @@
 
   input[type="color"]:hover {
     border-color: #1a1a1a;
-    transform: none;
   }
 
   input[type="color"]:focus {
@@ -664,7 +639,6 @@
     box-shadow: none;
   }
 
-  /* Radio button - Black accent */
   input[type="radio"] {
     width: 1.125rem;
     height: 1.125rem;
@@ -672,7 +646,6 @@
     accent-color: #1a1a1a;
   }
 
-  /* Checkbox styling */
   input[type="checkbox"] {
     width: 1.125rem;
     height: 1.125rem;
@@ -682,14 +655,12 @@
     border-radius: 0.25rem;
   }
 
-  /* Label styling */
   label {
     font-size: 0.875rem;
     color: #666666;
     font-weight: 500;
   }
 
-  /* Responsive adjustments */
   @media (max-width: 640px) {
     .onboarding-card {
       padding: 2rem 1.5rem;
@@ -709,146 +680,10 @@
     }
   }
 
-  /* Remove all unnecessary animations and effects */
-  .hover-scale {
-    transition: none;
-  }
-
-  .hover-scale:hover {
-    transform: none;
-  }
-
-  /* Simplified text styles */
-  .option-card .text-3xl {
-    font-size: 1.5rem;
-  }
-
-  .option-card .text-lg {
-    font-size: 0.9375rem;
-    font-weight: 600;
-    color: inherit;
-  }
-
-  .option-card .text-sm {
-    font-size: 0.8125rem;
-    font-weight: 400;
-    color: inherit;
-    opacity: 0.7;
-  }
-
-  .option-card.selected .text-sm {
-    opacity: 0.85;
-  }
-}
-
   /* ===== LANDING PAGE STYLES ===== */
-  
-  .landing-hero {
-    min-height: 100vh;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    align-items: center;
-    background: var(--color-bg);
-    padding: 2rem;
-    gap: 4rem;
-  }
-
-  @media (max-width: 768px) {
-    .landing-hero {
-      grid-template-columns: 1fr;
-      min-height: auto;
-      padding: 3rem 1.5rem;
-    }
-  }
-
-  .landing-hero-content {
-    padding: 2rem;
-  }
-
-  .landing-hero-title {
-    font-size: 3.5rem;
-    font-weight: 700;
-    line-height: 1.1;
-    margin-bottom: 1.5rem;
-    color: var(--color-text);
-  }
-
-  @media (max-width: 768px) {
-    .landing-hero-title {
-      font-size: 2.5rem;
-    }
-  }
-
-  .landing-hero-subtitle {
-    font-size: 1rem;
-    line-height: 1.6;
-    color: var(--color-text-muted);
-    margin-bottom: 2rem;
-    max-width: 500px;
-  }
-
-  .landing-hero-image {
-    width: 100%;
-    height: 600px;
-    border-radius: 1rem;
-    overflow: hidden;
-    background: var(--color-border);
-  }
-
-  @media (max-width: 768px) {
-    .landing-hero-image {
-      height: 400px;
-    }
-  }
-
-  .landing-hero-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .landing-section {
-    padding: 5rem 2rem;
-    background: var(--color-surface);
-  }
-
-  @media (max-width: 768px) {
-    .landing-section {
-      padding: 3rem 1.5rem;
-    }
-  }
-
-  .landing-section-alt {
-    background: var(--color-bg);
-  }
-
-  .landing-section-title {
-    font-size: 2.5rem;
-    font-weight: 700;
-    text-align: center;
-    margin-bottom: 1rem;
-    color: var(--color-text);
-  }
-
-  @media (max-width: 768px) {
-    .landing-section-title {
-      font-size: 2rem;
-    }
-  }
-
-  .landing-section-subtitle {
-    font-size: 1rem;
-    text-align: center;
-    color: var(--color-text-muted);
-    margin-bottom: 3rem;
-    max-width: 600px;
-    margin-left: auto;
-    margin-right: auto;
-  }
-
   .landing-card {
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
+    background: var(--surface);
+    border: 1px solid var(--border);
     border-radius: 1rem;
     padding: 2.5rem 2rem;
     transition: all 0.3s ease;
@@ -857,10 +692,11 @@
   }
 
   .landing-card:hover {
-    border-color: var(--color-primary);
+    border-color: var(--primary);
     transform: translateY(-8px);
     box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
   }
+<<<<<<< HEAD
 
   /* Steps Cards - Taller with more padding */
   .steps-card {
@@ -2063,3 +1899,6 @@
     }
   }
 
+=======
+}
+>>>>>>> e8d3b744c1f857b817957c437eecb52427d00ff3

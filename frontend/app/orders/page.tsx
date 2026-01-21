@@ -720,8 +720,14 @@ export default function OrdersPage() {
     <div className="max-w-7xl mx-auto">
         <h1 className="text-3xl font-bold text-primary-text mb-1">Orders</h1>
         <p className="text-sm text-primary-text/60 mb-6">Create orders, add items, and complete billing.</p>
-          <button className='bg-accent rounded-2xl p-6'>
+          <button className='bg-primary text-white rounded-2xl p-6'>
             test 
+          </button>
+          <button className='bg-secondary text-black rounded-2xl p-6'>
+            test 2
+          </button>
+           <button className='bg-accent text-foreground rounded-2xl p-6'>
+            test 3
           </button>
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Left Sidebar: Categories */}
