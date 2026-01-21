@@ -159,9 +159,22 @@ export async function initializeTheme(): Promise<void> {
     } else {
       console.log('ℹ️ No custom theme configured, using defaults');
     }
-  } catch (error) {
-    console.warn('⚠️ Failed to load custom theme, using defaults:', error);
-    // Don't throw - gracefully fall back to defaults
+  } catch (error: any) {
+    // Handle specific error cases
+    const errorMessage = error?.message || String(error);
+    
+    if (errorMessage.includes('404')) {
+      // User hasn't completed onboarding yet - this is expected
+      console.log('ℹ️ No business found (onboarding not completed). Using default theme.');
+    } else if (errorMessage.includes('401') || errorMessage.includes('Unauthorized')) {
+      // User not logged in - this is expected for public pages
+      console.log('ℹ️ Not authenticated. Using default theme.');
+    } else {
+      // Other errors (network, server, etc.)
+      console.warn('⚠️ Failed to load custom theme, using defaults:', errorMessage);
+    }
+    
+    // Don't throw - gracefully fall back to defaults in all cases
   }
 }
 

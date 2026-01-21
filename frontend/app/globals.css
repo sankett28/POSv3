@@ -1,79 +1,217 @@
 @import "tailwindcss";
 
+/* ============================================================================
+   THREE-LAYER THEMING ARCHITECTURE
+   ============================================================================
+   
+   This file implements a strict 3-layer semantic theming system:
+   
+   LAYER 1: USER THEME TOKENS (Runtime Mutable)
+   - Exactly 8 tokens that can be modified at runtime via applyTheme()
+   - Stored in database per business
+   - These are the ONLY tokens users can edit
+   
+   LAYER 2: SEMANTIC TOKENS (System Owned - Derived)
+   - Provide semantic meaning (text-primary, bg-surface, etc.)
+   - Derive from Layer 1 tokens using color-mix()
+   - Exposed to Tailwind via @theme inline
+   - NOT editable by users
+   
+   LAYER 3: COMPONENT TOKENS (System Owned - Specific)
+   - Component-specific styling tokens
+   - Derive from Layer 2 or Layer 1 tokens
+   - NOT exposed to Tailwind
+   - NOT editable by users
+   
+   CRITICAL RULES:
+   - Only Layer 1 tokens can be modified at runtime
+   - Only Layer 2 tokens are exposed to Tailwind
+   - All colors must derive from Layer 1 tokens
+   - No hardcoded hex values except in Layer 1 defaults
+   ========================================================================= */
+
+/* ============================================================================
+   LAYER 1: USER THEME TOKENS (Runtime Mutable)
+   ============================================================================
+   These 8 variables are the ONLY tokens that can be modified at runtime.
+   They are set by the applyTheme() function and stored in the database.
+   All other colors derive from these tokens.
+   ========================================================================= */
+
+:root {
+  /* User Theme Tokens - Default Values */
+  --theme-primary: #912b48;
+  --theme-secondary: #ffffff;
+  --theme-background: #fff0f3;
+  --theme-foreground: #610027;
+  --theme-accent: #b45a69;
+  --theme-danger: #ef4444;
+  --theme-success: #22c55e;
+  --theme-warning: #f59e0b;
+  
+  /* Radius (preserved from current system) */
+  --radius: 0.5rem;
+}
+
+/* ============================================================================
+   LAYER 2: SEMANTIC TOKENS (System Owned - Derived)
+   ============================================================================
+   These tokens provide semantic meaning and are derived from Layer 1.
+   They are NOT editable by users.
+   They ARE exposed to Tailwind via @theme inline.
+   ========================================================================= */
+
+:root {
+  /* Text Colors - Derive from foreground/background */
+  --color-text-primary: var(--theme-foreground);
+  --color-text-secondary: color-mix(in srgb, var(--theme-foreground) 70%, transparent);
+  --color-text-muted: color-mix(in srgb, var(--theme-foreground) 50%, transparent);
+  --color-text-inverse: var(--theme-background);
+  
+  /* Background Colors - Derive from background/foreground */
+  --color-bg-page: var(--theme-background);
+  --color-bg-surface: color-mix(in srgb, var(--theme-background) 95%, white);
+  --color-bg-elevated: color-mix(in srgb, var(--theme-background) 90%, white);
+  --color-bg-overlay: color-mix(in srgb, var(--theme-foreground) 80%, transparent);
+  
+  /* Border Colors - Derive from foreground */
+  --color-border-default: color-mix(in srgb, var(--theme-foreground) 20%, transparent);
+  --color-border-subtle: color-mix(in srgb, var(--theme-foreground) 10%, transparent);
+  --color-border-emphasis: var(--theme-foreground);
+  
+  /* Interactive States - Derive from primary/accent/foreground */
+  --color-interactive-hover: color-mix(in srgb, var(--theme-primary) 90%, transparent);
+  --color-interactive-active: color-mix(in srgb, var(--theme-primary) 80%, black);
+  --color-interactive-focus: var(--theme-accent);
+  --color-interactive-disabled: color-mix(in srgb, var(--theme-foreground) 30%, transparent);
+  
+  /* Status Colors - Direct mapping to theme tokens */
+  --color-status-success: var(--theme-success);
+  --color-status-warning: var(--theme-warning);
+  --color-status-error: var(--theme-danger);
+  --color-status-info: var(--theme-accent);
+  
+  /* Backward Compatibility Aliases (temporary during migration) */
+  --color-primary: var(--theme-primary);
+  --color-secondary: var(--theme-secondary);
+  --color-accent: var(--theme-accent);
+  
+  /* Legacy Brand Tokens (mapped to new system) */
+  --brand-deep-burgundy: var(--theme-foreground);
+  --brand-dusty-rose: var(--theme-accent);
+  --coffee-brown: var(--theme-primary);
+  --warm-cream: var(--theme-background);
+  --primary-text: var(--color-text-primary);
+  --secondary-text: var(--color-text-secondary);
+  --muted-text: var(--color-text-muted);
+  --border: var(--color-border-default);
+  --border-light: var(--color-border-subtle);
+  --card-background: var(--color-bg-surface);
+}
+
+/* ============================================================================
+   LAYER 3: COMPONENT TOKENS (System Owned - Specific)
+   ============================================================================
+   These tokens are for specific component styling.
+   They are NOT editable by users.
+   They are NOT exposed to Tailwind.
+   ========================================================================= */
+
+:root {
+  /* Button Tokens */
+  --btn-primary-bg: var(--theme-primary);
+  --btn-primary-text: var(--color-text-inverse);
+  --btn-primary-border: var(--theme-primary);
+  --btn-primary-hover-bg: var(--color-interactive-hover);
+  
+  --btn-secondary-bg: transparent;
+  --btn-secondary-text: var(--color-text-primary);
+  --btn-secondary-border: var(--color-border-default);
+  --btn-secondary-hover-bg: var(--color-bg-elevated);
+  
+  /* Input Tokens */
+  --input-bg: var(--color-bg-surface);
+  --input-text: var(--color-text-primary);
+  --input-border: var(--color-border-default);
+  --input-placeholder: var(--color-text-muted);
+  --input-focus-ring: var(--color-interactive-focus);
+  --input-focus-border: var(--theme-primary);
+  
+  /* Card Tokens */
+  --card-bg: var(--color-bg-surface);
+  --card-border: var(--color-border-subtle);
+  --card-shadow: color-mix(in srgb, var(--theme-foreground) 10%, transparent);
+  --card-hover-shadow: color-mix(in srgb, var(--theme-foreground) 20%, transparent);
+  
+  /* Navigation Tokens */
+  --nav-bg: var(--color-bg-elevated);
+  --nav-text: var(--color-text-secondary);
+  --nav-border: var(--color-border-subtle);
+  --nav-active-bg: var(--theme-primary);
+  --nav-active-text: var(--color-text-inverse);
+  --nav-hover-bg: var(--color-interactive-hover);
+}
+
+/* ============================================================================
+   TAILWIND EXPOSURE (Layer 2 Only)
+   ============================================================================
+   Only semantic tokens are exposed to Tailwind utilities.
+   This allows components to use: bg-bg-page, text-text-primary, etc.
+   ========================================================================= */
+
 @theme inline {
-  /* Map CSS variables to Tailwind color tokens */
-  --color-bg: var(--bg);
-  --color-surface: var(--surface);
-  --color-primary: var(--primary);
-  
-  --color-secondary: var(--secondary);
-  --color-accent: var(--accent);
-  --color-text: var(--text);
-  --color-text-muted: var(--text-muted);
-  --color-border: var(--border);
-  --color-ring: var(--ring);
-  
-  /* Brand Colors */
-  --color-brand-deep-burgundy: var(--brand-deep-burgundy);
-  --color-brand-medium-red: var(--brand-medium-red);
-  --color-brand-dusty-rose: var(--brand-dusty-rose);
-  --color-brand-light-pink: var(--brand-light-pink);
-  
-  /* Primary Colors */
-  --color-coffee-brown: var(--coffee-brown);
-  --color-laalhai: var(--laalhai);
+  /* Text Colors */
+  --color-text-primary: var(--color-text-primary);
+  --color-text-secondary: var(--color-text-secondary);
+  --color-text-muted: var(--color-text-muted);
+  --color-text-inverse: var(--color-text-inverse);
   
   /* Background Colors */
-  --color-warm-cream: var(--warm-cream);
-  --color-app-background: var(--app-background);
-  --color-card-background: var(--card-background);
+  --color-bg-page: var(--color-bg-page);
+  --color-bg-surface: var(--color-bg-surface);
+  --color-bg-elevated: var(--color-bg-elevated);
+  --color-bg-overlay: var(--color-bg-overlay);
   
-  /* Accent Colors */
-  --color-caramel: var(--caramel);
-  --color-leaf-green: var(--leaf-green);
-  --color-soft-orange: var(--soft-orange);
-  --color-accent-pink: var(--accent-pink);
-  --color-accent-pink-dark: var(--accent-pink-dark);
-  --color-accent-gold: var(--accent-gold);
-  --color-accent-orange: var(--accent-orange);
-  --color-dark-brown: var(--dark-brown);
+  /* Border Colors */
+  --color-border-default: var(--color-border-default);
+  --color-border-subtle: var(--color-border-subtle);
+  --color-border-emphasis: var(--color-border-emphasis);
   
-  /* Text Colors */
-  --color-primary-text: var(--primary-text);
-  --color-secondary-text: var(--secondary-text);
-  --color-muted-text: var(--muted-text);
-  --color-text-dark: var(--text-dark);
+  /* Interactive States */
+  --color-interactive-hover: var(--color-interactive-hover);
+  --color-interactive-active: var(--color-interactive-active);
+  --color-interactive-focus: var(--color-interactive-focus);
+  --color-interactive-disabled: var(--color-interactive-disabled);
   
   /* Status Colors */
-  --color-success: var(--success);
-  --color-warning: var(--warning);
-  --color-error: var(--error);
+  --color-status-success: var(--color-status-success);
+  --color-status-warning: var(--color-status-warning);
+  --color-status-error: var(--color-status-error);
+  --color-status-info: var(--color-status-info);
   
-  /* UI Colors */
-  --color-border-light: var(--border-light);
-  --color-input: var(--input);
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  /* Backward Compatibility (temporary during migration) */
+  --color-primary: var(--color-primary);
+  --color-secondary: var(--color-secondary);
+  --color-accent: var(--color-accent);
   
-  /* Legacy Colors */
-  --color-secondary: var(--secondary);
-  --color-gray-50: var(--gray-50);
-  --color-gray-100: var(--gray-100);
-  --color-gray-200: var(--gray-200);
-  --color-gray-300: var(--gray-300);
-  --color-gray-500: var(--gray-500);
-  --color-gray-600: var(--gray-600);
-  --color-gray-900: var(--gray-900);
+  /* Legacy Brand Tokens (for existing Tailwind classes) */
+  --brand-deep-burgundy: var(--brand-deep-burgundy);
+  --brand-dusty-rose: var(--brand-dusty-rose);
+  --coffee-brown: var(--coffee-brown);
+  --warm-cream: var(--warm-cream);
+  --primary-text: var(--primary-text);
+  --secondary-text: var(--secondary-text);
+  --muted-text: var(--muted-text);
+  --border: var(--border);
+  --border-light: var(--border-light);
+  --card-background: var(--card-background);
   
-  /* Theme Slots (Runtime Dynamic) */
-  --color-theme-primary: var(--theme-primary);
-  --color-theme-secondary: var(--theme-secondary);
-  --color-theme-background: var(--theme-background);
-  --color-theme-foreground: var(--theme-foreground);
-  --color-theme-accent: var(--theme-accent);
-  --color-theme-danger: var(--theme-danger);
-  --color-theme-success: var(--theme-success);
-  --color-theme-warning: var(--theme-warning);
+  /* Direct theme token access (for bg-primary, text-foreground, etc.) */
+  --primary: var(--theme-primary);
+  --secondary: var(--theme-secondary);
+  --foreground: var(--theme-foreground);
+  --background: var(--theme-background);
+  --accent: var(--theme-accent);
   
   /* Radius */
   --radius-sm: calc(var(--radius) - 4px);
@@ -83,106 +221,41 @@
   --radius-2xl: calc(var(--radius) + 8px);
 }
 
-:root {
-  /* Monochrome Theme Variables */
-  --bg: #fafafa;
-  --surface: #ffffff;
-  --primary: #bc6565;
-  --secondary: #7d5eb6;
-  --accent: #8739b0;
-  --text: #1a1a1a;
-  --text-muted: #666666;
-  --border: #e0e0e0;
-  --ring: #1a1a1a;
-  
-  /* Brand Colors */
-  --brand-deep-burgundy: #610027;
-  --brand-medium-red: #912b48;
-  --brand-dusty-rose: #d4a5a5;
-  --brand-light-pink: #fff0f3;
-  
-  /* Primary Colors */
-  --coffee-brown: #6f4e37;
-  --laalhai: #1e3a8a;
-  
-  /* Background Colors */
-  --warm-cream: #f5f0e6;
-  --app-background: #ffffff;
-  --card-background: #ffffff;
-  
-  /* Accent Colors */
-  --caramel: #d46a6f;
-  --leaf-green: #22c55e;
-  --soft-orange: #f59e0b;
-  --accent-pink: #f9a8d4;
-  --accent-pink-dark: #ec4899;
-  --accent-gold: #fbbf24;
-  --accent-orange: #f97316;
-  --dark-brown: #431407;
-  
-  /* Text Colors */
-  --primary-text: #1f2937;
-  --secondary-text: #4b5563;
-  --muted-text: #9ca3af;
-  --text-dark: #1f1f1f;
-  
-  /* Status Colors */
-  --success: #22c55e;
-  --warning: #f59e0b;
-  --error: #ef4444;
-  
-  /* UI Colors */
-  --border-light: #f1ece6;
-  --input: #ffffff;
-  --background: #ffffff;
-  --foreground: #1f2937;
-  
-  /* Legacy Colors */
-  --secondary: #ffffff;
-  --gray-50: #fff0f3;
-  --gray-100: #fff0f3;
-  --gray-200: #e5e7eb;
-  --gray-300: #d1d5db;
-  --gray-500: #6b6b6b;
-  --gray-600: #4b5563;
-  --gray-900: #610027;
-  
-  /* Radix UI Variables */
-  --radius: 0.5rem;
-  
-  /* ===== SEMANTIC THEME SLOTS (Runtime Dynamic) ===== */
-  --theme-primary: #912b48;
-  --theme-secondary: #ffffff;
-  --theme-background: #fff0f3;
-  --theme-foreground: #610027;
-  --theme-accent: #b45a69;
-  --theme-danger: #ef4444;
-  --theme-success: #22c55e;
-  --theme-warning: #f59e0b;
-}
+/* ============================================================================
+   DARK MODE PREPARATION
+   ============================================================================
+   Structure preserved for future dark mode implementation.
+   Currently uses same values as light mode.
+   ========================================================================= */
 
 .dark {
-  --background: #0a0a0a;
-  --foreground: #f8fafc;
-  --primary: #f8fafc;
-  --border: #1e293b;
-  --input: #1e293b;
-  --ring: #94a3b8;
+  /* Future dark mode overrides will go here */
+  /* For now, inherits from :root */
 }
+
+/* ============================================================================
+   BASE STYLES
+   ============================================================================ */
 
 @layer base {
   * {
-    @apply border-border;
+    @apply border-border-default;
   }
   
   body {
-    @apply bg-app-background text-primary-text;
+    @apply bg-bg-page text-text-primary;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 }
+
+/* ============================================================================
+   UTILITY STYLES
+   ============================================================================
+   Animations, focus states, scrollbar, selection, placeholder
+   ========================================================================= */
 
 @layer utilities {
   /* Animations */
@@ -322,9 +395,9 @@
   input:focus-visible,
   select:focus-visible,
   textarea:focus-visible {
-    outline: 2px solid var(--coffee-brown);
+    outline: 2px solid var(--theme-primary);
     outline-offset: 2px;
-    box-shadow: 0 0 0 3px rgba(62, 44, 36, 0.1);
+    box-shadow: 0 0 0 3px var(--color-interactive-hover);
   }
 
   /* Smooth transitions */
@@ -342,16 +415,16 @@
   }
 
   ::-webkit-scrollbar-track {
-    background: var(--warm-cream);
+    background: var(--color-bg-surface);
   }
 
   ::-webkit-scrollbar-thumb {
-    background: var(--brand-dusty-rose);
+    background: var(--theme-accent);
     border-radius: 4px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: var(--brand-medium-red);
+    background: var(--theme-primary);
   }
 
   .custom-scrollbar::-webkit-scrollbar {
@@ -363,899 +436,29 @@
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: rgba(180, 90, 105, 0.3);
+    background: var(--color-interactive-hover);
     border-radius: 10px;
     transition: background 0.2s ease;
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: rgba(180, 90, 105, 0.5);
+    background: var(--theme-accent);
   }
 
   .custom-scrollbar {
     scrollbar-width: thin;
-    scrollbar-color: rgba(180, 90, 105, 0.3) transparent;
+    scrollbar-color: var(--color-interactive-hover) transparent;
   }
 
   /* Selection colors */
   ::selection {
-    background: rgba(180, 90, 105, 0.3);
-    color: var(--brand-deep-burgundy);
+    background: var(--color-interactive-hover);
+    color: var(--theme-foreground);
   }
 
   /* Placeholder text */
   ::placeholder {
-    color: var(--muted-text);
+    color: var(--color-text-muted);
     opacity: 1;
   }
-
-  /* ===== ONBOARDING PAGE STYLES ===== */
-  .onboarding-container {
-    min-height: 100vh;
-    background: #fafafa;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 2rem 1rem;
-  }
-
-  .onboarding-card {
-    background: #ffffff;
-    border: 1px solid #e0e0e0;
-    border-radius: 0.5rem;
-    padding: 3rem 2.5rem;
-    max-width: 520px;
-    width: 100%;
-    margin: 0 auto;
-    transition: all 0.2s ease;
-  }
-
-  .step-badge {
-    display: inline-block;
-    padding: 0.375rem 1rem;
-    border-radius: 0.25rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-    background: #f5f5f5;
-    color: #666666;
-    margin-bottom: 1.5rem;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-  }
-
-  .onboarding-title {
-    font-size: 1.875rem;
-    font-weight: 700;
-    color: #1a1a1a;
-    margin-bottom: 0.75rem;
-    line-height: 1.3;
-    letter-spacing: -0.01em;
-  }
-
-  @media (min-width: 640px) {
-    .onboarding-title {
-      font-size: 2rem;
-    }
-  }
-
-  .onboarding-subtitle {
-    font-size: 0.9375rem;
-    color: #666666;
-    margin-bottom: 2rem;
-    line-height: 1.5;
-    font-weight: 400;
-  }
-
-  .onboarding-btn-primary {
-    display: inline-block;
-    padding: 0.875rem 1.75rem;
-    border-radius: 1.5rem;
-    font-size: 0.9375rem;
-    font-weight: 600;
-    background: #000000;
-    color: #ffffff;
-    border: none;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    box-shadow: none;
-  }
-
-  .onboarding-btn-primary:hover:not(:disabled) {
-    background: #1a1a1a;
-  }
-
-  .onboarding-btn-primary:active:not(:disabled) {
-    background: #000000;
-    transform: scale(0.98);
-  }
-
-  .onboarding-btn-primary:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-    background: #e0e0e0;
-    color: #999999;
-  }
-
-  .onboarding-btn-secondary {
-    display: inline-block;
-    padding: 0.875rem 1.75rem;
-    border-radius: 1.5rem;
-    font-size: 0.9375rem;
-    font-weight: 600;
-    background: transparent;
-    color: #666666;
-    border: 1.5px solid #e0e0e0;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    box-shadow: none;
-  }
-
-  .onboarding-btn-secondary:hover:not(:disabled) {
-    background: #f5f5f5;
-    color: #333333;
-  }
-
-  .onboarding-btn-secondary:active:not(:disabled) {
-    background: #e0e0e0;
-    transform: scale(0.98);
-  }
-
-  .onboarding-btn-secondary:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-  }
-
-  .option-card {
-    padding: 1.25rem 1.5rem;
-    border: 1.5px solid #e0e0e0;
-    border-radius: 0.5rem;
-    background: #ffffff;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    text-align: left;
-  }
-
-  .option-card:hover {
-    border-color: #1a1a1a;
-  }
-
-  .option-card.selected {
-    border-color: #1a1a1a;
-    background: #1a1a1a;
-    color: #ffffff;
-  }
-
-  .onboarding-input {
-    width: 100%;
-    padding: 0.875rem 1rem;
-    border: 1.5px solid #e0e0e0;
-    border-radius: 0.375rem;
-    font-size: 0.9375rem;
-    background: #ffffff;
-    color: #1a1a1a;
-    transition: all 0.2s ease;
-    font-weight: 400;
-  }
-
-  .onboarding-input:focus {
-    outline: none;
-    border-color: #1a1a1a;
-    box-shadow: none;
-  }
-
-  .onboarding-input::placeholder {
-    color: #999999;
-    font-weight: 400;
-  }
-
-  .theme-preset-card {
-    padding: 1.5rem 1.25rem;
-    border: 1.5px solid #e0e0e0;
-    border-radius: 0.5rem;
-    background: #ffffff;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    text-align: center;
-  }
-
-  .theme-preset-card:hover {
-    border-color: #1a1a1a;
-  }
-
-  .theme-preset-card.selected {
-    border-color: #1a1a1a;
-    background: #1a1a1a;
-    color: #ffffff;
-  }
-
-  .theme-preview-container {
-    padding: 1.5rem;
-    border: 1px solid #e0e0e0;
-    border-radius: 0.5rem;
-    background: #fafafa;
-  }
-
-  .theme-preview-demo {
-    padding: 2.5rem 2rem;
-    border-radius: 0.375rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
-  }
-
-  .onboarding-spinner {
-    width: 3rem;
-    height: 3rem;
-    border: 3px solid #e0e0e0;
-    border-top-color: #1a1a1a;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-  }
-
-  .step-indicator {
-    display: flex;
-    justify-content: center;
-    gap: 0.5rem;
-    margin-top: 2rem;
-  }
-
-  .step-dot {
-    width: 0.375rem;
-    height: 0.375rem;
-    border-radius: 50%;
-    background: #d0d0d0;
-    transition: all 0.2s ease;
-  }
-
-  .step-dot.active {
-    width: 1.5rem;
-    border-radius: 0.1875rem;
-    background: #1a1a1a;
-  }
-
-  input[type="color"] {
-    width: 4rem;
-    height: 2.5rem;
-    border: 1.5px solid #e0e0e0;
-    border-radius: 0.375rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-
-  input[type="color"]:hover {
-    border-color: #1a1a1a;
-  }
-
-  input[type="color"]:focus {
-    outline: none;
-    border-color: #1a1a1a;
-    box-shadow: none;
-  }
-
-  input[type="radio"] {
-    width: 1.125rem;
-    height: 1.125rem;
-    cursor: pointer;
-    accent-color: #1a1a1a;
-  }
-
-  input[type="checkbox"] {
-    width: 1.125rem;
-    height: 1.125rem;
-    cursor: pointer;
-    accent-color: #1a1a1a;
-    border: 1.5px solid #e0e0e0;
-    border-radius: 0.25rem;
-  }
-
-  label {
-    font-size: 0.875rem;
-    color: #666666;
-    font-weight: 500;
-  }
-
-  @media (max-width: 640px) {
-    .onboarding-card {
-      padding: 2rem 1.5rem;
-    }
-
-    .onboarding-title {
-      font-size: 1.5rem;
-    }
-
-    .onboarding-subtitle {
-      font-size: 0.875rem;
-    }
-
-    .onboarding-btn-primary {
-      padding: 0.75rem 1.5rem;
-      font-size: 0.875rem;
-    }
-  }
-
-  /* ===== LANDING PAGE STYLES ===== */
-  .landing-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 1rem;
-    padding: 2.5rem 2rem;
-    transition: all 0.3s ease;
-    text-align: center;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  }
-
-  .landing-card:hover {
-    border-color: var(--primary);
-    transform: translateY(-8px);
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
-  }
-}
-
-
-/* ============================================================================
-   LANDING PAGE STYLES
-   ============================================================================ */
-
-/* Hero Section */
-.landing-hero {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  min-height: 100vh;
-  align-items: center;
-  gap: 4rem;
-  padding: 2rem 4rem;
-  background: linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%);
-}
-
-@media (max-width: 768px) {
-  .landing-hero {
-    grid-template-columns: 1fr;
-    padding: 2rem 1.5rem;
-    min-height: auto;
-  }
-}
-
-.landing-hero-content {
-  max-width: 600px;
-}
-
-.landing-hero-title {
-  font-size: 3.5rem;
-  font-weight: 800;
-  line-height: 1.1;
-  color: var(--color-text);
-  margin-bottom: 1.5rem;
-}
-
-@media (max-width: 768px) {
-  .landing-hero-title {
-    font-size: 2.5rem;
-  }
-}
-
-.landing-hero-subtitle {
-  font-size: 1.25rem;
-  line-height: 1.6;
-  color: var(--color-text-muted);
-  margin-bottom: 2rem;
-}
-
-.landing-hero-image {
-  width: 100%;
-  height: 600px;
-  border-radius: 1rem;
-  overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
-}
-
-/* CTA Buttons */
-.landing-cta-primary {
-  display: inline-block;
-  padding: 1rem 2.5rem;
-  background: var(--color-text);
-  color: #ffffff;
-  font-weight: 600;
-  border-radius: 0.75rem;
-  text-decoration: none;
-  transition: all 0.2s ease;
-}
-
-.landing-cta-primary:hover {
-  background: var(--color-text-muted);
-  transform: translateY(-2px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-}
-
-.landing-cta-secondary {
-  display: inline-block;
-  padding: 1rem 2.5rem;
-  background: transparent;
-  color: var(--color-text);
-  font-weight: 600;
-  border: 2px solid var(--color-border);
-  border-radius: 0.75rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.landing-cta-secondary:hover {
-  background: var(--color-surface);
-  border-color: var(--color-text);
-}
-
-/* Sections */
-.landing-section {
-  padding: 6rem 2rem;
-  background: #ffffff;
-}
-
-.landing-section-alt {
-  background: #fafafa;
-}
-
-.landing-section-title {
-  font-size: 2.5rem;
-  font-weight: 700;
-  text-align: center;
-  color: var(--color-text);
-  margin-bottom: 1rem;
-}
-
-.landing-section-subtitle {
-  font-size: 1.125rem;
-  text-align: center;
-  color: var(--color-text-muted);
-  margin-bottom: 4rem;
-  max-width: 700px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-/* Grids */
-.landing-grid-3 {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 2rem;
-}
-
-@media (max-width: 1024px) {
-  .landing-grid-3 {
-    grid-template-columns: 1fr;
-  }
-}
-
-.landing-grid-4 {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 2rem;
-}
-
-@media (max-width: 1024px) {
-  .landing-grid-4 {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 640px) {
-  .landing-grid-4 {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* Cards */
-.steps-card,
-.feature-card,
-.business-card,
-.testimonial-card {
-  background: #ffffff;
-  padding: 2rem;
-  border-radius: 1rem;
-  border: 1px solid var(--color-border);
-  transition: all 0.2s ease;
-}
-
-.steps-card:hover,
-.feature-card:hover,
-.business-card:hover,
-.testimonial-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-}
-
-.landing-card-icon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-  position: relative;
-  display: inline-block;
-}
-
-.landing-card-badge {
-  position: absolute;
-  top: -8px;
-  right: -8px;
-  background: var(--color-text);
-  color: #ffffff;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.875rem;
-  font-weight: 700;
-}
-
-.landing-card-title {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: var(--color-text);
-  margin-bottom: 0.75rem;
-}
-
-.landing-card-text {
-  font-size: 1rem;
-  line-height: 1.6;
-  color: var(--color-text-muted);
-}
-
-/* Brand Demo Section */
-.brand-demo-section {
-  padding: 6rem 2rem;
-  background: linear-gradient(135deg, #fafafa 0%, #f0f0f0 100%);
-}
-
-.brand-demo-container {
-  display: grid;
-  grid-template-columns: 1fr 2fr;
-  gap: 3rem;
-  margin-top: 3rem;
-}
-
-@media (max-width: 1024px) {
-  .brand-demo-container {
-    grid-template-columns: 1fr;
-  }
-}
-
-.brand-color-selector {
-  background: #ffffff;
-  padding: 2rem;
-  border-radius: 1rem;
-  border: 1px solid var(--color-border);
-}
-
-.brand-color-selector h3 {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: var(--color-text);
-  margin-bottom: 1.5rem;
-}
-
-.color-swatches {
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.color-swatch {
-  width: 60px;
-  height: 60px;
-  border-radius: 0.75rem;
-  cursor: pointer;
-  border: 3px solid transparent;
-  transition: all 0.2s ease;
-}
-
-.color-swatch:hover {
-  transform: scale(1.1);
-}
-
-.color-swatch.active {
-  border-color: var(--color-text);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.brand-demo-text {
-  font-size: 0.9375rem;
-  line-height: 1.6;
-  color: var(--color-text-muted);
-}
-
-/* POS Preview */
-.pos-preview-card {
-  background: #ffffff;
-  padding: 2rem;
-  border-radius: 1rem;
-  border: 1px solid var(--color-border);
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-}
-
-.pos-preview-header {
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-  border-bottom: 2px solid var(--color-border);
-  padding-bottom: 1rem;
-}
-
-.pos-preview-section {
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--color-text);
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
-  background: var(--color-bg);
-}
-
-.pos-categories {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.pos-category-item {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 1rem;
-  border-radius: 0.75rem;
-  background: var(--color-bg);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-size: 0.9375rem;
-  color: var(--color-text);
-}
-
-.pos-category-item:hover {
-  background: var(--color-surface);
-  transform: translateX(4px);
-}
-
-.pos-category-item.active {
-  background: var(--color-text);
-  color: #ffffff;
-}
-
-.pos-menu-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.pos-menu-item {
-  padding: 1rem;
-  border-radius: 0.75rem;
-  background: var(--color-bg);
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.pos-menu-item:hover {
-  background: var(--color-surface);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-}
-
-.pos-menu-item h4 {
-  font-size: 0.9375rem;
-  font-weight: 600;
-  color: var(--color-text);
-  margin-bottom: 0.25rem;
-}
-
-.pos-menu-item p {
-  font-size: 0.875rem;
-  color: var(--color-text-muted);
-}
-
-.pos-order-summary {
-  background: var(--color-bg);
-  padding: 1.5rem;
-  border-radius: 0.75rem;
-}
-
-.pos-summary-title {
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--color-text);
-  margin-bottom: 1rem;
-}
-
-.pos-summary-row {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 0.75rem;
-  font-size: 0.9375rem;
-}
-
-.pos-summary-row.total {
-  padding-top: 0.75rem;
-  border-top: 2px solid var(--color-border);
-  margin-top: 0.75rem;
-  font-weight: 600;
-  font-size: 1.125rem;
-}
-
-.pos-charge-button {
-  width: 100%;
-  padding: 1rem;
-  background: var(--color-text);
-  color: #ffffff;
-  font-weight: 600;
-  font-size: 1rem;
-  border: none;
-  border-radius: 0.75rem;
-  cursor: pointer;
-  margin-top: 1rem;
-  transition: all 0.2s ease;
-}
-
-.pos-charge-button:hover {
-  background: var(--color-text-muted);
-  transform: translateY(-2px);
-}
-
-/* Split Section */
-.landing-split-section {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 4rem;
-  align-items: center;
-}
-
-@media (max-width: 1024px) {
-  .landing-split-section {
-    grid-template-columns: 1fr;
-  }
-}
-
-.landing-split-content h2 {
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: var(--color-text);
-  margin-bottom: 1.5rem;
-}
-
-.landing-split-content p {
-  font-size: 1.125rem;
-  line-height: 1.6;
-  color: var(--color-text-muted);
-  margin-bottom: 2rem;
-}
-
-.landing-feature-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.landing-feature-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-  font-size: 1rem;
-  line-height: 1.6;
-  color: var(--color-text);
-}
-
-.landing-feature-icon {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background: var(--color-text);
-  flex-shrink: 0;
-  margin-top: 2px;
-}
-
-.landing-split-image {
-  width: 100%;
-  height: 500px;
-  border-radius: 1rem;
-  overflow: hidden;
-}
-
-/* Testimonials */
-.testimonial-stars {
-  display: flex;
-  gap: 0.25rem;
-  margin-bottom: 1rem;
-  font-size: 1.25rem;
-}
-
-.testimonial-text {
-  font-size: 1rem;
-  line-height: 1.6;
-  color: var(--color-text);
-  margin-bottom: 1.5rem;
-  font-style: italic;
-}
-
-.testimonial-author {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.testimonial-avatar {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: var(--color-text);
-  color: #ffffff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-  font-size: 0.875rem;
-}
-
-.testimonial-info h4 {
-  font-size: 0.9375rem;
-  font-weight: 600;
-  color: var(--color-text);
-  margin-bottom: 0.25rem;
-}
-
-.testimonial-info p {
-  font-size: 0.875rem;
-  color: var(--color-text-muted);
-}
-
-/* Final CTA Section */
-.cta-section {
-  padding: 6rem 2rem;
-  background: linear-gradient(135deg, var(--color-text) 0%, var(--color-text-muted) 100%);
-  text-align: center;
-}
-
-.cta-title {
-  font-size: 3rem;
-  font-weight: 800;
-  color: #ffffff;
-  margin-bottom: 1rem;
-}
-
-@media (max-width: 768px) {
-  .cta-title {
-    font-size: 2rem;
-  }
-}
-
-.cta-subtitle {
-  font-size: 1.25rem;
-  line-height: 1.6;
-  color: rgba(255, 255, 255, 0.9);
-  margin-bottom: 2.5rem;
-  max-width: 700px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.cta-buttons {
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-.cta-buttons .landing-cta-primary {
-  background: #ffffff;
-  color: var(--color-text);
-}
-
-.cta-buttons .landing-cta-primary:hover {
-  background: #f5f5f5;
-}
-
-.cta-buttons .landing-cta-secondary {
-  background: transparent;
-  color: #ffffff;
-  border-color: #ffffff;
-}
-
-.cta-buttons .landing-cta-secondary:hover {
-  background: rgba(255, 255, 255, 0.1);
 }
