@@ -13,6 +13,7 @@ type ThemeMode = 'light' | 'dark';
 export default function OnboardingPage() {
   const router = useRouter();
   const [step, setStep] = useState(1);
+  const [completedSteps, setCompletedSteps] = useState<number[]>([1]); // Track which steps have been completed
   const [businessName, setBusinessName] = useState('');
   const [businessType, setBusinessType] = useState<BusinessType>(null);
   const [revenue, setRevenue] = useState<Revenue>(null);
@@ -60,6 +61,14 @@ export default function OnboardingPage() {
 
   const handleNext = () => {
     if (step < 5) {
+      // Mark current step as completed before moving to next
+      if (!completedSteps.includes(step)) {
+        setCompletedSteps([...completedSteps, step]);
+      }
+      // Mark next step as accessible
+      if (!completedSteps.includes(step + 1)) {
+        setCompletedSteps([...completedSteps, step + 1]);
+      }
       setStep(step + 1);
     }
   };
@@ -225,7 +234,15 @@ export default function OnboardingPage() {
             <p className="onboarding-subtitle">
               Let's set up your POS in just a few steps.
             </p>
-            <button onClick={handleNext} className="onboarding-btn-primary">
+            <button 
+              onClick={() => {
+                if (!completedSteps.includes(2)) {
+                  setCompletedSteps([...completedSteps, 2]);
+                }
+                handleNext();
+              }} 
+              className="onboarding-btn-primary"
+            >
               Get Started
             </button>
           </div>
@@ -313,7 +330,12 @@ export default function OnboardingPage() {
             )}
 
             <button
-              onClick={handleNext}
+              onClick={() => {
+                if (!completedSteps.includes(3)) {
+                  setCompletedSteps([...completedSteps, 3]);
+                }
+                handleNext();
+              }}
               disabled={!canProceedStep2}
               className="onboarding-btn-primary w-full"
             >
@@ -370,7 +392,12 @@ export default function OnboardingPage() {
             </div>
 
             <button
-              onClick={handleNext}
+              onClick={() => {
+                if (!completedSteps.includes(4)) {
+                  setCompletedSteps([...completedSteps, 4]);
+                }
+                handleNext();
+              }}
               disabled={!canProceedStep3}
               className="onboarding-btn-primary w-full"
             >
@@ -439,7 +466,12 @@ export default function OnboardingPage() {
             </div>
 
             <button
-              onClick={handleNext}
+              onClick={() => {
+                if (!completedSteps.includes(4)) {
+                  setCompletedSteps([...completedSteps, 4]);
+                }
+                handleNext();
+              }}
               disabled={!canProceedStep3}
               className="onboarding-btn-primary w-full"
             >
@@ -509,6 +541,9 @@ export default function OnboardingPage() {
                       if (brandPrompt.trim()) {
                         setBrandingChoice('prompt');
                       }
+                      if (!completedSteps.includes(5)) {
+                        setCompletedSteps([...completedSteps, 5]);
+                      }
                       handleNext();
                     }
                   }}
@@ -545,14 +580,12 @@ export default function OnboardingPage() {
             <button
               onClick={() => {
                 setBrandingChoice('manual');
+                if (!completedSteps.includes(5)) {
+                  setCompletedSteps([...completedSteps, 5]);
+                }
                 handleNext();
               }}
               className="onboarding-btn-primary w-full"
-              style={{ 
-                background: 'transparent',
-                color: '#1a1a1a',
-                border: '1.5px solid #e0e0e0'
-              }}
             >
               Choose Manually
             </button>
@@ -622,53 +655,26 @@ export default function OnboardingPage() {
 
         {/* Step Indicator */}
         <div className="step-indicator">
-          {[1, 2, 3, 4, 5].map((s) => (
-            <button
-              key={s}
-              type="button"
-              className={clsx('step-dot', s === step && 'active')}
-              onClick={() => {
-                // Allow navigation to step 1 always
-                if (s === 1) {
-                  setStep(s);
-                  return;
-                }
-                
-                // For step 2, need to complete step 1 (just click Get Started)
-                if (s === 2 && step >= 1) {
-                  setStep(s);
-                  return;
-                }
-                
-                // For step 3, need to complete step 2
-                if (s === 3 && step >= 2 && canProceedStep2) {
-                  setStep(s);
-                  return;
-                }
-                
-                // For step 4, need to complete step 3
-                if (s === 4 && step >= 3 && canProceedStep3) {
-                  setStep(s);
-                  return;
-                }
-                
-                // For step 5, need to complete step 4
-                if (s === 5 && step >= 4 && (brandingChoice !== null)) {
-                  setStep(s);
-                  return;
-                }
-                
-                // If conditions not met, don't navigate
-              }}
-              aria-label={`Go to step ${s}`}
-              disabled={
-                (s === 2 && step < 1) ||
-                (s === 3 && (step < 2 || !canProceedStep2)) ||
-                (s === 4 && (step < 3 || !canProceedStep3)) ||
-                (s === 5 && (step < 4 || brandingChoice === null))
-              }
-            />
-          ))}
+          {[1, 2, 3, 4, 5].map((s) => {
+            // A step is accessible if it's in the completedSteps array
+            const isAccessible = completedSteps.includes(s);
+            
+            return (
+              <button
+                key={s}
+                type="button"
+                className={clsx('step-dot', s === step && 'active')}
+                onClick={() => {
+                  if (isAccessible) {
+                    setStep(s);
+                  }
+                }}
+                aria-label={`Go to step ${s}`}
+                disabled={!isAccessible}
+                title={isAccessible ? `Go to step ${s}` : `Complete previous steps to access step ${s}`}
+              />
+            );
+          })}
         </div>
       </div>
     </div>

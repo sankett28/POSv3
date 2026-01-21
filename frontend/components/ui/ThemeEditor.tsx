@@ -278,7 +278,7 @@ export default function ThemeEditor() {
           <Button
             onClick={handleValidate}
             disabled={isLoading}
-            className="bg-blue-600 hover:bg-blue-700 text-white"
+            className="bg-[#1a1a1a] hover:bg-[#000000] text-white px-6 py-2.5 rounded-full font-semibold transition-all hover:shadow-lg hover:-translate-y-0.5"
           >
             {isLoading ? 'Validating...' : 'Validate'}
           </Button>
@@ -286,7 +286,7 @@ export default function ThemeEditor() {
           <Button
             onClick={handleSave}
             disabled={isSaving}
-            className="bg-green-600 hover:bg-green-700 text-white"
+            className="bg-[#1a1a1a] hover:bg-[#000000] text-white px-6 py-2.5 rounded-full font-semibold transition-all hover:shadow-lg hover:-translate-y-0.5"
           >
             {isSaving ? 'Saving...' : 'Save Theme'}
           </Button>
@@ -294,7 +294,7 @@ export default function ThemeEditor() {
           <Button
             onClick={handleReset}
             disabled={isLoading || isSaving}
-            className="bg-gray-600 hover:bg-gray-700 text-white"
+            className="bg-[#1a1a1a] hover:bg-[#000000] text-white px-6 py-2.5 rounded-full font-semibold transition-all hover:shadow-lg hover:-translate-y-0.5"
           >
             Reset Changes
           </Button>
@@ -302,7 +302,7 @@ export default function ThemeEditor() {
           <Button
             onClick={handleResetToDefaults}
             disabled={isLoading || isSaving}
-            className="bg-gray-400 hover:bg-gray-500 text-white"
+            className="bg-[#1a1a1a] hover:bg-[#000000] text-white px-6 py-2.5 rounded-full font-semibold transition-all hover:shadow-lg hover:-translate-y-0.5"
           >
             Reset to Defaults
           </Button>
@@ -314,9 +314,8 @@ export default function ThemeEditor() {
         <h3 className="text-xl font-bold text-primary-text mb-4">Live Preview</h3>
         <div className="space-y-4">
           <div className="flex gap-3">
-            <div className="px-4 py-2 rounded bg-primary text-white">Primary Button</div>
-            <div className="px-4 py-2 rounded bg-secondary text-foreground border border-border">Secondary Button</div>
-            <div className="px-4 py-2 rounded bg-accent text-white">Accent Button</div>
+            <div className="px-4 py-2 rounded-full bg-[#1a1a1a] text-white font-semibold">Primary Button</div>
+            <div className="px-4 py-2 rounded-full bg-[#1a1a1a] text-white font-semibold border border-border">Secondary Button</div>
           </div>
           
           <div className="p-4 rounded bg-background border border-border">
@@ -325,9 +324,8 @@ export default function ThemeEditor() {
           </div>
           
           <div className="flex gap-3">
-            <div className="px-3 py-2 rounded bg-success text-white text-sm">Success</div>
-            <div className="px-3 py-2 rounded bg-warning text-white text-sm">Warning</div>
-            <div className="px-3 py-2 rounded bg-danger text-white text-sm">Danger</div>
+            <div className="px-3 py-2 rounded-full bg-success text-white text-sm font-semibold">Success</div>
+            <div className="px-3 py-2 rounded-full bg-warning text-white text-sm font-semibold">Warning</div>
           </div>
         </div>
       </div>

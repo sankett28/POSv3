@@ -51,7 +51,7 @@ export default function LandingPage() {
           </p>
           <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
             <Link href="/login" className="landing-cta-primary">
-              Get Started
+              Create My POS
             </Link>
             <button className="landing-cta-secondary">
               See Demo
@@ -59,26 +59,23 @@ export default function LandingPage() {
           </div>
         </div>
         <div className="landing-hero-image">
-          {/* Placeholder for hero image */}
-          <div style={{ 
-            width: '100%', 
-            height: '100%', 
-            background: 'linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'var(--color-surface)',
-            fontSize: '1.5rem',
-            fontWeight: '600'
-          }}>
-            POS Preview
-          </div>
+          {/* Cafe image */}
+          <img 
+            src="/images/cafe.jpg" 
+            alt="Cafe POS System"
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              display: 'block'
+            }}
+          />
         </div>
       </section>
 
       {/* How It Works Section */}
       <section className="landing-section">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-full-content mx-auto">
           <h2 className="landing-section-title">Launch Your POS in 3 Simple Steps</h2>
           <p className="landing-section-subtitle">
             Go from idea to a fully branded point-of-sale system faster than ever before.
@@ -123,7 +120,7 @@ export default function LandingPage() {
 
       {/* Features Section */}
       <section className="landing-section landing-section-alt">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-full-content mx-auto">
           <h2 className="landing-section-title">Everything You Need to Succeed</h2>
           <p className="landing-section-subtitle">
             Lichi comes packed with powerful features to streamline your operations and boost your growth.
@@ -215,7 +212,7 @@ export default function LandingPage() {
 
       {/* Brand Colors Demo Section */}
       <section className="brand-demo-section">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-full-content mx-auto">
           <h2 className="landing-section-title">Your Brand, Your Colors</h2>
           <p className="landing-section-subtitle">
             Instantly see how your entire POS UI updates with your brand color. No code, no waiting.
@@ -320,7 +317,7 @@ export default function LandingPage() {
 
       {/* Business Types Section */}
       <section className="landing-section landing-section-alt">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-full-content mx-auto">
           <h2 className="landing-section-title">Built for Every Food Business</h2>
           <p className="landing-section-subtitle">
             Whether you run a cozy cafe or a bustling cloud kitchen, Lichi adapts to your unique needs.
@@ -372,7 +369,7 @@ export default function LandingPage() {
 
       {/* Why Choose Section */}
       <section className="landing-section">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-full-content mx-auto">
           <div className="landing-split-section">
             <div className="landing-split-content">
               <h2>Focus on Your Food, Not Your Software</h2>
@@ -403,20 +400,17 @@ export default function LandingPage() {
               </ul>
             </div>
             <div className="landing-split-image">
-              {/* Placeholder for image */}
-              <div style={{ 
-                width: '100%', 
-                height: '100%', 
-                background: 'linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'var(--color-text-muted)',
-                fontSize: '1.25rem',
-                fontWeight: '600'
-              }}>
-                Business Image
-              </div>
+              {/* Business/Cafe image */}
+              <img 
+                src="/images/cafe2.jpg" 
+                alt="Focus on Your Food"
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  display: 'block'
+                }}
+              />
             </div>
           </div>
         </div>
@@ -424,7 +418,7 @@ export default function LandingPage() {
 
       {/* Testimonials Section */}
       <section className="landing-section landing-section-alt">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-full-content mx-auto">
           <h2 className="landing-section-title">Loved by Business Owners Like You</h2>
           <p className="landing-section-subtitle">
             Don't just take our word for it. Here's what our customers are saying.
@@ -496,7 +490,7 @@ export default function LandingPage() {
 
       {/* FAQ Section */}
       <section className="landing-section landing-section-alt">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-full-content mx-auto">
           <h2 className="landing-section-title">Frequently Asked Questions</h2>
           <p className="landing-section-subtitle">
             Everything you need to know about Lichi POS
@@ -526,16 +520,16 @@ export default function LandingPage() {
 
       {/* Final CTA */}
       <section className="cta-section">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-full-content mx-auto">
           <h2 className="cta-title">Your POS. Your Brand. Ready in Minutes.</h2>
           <p className="cta-subtitle">
             Stop wrestling with complicated software. Get a beautiful, powerful, and easy-to-use POS system today.
           </p>
           <div className="cta-buttons">
-            <Link href="/login" className="landing-cta-primary" style={{ fontSize: '1.125rem', padding: '1.25rem 3rem' }}>
+            <Link href="/login" className="landing-cta-primary" style={{ fontSize: '1.125rem', padding: '1rem 2.5rem' }}>
               Get Started
             </Link>
-            <button className="landing-cta-secondary" style={{ fontSize: '1.125rem', padding: '1.25rem 3rem' }}>
+            <button className="landing-cta-secondary" style={{ fontSize: '1.125rem', padding: '1rem 2.5rem' }}>
               Talk to Us
             </button>
           </div>
