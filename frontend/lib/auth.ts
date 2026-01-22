@@ -4,13 +4,18 @@ import { supabase } from './supabase'
 export interface User {
   id: string
   email: string
+  onboarding_completed: boolean
+  has_business: boolean
 }
 
 export async function login(email: string, password: string): Promise<User> {
   const response = await api.login(email, password)
+  // Backend now returns complete user state with onboarding_completed and has_business
   return {
-    id: response.user_id,
-    email: response.email,
+    id: response.user.id,
+    email: response.user.email,
+    onboarding_completed: response.user.onboarding_completed,
+    has_business: response.user.has_business,
   }
 }
 

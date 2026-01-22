@@ -73,6 +73,20 @@ class BusinessConfigurationBase(BaseModel):
         description="How the business theme was chosen"
     )
     
+    # Financial configuration
+    tax_rate: Optional[float] = Field(
+        None,
+        ge=0,
+        le=100,
+        description="Default tax rate percentage for the business (0-100)"
+    )
+    currency: Optional[str] = Field(
+        None,
+        min_length=3,
+        max_length=3,
+        description="ISO 4217 currency code (3 characters, e.g., USD, INR, EUR)"
+    )
+    
     @field_validator('gst_number')
     @classmethod
     def validate_gst_number(cls, v: Optional[str], info) -> Optional[str]:
@@ -139,6 +153,10 @@ class BusinessConfigurationUpdate(BaseModel):
     website_url: Optional[str] = None
     brand_prompt: Optional[str] = None
     branding_choice: Optional[Literal['url', 'prompt', 'manual']] = None
+    
+    # Financial configuration
+    tax_rate: Optional[float] = Field(None, ge=0, le=100)
+    currency: Optional[str] = Field(None, min_length=3, max_length=3)
 
 
 class BusinessConfigurationResponse(BusinessConfigurationBase):
@@ -179,6 +197,10 @@ class BusinessConfigurationPublic(BaseModel):
     brand_prompt: Optional[str] = None
     branding_choice: str
     
+    # Financial configuration
+    tax_rate: Optional[float] = None
+    currency: Optional[str] = None
+    
     @classmethod
     def from_response(cls, config: Optional[BusinessConfigurationResponse]) -> Optional["BusinessConfigurationPublic"]:
         """Convert BusinessConfigurationResponse to public format."""
@@ -198,5 +220,7 @@ class BusinessConfigurationPublic(BaseModel):
             number_of_tables=config.number_of_tables,
             website_url=config.website_url,
             brand_prompt=config.brand_prompt,
-            branding_choice=config.branding_choice
+            branding_choice=config.branding_choice,
+            tax_rate=config.tax_rate,
+            currency=config.currency
         )

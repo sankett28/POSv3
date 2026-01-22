@@ -50,8 +50,8 @@ export default function SignupPage() {
           localStorage.setItem('token_expires_at', String(Math.floor(Date.now() / 1000) + 3600));
           localStorage.setItem('user_id', data.user.id);
           localStorage.setItem('user_email', data.user.email || '');
-          // Mark onboarding as not completed
-          localStorage.setItem('onboarding_completed', 'false');
+          // Removed: localStorage.setItem('onboarding_completed', 'false')
+          // Backend now tracks onboarding status - no localStorage needed
         }
       }
       

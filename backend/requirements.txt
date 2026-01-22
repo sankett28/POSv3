@@ -10,4 +10,4 @@ httpx==0.27.0
 pandas
 openpyxl
 python-multipart
-
+redis

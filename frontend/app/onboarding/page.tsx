@@ -214,8 +214,8 @@ export default function OnboardingPage() {
       // Clear cached data after successful submission
       localStorage.removeItem('onboarding_data');
       
-      // Mark onboarding as completed
-      localStorage.setItem('onboarding_completed', 'true');
+      // Removed: localStorage.setItem('onboarding_completed', 'true')
+      // Backend now tracks onboarding status - no localStorage needed
       
       // Redirect to orders page
       setTimeout(() => {

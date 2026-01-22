@@ -166,6 +166,105 @@ class TestBusinessConfigurationCreate:
         assert config.service_charge_enabled is None
         assert config.billing_type is None
         assert config.website_url is None
+    
+    def test_valid_tax_rate(self):
+        """Test that valid tax_rate values are accepted."""
+        # Valid tax rates
+        valid_rates = [0, 5.5, 18, 28, 100]
+        
+        for rate in valid_rates:
+            config = BusinessConfigurationCreate(
+                business_type='cafe',
+                revenue_range='less-10l',
+                has_gst=False,
+                branding_choice='manual',
+                tax_rate=rate
+            )
+            assert config.tax_rate == rate
+    
+    def test_invalid_tax_rate_below_zero(self):
+        """Test that tax_rate below 0 is rejected."""
+        with pytest.raises(ValidationError) as exc_info:
+            BusinessConfigurationCreate(
+                business_type='cafe',
+                revenue_range='less-10l',
+                has_gst=False,
+                branding_choice='manual',
+                tax_rate=-1  # Invalid: below 0
+            )
+        
+        errors = exc_info.value.errors()
+        assert any('greater than or equal to 0' in str(error['msg']).lower() for error in errors)
+    
+    def test_invalid_tax_rate_above_100(self):
+        """Test that tax_rate above 100 is rejected."""
+        with pytest.raises(ValidationError) as exc_info:
+            BusinessConfigurationCreate(
+                business_type='cafe',
+                revenue_range='less-10l',
+                has_gst=False,
+                branding_choice='manual',
+                tax_rate=101  # Invalid: above 100
+            )
+        
+        errors = exc_info.value.errors()
+        assert any('less than or equal to 100' in str(error['msg']).lower() for error in errors)
+    
+    def test_valid_currency_codes(self):
+        """Test that valid 3-character currency codes are accepted."""
+        valid_currencies = ['USD', 'INR', 'EUR', 'GBP', 'JPY']
+        
+        for currency in valid_currencies:
+            config = BusinessConfigurationCreate(
+                business_type='cafe',
+                revenue_range='less-10l',
+                has_gst=False,
+                branding_choice='manual',
+                currency=currency
+            )
+            assert config.currency == currency
+    
+    def test_invalid_currency_length_too_short(self):
+        """Test that currency codes shorter than 3 characters are rejected."""
+        with pytest.raises(ValidationError) as exc_info:
+            BusinessConfigurationCreate(
+                business_type='cafe',
+                revenue_range='less-10l',
+                has_gst=False,
+                branding_choice='manual',
+                currency='US'  # Invalid: only 2 characters
+            )
+        
+        errors = exc_info.value.errors()
+        assert any('at least 3 characters' in str(error['msg']).lower() for error in errors)
+    
+    def test_invalid_currency_length_too_long(self):
+        """Test that currency codes longer than 3 characters are rejected."""
+        with pytest.raises(ValidationError) as exc_info:
+            BusinessConfigurationCreate(
+                business_type='cafe',
+                revenue_range='less-10l',
+                has_gst=False,
+                branding_choice='manual',
+                currency='USDD'  # Invalid: 4 characters
+            )
+        
+        errors = exc_info.value.errors()
+        assert any('at most 3 characters' in str(error['msg']).lower() for error in errors)
+    
+    def test_tax_rate_and_currency_optional(self):
+        """Test that tax_rate and currency are optional."""
+        config = BusinessConfigurationCreate(
+            business_type='cafe',
+            revenue_range='less-10l',
+            has_gst=False,
+            branding_choice='manual',
+            tax_rate=None,
+            currency=None
+        )
+        
+        assert config.tax_rate is None
+        assert config.currency is None
 
 
 class TestBusinessConfigurationUpdate:

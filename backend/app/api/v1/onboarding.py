@@ -52,7 +52,7 @@ async def create_onboarding(
         logger.info(f"Creating business for user {user_id}: {request.business_name}")
         business = await business_service.create_business(
             name=request.business_name,
-            owner_id=user_id,  # Pass user_id for RLS policy
+            user_id=user_id,  # Pass user_id for RLS policy
             website_url=request.website_url if request.website_url else None,
             is_active=True
         )

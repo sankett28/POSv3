@@ -141,7 +141,7 @@ class BusinessService:
     async def create_business(
         self,
         name: str,
-        owner_id: str,
+        user_id: str,
         website_url: Optional[str] = None,
         is_active: bool = True
     ) -> dict:
@@ -152,7 +152,7 @@ class BusinessService:
         
         Args:
             name: Business name (required)
-            owner_id: User ID who owns this business (required for RLS)
+            user_id: User ID who owns this business (required for RLS)
             website_url: Optional website URL
             is_active: Whether the business is active (default: True)
         
@@ -161,7 +161,7 @@ class BusinessService:
             - id: UUID of the created business
             - name: Business name
             - slug: Generated unique slug
-            - owner_id: Owner user ID
+            - user_id: Owner user ID
             - website_url: Website URL (if provided)
             - is_active: Active status
             - created_at: Creation timestamp
@@ -175,7 +175,7 @@ class BusinessService:
             >>> service = BusinessService(supabase)
             >>> business = await service.create_business(
             ...     name="My Cafe",
-            ...     owner_id="user-uuid-here",
+            ...     user_id="user-uuid-here",
             ...     website_url="https://mycafe.com"
             ... )
             >>> print(business['slug'])
@@ -185,9 +185,9 @@ class BusinessService:
         if not name or not name.strip():
             raise ValueError("Business name cannot be empty")
         
-        # Validate owner_id
-        if not owner_id or not owner_id.strip():
-            raise ValueError("Owner ID cannot be empty")
+        # Validate user_id
+        if not user_id or not user_id.strip():
+            raise ValueError("User ID cannot be empty")
         
         # Generate unique slug
         slug = await self.generate_unique_slug(name)
@@ -197,7 +197,7 @@ class BusinessService:
             business_data = {
                 'name': name.strip(),
                 'slug': slug,
-                'owner_id': owner_id,
+                'user_id': user_id,
                 'is_active': is_active
             }
             
@@ -217,7 +217,7 @@ class BusinessService:
             
             logger.info(
                 f"Created business '{name}' with slug '{slug}' "
-                f"(ID: {created_business['id']}, Owner: {owner_id})"
+                f"(ID: {created_business['id']}, Owner: {user_id})"
             )
             
             return created_business

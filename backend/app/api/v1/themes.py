@@ -58,17 +58,21 @@ async def get_current_business_id(
         db = get_supabase()
         response = db.table('businesses') \
             .select('id') \
-            .eq('owner_id', user_id) \
+            .eq('user_id', user_id) \
             .limit(1) \
             .execute()
         
         if not response.data or len(response.data) == 0:
+            logger.warning(f"No business found for user {user_id}")
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="No business found for current user. Please complete onboarding first."
             )
         
-        return response.data[0]['id']
+        business_id = response.data[0]['id']
+        logger.info(f"Resolved business_id {business_id} for user {user_id}")
+        return business_id
+        
     except HTTPException:
         raise
     except Exception as e:

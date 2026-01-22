@@ -18,24 +18,34 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      // Login via API
+      // Login via API - backend now returns complete user state
       const response = await api.login(email, password);
       
-      // Store user info
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('user_id', response.user_id);
-        localStorage.setItem('user_email', response.email);
+      // Store user info (tokens are handled by api.login)
+      if (typeof window !== 'undefined' && response.user) {
+        localStorage.setItem('user_id', response.user.id);
+        localStorage.setItem('user_email', response.user.email);
       }
       
-      // Check if user has completed onboarding
-      const onboardingComplete = localStorage.getItem('onboarding_completed');
-      
-      if (onboardingComplete === 'true') {
-        // User has completed onboarding, go to orders page
-        router.push('/orders');
+      // Implement routing logic based on backend state only
+      // No longer using localStorage for onboarding_completed
+      if (response.user) {
+        const { onboarding_completed, has_business } = response.user;
+        
+        if (!onboarding_completed) {
+          // User hasn't completed onboarding, redirect there
+          router.push('/onboarding');
+        } else if (onboarding_completed && has_business) {
+          // User has completed onboarding and has a business, go to dashboard/orders
+          router.push('/orders');
+        } else if (onboarding_completed && !has_business) {
+          // User completed onboarding but no business record exists
+          // This shouldn't normally happen, but redirect to onboarding to fix
+          router.push('/onboarding');
+        }
       } else {
-        // User hasn't completed onboarding, redirect there
-        router.push('/onboarding');
+        // Fallback if user object is missing
+        router.push('/orders');
       }
     } catch (err: any) {
       console.error('Login error:', err);

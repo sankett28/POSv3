@@ -5,10 +5,13 @@ import errno
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, Dict, Any
 from app.core.database import get_supabase
 from supabase import Client
 from app.core.logging import logger
+from app.services.auth_service import AuthService
+from app.services.cache_service import CacheService
+from app.core.decorators import handle_database_error
 import httpx
 
 
@@ -272,3 +275,182 @@ async def refresh_token(refresh_data: RefreshTokenRequest):
             detail="Invalid or expired refresh token"
         )
 
+
+
+
+def get_auth_service() -> AuthService:
+    """
+    Dependency to get AuthService instance with cache integration.
+    
+    Creates and returns an AuthService instance with:
+    - Supabase database client
+    - Redis cache service
+    - JWT secret from configuration
+    
+    Returns:
+        AuthService instance ready for use
+    """
+    from app.core.config import settings
+    
+    # Get database client
+    db = get_supabase()
+    
+    # Use centralized Redis client
+    from app.core.redis import redis_client
+    
+    # Create cache service
+    cache_service = CacheService(redis_client)
+    
+    # Create and return auth service
+    jwt_secret = getattr(settings, 'jwt_secret', settings.supabase_service_role_key)
+    return AuthService(db, cache_service, jwt_secret)
+
+
+class UserProfileResponse(BaseModel):
+    """User profile response schema for /me endpoint."""
+    id: str
+    email: str
+    onboarding_completed: bool
+    has_business: bool
+    business: Optional[Dict[str, Any]] = None
+    created_at: Optional[str] = None
+    updated_at: Optional[str] = None
+
+
+@router.get("/me", response_model=UserProfileResponse)
+@handle_database_error
+async def get_current_user_profile(
+    user_id: str = Depends(get_current_user_id),
+    auth_service: AuthService = Depends(get_auth_service)
+) -> UserProfileResponse:
+    """
+    Get current user's complete profile with caching.
+    
+    This endpoint:
+    1. Extracts user_id from JWT token
+    2. Retrieves user state from cache or database
+    3. Checks if user has a business (with caching)
+    4. If user has business, fetches business, config, and theme data
+    5. Returns complete user profile
+    
+    The response uses cached data when available to reduce database load.
+    
+    Args:
+        user_id: User ID extracted from JWT token (dependency)
+        auth_service: AuthService instance (dependency)
+    
+    Returns:
+        UserProfileResponse containing:
+        - id: User UUID
+        - email: User email
+        - onboarding_completed: Whether user completed onboarding
+        - has_business: Whether user has a business record
+        - business: Business data (if has_business is true)
+        - created_at: User creation timestamp
+        - updated_at: User last update timestamp
+    
+    Raises:
+        HTTPException: 401 for invalid token, 404 for user not found,
+                      500 for server errors
+    
+    Examples:
+        GET /api/v1/auth/me
+        Authorization: Bearer <token>
+        
+        Response:
+        {
+            "id": "123e4567-e89b-12d3-a456-426614174000",
+            "email": "user@example.com",
+            "onboarding_completed": true,
+            "has_business": true,
+            "business": {
+                "id": "business-uuid",
+                "name": "My Business",
+                "configuration": {...},
+                "theme": {...}
+            },
+            "created_at": "2024-01-01T00:00:00Z",
+            "updated_at": "2024-01-01T00:00:00Z"
+        }
+    
+    Validates: Requirements 8.4, 8.5
+    """
+    try:
+        # Get user state (uses cache if available)
+        logger.info(f"Fetching profile for user {user_id}")
+        user_state = auth_service.get_user_state(user_id)
+        
+        # Check if user has a business (uses cache if available)
+        has_business = auth_service.verify_business_exists(user_id)
+        
+        # Initialize business data
+        business_data = None
+        
+        # If user has business, fetch complete business data
+        if has_business:
+            try:
+                db = get_supabase()
+                
+                # Fetch business record
+                business_response = db.table('businesses').select(
+                    'id, name, slug, website_url, is_active, created_at, updated_at'
+                ).eq('user_id', user_id).execute()
+                
+                if business_response.data and len(business_response.data) > 0:
+                    business = business_response.data[0]
+                    business_id = business['id']
+                    
+                    # Fetch business configuration
+                    config_response = db.table('business_configurations').select('*').eq(
+                        'business_id', business_id
+                    ).execute()
+                    
+                    # Fetch business theme
+                    theme_response = db.table('business_themes').select('*').eq(
+                        'business_id', business_id
+                    ).execute()
+                    
+                    # Build complete business data
+                    business_data = {
+                        **business,
+                        'configuration': config_response.data[0] if config_response.data else None,
+                        'theme': theme_response.data[0] if theme_response.data else None
+                    }
+                    
+                    logger.info(f"Fetched complete business data for user {user_id}")
+            
+            except Exception as business_error:
+                # Log error but don't fail the request
+                logger.warning(
+                    f"Error fetching business data for user {user_id}: {business_error}"
+                )
+                # has_business will still be true, but business_data will be None
+        
+        # Build and return response
+        response = UserProfileResponse(
+            id=user_state['id'],
+            email=user_state['email'],
+            onboarding_completed=user_state.get('onboarding_completed', False),
+            has_business=has_business,
+            business=business_data,
+            created_at=user_state.get('created_at'),
+            updated_at=user_state.get('updated_at')
+        )
+        
+        logger.info(
+            f"Profile fetched successfully for user {user_id} "
+            f"(onboarding: {response.onboarding_completed}, has_business: {has_business})"
+        )
+        
+        return response
+    
+    except HTTPException:
+        # Re-raise HTTP exceptions (like 404 from get_user_state)
+        raise
+    
+    except Exception as e:
+        logger.error(f"Error fetching user profile for {user_id}: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to fetch user profile"
+        )

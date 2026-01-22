@@ -458,8 +458,8 @@ export default function MenuPage() {
               onClick={() => setSelectedCategory(null)}
               className={`px-5 py-2.5 rounded-full font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring-3 outline-hidden ${
                 selectedCategory === null
-                  ? 'bg-brand-deep-burgundy text-white shadow-md'
-                  : 'bg-white text-primary-text hover:bg-brand-dusty-rose/10 border border-border'
+                  ? 'bg-primary text-white shadow-md'
+                  : 'bg-white text-primary-text hover:bg-primary/10 border border-border'
               }`}
             >
               All
@@ -474,7 +474,7 @@ export default function MenuPage() {
                   className={`px-5 py-2.5 rounded-full font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring-3 outline-hidden ${
                     selectedCategory === category.id
                       ? 'bg-brand-deep-burgundy text-white shadow-md'
-                      : 'bg-white text-primary-text hover:bg-brand-dusty-rose/10 border border-border'
+                      : 'bg-white text-primary-text hover:bg-primary/10 border border-border'
                   }`}
                 >
                   {category.name}
@@ -503,7 +503,7 @@ export default function MenuPage() {
               placeholder="Search menu items..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 border border-border rounded-xl focus:outline-hidden focus:ring-2 focus:ring-coffee-brown focus:border-coffee-brown bg-white hover:bg-warm-cream/10 transition-all duration-200 text-primary-text placeholder-muted-text"
+              className="w-full pl-12 pr-4 py-3 border border-border rounded-xl focus:outline-hidden focus:ring-2 focus:ring-primary focus:border-primary bg-white hover:bg-warm-cream/10 transition-all duration-200 text-primary-text placeholder-muted-text"
             />
           </div>
         </div>
@@ -521,7 +521,7 @@ export default function MenuPage() {
                   <h3 className="text-xl font-bold text-primary-text">{category.name}</h3>
                   <button
                     onClick={() => handleBulkTaxGroupAssign(category)}
-                    className="px-4 py-2 bg-coffee-brown text-white rounded-xl font-medium text-sm hover:bg-brand-dusty-rose
+                    className="px-4 py-2 bg-primary text-white rounded-xl font-medium text-sm hover:bg-brand-dusty-rose
                              transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg 
                              active:scale-[0.98] flex items-center gap-2"
                     title="Assign tax group to all products in this category"
@@ -532,7 +532,7 @@ export default function MenuPage() {
                 </div>
                 <div className="overflow-x-auto">
                   <table className="min-w-full leading-normal">
-                    <thead className="bg-linear-to-r from-brand-dusty-rose/25 to-brand-dusty-rose/15 border-b-2 border-brand-dusty-rose/30">
+                    <thead className="bg-linear-to-r from-primary/25 to-brand-dusty-rose/15 border-b-2 border-brand-dusty-rose/30">
                       <tr>
                         <th className="px-6 py-4 text-left text-xs font-extrabold text-primary-text uppercase tracking-wider">Item</th>
                         <th className="px-6 py-4 text-left text-xs font-extrabold text-primary-text uppercase tracking-wider">Price</th>
@@ -572,7 +572,7 @@ export default function MenuPage() {
                             <div className="flex gap-3">
                               <button
                                 onClick={() => handleEditItem(product)}
-                                className="p-2 rounded-lg text-primary-text hover:text-coffee-brown hover:bg-warm-cream/30 transition-all duration-200 ease-in-out hover:scale-110 active:scale-95 shadow-xs hover:shadow-md"
+                                className="p-2 rounded-lg text-primary-text hover:text-primary hover:bg-warm-cream/30 transition-all duration-200 ease-in-out hover:scale-110 active:scale-95 shadow-xs hover:shadow-md"
                                 title="Edit item"
                               >
                                 <Edit className="w-4 h-4" />
@@ -580,7 +580,7 @@ export default function MenuPage() {
                               {product.is_active && (
                                 <button
                                   onClick={() => handleDeactivateItem(product.id)}
-                                  className="p-2 rounded-lg text-coffee-brown hover:text-primary-text hover:bg-red-50 transition-all duration-200 ease-in-out hover:scale-110 active:scale-95 shadow-xs hover:shadow-md"
+                                  className="p-2 rounded-lg text-primary hover:text-primary-text hover:bg-red-50 transition-all duration-200 ease-in-out hover:scale-110 active:scale-95 shadow-xs hover:shadow-md"
                                   title="Delete item"
                                 >
                                   <Trash2 className="w-4 h-4" />
@@ -645,7 +645,7 @@ export default function MenuPage() {
                           <div className="flex gap-3">
                             <button
                               onClick={() => handleEditItem(product)}
-                              className="p-2 rounded-lg text-primary-text hover:text-coffee-brown hover:bg-warm-cream/30 transition-all duration-200 ease-in-out hover:scale-110 active:scale-95 shadow-xs hover:shadow-md"
+                              className="p-2 rounded-lg text-primary-text hover:text-primary hover:bg-warm-cream/30 transition-all duration-200 ease-in-out hover:scale-110 active:scale-95 shadow-xs hover:shadow-md"
                               title="Edit item"
                             >
                               <Edit className="w-4 h-4" />
@@ -653,7 +653,7 @@ export default function MenuPage() {
                             {product.is_active && (
                               <button
                                 onClick={() => handleDeactivateItem(product.id)}
-                                className="p-2 rounded-lg text-coffee-brown hover:text-primary-text hover:bg-red-50 transition-all duration-200 ease-in-out hover:scale-110 active:scale-95 shadow-xs hover:shadow-md"
+                                className="p-2 rounded-lg text-primary hover:text-primary-text hover:bg-red-50 transition-all duration-200 ease-in-out hover:scale-110 active:scale-95 shadow-xs hover:shadow-md"
                                 title="Delete item"
                               >
                                 <Trash2 className="w-4 h-4" />
@@ -673,7 +673,7 @@ export default function MenuPage() {
         {/* Menu Item Modal */}
         {showItemModal && (
           <div 
-            className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-xs flex items-center justify-center z-50 p-4"
+            className="fixed inset-0 bg-black/10 bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
             onClick={() => {
               setShowItemModal(false)
               setEditingProduct(null)
@@ -707,7 +707,7 @@ export default function MenuPage() {
                     value={itemFormData.name}
                     onChange={(e) => setItemFormData({ ...itemFormData, name: e.target.value })}
                     required
-                    className="w-full px-4 py-3 border border-border rounded-xl focus:outline-hidden focus:ring-2 focus:ring-coffee-brown focus:border-coffee-brown bg-white hover:bg-warm-cream/10 transition-all duration-200 text-primary-text placeholder-muted-text"
+                    className="w-full px-4 py-3 border border-border rounded-xl focus:outline-hidden focus:ring-2 focus:ring-primary focus:border-primary bg-white hover:bg-warm-cream/10 transition-all duration-200 text-primary-text placeholder-muted-text"
                   />
                 </div>
                 <div>
@@ -715,7 +715,7 @@ export default function MenuPage() {
                   <select
                     value={itemFormData.category_id}
                     onChange={(e) => setItemFormData({ ...itemFormData, category_id: e.target.value })}
-                    className="w-full px-4 py-3 border border-border rounded-xl focus:outline-hidden focus:ring-2 focus:ring-coffee-brown focus:border-coffee-brown bg-white hover:bg-warm-cream/10 transition-all duration-200 text-primary-text"
+                    className="w-full px-4 py-3 border border-border rounded-xl focus:outline-hidden focus:ring-2 focus:ring-primary focus:border-primary bg-white hover:bg-warm-cream/10 transition-all duration-200 text-primary-text"
                   >
                     <option value="">No Category</option>
                     {categories.map((cat) => (
@@ -732,7 +732,7 @@ export default function MenuPage() {
                     value={itemFormData.selling_price}
                     onChange={(e) => setItemFormData({ ...itemFormData, selling_price: e.target.value })}
                     required
-                    className="w-full px-4 py-3 border border-border rounded-xl focus:outline-hidden focus:ring-2 focus:ring-coffee-brown focus:border-coffee-brown bg-white hover:bg-warm-cream/10 transition-all duration-200 text-primary-text placeholder-muted-text"
+                    className="w-full px-4 py-3 border border-border rounded-xl focus:outline-hidden focus:ring-2 focus:ring-primary focus:border-primary bg-white hover:bg-warm-cream/10 transition-all duration-200 text-primary-text placeholder-muted-text"
                   />
                 </div>
                 <div>
@@ -741,7 +741,7 @@ export default function MenuPage() {
                     value={itemFormData.tax_group_id}
                     onChange={(e) => setItemFormData({ ...itemFormData, tax_group_id: e.target.value })}
                     required
-                    className="w-full px-4 py-3 border border-border rounded-xl focus:outline-hidden focus:ring-2 focus:ring-coffee-brown focus:border-coffee-brown bg-white hover:bg-warm-cream/10 transition-all duration-200 text-primary-text"
+                    className="w-full px-4 py-3 border border-border rounded-xl focus:outline-hidden focus:ring-2 focus:ring-primary focus:border-primary bg-white hover:bg-warm-cream/10 transition-all duration-200 text-primary-text"
                   >
                     <option value="">Select Tax Group</option>
                     {taxGroups.map((tg) => (
@@ -757,7 +757,7 @@ export default function MenuPage() {
                       type="checkbox"
                       checked={itemFormData.is_active}
                       onChange={(e) => setItemFormData({ ...itemFormData, is_active: e.target.checked })}
-                      className="w-5 h-5 border border-border rounded-sm focus:ring-2 focus:ring-coffee-brown accent-[#912B48]"
+                      className="w-5 h-5 border border-border rounded-sm focus:ring-2 focus:ring-primary accent-[#912B48]"
                     />
                     <span className="text-sm font-semibold text-secondary-text">Active</span>
                   </label>
@@ -776,7 +776,7 @@ export default function MenuPage() {
                     <select
                       value={itemFormData.unit}
                       onChange={(e) => setItemFormData({ ...itemFormData, unit: e.target.value })}
-                      className="w-full px-4 py-3 border border-border rounded-xl focus:outline-hidden focus:ring-2 focus:ring-coffee-brown focus:border-coffee-brown bg-white hover:bg-warm-cream/10 transition-all duration-200 text-primary-text"
+                      className="w-full px-4 py-3 border border-border rounded-xl focus:outline-hidden focus:ring-2 focus:ring-primary focus:border-primary bg-white hover:bg-warm-cream/10 transition-all duration-200 text-primary-text"
                     >
                       <option value="">No Unit</option>
                       <option value="pcs">Pieces (pcs)</option>
@@ -800,13 +800,13 @@ export default function MenuPage() {
                       setEditingProduct(null)
                       resetItemForm()
                     }}
-                    className="px-6 py-3 rounded-xl font-medium border border-coffee-brown text-primary-text hover:bg-coffee-brown hover:text-white transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
+                    className="px-6 py-3 rounded-xl font-medium border border-primary text-primary-text hover:bg-primary hover:text-white transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="px-6 py-3 bg-coffee-brown text-white rounded-xl font-medium hover:bg-brand-dusty-rose transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
+                    className="px-6 py-3 bg-primary text-white rounded-xl font-medium hover:bg-brand-dusty-rose transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
                   >
                     {editingProduct ? 'Update' : 'Create'}
                   </button>
@@ -819,7 +819,7 @@ export default function MenuPage() {
         {/* Category Modal */}
         {showCategoryModal && (
           <div 
-            className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-xs flex items-center justify-center z-50 p-4"
+            className="fixed inset-0 bg-black/10 bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
             onClick={() => {
               setShowCategoryModal(false)
               setEditingCategory(null)
@@ -853,7 +853,7 @@ export default function MenuPage() {
                     value={categoryFormData.name}
                     onChange={(e) => setCategoryFormData({ ...categoryFormData, name: e.target.value })}
                     required
-                    className="w-full px-4 py-3 border border-border rounded-xl focus:outline-hidden focus:ring-2 focus:ring-coffee-brown focus:border-coffee-brown bg-white hover:bg-warm-cream/10 transition-all duration-200 text-primary-text placeholder-muted-text"
+                    className="w-full px-4 py-3 border border-border rounded-xl focus:outline-hidden focus:ring-2 focus:ring-primary focus:border-primary bg-white hover:bg-warm-cream/10 transition-all duration-200 text-primary-text placeholder-muted-text"
                   />
                 </div>
                 <div>
@@ -862,7 +862,7 @@ export default function MenuPage() {
                     type="number"
                     value={categoryFormData.display_order}
                     onChange={(e) => setCategoryFormData({ ...categoryFormData, display_order: parseInt(e.target.value) || 0 })}
-                    className="w-full px-4 py-3 border border-border rounded-xl focus:outline-hidden focus:ring-2 focus:ring-coffee-brown focus:border-coffee-brown bg-white hover:bg-warm-cream/10 transition-all duration-200 text-primary-text placeholder-muted-text"
+                    className="w-full px-4 py-3 border border-border rounded-xl focus:outline-hidden focus:ring-2 focus:ring-primary focus:border-primary bg-white hover:bg-warm-cream/10 transition-all duration-200 text-primary-text placeholder-muted-text"
                   />
                 </div>
                 <div>
@@ -871,7 +871,7 @@ export default function MenuPage() {
                       type="checkbox"
                       checked={categoryFormData.is_active}
                       onChange={(e) => setCategoryFormData({ ...categoryFormData, is_active: e.target.checked })}
-                      className="w-5 h-5 border border-border rounded-sm focus:ring-2 focus:ring-coffee-brown accent-[#912B48]"
+                      className="w-5 h-5 border border-border rounded-sm focus:ring-2 focus:ring-primary accent-[#912B48]"
                     />
                     <span className="text-sm font-semibold text-secondary-text">Active</span>
                   </label>
@@ -884,13 +884,13 @@ export default function MenuPage() {
                       setEditingCategory(null)
                       resetCategoryForm()
                     }}
-                    className="px-6 py-3 rounded-xl font-medium border border-coffee-brown text-primary-text hover:bg-coffee-brown hover:text-white transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
+                    className="px-6 py-3 rounded-xl font-medium border border-primary text-primary-text hover:bg-primary hover:text-white transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="px-6 py-3 bg-coffee-brown text-white rounded-xl font-medium hover:bg-brand-dusty-rose transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
+                    className="px-6 py-3 bg-primary text-white rounded-xl font-medium hover:bg-brand-dusty-rose transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
                   >
                     {editingCategory ? 'Update' : 'Create'}
                   </button>
@@ -903,7 +903,7 @@ export default function MenuPage() {
         {/* Bulk Tax Group Assignment Modal */}
         {showBulkTaxModal && selectedCategoryForBulk && (
           <div 
-            className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-xs flex items-center justify-center z-50 p-4"
+            className="fixed inset-0 bg-black/10 bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
             onClick={() => {
               setShowBulkTaxModal(false)
               setSelectedCategoryForBulk(null)
@@ -943,7 +943,7 @@ export default function MenuPage() {
                     value={bulkTaxGroupId}
                     onChange={(e) => setBulkTaxGroupId(e.target.value)}
                     required
-                    className="w-full px-4 py-3 border border-border rounded-xl focus:outline-hidden focus:ring-2 focus:ring-coffee-brown focus:border-coffee-brown bg-white hover:bg-warm-cream/10 transition-all duration-200 text-primary-text"
+                    className="w-full px-4 py-3 border border-border rounded-xl focus:outline-hidden focus:ring-2 focus:ring-primary focus:border-primary bg-white hover:bg-warm-cream/10 transition-all duration-200 text-primary-text"
                   >
                     <option value="">Select Tax Group</option>
                     {taxGroups.map((tg) => (
@@ -955,7 +955,7 @@ export default function MenuPage() {
                 </div>
                 {/* Confirmation Notification */}
                 {showTaxConfirmation && (
-                  <div className="mt-4 p-4 bg-warm-cream border border-[#B45A69] rounded-xl">
+                  <div className="mt-4 p-4 bg-primary border border-border-default rounded-xl">
                     <p className="text-sm text-primary-text mb-4">
                       Are you sure you want to assign this tax group to <strong>ALL products</strong> in &quot;{selectedCategoryForBulk?.name}&quot;?
                     </p>
@@ -963,14 +963,14 @@ export default function MenuPage() {
                       <button
                         type="button"
                         onClick={handleCancelTaxConfirmation}
-                        className="px-4 py-2 rounded-xl font-medium border border-coffee-brown text-primary-text hover:bg-warm-cream transition-all duration-200 ease-in-out hover:scale-[1.02] active:scale-[0.98]"
+                        className="px-4 py-2 rounded-xl font-medium border border-primary text-primary-text hover:bg-warm-cream transition-all duration-200 ease-in-out hover:scale-[1.02] active:scale-[0.98]"
                       >
                         Cancel
                       </button>
                       <button
                         type="button"
                         onClick={handleConfirmTaxAssignment}
-                        className="px-4 py-2 bg-coffee-brown text-white rounded-xl font-medium hover:bg-brand-dusty-rose transition-all duration-200 ease-in-out hover:scale-[1.02] active:scale-[0.98]"
+                        className="px-4 py-2 bg-primary text-white rounded-xl font-medium hover:bg-brand-dusty-rose transition-all duration-200 ease-in-out hover:scale-[1.02] active:scale-[0.98]"
                       >
                         OK
                       </button>
@@ -986,13 +986,13 @@ export default function MenuPage() {
                       setBulkTaxGroupId('')
                       setShowTaxConfirmation(false)
                     }}
-                    className="px-6 py-3 rounded-xl font-medium border border-coffee-brown text-primary-text hover:bg-coffee-brown hover:text-white transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
+                    className="px-6 py-3 rounded-xl font-medium border border-primary text-primary-text hover:bg-primary hover:text-white transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="px-6 py-3 bg-coffee-brown text-white rounded-xl font-medium hover:bg-brand-dusty-rose transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
+                    className="px-6 py-3 bg-primary text-white rounded-xl font-medium hover:bg-brand-dusty-rose transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
                   >
                     Assign to All Products
                   </button>
@@ -1005,7 +1005,7 @@ export default function MenuPage() {
         {/* Import Menu Modal */}
         {showImportModal && (
           <div 
-            className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-xs flex items-center justify-center z-50 p-4"
+            className="fixed inset-0 bg-black/10 bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
             onClick={() => {
               setShowImportModal(false)
               setImportFile(null)
@@ -1013,11 +1013,11 @@ export default function MenuPage() {
             }}
           >
             <div 
-              className="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-fade-in animate-scale-in"
+              className="bg-bg-page rounded-2xl shadow-2xl p-6 sm:p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-fade-in animate-scale-in"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex justify-between items-center mb-6 pb-4 border-b border-border">
-                <h2 className="text-2xl font-bold text-[#3E2C24]">
+                <h2 className="text-2xl font-bold text-text-primary">
                   Import Menu Items
                 </h2>
                 <button
@@ -1026,7 +1026,7 @@ export default function MenuPage() {
                     setImportFile(null)
                     setImportErrors([])
                   }}
-                  className="text-secondary-text hover:text-[#3E2C24] transition-all duration-200 ease-in-out active:scale-[0.9] p-2 rounded-full hover:bg-[#FAF7F2]"
+                  className="text-secondary-text hover:text-text-primary transition-all duration-200 ease-in-out active:scale-[0.9] p-2 rounded-full hover:bg-primary"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -1034,8 +1034,8 @@ export default function MenuPage() {
               
               <div className="space-y-5">
                 {/* Info Note */}
-                <div className="p-4 bg-rose-50 border border-rose-200 rounded-xl">
-                  <p className="text-sm text-rose-800">
+                <div className="p-4 bg-secondary border border-border-default rounded-xl">
+                  <p className="text-sm text-text-primary">
                     <strong>Note:</strong> Invalid rows will stop the entire import. Fix errors and re-upload.
                   </p>
                 </div>
@@ -1047,7 +1047,7 @@ export default function MenuPage() {
                   <a
                     href="/menu-import-template.csv"
                     download
-                    className="text-rose-900 hover:text-rose-200 underline"
+                    className="text-primary hover:text-interactive-hover underline"
                   >
                     CSV Template
                   </a>
@@ -1058,7 +1058,7 @@ export default function MenuPage() {
                   className={`border-2 border-dashed rounded-xl p-8 text-center transition-all duration-200 ${
                     dragActive
                       ? 'border-[#C89B63] bg-[#C89B63]/10'
-                      : 'border-border bg-rose-50 hover:bg-white'
+                      : 'border-border bg-primary/40 hover:bg-interactive-hover/20'
                   }`}
                   onDragEnter={handleDrag}
                   onDragLeave={handleDrag}
@@ -1067,11 +1067,11 @@ export default function MenuPage() {
                 >
                   {importFile ? (
                     <div className="space-y-3">
-                      <FileText className="w-12 h-12 mx-auto text-rose-700" />
-                      <p className="font-medium text-[#3E2C24]">{importFile.name}</p>
+                      <FileText className="w-12 h-12 mx-auto text-text-primary" />
+                      <p className="font-medium text-text-primary">{importFile.name}</p>
                       <button
                         onClick={() => setImportFile(null)}
-                        className="text-sm text-secondary-text hover:text-[#3E2C24]"
+                        className="text-sm text-secondary-text hover:text-text-primary"
                       >
                         Remove file
                       </button>
@@ -1079,12 +1079,12 @@ export default function MenuPage() {
                   ) : (
                     <div className="space-y-3">
                       <Upload className="w-12 h-12 mx-auto text-secondary-text" />
-                      <p className="text-rose-950">
+                      <p className="text-text-primary">
                         Drag & drop your CSV or XLSX file here
                       </p>
-                      <p className="text-sm text-rose-950">or</p>
+                      <p className="text-sm text-text-primary">or</p>
                       <label className="inline-block">
-                        <span className="px-6 py-3 bg-rose-950 text-white rounded-xl font-medium cursor-pointer hover:bg-rose-900 transition-all duration-200 ease-in-out hover:scale-[1.02] active:scale-[0.98]">
+                        <span className="px-6 py-3 bg-primary text-text-primary rounded-xl font-medium cursor-pointer hover:bg-interactive-hover transition-all duration-200 ease-in-out hover:scale-[1.02] active:scale-[0.98]">
                           Browse Files
                         </span>
                         <input
@@ -1119,7 +1119,7 @@ export default function MenuPage() {
                       setImportFile(null)
                       setImportErrors([])
                     }}
-                    className="px-6 py-3 rounded-xl font-medium border border-rose-300 text-rose-300 hover:bg-rose-50  transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
+                    className="px-6 py-3 rounded-xl bg-secondary font-medium border border-secondary text-text-primary hover:bg-interactive-hover transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
                     disabled={isImporting}
                   >
                     Cancel
@@ -1128,7 +1128,7 @@ export default function MenuPage() {
                     type="button"
                     onClick={handleImportFile}
                     disabled={!importFile || isImporting}
-                    className="px-6 py-3 bg-rose-700 text-white rounded-xl font-medium hover:bg-rose-800 transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-6 py-3 bg-primary text-text-primary rounded-xl font-medium hover:bg-accent transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isImporting ? 'Importing...' : 'Import'}
                   </button>

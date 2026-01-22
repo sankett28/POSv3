@@ -17,6 +17,9 @@ class Settings(BaseSettings):
     # CORS configuration - loaded from .env as comma-separated string
     cors_origins: Optional[Union[str, list[str]]] = None
     
+    # Redis configuration (required - must be set in .env)
+    redis_url: str
+    
     # Service charge default configuration
     default_service_charge_enabled: bool = True
     default_service_charge_rate: float = 10.0
@@ -35,6 +38,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=".env",
         case_sensitive=False,
+        extra="forbid"
     )
 
 

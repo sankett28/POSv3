@@ -64,9 +64,22 @@ async def health_check():
 async def startup_event():
     """Application startup event."""
     logger.info("Starting Retail Boss POS API...")
+    
+    # Validate Supabase configuration
     if settings.supabase_url:
         logger.info(f"Supabase URL: {settings.supabase_url}")
+    
     logger.info(f"CORS origins: {settings.cors_origins}")
+    
+    # Validate Redis connection
+    try:
+        from app.core.redis import redis_client
+        redis_client.ping()
+        logger.info(f"✅ Redis connection successful: {settings.redis_url}")
+    except Exception as e:
+        logger.error(f"❌ Redis connection failed: {e}")
+        logger.error("Application cannot start without Redis. Please check REDIS_URL in .env")
+        raise RuntimeError(f"Redis connection failed: {e}")
 
 
 @app.on_event("shutdown")
