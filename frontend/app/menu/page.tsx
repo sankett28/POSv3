@@ -1058,7 +1058,7 @@ export default function MenuPage() {
                   className={`border-2 border-dashed rounded-xl p-8 text-center transition-all duration-200 ${
                     dragActive
                       ? 'border-[#C89B63] bg-[#C89B63]/10'
-                      : 'border-border bg-primary/40 hover:bg-interactive-hover/20'
+                      : 'border-border bg-primary/30 hover:bg-bg-page'
                   }`}
                   onDragEnter={handleDrag}
                   onDragLeave={handleDrag}
@@ -1119,7 +1119,7 @@ export default function MenuPage() {
                       setImportFile(null)
                       setImportErrors([])
                     }}
-                    className="px-6 py-3 rounded-xl bg-secondary font-medium border border-secondary text-text-primary hover:bg-interactive-hover transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
+                    className="px-6 py-3 rounded-xl bg-bg-page font-medium border border-secondary text-text-primary hover:bg-interactive-hover hover:text-text-inverse transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
                     disabled={isImporting}
                   >
                     Cancel

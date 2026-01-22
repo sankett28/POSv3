@@ -1010,7 +1010,7 @@ export default function OrdersPage() {
                               {/* Add to Cart Button */}
                               <button
                                 onClick={() => addToBill(product)}
-                                className="w-full bg-primary text-text-primary py-2.5 px-4 rounded-full font-medium text-sm
+                                className="w-full bg-primary text-text-inverse py-2.5 px-4 rounded-full font-medium text-sm
                                            hover:bg-interactive-hover hover:text-text-inverse transition-all duration-200 hover:shadow-md"
                               >
                                 Add to Cart
@@ -1388,7 +1388,7 @@ export default function OrdersPage() {
             <button
               onClick={handleCompleteBill}
               disabled={billItems.length === 0}
-              className="w-full bg-coffee-brown text-white py-3 px-4 rounded-xl font-semibold hover:bg-brand-dusty-rose
+              className="w-full bg-primary text-white py-3 px-4 rounded-xl font-semibold hover:bg-interactive-hover
                          transition-all duration-200 ease-in-out
                          hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]
                          focus-visible:ring-3 outline-hidden disabled:opacity-50 disabled:cursor-not-allowed text-lg flex items-center justify-center gap-2"
