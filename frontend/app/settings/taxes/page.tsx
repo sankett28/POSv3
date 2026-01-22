@@ -149,7 +149,7 @@ export default function TaxSettingsPage() {
         </div>
 
         {/* Warning Banner */}
-        <div className="bg-warm-cream border border-[#B45A69] rounded-xl p-4 mb-6 flex items-start gap-3">
+        <div className="bg-warm-cream border border-border-emphasis rounded-xl p-4 mb-6 flex items-start gap-3">
           <AlertTriangle className="w-5 h-5 text-coffee-brown shrink-0 mt-0.5" />
           <div className="flex-1">
             <p className="text-sm font-semibold text-primary-text mb-1">
@@ -182,7 +182,7 @@ export default function TaxSettingsPage() {
         <div className="mb-6">
           <button
             onClick={handleCreate}
-            className="bg-brand-deep-burgundy text-white px-6 py-3 rounded-xl font-semibold hover:bg-coffee-brown
+            className="bg-primary text-text-inverse px-6 py-3 rounded-xl font-semibold hover:bg-interactive-hover
                      transition-all duration-200 ease-in-out
                      hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]
                      flex items-center gap-2"
@@ -292,7 +292,7 @@ export default function TaxSettingsPage() {
         {/* Create/Edit Form Modal */}
         {showForm && (
           <div 
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+            className="fixed inset-0 bg-black/10 bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 z-50"
             onClick={() => {
               setShowForm(false)
               setEditingGroup(null)
@@ -306,7 +306,7 @@ export default function TaxSettingsPage() {
             }}
           >
             <div 
-              className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+              className="bg-bg-page rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="p-6 border-b border-border flex items-center justify-between">

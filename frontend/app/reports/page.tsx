@@ -333,11 +333,11 @@ export default function ReportsPage() {
                   setDateRange({ ...dateRange, end: newEnd })
                 }
               }}
-              className="px-4 py-2 border border-border rounded-xl focus:outline-hidden focus:ring-2 focus:ring-coffee-brown focus:border-coffee-brown bg-white hover:bg-warm-cream/10 transition-all duration-200 text-primary-text"
+              className="px-4 py-2 border border-border rounded-xl focus:outline-hidden focus:ring-2 focus:ring-primary focus:secondary bg-bg-page hover:bg-interactive-hover/10 transition-all duration-200 text-primary-text"
             />
             <button
               onClick={() => exportToExcel().catch(console.error)}
-              className="px-6 py-2 bg-coffee-brown text-white rounded-xl font-medium hover:bg-brand-dusty-rose transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] flex items-center gap-2"
+              className="px-6 py-2 bg-primary text-text-inverse rounded-xl font-medium hover:bg-interactive-hover transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] flex items-center gap-2"
             >
               <Download className="w-4 h-4" />
               Export Data
