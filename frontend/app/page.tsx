@@ -1,106 +1,40 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
+import { motion } from 'framer-motion';
+
+const fadeInUp = {
+  hidden: { opacity: 0, y: 40 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: 'easeOut' } }
+};
+
+const fadeIn = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { duration: 0.9, ease: 'easeOut' } }
+};
+
+const scaleIn = {
+  hidden: { opacity: 0, scale: 0.94 },
+  visible: { opacity: 1, scale: 1, transition: { duration: 0.8, ease: 'easeOut' } }
+};
+
+const staggerContainer = {
+  hidden: {},
+  visible: {
+    transition: { staggerChildren: 0.14 }
+  }
+};
+
+const heroVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.22, delayChildren: 0.3 }
+  }
+};
 
 export default function LandingPage() {
-  const sectionStyle = {
-    padding: '5rem 2rem',
-    background: '#fafafa'
-  };
-
-  const sectionAltStyle = {
-    ...sectionStyle,
-    background: '#ffffff'
-  };
-
-  const sectionTitleStyle = {
-    fontSize: '2.75rem',
-    fontWeight: '700',
-    textAlign: 'center' as const,
-    marginBottom: '1rem',
-    color: '#1a1a1a',
-    letterSpacing: '-0.02em'
-  };
-
-  const sectionSubtitleStyle = {
-    fontSize: '1rem',
-    textAlign: 'center' as const,
-    color: '#666666',
-    marginBottom: '3.5rem',
-    maxWidth: '900px',
-    marginLeft: 'auto',
-    marginRight: 'auto'
-  };
-
-  const cardStyle = {
-    background: '#ffffff',
-    border: '1px solid #e0e0e0',
-    borderRadius: '1rem',
-    padding: '2.5rem 2rem',
-    transition: 'all 0.3s ease',
-    textAlign: 'center' as const,
-    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
-    minHeight: '240px',
-    display: 'flex',
-    flexDirection: 'column' as const,
-    alignItems: 'center'
-  };
-
-  const cardIconStyle = {
-    width: '3.5rem',
-    height: '3.5rem',
-    borderRadius: '50%',
-    background: '#fafafa',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    margin: '0 auto 1.25rem',
-    fontSize: '1.75rem',
-    position: 'relative' as const,
-    border: '1px solid #e0e0e0'
-  };
-
-  const cardTitleStyle = {
-    fontSize: '1.125rem',
-    fontWeight: '700',
-    marginBottom: '0.75rem',
-    color: '#1a1a1a'
-  };
-
-  const cardTextStyle = {
-    fontSize: '0.9375rem',
-    lineHeight: '1.6',
-    color: '#666666'
-  };
-
-  const buttonPrimaryStyle = {
-    display: 'inline-block',
-    padding: '0.875rem 2rem',
-    background: '#1a1a1a',
-    color: '#ffffff',
-    borderRadius: '0.5rem',
-    fontWeight: '600',
-    fontSize: '0.9375rem',
-    transition: 'all 0.2s ease',
-    textDecoration: 'none',
-    border: 'none',
-    cursor: 'pointer'
-  };
-
-  const buttonSecondaryStyle = {
-    display: 'inline-block',
-    padding: '0.875rem 2rem',
-    color: '#1a1a1a',
-    fontWeight: '600',
-    fontSize: '0.9375rem',
-    transition: 'all 0.2s ease',
-    textDecoration: 'none',
-    border: '1.5px solid #e0e0e0',
-    borderRadius: '0.5rem',
-    background: '#ffffff',
-    cursor: 'pointer'
-  };
-
   return (
     <>
       <style>{`
@@ -117,186 +51,107 @@ export default function LandingPage() {
           .grid-4 { grid-template-columns: 1fr !important; }
         }
       `}</style>
-      
-      <div style={{ background: '#fafafa' }}>
+
+      <div className="bg-[#fafafa] overflow-hidden">
         {/* Hero Section */}
-        <section style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: '4rem',
-          alignItems: 'center',
-          padding: '4rem 2rem',
-          maxWidth: '1600px',
-          margin: '0 auto',
-          minHeight: '600px'
-        }} className="hero-grid">
-          <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '1.5rem',
-            paddingRight: '2rem'
-          }}>
-            <h1 style={{
-              fontSize: '3.5rem',
-              fontWeight: '700',
-              lineHeight: '1.1',
-              color: '#1a1a1a',
-              letterSpacing: '-0.02em'
-            }}>
-              Your Cafe. Your Brand.<br />
-              Your POS — Instantly.
+        <motion.section
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-80px" }}
+          variants={heroVariants}
+          className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center px-8 py-20 md:py-32 max-w-[1600px] mx-auto min-h-[700px] hero-grid"
+        >
+          <motion.div variants={fadeInUp} className="flex flex-col gap-7 pr-8">
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold leading-[1.05] text-[#1a1a1a] tracking-[-0.025em]">
+              Your Cafe. Your Brand.<br />Your POS — Instantly.
             </h1>
-            <p style={{
-              fontSize: '1rem',
-              lineHeight: '1.6',
-              color: '#666666',
-              maxWidth: '500px'
-            }}>
+            <p className="text-lg md:text-xl leading-relaxed text-[#555] max-w-xl">
               Choose your business type and brand colors. We generate a complete POS system with a stunning UI — ready to use in minutes.
             </p>
-            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-              <Link href="/login" style={buttonPrimaryStyle}>
-                Get Started
-              </Link>
-              <button style={buttonSecondaryStyle}>
-                See Demo
-              </button>
+            <div className="flex flex-wrap gap-5 mt-6">
+              <motion.div whileHover={{ scale: 1.04, y: -3 }} whileTap={{ scale: 0.97 }}>
+                <Link
+                  href="/login"
+                  className="inline-flex items-center px-10 py-4 bg-[#1a1a1a] text-white rounded-xl font-semibold text-base shadow-lg hover:shadow-2xl hover:bg-gray-800 transition-all duration-300"
+                >
+                  Get Started →
+                </Link>
+              </motion.div>
+              <motion.div whileHover={{ scale: 1.04, y: -3 }} whileTap={{ scale: 0.97 }}>
+                <button className="inline-flex items-center px-10 py-4 text-[#1a1a1a] font-semibold text-base border-2 border-[#d0d0d0] rounded-xl hover:bg-gray-50 hover:shadow-md transition-all duration-300">
+                  See Demo
+                </button>
+              </motion.div>
             </div>
-          </div>
-          <div style={{
-            width: '100%',
-            height: '550px',
-            borderRadius: '1rem',
-            overflow: 'hidden',
-            boxShadow: '0 20px 60px rgba(0, 0, 0, 0.15)'
-          }}>
-            <div style={{ 
-              width: '100%', 
-              height: '100%', 
-              background: 'linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#ffffff',
-              fontSize: '1.5rem',
-              fontWeight: '600'
-            }}>
-              POS Preview
-            </div>
-          </div>
-        </section>
+          </motion.div>
+
+          <motion.div
+            variants={scaleIn}
+            className="relative w-full h-[520px] md:h-[620px] rounded-3xl overflow-hidden shadow-2xl ring-1 ring-black/5"
+          >
+            <Image src="/images/cafe.jpg" alt="POS Preview" fill className="object-cover" priority />
+          </motion.div>
+        </motion.section>
 
         {/* How It Works */}
-        <section style={sectionStyle}>
-          <div style={{ maxWidth: '1600px', margin: '0 auto' }}>
-            <h2 style={sectionTitleStyle}>Launch Your POS in 3 Simple Steps</h2>
-            <p style={sectionSubtitleStyle}>
+        <motion.section
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={staggerContainer}
+          className="py-24 px-8 bg-[#fafafa]"
+        >
+          <div className="max-w-[1600px] mx-auto">
+            <motion.h2 variants={fadeInUp} className="text-5xl md:text-6xl font-bold text-center text-[#1a1a1a] tracking-tight mb-6">
+              Launch Your POS in 3 Simple Steps
+            </motion.h2>
+            <motion.p variants={fadeInUp} className="text-lg text-center text-gray-600 mb-16 max-w-4xl mx-auto">
               Go from idea to a fully branded point-of-sale system faster than ever before.
-            </p>
+            </motion.p>
 
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(3, 1fr)',
-              gap: '2rem',
-              maxWidth: '100%',
-              margin: '0 auto'
-            }} className="grid-3">
-              <div style={cardStyle}>
-                <div style={cardIconStyle}>
-                  <span>🏪</span>
-                  <div style={{
-                    position: 'absolute',
-                    top: '-6px',
-                    right: '-6px',
-                    width: '1.75rem',
-                    height: '1.75rem',
-                    borderRadius: '50%',
-                    background: '#1a1a1a',
-                    color: '#ffffff',
-                    fontSize: '0.75rem',
-                    fontWeight: '700',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    border: '2px solid #ffffff'
-                  }}>1</div>
-                </div>
-                <h3 style={cardTitleStyle}>Choose Your Business Type</h3>
-                <p style={cardTextStyle}>
-                  Select from Cafe, Restaurant, Bakery, or Cloud Kitchen to get features tailored for you.
-                </p>
-              </div>
-
-              <div style={cardStyle}>
-                <div style={cardIconStyle}>
-                  <span>🎨</span>
-                  <div style={{
-                    position: 'absolute',
-                    top: '-6px',
-                    right: '-6px',
-                    width: '1.75rem',
-                    height: '1.75rem',
-                    borderRadius: '50%',
-                    background: '#1a1a1a',
-                    color: '#ffffff',
-                    fontSize: '0.75rem',
-                    fontWeight: '700',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    border: '2px solid #ffffff'
-                  }}>2</div>
-                </div>
-                <h3 style={cardTitleStyle}>Select Your Brand Colors</h3>
-                <p style={cardTextStyle}>
-                  Pick your primary color and watch your POS transform to match your brand identity.
-                </p>
-              </div>
-
-              <div style={cardStyle}>
-                <div style={cardIconStyle}>
-                  <span>🚀</span>
-                  <div style={{
-                    position: 'absolute',
-                    top: '-6px',
-                    right: '-6px',
-                    width: '1.75rem',
-                    height: '1.75rem',
-                    borderRadius: '50%',
-                    background: '#1a1a1a',
-                    color: '#ffffff',
-                    fontSize: '0.75rem',
-                    fontWeight: '700',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    border: '2px solid #ffffff'
-                  }}>3</div>
-                </div>
-                <h3 style={cardTitleStyle}>Get Your POS Instantly</h3>
-                <p style={cardTextStyle}>
-                  Your fully-functional, beautiful POS is generated and delivered in minutes, not weeks.
-                </p>
-              </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 grid-3">
+              {[
+                { icon: '🏪', num: 1, title: 'Choose Your Business Type', text: 'Select from Cafe, Restaurant, Bakery, or Cloud Kitchen to get features tailored for you.' },
+                { icon: '🎨', num: 2, title: 'Select Your Brand Colors', text: 'Pick your primary color and watch your POS transform to match your brand identity.' },
+                { icon: '🚀', num: 3, title: 'Get Your POS Instantly', text: 'Your fully-functional, beautiful POS is generated and delivered in minutes, not weeks.' }
+              ].map((step, i) => (
+                <motion.div
+                  key={i}
+                  variants={fadeInUp}
+                  whileHover={{ y: -10, transition: { duration: 0.35 } }}
+                  className="bg-white border border-gray-200 rounded-2xl p-10 text-center shadow-md hover:shadow-2xl transition-all duration-400 min-h-[260px] flex flex-col items-center group relative overflow-hidden"
+                >
+                  <div className="relative w-16 h-16 rounded-full bg-gray-50 border border-gray-200 flex items-center justify-center mb-6 text-4xl group-hover:scale-110 transition-transform duration-400">
+                    <span>{step.icon}</span>
+                    <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-[#1a1a1a] text-white text-sm font-bold flex items-center justify-center border-2 border-white shadow-sm">
+                      {step.num}
+                    </div>
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-4">{step.title}</h3>
+                  <p className="text-gray-600 leading-relaxed flex-1">{step.text}</p>
+                </motion.div>
+              ))}
             </div>
           </div>
-        </section>
+        </motion.section>
 
         {/* Features */}
-        <section style={sectionAltStyle}>
-          <div style={{ maxWidth: '1600px', margin: '0 auto' }}>
-            <h2 style={sectionTitleStyle}>Everything You Need to Succeed</h2>
-            <p style={sectionSubtitleStyle}>
+        <motion.section
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={staggerContainer}
+          className="py-24 px-8 bg-white"
+        >
+          <div className="max-w-[1600px] mx-auto">
+            <motion.h2 variants={fadeInUp} className="text-5xl md:text-6xl font-bold text-center text-gray-900 tracking-tight mb-6">
+              Everything You Need to Succeed
+            </motion.h2>
+            <motion.p variants={fadeInUp} className="text-lg text-center text-gray-600 mb-16 max-w-4xl mx-auto">
               Lichy comes packed with powerful features to streamline your operations and boost your growth.
-            </p>
+            </motion.p>
 
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(4, 1fr)',
-              gap: '1.5rem',
-              maxWidth: '100%',
-              margin: '0 auto'
-            }} className="grid-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-7 grid-4">
               {[
                 { icon: '🧾', title: 'Smart Billing & GST', text: 'Automated tax calculations and compliant invoicing' },
                 { icon: '📊', title: 'Sales & Tax Reports', text: 'Real-time insights into your business performance' },
@@ -307,308 +162,191 @@ export default function LandingPage() {
                 { icon: '☁️', title: 'Cloud Sync & Backup', text: 'Your data is always safe and accessible' },
                 { icon: '🇮🇳', title: 'Built for Indian GST', text: 'Fully compliant with Indian tax regulations' }
               ].map((feature, i) => (
-                <div key={i} style={{
-                  ...cardStyle,
-                  minHeight: '180px',
-                  padding: '2rem 1.5rem'
-                }}>
-                  <div style={cardIconStyle}>
+                <motion.div
+                  key={i}
+                  variants={fadeInUp}
+                  whileHover={{ y: -8, scale: 1.03, transition: { duration: 0.3 } }}
+                  className="bg-white border border-gray-200 rounded-2xl p-9 text-center shadow-md hover:shadow-2xl transition-all duration-400 min-h-[200px] flex flex-col items-center group"
+                >
+                  <div className="w-16 h-16 rounded-full bg-gray-50 border border-gray-200 flex items-center justify-center mb-6 text-4xl group-hover:rotate-6 group-hover:scale-110 transition-transform duration-400">
                     <span>{feature.icon}</span>
                   </div>
-                  <h3 style={cardTitleStyle}>{feature.title}</h3>
-                  <p style={cardTextStyle}>{feature.text}</p>
-                </div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-3">{feature.title}</h3>
+                  <p className="text-gray-600 text-[15px] leading-relaxed flex-1">{feature.text}</p>
+                </motion.div>
               ))}
             </div>
           </div>
-        </section>
+        </motion.section>
 
         {/* Brand Colors Demo */}
-        <section style={sectionStyle}>
-          <div style={{ maxWidth: '1600px', margin: '0 auto' }}>
-            <h2 style={sectionTitleStyle}>Your Brand, Your Colors</h2>
-            <p style={sectionSubtitleStyle}>
+        <motion.section
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={staggerContainer}
+          className="py-24 px-8 bg-[#fafafa]"
+        >
+          <div className="max-w-[1600px] mx-auto">
+            <motion.h2 variants={fadeInUp} className="text-5xl md:text-6xl font-bold text-center text-[#1a1a1a] tracking-tight mb-6">
+              Your Brand, Your Colors
+            </motion.h2>
+            <motion.p variants={fadeInUp} className="text-lg text-center text-gray-600 mb-16 max-w-4xl mx-auto">
               Instantly see how your entire POS UI updates with your brand color. No code, no waiting.
-            </p>
+            </motion.p>
 
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1.5fr',
-              gap: '4rem',
-              alignItems: 'center',
-              maxWidth: '100%',
-              margin: '0 auto'
-            }} className="hero-grid">
-              <div>
-                <h3 style={{
-                  fontSize: '1.75rem',
-                  fontWeight: '700',
-                  marginBottom: '1.5rem',
-                  color: '#1a1a1a'
-                }}>Select Your Brand Color</h3>
-                <div style={{
-                  display: 'flex',
-                  gap: '1rem',
-                  marginBottom: '2rem'
-                }}>
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.5fr] gap-16 items-center hero-grid">
+              <motion.div variants={fadeInUp}>
+                <h3 className="text-4xl font-bold text-gray-900 mb-8">Select Your Brand Color</h3>
+                <div className="flex flex-wrap gap-6 mb-10">
                   {['#1a1a1a', '#2a2a2a', '#4a4a4a', '#6a6a6a', '#8a8a8a'].map((color, i) => (
-                    <div 
+                    <motion.div
                       key={i}
-                      style={{
-                        width: '3.5rem',
-                        height: '3.5rem',
-                        borderRadius: '50%',
-                        cursor: 'pointer',
-                        border: i === 0 ? '3px solid #1a1a1a' : '3px solid transparent',
-                        transition: 'all 0.2s ease',
-                        position: 'relative',
-                        background: color
-                      }}
+                      whileHover={{ scale: 1.18, transition: { duration: 0.25 } }}
+                      whileTap={{ scale: 0.92 }}
+                      className="w-16 h-16 rounded-full cursor-pointer border-4 shadow-md transition-all duration-200 relative"
+                      style={{ backgroundColor: color, borderColor: i === 0 ? '#1a1a1a' : 'transparent' }}
                     >
                       {i === 0 && (
-                        <div style={{
-                          position: 'absolute',
-                          top: '50%',
-                          left: '50%',
-                          transform: 'translate(-50%, -50%)',
-                          color: 'white',
-                          fontWeight: '700',
-                          fontSize: '1.25rem'
-                        }}>✓</div>
+                        <div className="absolute inset-0 flex items-center justify-center text-white font-extrabold text-3xl drop-shadow-lg">
+                          ✓
+                        </div>
                       )}
-                    </div>
+                    </motion.div>
                   ))}
                 </div>
-                <p style={{
-                  fontSize: '0.9375rem',
-                  lineHeight: '1.6',
-                  color: '#666666'
-                }}>
+                <p className="text-gray-600 leading-relaxed text-lg">
                   Watch the POS dashboard on the right change instantly. This is the power of Lichy—total brand control, delivered in minutes.
                 </p>
-              </div>
+              </motion.div>
 
-              <div style={{
-                background: '#ffffff',
-                borderRadius: '1rem',
-                padding: '2rem',
-                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12)',
-                border: '1px solid #e0e0e0'
-              }}>
-                <div style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  marginBottom: '1.5rem',
-                  paddingBottom: '1rem',
-                  borderBottom: '1px solid #e0e0e0'
-                }}>
-                  <div style={{
-                    fontSize: '0.875rem',
-                    fontWeight: '600',
-                    color: '#1a1a1a'
-                  }}>Categories</div>
-                  <div style={{
-                    fontSize: '0.875rem',
-                    fontWeight: '600',
-                    color: '#1a1a1a'
-                  }}>Main Course Menu</div>
+              <motion.div variants={scaleIn} className="bg-white rounded-3xl p-10 shadow-2xl border border-gray-200">
+                <div className="flex justify-between mb-6 pb-4 border-b border-[#e0e0e0]">
+                  <div className="text-sm font-semibold text-[#1a1a1a]">Categories</div>
+                  <div className="text-sm font-semibold text-[#1a1a1a]">Main Course Menu</div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '1.5rem' }}>
-                  <div style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '0.5rem'
-                  }}>
+                <div className="grid grid-cols-[1fr_2fr] gap-6">
+                  <div className="flex flex-col gap-2">
                     {[
                       { icon: '🥘', name: 'Appetizers', active: false },
                       { icon: '🍛', name: 'Main Course', active: true },
                       { icon: '🍰', name: 'Desserts', active: false }
                     ].map((cat, i) => (
-                      <div key={i} style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.75rem',
-                        padding: '0.75rem 1rem',
-                        borderRadius: '0.5rem',
-                        fontSize: '0.875rem',
-                        color: cat.active ? '#ffffff' : '#1a1a1a',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s ease',
-                        background: cat.active ? '#1a1a1a' : 'transparent',
-                        fontWeight: cat.active ? '600' : '400'
-                      }}>
+                      <motion.div
+                        key={i}
+                        whileHover={{ scale: 1.03, x: 4 }}
+                        className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm cursor-pointer transition-all duration-300 font-${cat.active ? 'semibold' : 'normal'}`}
+                        style={{ color: cat.active ? 'white' : '#1a1a1a', background: cat.active ? '#1a1a1a' : 'transparent' }}
+                      >
                         <span>{cat.icon}</span>
                         <span>{cat.name}</span>
-                      </div>
+                      </motion.div>
                     ))}
                   </div>
 
                   <div>
-                    <div style={{
-                      display: 'grid',
-                      gridTemplateColumns: '1fr 1fr',
-                      gap: '1rem',
-                      marginBottom: '1.5rem'
-                    }}>
+                    <div className="grid grid-cols-2 gap-4 mb-6">
                       {[
                         { name: 'Paneer Tikka', price: '₹250.00' },
                         { name: 'Veg Biryani', price: '₹320.00' },
                         { name: 'Garlic Naan', price: '₹60.00' },
                         { name: 'Gulab Jamun', price: '₹120.00' }
                       ].map((item, i) => (
-                        <div key={i} style={{
-                          padding: '1rem',
-                          borderRadius: '0.5rem',
-                          background: '#fafafa'
-                        }}>
-                          <h4 style={{
-                            fontSize: '0.875rem',
-                            fontWeight: '600',
-                            color: '#1a1a1a',
-                            marginBottom: '0.25rem'
-                          }}>{item.name}</h4>
-                          <p style={{
-                            fontSize: '0.75rem',
-                            color: '#666666'
-                          }}>{item.price}</p>
+                        <div key={i} className="p-4 rounded-lg bg-[#fafafa]">
+                          <h4 className="text-sm font-semibold text-[#1a1a1a] mb-1">{item.name}</h4>
+                          <p className="text-xs text-[#666666]">{item.price}</p>
                         </div>
                       ))}
                     </div>
 
-                    <div style={{
-                      padding: '1.5rem',
-                      background: '#fafafa',
-                      borderRadius: '0.5rem'
-                    }}>
-                      <div style={{
-                        fontSize: '0.875rem',
-                        fontWeight: '700',
-                        color: '#1a1a1a',
-                        marginBottom: '1rem'
-                      }}>Order Summary</div>
-                      <div style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        marginBottom: '0.5rem',
-                        fontSize: '0.8125rem'
-                      }}>
-                        <span style={{ color: '#666666' }}>Subtotal</span>
-                        <span style={{ color: '#1a1a1a' }}>₹750.00</span>
+                    <div className="p-6 bg-[#fafafa] rounded-lg">
+                      <div className="text-sm font-bold text-[#1a1a1a] mb-4">Order Summary</div>
+                      <div className="flex justify-between mb-2 text-[13px]">
+                        <span className="text-[#666666]">Subtotal</span>
+                        <span className="text-[#1a1a1a]">₹750.00</span>
                       </div>
-                      <div style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        marginBottom: '0.5rem',
-                        fontSize: '0.8125rem'
-                      }}>
-                        <span style={{ color: '#666666' }}>GST (5%)</span>
-                        <span style={{ color: '#1a1a1a' }}>₹37.50</span>
+                      <div className="flex justify-between mb-2 text-[13px]">
+                        <span className="text-[#666666]">GST (5%)</span>
+                        <span className="text-[#1a1a1a]">₹37.50</span>
                       </div>
-                      <div style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        fontWeight: '700',
-                        fontSize: '0.9375rem',
-                        paddingTop: '0.75rem',
-                        borderTop: '1px solid #e0e0e0',
-                        marginTop: '0.75rem'
-                      }}>
-                        <span style={{ color: '#1a1a1a' }}>Total</span>
-                        <span style={{ color: '#1a1a1a' }}>₹787.50</span>
+                      <div className="flex justify-between font-bold text-[15px] pt-3 mt-3 border-t border-[#e0e0e0]">
+                        <span className="text-[#1a1a1a]">Total</span>
+                        <span className="text-[#1a1a1a]">₹787.50</span>
                       </div>
-                      <button style={{
-                        width: '100%',
-                        padding: '1rem',
-                        background: '#1a1a1a',
-                        color: '#ffffff',
-                        border: 'none',
-                        borderRadius: '0.5rem',
-                        fontWeight: '600',
-                        fontSize: '0.9375rem',
-                        cursor: 'pointer',
-                        marginTop: '1rem',
-                        transition: 'all 0.2s ease'
-                      }}>
+                      <motion.button
+                        whileHover={{ scale: 1.03, y: -2 }}
+                        whileTap={{ scale: 0.97 }}
+                        className="w-full py-4 mt-4 bg-[#1a1a1a] text-white border-none rounded-xl font-semibold text-[15px] cursor-pointer transition-all duration-300 hover:bg-gray-800 shadow-md hover:shadow-lg"
+                      >
                         Charge ₹787.50
-                      </button>
+                      </motion.button>
                     </div>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             </div>
           </div>
-        </section>
+        </motion.section>
 
         {/* Business Types */}
-        <section style={sectionAltStyle}>
-          <div style={{ maxWidth: '1600px', margin: '0 auto' }}>
-            <h2 style={sectionTitleStyle}>Built for Every Food Business</h2>
-            <p style={sectionSubtitleStyle}>
+        <motion.section
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={staggerContainer}
+          className="py-24 px-8 bg-white"
+        >
+          <div className="max-w-[1600px] mx-auto">
+            <motion.h2 variants={fadeInUp} className="text-5xl md:text-6xl font-bold text-center text-[#1a1a1a] tracking-tight mb-6">
+              Built for Every Food Business
+            </motion.h2>
+            <motion.p variants={fadeInUp} className="text-lg text-center text-gray-600 mb-16 max-w-4xl mx-auto">
               Whether you run a cozy cafe or a bustling cloud kitchen, Lichy adapts to your unique needs.
-            </p>
+            </motion.p>
 
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(4, 1fr)',
-              gap: '1.5rem',
-              maxWidth: '100%',
-              margin: '0 auto'
-            }} className="grid-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-7 grid-4">
               {[
                 { icon: '☕', title: 'Cafe', text: 'Perfect for your specialty coffee shop, with quick billing and table management.' },
                 { icon: '🍽️', title: 'Restaurant', text: 'Manage fine dining, QSRs, or pubs with advanced inventory and reporting.' },
                 { icon: '🥐', title: 'Bakery', text: 'Streamline orders for your cakes, pastries, and bread with our intuitive interface.' },
                 { icon: '🚚', title: 'Cloud Kitchen', text: 'Integrate with online aggregators and manage delivery-only orders seamlessly.' }
               ].map((business, i) => (
-                <div key={i} style={{
-                  ...cardStyle,
-                  minHeight: '220px'
-                }}>
-                  <div style={cardIconStyle}>
+                <motion.div
+                  key={i}
+                  variants={fadeInUp}
+                  whileHover={{ y: -8, scale: 1.03 }}
+                  className="bg-white border border-gray-200 rounded-2xl p-10 text-center shadow-md hover:shadow-2xl transition-all duration-400 min-h-[240px] flex flex-col items-center group"
+                >
+                  <div className="w-16 h-16 rounded-full bg-gray-50 border border-gray-200 flex items-center justify-center mb-6 text-4xl group-hover:scale-110 group-hover:rotate-6 transition-transform duration-400">
                     <span>{business.icon}</span>
                   </div>
-                  <h3 style={cardTitleStyle}>{business.title}</h3>
-                  <p style={cardTextStyle}>{business.text}</p>
-                </div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-4">{business.title}</h3>
+                  <p className="text-gray-600 leading-relaxed flex-1">{business.text}</p>
+                </motion.div>
               ))}
             </div>
           </div>
-        </section>
+        </motion.section>
 
         {/* Why Choose */}
-        <section style={sectionStyle}>
-          <div style={{ maxWidth: '1600px', margin: '0 auto' }}>
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
-              gap: '5rem',
-              alignItems: 'center',
-              maxWidth: '100%',
-              margin: '0 auto'
-            }} className="hero-grid">
-              <div>
-                <h2 style={{
-                  fontSize: '2.75rem',
-                  fontWeight: '700',
-                  marginBottom: '1.5rem',
-                  color: '#1a1a1a',
-                  lineHeight: '1.2',
-                  letterSpacing: '-0.02em'
-                }}>Focus on Your Food, Not Your Software</h2>
-                <p style={{
-                  fontSize: '1rem',
-                  lineHeight: '1.6',
-                  color: '#666666',
-                  marginBottom: '2rem'
-                }}>
+        <motion.section
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={staggerContainer}
+          className="py-24 px-8 bg-[#fafafa]"
+        >
+          <div className="max-w-[1600px] mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-20 items-center hero-grid">
+              <motion.div variants={fadeInUp}>
+                <h2 className="text-5xl md:text-6xl font-bold text-[#1a1a1a] leading-[1.15] tracking-[-0.02em] mb-8">
+                  Focus on Your Food, Not Your Software
+                </h2>
+                <p className="text-lg leading-relaxed text-gray-600 mb-10">
                   We built Lichy to be incredibly simple and powerful, so you can spend more time doing what you love.
                 </p>
-                <ul style={{
-                  listStyle: 'none',
-                  padding: 0,
-                  margin: 0
-                }}>
+                <ul className="list-none p-0 m-0 space-y-5">
                   {[
                     'No setup hassle. Zero configuration required.',
                     'No design work needed. Get a professional UI out of the box.',
@@ -616,71 +354,47 @@ export default function LandingPage() {
                     'Lightning fast delivery. Your POS is ready in minutes, not months.',
                     'Premium and trustworthy UI that your staff and customers will love.'
                   ].map((item, i) => (
-                    <li key={i} style={{
-                      display: 'flex',
-                      alignItems: 'flex-start',
-                      gap: '1rem',
-                      marginBottom: '1rem',
-                      fontSize: '0.9375rem',
-                      color: '#1a1a1a'
-                    }}>
-                      <div style={{
-                        width: '1.5rem',
-                        height: '1.5rem',
-                        borderRadius: '50%',
-                        border: '2px solid #1a1a1a',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        flexShrink: 0,
-                        marginTop: '0.125rem'
-                      }}>
-                        <span style={{
-                          fontSize: '0.75rem',
-                          fontWeight: '700',
-                          color: '#1a1a1a'
-                        }}>✓</span>
+                    <motion.li
+                      key={i}
+                      variants={fadeInUp}
+                      className="flex items-start gap-5 text-[15px] text-[#1a1a1a]"
+                    >
+                      <div className="w-7 h-7 rounded-full border-2 border-[#1a1a1a] flex items-center justify-center flex-shrink-0 mt-1">
+                        <span className="text-sm font-bold text-[#1a1a1a]">✓</span>
                       </div>
                       <span>{item}</span>
-                    </li>
+                    </motion.li>
                   ))}
                 </ul>
-              </div>
-              <div style={{
-                width: '100%',
-                height: '500px',
-                borderRadius: '1rem',
-                overflow: 'hidden',
-                background: 'linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%)',
-                boxShadow: '0 20px 60px rgba(0, 0, 0, 0.15)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#666666',
-                fontSize: '1.25rem',
-                fontWeight: '600'
-              }}>
-                Business Image
-              </div>
+              </motion.div>
+
+              <motion.div
+                variants={scaleIn}
+                className="relative w-full h-[520px] rounded-3xl overflow-hidden shadow-2xl ring-1 ring-black/5"
+              >
+                <Image src="/images/cafe 2.jpg" alt="Business Image" fill className="object-cover" />
+              </motion.div>
             </div>
           </div>
-        </section>
+        </motion.section>
 
         {/* Testimonials */}
-        <section style={sectionAltStyle}>
-          <div style={{ maxWidth: '1600px', margin: '0 auto' }}>
-            <h2 style={sectionTitleStyle}>Loved by Business Owners Like You</h2>
-            <p style={sectionSubtitleStyle}>
+        <motion.section
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={staggerContainer}
+          className="py-24 px-8 bg-white"
+        >
+          <div className="max-w-[1600px] mx-auto">
+            <motion.h2 variants={fadeInUp} className="text-5xl md:text-6xl font-bold text-center text-[#1a1a1a] tracking-tight mb-6">
+              Loved by Business Owners Like You
+            </motion.h2>
+            <motion.p variants={fadeInUp} className="text-lg text-center text-gray-600 mb-16 max-w-4xl mx-auto">
               Don't just take our word for it. Here's what our customers are saying.
-            </p>
+            </motion.p>
 
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(3, 1fr)',
-              gap: '2rem',
-              maxWidth: '100%',
-              margin: '0 auto'
-            }} className="grid-3">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 grid-3">
               {[
                 {
                   name: 'Asha Khan',
@@ -701,115 +415,72 @@ export default function LandingPage() {
                   text: '"I\'m not a tech person, but Lichy made it so simple. Choosing my brand colors and seeing the POS update instantly was like magic. Highly recommended!"'
                 }
               ].map((testimonial, i) => (
-                <div key={i} style={{
-                  background: '#ffffff',
-                  border: '1px solid #e0e0e0',
-                  borderRadius: '1rem',
-                  padding: '2rem',
-                  transition: 'all 0.3s ease',
-                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
-                  display: 'flex',
-                  flexDirection: 'column'
-                }}>
-                  <div style={{
-                    color: '#fbbf24',
-                    fontSize: '1rem',
-                    marginBottom: '1.25rem',
-                    display: 'flex',
-                    gap: '0.25rem'
-                  }}>
-                    {[...Array(5)].map((_, j) => <span key={j}>⭐</span>)}
+                <motion.div
+                  key={i}
+                  variants={fadeInUp}
+                  whileHover={{ y: -8, transition: { duration: 0.35 } }}
+                  className="bg-white border border-gray-200 rounded-2xl p-10 shadow-md hover:shadow-2xl transition-all duration-400 flex flex-col min-h-[320px]"
+                >
+                  <div className="text-[#fbbf24] text-2xl mb-6 flex gap-1">
+                    {[...Array(5)].map((_, j) => <span key={j}>★</span>)}
                   </div>
-                  <p style={{
-                    fontSize: '0.9375rem',
-                    lineHeight: '1.6',
-                    color: '#1a1a1a',
-                    marginBottom: '1.5rem',
-                    fontStyle: 'italic',
-                    flex: 1
-                  }}>
+                  <p className="text-[15px] leading-relaxed text-gray-800 mb-8 italic flex-1">
                     {testimonial.text}
                   </p>
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.875rem'
-                  }}>
-                    <div style={{
-                      width: '3rem',
-                      height: '3rem',
-                      borderRadius: '50%',
-                      background: '#1a1a1a',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontWeight: '700',
-                      color: '#ffffff',
-                      fontSize: '0.875rem',
-                      flexShrink: 0
-                    }}>
+                  <div className="flex items-center gap-4">
+                    <div className="w-14 h-14 rounded-full bg-[#1a1a1a] flex items-center justify-center font-bold text-white text-lg flex-shrink-0 shadow-sm">
                       {testimonial.avatar}
                     </div>
                     <div>
-                      <h4 style={{
-                        fontSize: '0.9375rem',
-                        fontWeight: '700',
-                        color: '#1a1a1a',
-                        marginBottom: '0.25rem'
-                      }}>{testimonial.name}</h4>
-                      <p style={{
-                        fontSize: '0.8125rem',
-                        color: '#666666'
-                      }}>{testimonial.role}</p>
+                      <h4 className="text-base font-bold text-gray-900">{testimonial.name}</h4>
+                      <p className="text-sm text-gray-600">{testimonial.role}</p>
                     </div>
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
           </div>
-        </section>
+        </motion.section>
 
-        {/* Final CTA */}
-        <section style={{
-          ...sectionStyle,
-          textAlign: 'center' as const
-        }}>
-          <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-            <h2 style={{
-              fontSize: '2.75rem',
-              fontWeight: '700',
-              marginBottom: '1rem',
-              color: '#1a1a1a',
-              letterSpacing: '-0.02em'
-            }}>Your POS. Your Brand. Ready in Minutes.</h2>
-            <p style={{
-              fontSize: '1rem',
-              color: '#666666',
-              marginBottom: '2.5rem',
-              maxWidth: '800px',
-              marginLeft: 'auto',
-              marginRight: 'auto'
-            }}>
-              Stop wrestling with complicated software. Get a beautiful, powerful, and easy-to-use POS system today.
-            </p>
-            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-              <Link href="/login" style={{
-                ...buttonPrimaryStyle,
-                fontSize: '1.125rem',
-                padding: '1.25rem 3rem'
-              }}>
-                Get Started
-              </Link>
-              <button style={{
-                ...buttonSecondaryStyle,
-                fontSize: '1.125rem',
-                padding: '1.25rem 3rem'
-              }}>
-                Talk to Us
-              </button>
+        {/* Footer */}
+        <motion.footer
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.9 }}
+          className="mt-12"
+        >
+          <div className="bg-[#1a1a1a] py-8 px-6">
+            <div className="max-w-[1600px] mx-auto">
+              <div className="flex flex-col sm:flex-row justify-between items-center gap-6 text-gray-300 text-sm flex-wrap">
+                <div className="flex items-center gap-8">
+                  <Link href="/terms-of-use" className="hover:text-white transition-colors duration-300">
+                    Terms Of Use
+                  </Link>
+                  <Link href="/privacy-policy" className="hover:text-white transition-colors duration-300">
+                    Privacy Policy
+                  </Link>
+                </div>
+
+                <div className="text-center order-3 sm:order-none mt-4 sm:mt-0">
+                  © 2025 Helium AI. All rights reserved.
+                </div>
+
+                <div className="text-right">
+                  Product by{' '}
+                  <Link
+                    href="https://neuralarc.ai"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-white transition-colors duration-300"
+                  >
+                    Neural Arc Inc
+                  </Link>
+                </div>
+              </div>
             </div>
           </div>
-        </section>
+        </motion.footer>
       </div>
     </>
   );

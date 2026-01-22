@@ -295,6 +295,113 @@ export default function OrdersPage() {
     })
   }
 
+  // Function to get specific description for each food item
+  const getProductDescription = (productName: string, categoryName?: string) => {
+    const name = productName.toLowerCase()
+    
+    // Dosa varieties
+    if (name.includes('ghee pudi masala') || name.includes('ghee pudimasala')) {
+      return 'Crispy dosa spread with spicy pudi powder and ghee, served with chutney and sambar'
+    }
+    if (name.includes('ghee garlic onion roast')) {
+      return 'Golden roasted dosa with aromatic garlic, caramelized onions and pure ghee'
+    }
+    if (name.includes('open butter masala')) {
+      return 'Open-style dosa topped with butter and spicy masala, a perfect blend of flavors'
+    }
+    if (name.includes('ghee set')) {
+      return 'Soft and fluffy set dosa prepared with generous amount of pure ghee'
+    }
+    if (name.includes('masala dosa')) {
+      return 'Classic South Indian dosa filled with spiced potato masala, served hot'
+    }
+    if (name.includes('plain dosa')) {
+      return 'Traditional crispy dosa made from fermented rice and lentil batter'
+    }
+    if (name.includes('rava dosa')) {
+      return 'Crispy semolina dosa with a unique texture, topped with onions and spices'
+    }
+    if (name.includes('onion dosa')) {
+      return 'Crispy dosa generously topped with finely chopped onions and spices'
+    }
+    if (name.includes('paper dosa')) {
+      return 'Extra thin and crispy dosa, light as paper, served with traditional accompaniments'
+    }
+    
+    // Idli varieties
+    if (name.includes('idli')) {
+      return 'Soft and fluffy steamed rice cakes, served with coconut chutney and sambar'
+    }
+    
+    // Uttapam varieties
+    if (name.includes('uttapam')) {
+      return 'Thick pancake topped with vegetables, cooked to perfection on both sides'
+    }
+    
+    // Vada varieties
+    if (name.includes('vada')) {
+      return 'Crispy fried lentil donuts, golden brown and served with chutney and sambar'
+    }
+    
+    // Beverages
+    if (name.includes('coffee')) {
+      return 'Freshly brewed South Indian filter coffee with perfect blend of milk and decoction'
+    }
+    if (name.includes('tea') || name.includes('chai')) {
+      return 'Hot aromatic tea brewed with fresh spices and milk, perfect for any time'
+    }
+    if (name.includes('lassi')) {
+      return 'Refreshing yogurt-based drink, smooth and creamy, served chilled'
+    }
+    if (name.includes('juice')) {
+      return 'Fresh fruit juice made from handpicked fruits, naturally sweet and healthy'
+    }
+    if (name.includes('milkshake')) {
+      return 'Thick and creamy milkshake blended with ice cream and fresh ingredients'
+    }
+    
+    // Snacks
+    if (name.includes('samosa')) {
+      return 'Crispy fried pastry filled with spiced potatoes and peas, served hot'
+    }
+    if (name.includes('pakora') || name.includes('bajji')) {
+      return 'Deep-fried fritters made with gram flour batter and fresh vegetables'
+    }
+    if (name.includes('bonda')) {
+      return 'Round crispy snack with spiced potato filling, perfect tea-time companion'
+    }
+    
+    // Burgers and fast food
+    if (name.includes('burger')) {
+      return 'Delicious burger with fresh vegetables, sauces and perfectly cooked patty'
+    }
+    if (name.includes('pizza')) {
+      return 'Hot and cheesy pizza with fresh toppings and crispy crust'
+    }
+    if (name.includes('sandwich')) {
+      return 'Fresh sandwich with vegetables, cheese and special sauces, grilled to perfection'
+    }
+    
+    // Default descriptions based on category
+    if (categoryName) {
+      const cat = categoryName.toLowerCase()
+      if (cat.includes('dosa')) {
+        return 'Delicious dosa prepared fresh with authentic South Indian recipe'
+      }
+      if (cat.includes('idli')) {
+        return 'Soft steamed delicacy made from fermented rice and lentil batter'
+      }
+      if (cat.includes('beverage')) {
+        return 'Refreshing beverage prepared with quality ingredients'
+      }
+      if (cat.includes('snack')) {
+        return 'Crispy and tasty snack, freshly prepared for you'
+      }
+    }
+    
+    return 'Freshly prepared with authentic ingredients and traditional cooking methods'
+  }
+
   const handleCompleteBill = async () => {
     if (billItems.length === 0) {
       alert('Please add items to the order first!')
@@ -717,10 +824,10 @@ export default function OrdersPage() {
   const uncategorizedProducts = filteredProducts.filter(p => !p.category_id)
 
   return (
-    <div className="max-w-7xl mx-auto">
+    <div className="mx-auto">
         <h1 className="text-3xl font-bold text-primary-text mb-1">Orders</h1>
         <p className="text-sm text-primary-text/60 mb-6">Create orders, add items, and complete billing.</p>
-          <button className='bg-primary text-white rounded-2xl p-6'>
+          {/* <button className='bg-primary text-white rounded-2xl p-6'>
             test 
           </button>
           <button className='bg-secondary text-black rounded-2xl p-6'>
@@ -728,17 +835,18 @@ export default function OrdersPage() {
           </button>
            <button className='bg-accent text-foreground rounded-2xl p-6'>
             test 3
-          </button>
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          </button> */}
+        <div className="flex items-start gap-6">
+<div className="w-full flex flex-col gap-6">
           {/* Left Sidebar: Categories */}
-          <div className="lg:col-span-2 bg-white rounded-2xl shadow-md p-6 border border-border">
+          <div className="flex flex-col items-start gap-2 ">
             <h3 className="font-bold text-primary-text mb-4 text-xl">Categories</h3>
-            <div className="space-y-3">
+            <div className=" flex items-center w-full gap-2 flex-wrap">
               <button
                 onClick={() => setSelectedCategory(null)}
-                className={`w-full text-left px-4 py-3 rounded-full font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring-3 outline-hidden ${selectedCategory === null
+                className={`w-fit text-left px-6 py-3 rounded-full font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring-3 outline-hidden ${selectedCategory === null
                     ? 'bg-primary text-white shadow-md'
-                    : 'bg-white text-primary-text hover:bg-brand-dusty-rose/10 border border-border'
+                    : 'bg-white text-primary-text hover:bg-brand-dusty-rose/10 border border-gray-300'
                 }`}
               >
                 All
@@ -747,9 +855,9 @@ export default function OrdersPage() {
                 <button
                   key={category.id}
                   onClick={() => setSelectedCategory(category.id)}
-                  className={`w-full text-left px-4 my-1 white py-3 rounded-full font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring-3 outline-hidden ${selectedCategory === category.id
+                  className={`w-fit text-left px-6 my-1 white py-3 rounded-full font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring-3 outline-hidden ${selectedCategory === category.id
                     ? 'bg-primary text-white shadow-md'
-                    : 'bg-white text-primary-text hover:bg-brand-dusty-rose/10 border border-border'
+                    : 'bg-white text-primary-text hover:bg-brand-dusty-rose/10 border border-gray-300'
                   }`}
                 >
                   {category.name}
@@ -759,7 +867,7 @@ export default function OrdersPage() {
           </div>
 
           {/* Center: Menu Items */}
-          <div className="lg:col-span-6 bg-white rounded-2xl shadow-md p-6 border border-border">
+          <div className="flex flex-col gap-4 p-6">
             <div className="mb-6">
               <div className="relative">
                 <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-text w-5 h-5" />
@@ -776,7 +884,7 @@ export default function OrdersPage() {
             {loading ? (
               <div className="text-center text-gray-500 py-8">Loading menu items...</div>
             ) : (
-              <div className="space-y-6">
+              <div className="flex flex-col max-h-[75vh] overflow-auto">
                 {categories.map((category) => {
                   const categoryProducts = productsByCategory[category.id] || []
                   if (categoryProducts.length === 0 || (selectedCategory && selectedCategory !== category.id)) return null
@@ -784,86 +892,131 @@ export default function OrdersPage() {
                   return (
                     <div key={category.id}>
                       <h4 className="font-bold text-primary-text mb-4 text-xl">{category.name}</h4>
-                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
                         {categoryProducts.map((product) => (
-                          <button
+                          <div
                             key={product.id}
-                            onClick={() => addToBill(product)}
-                            className="group relative w-full bg-white rounded-xl shadow-xs border border-border
-                                       hover:shadow-md hover:border-coffee-brown transition-all duration-200
-                                       active:scale-[0.98] cursor-pointer flex flex-col overflow-hidden p-3"
-                            style={{ aspectRatio: '4/5' }}
+                            className="group relative w-full bg-white rounded-2xl shadow-sm border border-border
+                                       hover:shadow-lg hover:border-coffee-brown transition-all duration-200
+                                       overflow-hidden p-5 flex gap-5"
                           >
-                            {/* Product Image Container - Takes ~60% of card */}
-                            <div className="w-full flex-[0_0_60%] flex items-center justify-center overflow-hidden bg-warm-cream/20 rounded-lg mb-2">
-                              {(() => {
-                                const categoryLower = product.category_name?.toLowerCase() || ''
-                                if (categoryLower.includes('idli')) {
-                                  return (
-                                    <Image 
-                                      key={product.id + "-idli"}
-                                      src="/images/menu_items/idli.png"
-                                      alt={product.name}
-                                      width={120}
-                                      height={120}
-                                      objectFit="contain"
-                                      className="w-full h-full object-contain"
-                                      priority
-                                    />
-                                  )
-                                } else if (categoryLower.includes('dosa') || categoryLower.includes('uttapam')) {
-                                  return (
-                                    <Image 
-                                      key={product.id + "-dosa"}
-                                      src="/images/menu_items/dosa.jpeg"
-                                      alt={product.name}
-                                      width={120}
-                                      height={120}
-                                      objectFit="contain"
-                                      className="w-full h-full object-contain"
-                                      priority
-                                    />
-                                  )
-                                } else if (categoryLower.includes('snack') || categoryLower === 'other snacks' || categoryLower === 'snacks') {
-                                  return (
-                                    <Image 
-                                      key={product.id + "-snack"}
-                                      src="/images/menu_items/snacks.png"
-                                      alt={product.name}
-                                      width={120}
-                                      height={120}
-                                      objectFit="contain"
-                                      className="w-full h-full object-contain"
-                                      priority
-                                    />
-                                  )
-                                } else if (categoryLower.includes('beverage') || categoryLower === 'beverages') {
-                                  return (
-                                    <Image 
-                                      key={product.id + "-beverage"}
-                                      src="/images/menu_items/beverages.png"
-                                      alt={product.name}
-                                      width={120}
-                                      height={120}
-                                      objectFit="contain"
-                                      className="w-full h-full object-contain"
-                                      priority
-                                    />
-                                  )
-                                } else {
-                                  return <span className="text-4xl">☕</span>
-                                }
-                              })()}
-                            </div>
-                            
-                            {/* Product Details - Takes remaining ~40% of card */}
-                            <div className="flex flex-col justify-center items-center w-full flex-1 px-1 min-h-0 gap-1">
-                              <div className="font-semibold text-text-dark text-xs sm:text-sm text-center mb-1 leading-tight wrap-break-word line-clamp-2 w-full overflow-hidden">
-                                <span className="block">{product.name}</span>
+                            {/* Left Section: Image with Quantity Controls Below */}
+                            <div className="flex flex-col items-center gap-3">
+                              {/* Product Image Container with Grey Background */}
+                              <div className="w-32 h-32 shrink-0 flex items-center justify-center overflow-hidden bg-gray-100 rounded-2xl">
+                                {(() => {
+                                  const categoryLower = product.category_name?.toLowerCase() || ''
+                                  if (categoryLower.includes('idli')) {
+                                    return (
+                                      <Image 
+                                        key={product.id + "-idli"}
+                                        src="/images/menu_items/idli.png"
+                                        alt={product.name}
+                                        width={128}
+                                        height={128}
+                                        objectFit="cover"
+                                        className="w-full h-full object-cover"
+                                        priority
+                                      />
+                                    )
+                                  } else if (categoryLower.includes('dosa') || categoryLower.includes('uttapam')) {
+                                    return (
+                                      <Image 
+                                        key={product.id + "-dosa"}
+                                        src="/images/menu_items/dosa.jpeg"
+                                        alt={product.name}
+                                        width={128}
+                                        height={128}
+                                        objectFit="cover"
+                                        className="w-full h-full object-cover"
+                                        priority
+                                      />
+                                    )
+                                  } else if (categoryLower.includes('snack') || categoryLower === 'other snacks' || categoryLower === 'snacks') {
+                                    return (
+                                      <Image 
+                                        key={product.id + "-snack"}
+                                        src="/images/menu_items/snacks.png"
+                                        alt={product.name}
+                                        width={128}
+                                        height={128}
+                                        objectFit="cover"
+                                        className="w-full h-full object-cover"
+                                        priority
+                                      />
+                                    )
+                                  } else if (categoryLower.includes('beverage') || categoryLower === 'beverages') {
+                                    return (
+                                      <Image 
+                                        key={product.id + "-beverage"}
+                                        src="/images/menu_items/beverages.png"
+                                        alt={product.name}
+                                        width={128}
+                                        height={128}
+                                        objectFit="cover"
+                                        className="w-full h-full object-cover"
+                                        priority
+                                      />
+                                    )
+                                  } else {
+                                    return <span className="text-5xl">☕</span>
+                                  }
+                                })()}
                               </div>
-                              <div className="font-bold text-coffee-brown text-xs sm:text-sm mt-auto">₹{product.selling_price.toFixed(2)}</div>
+                              
+                              {/* Quantity Controls Below Image */}
+                              <div className="flex items-center gap-4 bg-gray-50 rounded-full px-4 py-2.5 border border-gray-200">
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    const item = billItems.find(i => i.product_id === product.id)
+                                    if (item && item.quantity > 1) {
+                                      updateQuantity(product.id, -1)
+                                    } else if (item) {
+                                      removeItem(product.id)
+                                    }
+                                  }}
+                                  className="p-1 rounded-full hover:bg-gray-200 transition-all duration-200"
+                                >
+                                  <Minus className="w-5 h-5 text-primary-text" />
+                                </button>
+                                <span className="font-semibold text-primary-text min-w-6 text-center text-base">
+                                  {billItems.find(i => i.product_id === product.id)?.quantity || 0}
+                                </span>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    addToBill(product)
+                                  }}
+                                  className="p-1 rounded-full hover:bg-gray-200 transition-all duration-200"
+                                >
+                                  <Plus className="w-5 h-5 text-primary-text" />
+                                </button>
+                              </div>
                             </div>
-                          </button>
+                            {/* Right Section: Name, Price, Description, Add to Cart */}
+                            <div className="flex-1 flex flex-col gap-3">
+                              {/* Product Name and Price on Same Line */}
+                              <div className="flex items-start justify-between gap-3">
+                                <h3 className="font-semibold text-primary-text text-lg leading-tight">{product.name}</h3>
+                                <p className="text-coffee-brown font-semibold text-lg whitespace-nowrap">₹{product.selling_price.toFixed(2)}</p>
+                              </div>
+
+                              {/* Description */}
+                              <p className="text-sm text-muted-text/70 leading-relaxed flex-1">
+                                {getProductDescription(product.name, product.category_name)}
+                              </p>
+
+                              {/* Add to Cart Button */}
+                              <button
+                                onClick={() => addToBill(product)}
+                                className="w-full bg-primary text-text-primary py-2.5 px-4 rounded-full font-medium text-sm
+                                           hover:bg-interactive-hover hover:text-text-inverse transition-all duration-200 hover:shadow-md"
+                              >
+                                Add to Cart
+                              </button>
+                            </div>
+                          </div>
                         ))}
                       </div>
                     </div>
@@ -874,92 +1027,132 @@ export default function OrdersPage() {
                 {(!selectedCategory || selectedCategory === null) && uncategorizedProducts.length > 0 && (
                   <div>
                     <h4 className="font-bold text-primary-text mb-4 text-xl">Other Items</h4>
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
                       {uncategorizedProducts.map((product) => (
-                        <button
+                        <div
                           key={product.id}
-                          onClick={() => addToBill(product)}
-                          className="group relative w-full bg-white rounded-xl shadow-xs border border-border
-                                     hover:shadow-md hover:border-coffee-brown transition-all duration-200
-                                     active:scale-[0.98] cursor-pointer flex flex-col overflow-hidden p-3"
-                          style={{ aspectRatio: '4/5' }}
+                          className="group relative w-full bg-white rounded-2xl shadow-sm border border-border
+                                     hover:shadow-lg hover:border-coffee-brown transition-all duration-200
+                                     overflow-hidden p-5 flex gap-5"
                         >
-                          {/* Product Image Container - Takes ~60% of card */}
-                          <div className="w-full flex-[0_0_60%] flex items-center justify-center overflow-hidden bg-warm-cream/20 rounded-lg mb-2">
-                            {(() => {
-                              const categoryLower = product.category_name?.toLowerCase() || ''
-                              if (categoryLower.includes('idli')) {
-                                return (
-                                  <Image 
-                                    key={product.id + "-idli"}
-                                    src="/images/menu_items/idli.png"
-                                    alt={product.name}
-                                    width={120}
-                                    height={120}
-                                    objectFit="contain"
-                                    className="w-full h-full object-contain"
-                                    priority
-                                  />
-                                )
-                              } else if (categoryLower.includes('dosa') || categoryLower.includes('uttapam')) {
-                                return (
-                                  <Image 
-                                    key={product.id + "-dosa"}
-                                    src="/images/menu_items/dosa.jpeg"
-                                    alt={product.name}
-                                    width={120}
-                                    height={120}
-                                    objectFit="contain"
-                                    className="w-full h-full object-contain"
-                                    priority
-                                  />
-                                )
-                              } else if (categoryLower.includes('snack') || categoryLower === 'other snacks' || categoryLower === 'snacks') {
-                                return (
-                                  <Image 
-                                    key={product.id + "-snack"}
-                                    src="/images/menu_items/snacks.png"
-                                    alt={product.name}
-                                    width={120}
-                                    height={120}
-                                    objectFit="contain"
-                                    className="w-full h-full object-contain"
-                                    priority
-                                  />
-                                )
-                              } else if (categoryLower.includes('beverage') || categoryLower === 'beverages') {
-                                return (
-                                  <Image 
-                                    key={product.id + "-beverage"}
-                                    src="/images/menu_items/beverages.png"
-                                    alt={product.name}
-                                    width={120}
-                                    height={120}
-                                    objectFit="contain"
-                                    className="w-full h-full object-contain"
-                                    priority
-                                  />
-                                )
-                              } else {
-                                return <span className="text-4xl">☕</span>
-                              }
-                            })()}
-                          </div>
-                          
-                          {/* Product Details - Takes remaining ~40% of card */}
-                          <div className="flex flex-col justify-center items-center w-full flex-1 px-1 min-h-0 gap-1">
-                            <div className="font-semibold text-text-dark text-xs sm:text-sm text-center mb-1 leading-tight wrap-break-word line-clamp-2 w-full overflow-hidden">
-                              <span className="block">{product.name}</span>
+                          {/* Left Section: Image with Quantity Controls Below */}
+                          <div className="flex flex-col items-center gap-3">
+                            {/* Product Image Container with Grey Background */}
+                            <div className="w-32 h-32 shrink-0 flex items-center justify-center overflow-hidden bg-gray-100 rounded-2xl">
+                              {(() => {
+                                const categoryLower = product.category_name?.toLowerCase() || ''
+                                if (categoryLower.includes('idli')) {
+                                  return (
+                                    <Image 
+                                      key={product.id + "-idli"}
+                                      src="/images/menu_items/idli.png"
+                                      alt={product.name}
+                                      width={128}
+                                      height={128}
+                                      objectFit="cover"
+                                      className="w-full h-full object-cover"
+                                      priority
+                                    />
+                                  )
+                                } else if (categoryLower.includes('dosa') || categoryLower.includes('uttapam')) {
+                                  return (
+                                    <Image 
+                                      key={product.id + "-dosa"}
+                                      src="/images/menu_items/dosa.jpeg"
+                                      alt={product.name}
+                                      width={128}
+                                      height={128}
+                                      objectFit="cover"
+                                      className="w-full h-full object-cover"
+                                      priority
+                                    />
+                                  )
+                                } else if (categoryLower.includes('snack') || categoryLower === 'other snacks' || categoryLower === 'snacks') {
+                                  return (
+                                    <Image 
+                                      key={product.id + "-snack"}
+                                      src="/images/menu_items/snacks.png"
+                                      alt={product.name}
+                                      width={128}
+                                      height={128}
+                                      objectFit="cover"
+                                      className="w-full h-full object-cover"
+                                      priority
+                                    />
+                                  )
+                                } else if (categoryLower.includes('beverage') || categoryLower === 'beverages') {
+                                  return (
+                                    <Image 
+                                      key={product.id + "-beverage"}
+                                      src="/images/menu_items/beverages.png"
+                                      alt={product.name}
+                                      width={128}
+                                      height={128}
+                                      objectFit="cover"
+                                      className="w-full h-full object-cover"
+                                      priority
+                                    />
+                                  )
+                                } else {
+                                  return <span className="text-5xl">☕</span>
+                                }
+                              })()}
                             </div>
-                            <div className="font-bold text-coffee-brown text-xs sm:text-sm mt-auto">₹{product.selling_price.toFixed(2)}</div>
-                            {product.tax_group && (
-                              <div className="text-[10px] text-secondary-text mt-0.5 text-center line-clamp-1">
-                                {product.tax_group.name}
-                                {product.tax_group.is_tax_inclusive && ' (Incl. Tax)'}
-                              </div>
-                            )}
+                            
+                            {/* Quantity Controls Below Image */}
+                            <div className="flex items-center gap-4 bg-gray-50 rounded-full px-4 py-2.5 border border-gray-200">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  const item = billItems.find(i => i.product_id === product.id)
+                                  if (item && item.quantity > 1) {
+                                    updateQuantity(product.id, -1)
+                                  } else if (item) {
+                                    removeItem(product.id)
+                                  }
+                                }}
+                                className="p-1 rounded-full hover:bg-gray-200 transition-all duration-200"
+                              >
+                                <Minus className="w-5 h-5 text-primary-text" />
+                              </button>
+                              <span className="font-semibold text-primary-text min-w-6 text-center text-base">
+                                {billItems.find(i => i.product_id === product.id)?.quantity || 0}
+                              </span>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  addToBill(product)
+                                }}
+                                className="p-1 rounded-full hover:bg-gray-200 transition-all duration-200"
+                              >
+                                <Plus className="w-5 h-5 text-primary-text" />
+                              </button>
+                            </div>
                           </div>
-                        </button>
+
+                          {/* Right Section: Name, Price, Description, Add to Cart */}
+                          <div className="flex-1 flex flex-col gap-3">
+                            {/* Product Name and Price on Same Line */}
+                            <div className="flex items-start justify-between gap-3">
+                              <h3 className="font-semibold text-primary-text text-lg leading-tight">{product.name}</h3>
+                              <p className="text-coffee-brown font-semibold text-lg whitespace-nowrap">₹{product.selling_price.toFixed(2)}</p>
+                            </div>
+
+                            {/* Description */}
+                            <p className="text-sm text-muted-text/70 leading-relaxed flex-1">
+                              {getProductDescription(product.name, product.category_name)}
+                            </p>
+
+                            {/* Add to Cart Button */}
+                            <button
+                              onClick={() => addToBill(product)}
+                              className="w-full bg-coffee-brown/10 text-coffee-brown py-2.5 px-4 rounded-full font-medium text-sm
+                                         hover:bg-coffee-brown hover:text-white transition-all duration-200 hover:shadow-md"
+                            >
+                              Add to Cart
+                            </button>
+                          </div>
+                        </div>
                       ))}
                     </div>
                   </div>
@@ -968,13 +1161,15 @@ export default function OrdersPage() {
             )}
           </div>
 
+</div>
+
           {/* Right: Order Summary */}
-          <div className="lg:col-span-4 bg-white rounded-2xl shadow-md p-6 border border-border sticky top-4">
+          <div className="w-150 rounded-2xl shadow-md p-6 border border-border sticky top-4">
             <div className="flex justify-between items-center mb-4 pb-4 border-b border-border">
               <h3 className="text-xl font-bold text-primary-text">Current Order</h3>
               <button
                 onClick={() => setBillItems([])}
-                className="text-sm bg-coffee-brown text-white hover:bg-primary rounded-xl px-4 py-2 transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
+                className="text-sm  hover:bg-primary rounded-xl px-4 py-2 transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
               >
                 Clear
               </button>
