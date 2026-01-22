@@ -63,7 +63,7 @@ export default function RootLayout({
 
             {/* Main content area */}
             <div className="flex-1  ml-0 transition-all duration-300">
-              <main className="min-h-screen px-4 py-5 sm:px-6 lg:px-8">
+              <main className="min-h-screen  px-4 py-5 sm:px-6 lg:px-8">
                 {children}
               </main>
             </div>
