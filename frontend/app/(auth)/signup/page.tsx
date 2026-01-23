@@ -50,8 +50,9 @@ export default function SignupPage() {
           localStorage.setItem('token_expires_at', String(Math.floor(Date.now() / 1000) + 3600));
           localStorage.setItem('user_id', data.user.id);
           localStorage.setItem('user_email', data.user.email || '');
-          // Removed: localStorage.setItem('onboarding_completed', 'false')
-          // Backend now tracks onboarding status - no localStorage needed
+          
+          // Also set cookie for middleware (24 hour expiry)
+          document.cookie = `access_token=${data.session.access_token}; path=/; max-age=86400; SameSite=Lax`;
         }
       }
       
@@ -62,6 +63,7 @@ export default function SignupPage() {
       });
       
       // After successful signup, redirect to onboarding
+      // New users always have onboarding_completed=false by default
       router.push('/onboarding');
     } catch (err: any) {
       console.error('Signup error:', err);

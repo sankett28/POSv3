@@ -965,7 +965,7 @@ export default function OrdersPage() {
                               </div>
                               
                               {/* Quantity Controls Below Image */}
-                              <div className="flex items-center gap-4 bg-gray-50 rounded-full px-4 py-2.5 border border-gray-200">
+                              <div className="flex items-center gap-4 bg-secondary rounded-full px-4 py-2.5 border border-gray-200">
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation()
@@ -1401,7 +1401,7 @@ export default function OrdersPage() {
 
         {showOrderSuccessModal && billDetails && (
           <div 
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 print:hidden transition-opacity duration-300 ease-in-out opacity-100"
+            className="fixed inset-0 bg-black/10 backdrop-blur-sm bg-opacity-50 flex items-center justify-center p-4 print:hidden transition-opacity duration-300 ease-in-out opacity-100"
             onClick={() => setShowOrderSuccessModal(false)}
           >
             <div 
@@ -1415,7 +1415,7 @@ export default function OrdersPage() {
               <div className="flex justify-center gap-4 mt-6">
                 <button
                   onClick={handlePrintInvoice}
-                  className="bg-coffee-brown text-white py-3 px-6 rounded-xl font-semibold hover:bg-brand-dusty-rose
+                  className="bg-primary text-white py-3 px-6 rounded-xl font-semibold hover:bg-brand-dusty-rose
                              transition-all duration-200 ease-in-out
                              hover:scale-[1.05] hover:shadow-lg active:scale-[0.95]"
                 >

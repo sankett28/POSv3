@@ -144,7 +144,7 @@ export default function TransactionsPage() {
                               console.error("Failed to fetch full bill details:", error);
                             }
                           }}
-                          className="px-4 py-2 rounded-lg text-primary-text hover:text-white hover:bg-coffee-brown flex items-center gap-2 transition-all duration-200 ease-in-out hover:scale-105 active:scale-95 shadow-xs hover:shadow-md font-medium text-sm"
+                          className="px-4 py-2 rounded-lg text-primary-text hover:text-text-inverse border border-border-default hover:bg-interactive-hover flex items-center gap-2 transition-all duration-200 ease-in-out hover:scale-105 active:scale-95 shadow-xs hover:shadow-md font-medium text-sm"
                         >
                           <Eye className="w-4 h-4" />
                           <span>View</span>

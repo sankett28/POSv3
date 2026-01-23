@@ -32,6 +32,9 @@ class LoginResponse(BaseModel):
     expires_at: int  # Unix timestamp when token expires
     user_id: str
     email: str
+    onboarding_completed: bool
+    has_business: bool
+    business: Optional[Dict[str, Any]] = None
 
 
 def get_current_user_id(
@@ -132,6 +135,7 @@ def get_current_user_id(
 async def login(login_data: LoginRequest):
     """
     Login endpoint using Supabase authentication.
+    Returns user data including onboarding status and business information.
     """
     from app.core.config import settings
     from app.core.database import get_supabase
@@ -156,6 +160,19 @@ async def login(login_data: LoginRequest):
                 detail="Invalid credentials"
             )
         
+        user_id = response.user.id
+        
+        # Fetch user metadata from public.users table
+        user_response = db.table('users').select('onboarding_completed').eq('id', user_id).execute()
+        onboarding_completed = False
+        if user_response.data and len(user_response.data) > 0:
+            onboarding_completed = user_response.data[0].get('onboarding_completed', False)
+        
+        # Check if user has a business
+        business_response = db.table('businesses').select('*').eq('user_id', user_id).limit(1).execute()
+        has_business = business_response.data and len(business_response.data) > 0
+        business_data = business_response.data[0] if has_business else None
+        
         # Calculate expires_at from expires_in (seconds) or use session expiry
         if hasattr(response.session, 'expires_at') and response.session.expires_at:
             expires_at = response.session.expires_at
@@ -165,12 +182,17 @@ async def login(login_data: LoginRequest):
             # Default to 1 hour if not specified
             expires_at = int(time.time()) + 3600
         
+        logger.info(f"Login successful for user: {response.user.email} (onboarding_completed: {onboarding_completed}, has_business: {has_business})")
+        
         return LoginResponse(
             access_token=response.session.access_token,
             refresh_token=response.session.refresh_token,
             expires_at=expires_at,
             user_id=response.user.id,
-            email=response.user.email
+            email=response.user.email,
+            onboarding_completed=onboarding_completed,
+            has_business=has_business,
+            business=business_data
         )
     except HTTPException:
         raise

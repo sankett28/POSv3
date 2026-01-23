@@ -22,30 +22,24 @@ export default function LoginPage() {
       const response = await api.login(email, password);
       
       // Store user info (tokens are handled by api.login)
-      if (typeof window !== 'undefined' && response.user) {
-        localStorage.setItem('user_id', response.user.id);
-        localStorage.setItem('user_email', response.user.email);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('user_id', response.user_id);
+        localStorage.setItem('user_email', response.email);
       }
       
-      // Implement routing logic based on backend state only
-      // No longer using localStorage for onboarding_completed
-      if (response.user) {
-        const { onboarding_completed, has_business } = response.user;
-        
-        if (!onboarding_completed) {
-          // User hasn't completed onboarding, redirect there
-          router.push('/onboarding');
-        } else if (onboarding_completed && has_business) {
-          // User has completed onboarding and has a business, go to dashboard/orders
-          router.push('/orders');
-        } else if (onboarding_completed && !has_business) {
-          // User completed onboarding but no business record exists
-          // This shouldn't normally happen, but redirect to onboarding to fix
-          router.push('/onboarding');
-        }
-      } else {
-        // Fallback if user object is missing
+      // Implement routing logic based on backend state
+      const { onboarding_completed, has_business } = response;
+      
+      if (!onboarding_completed) {
+        // User hasn't completed onboarding, redirect there
+        router.push('/onboarding');
+      } else if (onboarding_completed && has_business) {
+        // User has completed onboarding and has a business, go to dashboard/orders
         router.push('/orders');
+      } else if (onboarding_completed && !has_business) {
+        // User completed onboarding but no business record exists
+        // This shouldn't normally happen, but redirect to onboarding to fix
+        router.push('/onboarding');
       }
     } catch (err: any) {
       console.error('Login error:', err);

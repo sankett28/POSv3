@@ -32,9 +32,12 @@ export function middleware(request: NextRequest) {
     }
   }
   
-  // If on login/signup page and already authenticated, redirect to orders page
+  // If on login/signup page and already authenticated
+  // Don't redirect - let the page handle the redirect based on onboarding status
+  // The login/signup pages will redirect to /onboarding or /orders as appropriate
   if ((pathname === '/login' || pathname === '/signup') && token) {
-    return NextResponse.redirect(new URL('/orders', request.url))
+    // Allow the page to handle the redirect
+    return NextResponse.next()
   }
   
   return NextResponse.next()
