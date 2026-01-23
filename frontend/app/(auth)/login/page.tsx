@@ -93,7 +93,7 @@ export default function LoginPage() {
             color: '#666666',
             fontWeight: '400'
           }}>
-            Sign in to continue to Lichi
+            Sign in to continue to Garlic
           </p>
         </div>
 

@@ -109,7 +109,7 @@ export default function SignupPage() {
             color: '#666666',
             fontWeight: '400'
           }}>
-            Sign up to get started with Lichi
+            Sign up to get started with Garlic
           </p>
         </div>
 

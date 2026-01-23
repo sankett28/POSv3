@@ -314,7 +314,7 @@ psql -h <supabase-host> -U postgres -d postgres -f POSv3/backend/supabase/migrat
 
 Current system is single-tenant. Migration creates:
 - Default business: `00000000-0000-0000-0000-000000000001`
-- Default theme: Existing Lichy Cafe brand colors
+- Default theme: Existing Garlic Cafe brand colors
 
 **Future multi-tenant support:**
 - Add user-business relationship table

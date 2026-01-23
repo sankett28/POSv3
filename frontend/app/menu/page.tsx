@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { api } from '@/lib/api'
 import { Plus, Edit, Trash2, Search, X, Settings, CheckCircle, AlertCircle, Upload, FileText } from 'lucide-react'
+import { Skeleton } from '@/components/ui/Skeleton'
 
 export interface Category {
   id: string
@@ -25,7 +26,7 @@ export interface Product {
   name: string
   selling_price: number
   tax_group_id?: string
-  tax_group?: TaxGroup // Add this line
+  tax_group?: TaxGroup
   category_id?: string
   category_name?: string
   tax_rate?: number
@@ -73,7 +74,6 @@ export default function MenuPage() {
     loadData()
   }, [])
 
-  // Prevent body scroll when any modal is open
   useEffect(() => {
     if (showItemModal || showCategoryModal || showBulkTaxModal || showImportModal) {
       document.body.style.overflow = 'hidden'
@@ -85,7 +85,6 @@ export default function MenuPage() {
     }
   }, [showItemModal, showCategoryModal, showBulkTaxModal, showImportModal])
 
-  // Auto-dismiss toast after 3 seconds
   useEffect(() => {
     if (toast) {
       const timer = setTimeout(() => {
@@ -107,14 +106,13 @@ export default function MenuPage() {
         api.getActiveTaxGroups()
       ])
       
-      // Enrich products with category names and tax rates
       const enrichedProducts = productsData.map((p: any) => {
         const category = categoriesData.find((c: Category) => c.id === p.category_id)
         const taxGroup = taxGroupsData.find((tg: TaxGroup) => tg.id === p.tax_group_id)
         return {
           ...p,
           category_name: category?.name,
-          tax_group: taxGroup, // Assign the whole taxGroup object
+          tax_group: taxGroup,
         }
       })
       
@@ -266,7 +264,6 @@ export default function MenuPage() {
       return
     }
 
-    // Show custom confirmation instead of browser alert
     setShowTaxConfirmation(true)
   }
 
@@ -285,11 +282,9 @@ export default function MenuPage() {
       loadData()
     } catch (error: any) {
       console.error('Bulk update error:', error)
-      // FastAPI 422 errors have a specific structure
       let errorMessage = 'Unknown error occurred'
       if (error?.response?.data) {
         const errorData = error.response.data
-        // Handle FastAPI validation errors (422)
         if (errorData.detail && Array.isArray(errorData.detail)) {
           const validationErrors = errorData.detail.map((err: any) => 
             `${err.loc?.join('.')}: ${err.msg}`
@@ -398,11 +393,62 @@ export default function MenuPage() {
 
   if (loading) {
     return (
-      <div className="p-4 sm:p-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center text-gray-500 py-8">Loading...</div>
+      <div className="max-w-7xl mx-auto p-4 sm:p-8">
+        {/* Header skeleton */}
+        <div className="flex justify-between items-end mb-6">
+          <div className="space-y-2">
+            <Skeleton className="h-10 w-48" />
+            <Skeleton className="h-5 w-72" />
+          </div>
+          <div className="flex gap-3">
+            {[...Array(3)].map((_, i) => (
+              <Skeleton key={i} className="h-12 w-44 rounded-xl" />
+            ))}
+          </div>
+        </div>
+
+        {/* Categories chips skeleton */}
+        <div className="bg-white rounded-2xl shadow-md mb-6 p-6 border border-border">
+          <Skeleton className="h-7 w-36 mb-4" />
+          <div className="flex flex-wrap gap-3">
+            <Skeleton className="h-10 w-16 rounded-full" />
+            {[...Array(6)].map((_, i) => (
+              <Skeleton key={i} className="h-10 w-28 rounded-full" />
+            ))}
+          </div>
+        </div>
+
+        {/* Search bar skeleton */}
+        <Skeleton className="h-12 w-full rounded-xl mb-6" />
+
+        {/* Table sections skeleton */}
+        <div className="space-y-6">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="bg-white rounded-2xl shadow-md border border-border">
+              <div className="p-6 border-b border-border flex justify-between items-center">
+                <Skeleton className="h-7 w-48" />
+                <Skeleton className="h-10 w-52 rounded-xl" />
+              </div>
+              <div className="overflow-x-auto p-6">
+                <div className="space-y-4">
+                  {[...Array(5)].map((_, row) => (
+                    <div key={row} className="flex gap-6">
+                      <Skeleton className="h-6 w-56" />
+                      <Skeleton className="h-6 w-28" />
+                      <Skeleton className="h-6 w-48" />
+                      <Skeleton className="h-8 w-24 rounded-full" />
+                      <div className="flex gap-3">
+                        <Skeleton className="h-8 w-8 rounded-lg" />
+                        <Skeleton className="h-8 w-8 rounded-lg" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
-    </div>
     )
   }
 
@@ -410,8 +456,12 @@ export default function MenuPage() {
     <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-end mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-primary mb-1">Menu</h1>
-            <p className="text-sm text-primary/60">Manage categories, items, and tax groups.</p>
+            <div className="mb-1">
+              <h1 className="text-3xl font-bold text-gray-900">Menu</h1>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600">Manage categories, items, and tax groups.</p>
+            </div>
           </div>
           <div className="flex gap-3">
             <button
@@ -495,8 +545,8 @@ export default function MenuPage() {
         </div>
 
         {/* Search */}
-        <div className="bg-white rounded-2xl shadow-md mb-6 p-6 border border-border">
-          <div className="relative">
+        <div>
+          <div className="relative mb-6">
             <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-text w-5 h-5" />
             <input
               type="text"
@@ -953,7 +1003,6 @@ export default function MenuPage() {
                     ))}
                   </select>
                 </div>
-                {/* Confirmation Notification */}
                 {showTaxConfirmation && (
                   <div className="mt-4 p-4 bg-primary border border-border-default rounded-xl">
                     <p className="text-sm text-primary-text mb-4">
@@ -1033,14 +1082,12 @@ export default function MenuPage() {
               </div>
               
               <div className="space-y-5">
-                {/* Info Note */}
                 <div className="p-4 bg-secondary border border-border-default rounded-xl">
                   <p className="text-sm text-text-primary">
                     <strong>Note:</strong> Invalid rows will stop the entire import. Fix errors and re-upload.
                   </p>
                 </div>
                 
-                {/* Template Download */}
                 <div className="flex items-center gap-2 text-sm text-secondary-text">
                   <FileText className="w-4 h-4" />
                   <span>Download template:</span>
@@ -1053,7 +1100,6 @@ export default function MenuPage() {
                   </a>
                 </div>
                 
-                {/* Drag & Drop Area */}
                 <div
                   className={`border-2 border-dashed rounded-xl p-8 text-center transition-all duration-200 ${
                     dragActive
@@ -1098,7 +1144,6 @@ export default function MenuPage() {
                   )}
                 </div>
                 
-                {/* Error Display */}
                 {importErrors.length > 0 && (
                   <div className="p-4 bg-red-50 border border-red-200 rounded-xl">
                     <h3 className="font-semibold text-red-800 mb-2">Import Errors:</h3>
@@ -1110,7 +1155,6 @@ export default function MenuPage() {
                   </div>
                 )}
                 
-                {/* Action Buttons */}
                 <div className="flex gap-3 justify-end pt-4">
                   <button
                     type="button"

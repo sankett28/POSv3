@@ -1,6 +1,27 @@
 @import "tailwindcss";
 
 /* ============================================================================
+   FONT CONFIGURATION
+   ============================================================================ */
+
+@layer base {
+  :root {
+    --font-sora: 'Sora', sans-serif;
+    --font-manrope: 'Manrope', sans-serif;
+  }
+  
+  /* Apply Manrope as default body font */
+  body {
+    font-family: var(--font-manrope);
+  }
+  
+  /* Apply Sora to all headings */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-sora);
+  }
+}
+
+/* ============================================================================
    THREE-LAYER THEMING ARCHITECTURE
    ============================================================================
    
@@ -160,6 +181,10 @@
    ========================================================================= */
 
 @theme inline {
+  /* Font Families */
+  --font-family-heading: var(--font-sora);
+  --font-family-body: var(--font-manrope);
+  
   /* Text Colors */
   --color-text-primary: var(--color-text-primary);
   --color-text-secondary: var(--color-text-secondary);
@@ -419,7 +444,7 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    background: var(--theme-accent);
+    background: var(--primary);
     border-radius: 4px;
   }
 

@@ -624,7 +624,7 @@ export default function OnboardingPage() {
               marginBottom: '0.75rem',
               lineHeight: '1.3',
               letterSpacing: '-0.01em'
-            }}>Welcome to Lichy</h1>
+            }}>Welcome to Garlic</h1>
             <p style={{
               fontSize: '0.9375rem',
               color: '#666666',

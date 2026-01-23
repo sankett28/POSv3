@@ -6,17 +6,17 @@ import { motion } from 'framer-motion';
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 40 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: 'easeOut' } }
+  visible: { opacity: 1, y: 0, transition: { duration: 0.8 } }
 };
 
 const fadeIn = {
   hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { duration: 0.9, ease: 'easeOut' } }
+  visible: { opacity: 1, transition: { duration: 0.9 } }
 };
 
 const scaleIn = {
   hidden: { opacity: 0, scale: 0.94 },
-  visible: { opacity: 1, scale: 1, transition: { duration: 0.8, ease: 'easeOut' } }
+  visible: { opacity: 1, scale: 1, transition: { duration: 0.8 } }
 };
 
 const staggerContainer = {
@@ -59,7 +59,7 @@ export default function LandingPage() {
           whileInView="visible"
           viewport={{ once: true, margin: "-80px" }}
           variants={heroVariants}
-          className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center px-8 py-20 md:py-32 max-w-[1600px] mx-auto min-h-[700px] hero-grid"
+          className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center px-8 py-20 md:py-32 max-w-400 mx-auto min-h-175 hero-grid"
         >
           <motion.div variants={fadeInUp} className="flex flex-col gap-7 pr-8">
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold leading-[1.05] text-[#1a1a1a] tracking-[-0.025em]">
@@ -87,7 +87,7 @@ export default function LandingPage() {
 
           <motion.div
             variants={scaleIn}
-            className="relative w-full h-[520px] md:h-[620px] rounded-3xl overflow-hidden shadow-2xl ring-1 ring-black/5"
+            className="relative w-full h-130 md:h-155 rounded-3xl overflow-hidden shadow-2xl ring-1 ring-black/5"
           >
             <Image src="/images/cafe.jpg" alt="POS Preview" fill className="object-cover" priority />
           </motion.div>
@@ -101,7 +101,7 @@ export default function LandingPage() {
           variants={staggerContainer}
           className="py-24 px-8 bg-[#fafafa]"
         >
-          <div className="max-w-[1600px] mx-auto">
+          <div className="max-w-400 mx-auto">
             <motion.h2 variants={fadeInUp} className="text-5xl md:text-6xl font-bold text-center text-[#1a1a1a] tracking-tight mb-6">
               Launch Your POS in 3 Simple Steps
             </motion.h2>
@@ -119,7 +119,7 @@ export default function LandingPage() {
                   key={i}
                   variants={fadeInUp}
                   whileHover={{ y: -10, transition: { duration: 0.35 } }}
-                  className="bg-white border border-gray-200 rounded-2xl p-10 text-center shadow-md hover:shadow-2xl transition-all duration-400 min-h-[260px] flex flex-col items-center group relative overflow-hidden"
+                  className="bg-white border border-gray-200 rounded-2xl p-10 text-center shadow-md hover:shadow-2xl transition-all duration-400 min-h-65 flex flex-col items-center group relative overflow-hidden"
                 >
                   <div className="relative w-16 h-16 rounded-full bg-gray-50 border border-gray-200 flex items-center justify-center mb-6 text-4xl group-hover:scale-110 transition-transform duration-400">
                     <span>{step.icon}</span>
@@ -143,12 +143,12 @@ export default function LandingPage() {
           variants={staggerContainer}
           className="py-24 px-8 bg-white"
         >
-          <div className="max-w-[1600px] mx-auto">
+          <div className="max-w-400 mx-auto">
             <motion.h2 variants={fadeInUp} className="text-5xl md:text-6xl font-bold text-center text-gray-900 tracking-tight mb-6">
               Everything You Need to Succeed
             </motion.h2>
             <motion.p variants={fadeInUp} className="text-lg text-center text-gray-600 mb-16 max-w-4xl mx-auto">
-              Lichy comes packed with powerful features to streamline your operations and boost your growth.
+              Garlic comes packed with powerful features to streamline your operations and boost your growth.
             </motion.p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-7 grid-4">
@@ -166,7 +166,7 @@ export default function LandingPage() {
                   key={i}
                   variants={fadeInUp}
                   whileHover={{ y: -8, scale: 1.03, transition: { duration: 0.3 } }}
-                  className="bg-white border border-gray-200 rounded-2xl p-9 text-center shadow-md hover:shadow-2xl transition-all duration-400 min-h-[200px] flex flex-col items-center group"
+                  className="bg-white border border-gray-200 rounded-2xl p-9 text-center shadow-md hover:shadow-2xl transition-all duration-400 min-h-50 flex flex-col items-center group"
                 >
                   <div className="w-16 h-16 rounded-full bg-gray-50 border border-gray-200 flex items-center justify-center mb-6 text-4xl group-hover:rotate-6 group-hover:scale-110 transition-transform duration-400">
                     <span>{feature.icon}</span>
@@ -187,7 +187,7 @@ export default function LandingPage() {
           variants={staggerContainer}
           className="py-24 px-8 bg-[#fafafa]"
         >
-          <div className="max-w-[1600px] mx-auto">
+          <div className="max-w-400 mx-auto">
             <motion.h2 variants={fadeInUp} className="text-5xl md:text-6xl font-bold text-center text-[#1a1a1a] tracking-tight mb-6">
               Your Brand, Your Colors
             </motion.h2>
@@ -216,7 +216,7 @@ export default function LandingPage() {
                   ))}
                 </div>
                 <p className="text-gray-600 leading-relaxed text-lg">
-                  Watch the POS dashboard on the right change instantly. This is the power of Lichy—total brand control, delivered in minutes.
+                  Watch the POS dashboard on the right change instantly. This is the power of Garlic—total brand control, delivered in minutes.
                 </p>
               </motion.div>
 
@@ -297,12 +297,12 @@ export default function LandingPage() {
           variants={staggerContainer}
           className="py-24 px-8 bg-white"
         >
-          <div className="max-w-[1600px] mx-auto">
+          <div className="max-w-400 mx-auto">
             <motion.h2 variants={fadeInUp} className="text-5xl md:text-6xl font-bold text-center text-[#1a1a1a] tracking-tight mb-6">
               Built for Every Food Business
             </motion.h2>
             <motion.p variants={fadeInUp} className="text-lg text-center text-gray-600 mb-16 max-w-4xl mx-auto">
-              Whether you run a cozy cafe or a bustling cloud kitchen, Lichy adapts to your unique needs.
+              Whether you run a cozy cafe or a bustling cloud kitchen, Garlic adapts to your unique needs.
             </motion.p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-7 grid-4">
@@ -316,7 +316,7 @@ export default function LandingPage() {
                   key={i}
                   variants={fadeInUp}
                   whileHover={{ y: -8, scale: 1.03 }}
-                  className="bg-white border border-gray-200 rounded-2xl p-10 text-center shadow-md hover:shadow-2xl transition-all duration-400 min-h-[240px] flex flex-col items-center group"
+                  className="bg-white border border-gray-200 rounded-2xl p-10 text-center shadow-md hover:shadow-2xl transition-all duration-400 min-h-60 flex flex-col items-center group"
                 >
                   <div className="w-16 h-16 rounded-full bg-gray-50 border border-gray-200 flex items-center justify-center mb-6 text-4xl group-hover:scale-110 group-hover:rotate-6 transition-transform duration-400">
                     <span>{business.icon}</span>
@@ -337,14 +337,14 @@ export default function LandingPage() {
           variants={staggerContainer}
           className="py-24 px-8 bg-[#fafafa]"
         >
-          <div className="max-w-[1600px] mx-auto">
+          <div className="max-w-400 mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-20 items-center hero-grid">
               <motion.div variants={fadeInUp}>
                 <h2 className="text-5xl md:text-6xl font-bold text-[#1a1a1a] leading-[1.15] tracking-[-0.02em] mb-8">
                   Focus on Your Food, Not Your Software
                 </h2>
                 <p className="text-lg leading-relaxed text-gray-600 mb-10">
-                  We built Lichy to be incredibly simple and powerful, so you can spend more time doing what you love.
+                  We built Garlic to be incredibly simple and powerful, so you can spend more time doing what you love.
                 </p>
                 <ul className="list-none p-0 m-0 space-y-5">
                   {[
@@ -359,7 +359,7 @@ export default function LandingPage() {
                       variants={fadeInUp}
                       className="flex items-start gap-5 text-[15px] text-[#1a1a1a]"
                     >
-                      <div className="w-7 h-7 rounded-full border-2 border-[#1a1a1a] flex items-center justify-center flex-shrink-0 mt-1">
+                      <div className="w-7 h-7 rounded-full border-2 border-[#1a1a1a] flex items-center justify-center shrink-0 mt-1">
                         <span className="text-sm font-bold text-[#1a1a1a]">✓</span>
                       </div>
                       <span>{item}</span>
@@ -370,7 +370,7 @@ export default function LandingPage() {
 
               <motion.div
                 variants={scaleIn}
-                className="relative w-full h-[520px] rounded-3xl overflow-hidden shadow-2xl ring-1 ring-black/5"
+                className="relative w-full h-130 rounded-3xl overflow-hidden shadow-2xl ring-1 ring-black/5"
               >
                 <Image src="/images/cafe 2.jpg" alt="Business Image" fill className="object-cover" />
               </motion.div>
@@ -386,7 +386,7 @@ export default function LandingPage() {
           variants={staggerContainer}
           className="py-24 px-8 bg-white"
         >
-          <div className="max-w-[1600px] mx-auto">
+          <div className="max-w-400 mx-auto">
             <motion.h2 variants={fadeInUp} className="text-5xl md:text-6xl font-bold text-center text-[#1a1a1a] tracking-tight mb-6">
               Loved by Business Owners Like You
             </motion.h2>
@@ -400,26 +400,26 @@ export default function LandingPage() {
                   name: 'Asha Khan',
                   role: 'Owner, The Cozy Mug Cafe',
                   avatar: 'AK',
-                  text: '"Lichy is a game-changer. We had a beautiful, branded POS running in one afternoon. Our staff loves it, and customers compliment the clean interface!"'
+                  text: '"Garlic is a game-changer. We had a beautiful, branded POS running in one afternoon. Our staff loves it, and customers compliment the clean interface!"'
                 },
                 {
                   name: 'Rohan Verma',
                   role: 'Chef, Saffron Spice Restaurant',
                   avatar: 'RV',
-                  text: '"The sales and inventory reports are incredibly detailed. We\'ve cut down on waste and optimized our menu, all thanks to Lichy\'s insights. Setup was instant!"'
+                  text: '"The sales and inventory reports are incredibly detailed. We\'ve cut down on waste and optimized our menu, all thanks to Garlic\'s insights. Setup was instant!"'
                 },
                 {
                   name: 'Priya Patel',
                   role: 'Founder, Sweet Layers Bakery',
                   avatar: 'PP',
-                  text: '"I\'m not a tech person, but Lichy made it so simple. Choosing my brand colors and seeing the POS update instantly was like magic. Highly recommended!"'
+                  text: '"I\'m not a tech person, but Garlic made it so simple. Choosing my brand colors and seeing the POS update instantly was like magic. Highly recommended!"'
                 }
               ].map((testimonial, i) => (
                 <motion.div
                   key={i}
                   variants={fadeInUp}
                   whileHover={{ y: -8, transition: { duration: 0.35 } }}
-                  className="bg-white border border-gray-200 rounded-2xl p-10 shadow-md hover:shadow-2xl transition-all duration-400 flex flex-col min-h-[320px]"
+                  className="bg-white border border-gray-200 rounded-2xl p-10 shadow-md hover:shadow-2xl transition-all duration-400 flex flex-col min-h-80"
                 >
                   <div className="text-[#fbbf24] text-2xl mb-6 flex gap-1">
                     {[...Array(5)].map((_, j) => <span key={j}>★</span>)}
@@ -428,7 +428,7 @@ export default function LandingPage() {
                     {testimonial.text}
                   </p>
                   <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 rounded-full bg-[#1a1a1a] flex items-center justify-center font-bold text-white text-lg flex-shrink-0 shadow-sm">
+                    <div className="w-14 h-14 rounded-full bg-[#1a1a1a] flex items-center justify-center font-bold text-white text-lg shrink-0 shadow-sm">
                       {testimonial.avatar}
                     </div>
                     <div>
@@ -441,46 +441,6 @@ export default function LandingPage() {
             </div>
           </div>
         </motion.section>
-
-        {/* Footer */}
-        <motion.footer
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.9 }}
-          className="mt-12"
-        >
-          <div className="bg-[#1a1a1a] py-8 px-6">
-            <div className="max-w-[1600px] mx-auto">
-              <div className="flex flex-col sm:flex-row justify-between items-center gap-6 text-gray-300 text-sm flex-wrap">
-                <div className="flex items-center gap-8">
-                  <Link href="/terms-of-use" className="hover:text-white transition-colors duration-300">
-                    Terms Of Use
-                  </Link>
-                  <Link href="/privacy-policy" className="hover:text-white transition-colors duration-300">
-                    Privacy Policy
-                  </Link>
-                </div>
-
-                <div className="text-center order-3 sm:order-none mt-4 sm:mt-0">
-                  © 2025 Helium AI. All rights reserved.
-                </div>
-
-                <div className="text-right">
-                  Product by{' '}
-                  <Link
-                    href="https://neuralarc.ai"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:text-white transition-colors duration-300"
-                  >
-                    Neural Arc Inc
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-        </motion.footer>
       </div>
     </>
   );

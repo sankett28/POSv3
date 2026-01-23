@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react'
 import { api } from '@/lib/api'
 import { BarChart3, IndianRupee, TrendingUp, FileText, Download } from 'lucide-react'
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
-// Performance: xlsx is only loaded when exportToExcel is called (dynamic import)
+import { Skeleton } from '@/components/ui/Skeleton'
 
 interface BillItem {
   id: string
@@ -70,7 +70,6 @@ export default function ReportsPage() {
     const today = new Date().toISOString().split('T')[0]
     const thirtyDaysAgo = new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().split('T')[0]
     
-    // Ensure start date is at least 2026-01-01
     const start = thirtyDaysAgo < minDate ? minDate : thirtyDaysAgo
     
     return {
@@ -89,7 +88,6 @@ export default function ReportsPage() {
       setTaxSummary(data)
     } catch (error: any) {
       console.error('Error loading tax summary:', error)
-      // Log more details for debugging
       if (error.response) {
         console.error('Response error:', error.response.status, error.response.data)
       } else if (error.request) {
@@ -97,7 +95,6 @@ export default function ReportsPage() {
       } else {
         console.error('Error message:', error.message)
       }
-      // Set tax summary to null on error so UI doesn't show stale data
       setTaxSummary(null)
     }
   }, [dateRange.start, dateRange.end])
@@ -108,7 +105,6 @@ export default function ReportsPage() {
       setSalesByCategory(data)
     } catch (error: any) {
       console.error('Error loading sales by category:', error)
-      // Log more details for debugging
       if (error.response) {
         console.error('Response error:', error.response.status, error.response.data)
       } else if (error.request) {
@@ -116,7 +112,6 @@ export default function ReportsPage() {
       } else {
         console.error('Error message:', error.message)
       }
-      // Set sales by category to null on error so UI doesn't show stale data
       setSalesByCategory(null)
     }
   }, [dateRange.start, dateRange.end])
@@ -139,7 +134,6 @@ export default function ReportsPage() {
     }
   }
 
-  // Performance: Memoize filtered bills to avoid recalculating on every render
   const filteredBills = useMemo(() => {
     return bills.filter((bill) => {
       const billDate = new Date(bill.created_at).toISOString().split('T')[0]
@@ -147,19 +141,16 @@ export default function ReportsPage() {
     })
   }, [bills, dateRange.start, dateRange.end])
 
-  // Performance: Memoize expensive calculations
   const totalSales = useMemo(() => {
     return filteredBills.reduce((sum, bill) => sum + bill.total_amount, 0)
   }, [filteredBills])
 
   const transactionCount = filteredBills.length
   
-  // Tax values come from tax summary (sum of stored snapshots, not recalculation)
   const totalTax = taxSummary?.grand_total_tax || 0
   const totalCGST = taxSummary?.grand_total_cgst || 0
   const totalSGST = taxSummary?.grand_total_sgst || 0
 
-  // Performance: Memoize payment method breakdown calculation
   const paymentMethodBreakdown = useMemo(() => {
     return filteredBills.reduce((acc, bill) => {
       acc[bill.payment_method] = (acc[bill.payment_method] || 0) + bill.total_amount
@@ -176,12 +167,9 @@ export default function ReportsPage() {
     })
   }
 
-  // Performance: Use dynamic import for xlsx to reduce initial bundle size
   const exportToExcel = useCallback(async () => {
-    // Dynamic import: Only load xlsx when user clicks export
     const XLSX = await import('xlsx')
     
-    // Create a new workbook
     const workbook = XLSX.utils.book_new()
     
     const generatedDate = new Date().toLocaleDateString('en-IN', { 
@@ -192,9 +180,8 @@ export default function ReportsPage() {
       minute: '2-digit' 
     })
 
-    // Summary Sheet
     const summaryData = [
-      ['Lichi Cafe - Sales Report'],
+      ['Garlic Cafe - Sales Report'],
       [''],
       ['Date Range:', `${formatDate(dateRange.start)} to ${formatDate(dateRange.end)}`],
       ['Generated on:', generatedDate],
@@ -208,11 +195,9 @@ export default function ReportsPage() {
       ['Total Transactions', transactionCount],
     ]
     const summarySheet = XLSX.utils.aoa_to_sheet(summaryData)
-    // Set column widths
     summarySheet['!cols'] = [{ wch: 25 }, { wch: 15 }]
     XLSX.utils.book_append_sheet(workbook, summarySheet, 'Summary')
 
-    // Payment Methods Sheet
     if (Object.keys(paymentMethodBreakdown).length > 0) {
       const paymentData = [
         ['Payment Methods'],
@@ -229,7 +214,6 @@ export default function ReportsPage() {
       XLSX.utils.book_append_sheet(workbook, paymentSheet, 'Payment Methods')
     }
 
-    // Sales by Category Sheet
     if (salesByCategory && salesByCategory.summary.length > 0) {
       const categoryData = [
         ['Sales by Category'],
@@ -248,7 +232,6 @@ export default function ReportsPage() {
       XLSX.utils.book_append_sheet(workbook, categorySheet, 'Sales by Category')
     }
 
-    // Tax Summary Sheet
     if (taxSummary && taxSummary.summary.length > 0) {
       const taxData = [
         ['Tax Summary by Tax Rate'],
@@ -273,30 +256,111 @@ export default function ReportsPage() {
       ]
       const taxSheet = XLSX.utils.aoa_to_sheet(taxData)
       taxSheet['!cols'] = [
-        { wch: 12 }, // Tax Rate
-        { wch: 20 }, // Tax Group
-        { wch: 15 }, // Taxable Value
-        { wch: 12 }, // CGST
-        { wch: 12 }, // SGST
-        { wch: 12 }, // Total Tax
-        { wch: 8 }   // Items
+        { wch: 12 },
+        { wch: 20 },
+        { wch: 15 },
+        { wch: 12 },
+        { wch: 12 },
+        { wch: 12 },
+        { wch: 8 }
       ]
       XLSX.utils.book_append_sheet(workbook, taxSheet, 'Tax Summary')
     }
 
-    // Generate filename with date range
     const startDateStr = dateRange.start.replace(/-/g, '')
     const endDateStr = dateRange.end.replace(/-/g, '')
-    const filename = `Lichi_Report_${startDateStr}_to_${endDateStr}.xlsx`
+    const filename = `Garlic_Report_${startDateStr}_to_${endDateStr}.xlsx`
 
-    // Save the Excel file
     XLSX.writeFile(workbook, filename)
   }, [dateRange.start, dateRange.end, totalSales, totalTax, totalCGST, totalSGST, transactionCount, paymentMethodBreakdown, salesByCategory, taxSummary])
 
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto">
-        <div className="text-center text-gray-500 py-8">Loading reports...</div>
+        {/* Header skeleton */}
+        <div className="flex justify-between items-end mb-6">
+          <div className="space-y-2">
+            <Skeleton className="h-10 w-48" />
+            <Skeleton className="h-5 w-72" />
+          </div>
+          <div className="flex gap-4 items-center">
+            <Skeleton className="h-10 w-36 rounded-xl" />
+            <Skeleton className="h-10 w-36 rounded-xl" />
+            <Skeleton className="h-10 w-40 rounded-xl" />
+          </div>
+        </div>
+
+        {/* Stats cards skeleton */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="bg-white rounded-2xl shadow-md p-6 border border-border">
+              <div className="flex items-center justify-between">
+                <div className="space-y-3">
+                  <Skeleton className="h-5 w-32" />
+                  <Skeleton className="h-10 w-48" />
+                </div>
+                <Skeleton className="h-14 w-14 rounded-full" />
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Charts skeleton */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          {[...Array(2)].map((_, i) => (
+            <div key={i} className="bg-white rounded-2xl shadow-md p-6 border border-border">
+              <Skeleton className="h-8 w-64 mb-6" />
+              <Skeleton className="h-[350px] w-full rounded-xl" />
+              <div className="mt-4 space-y-3">
+                {[...Array(4)].map((_, j) => (
+                  <div key={j} className="flex justify-between items-center py-2">
+                    <Skeleton className="h-5 w-40" />
+                    <Skeleton className="h-5 w-24" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Tax summary table skeleton */}
+        <div className="bg-white rounded-2xl shadow-lg p-6 border border-border">
+          <Skeleton className="h-8 w-64 mb-6" />
+          <div className="overflow-x-auto">
+            <table className="min-w-full">
+              <thead>
+                <tr>
+                  {[...Array(7)].map((_, i) => (
+                    <th key={i} className="px-6 py-4">
+                      <Skeleton className="h-4 w-20 mx-auto" />
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {[...Array(6)].map((_, i) => (
+                  <tr key={i} className="h-16">
+                    <td className="px-6 py-4"><Skeleton className="h-5 w-20" /></td>
+                    <td className="px-6 py-4"><Skeleton className="h-5 w-40" /></td>
+                    <td className="px-6 py-4 text-right"><Skeleton className="h-5 w-28 ml-auto" /></td>
+                    <td className="px-6 py-4 text-right"><Skeleton className="h-5 w-28 ml-auto" /></td>
+                    <td className="px-6 py-4 text-right"><Skeleton className="h-5 w-28 ml-auto" /></td>
+                    <td className="px-6 py-4 text-right"><Skeleton className="h-5 w-32 ml-auto" /></td>
+                    <td className="px-6 py-4 text-right"><Skeleton className="h-5 w-16 ml-auto" /></td>
+                  </tr>
+                ))}
+                <tr className="h-16 font-bold">
+                  <td colSpan={2} className="px-6 py-4"><Skeleton className="h-6 w-32" /></td>
+                  <td className="px-6 py-4 text-right"><Skeleton className="h-6 w-28 ml-auto" /></td>
+                  <td className="px-6 py-4 text-right"><Skeleton className="h-6 w-28 ml-auto" /></td>
+                  <td className="px-6 py-4 text-right"><Skeleton className="h-6 w-28 ml-auto" /></td>
+                  <td className="px-6 py-4 text-right"><Skeleton className="h-6 w-36 ml-auto" /></td>
+                  <td className="px-6 py-4"></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     )
   }
@@ -315,7 +379,6 @@ export default function ReportsPage() {
               min="2026-01-01"
               onChange={(e) => {
                 const newStart = e.target.value
-                // Ensure start date is not before 2026-01-01
                 if (newStart >= '2026-01-01') {
                   setDateRange({ ...dateRange, start: newStart })
                 }
@@ -328,7 +391,6 @@ export default function ReportsPage() {
               min="2026-01-01"
               onChange={(e) => {
                 const newEnd = e.target.value
-                // Ensure end date is not before 2026-01-01
                 if (newEnd >= '2026-01-01') {
                   setDateRange({ ...dateRange, end: newEnd })
                 }
@@ -415,7 +477,7 @@ export default function ReportsPage() {
                           <text 
                             x={x} 
                             y={y} 
-                            fill="#610027" 
+                            fill="#1F2937" 
                             textAnchor={x > cx ? 'start' : 'end'} 
                             dominantBaseline="middle"
                             fontSize="12"
@@ -438,18 +500,16 @@ export default function ReportsPage() {
                     >
                       {Object.entries(paymentMethodBreakdown).map((entry, index) => {
                         const method = entry[0].toLowerCase()
-                        let color = '#912B48' // default medium-dark red
+                        let color = '#4B5563'
                         
-                        // Assign specific colors based on payment method using new theme
                         if (method === 'card') {
-                          color = '#B45A69' // dusty rose for Card
+                          color = '#6B7280'
                         } else if (method === 'cash') {
-                          color = '#912B48' // medium-dark red for Cash
+                          color = '#374151'
                         } else if (method === 'upi') {
-                          color = '#610027' // deep burgundy for UPI
+                          color = '#1F2937'
                         } else {
-                          // Fallback colors for other methods using theme palette
-                          const fallbackColors = ['#912B48', '#B45A69', '#610027', '#FFF0F3']
+                          const fallbackColors = ['#1F2937', '#374151', '#4B5563', '#6B7280']
                           color = fallbackColors[index % fallbackColors.length]
                         }
                         
@@ -459,17 +519,17 @@ export default function ReportsPage() {
                     <Tooltip 
                       formatter={(value: any) => value !== undefined && value !== null ? `₹${Number(value).toFixed(2)}` : ''}
                       contentStyle={{
-                        backgroundColor: '#FFF0F3',
+                        backgroundColor: '#F3F4F6',
                         border: '1px solid #E5E7EB',
                         borderRadius: '8px',
-                        color: '#610027'
+                        color: '#1F2937'
                       }}
                     />
                     <Legend 
                       wrapperStyle={{ paddingTop: '20px' }}
                       formatter={(value) => (
                         <span style={{ 
-                          color: '#610027', 
+                          color: '#1F2937', 
                           fontWeight: '600',
                           fontSize: '13px'
                         }}>
@@ -507,32 +567,35 @@ export default function ReportsPage() {
                         name: item.category_name,
                         sales: item.total_sales
                       }))}
-                    margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+                    margin={{ top: 20, right: 30, left: 20, bottom: 100 }}
                   >
                     <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
                     <XAxis 
                       dataKey="name" 
-                      angle={-45}
+                      angle={-35}
                       textAnchor="end"
-                      height={80}
-                      tick={{ fill: '#6B6B6B', fontSize: 12 }}
+                      height={100}
+                      interval={0}
+                      tick={{ fill: '#6B6B6B', fontSize: 11 }}
                     />
                     <YAxis 
                       tick={{ fill: '#6B6B6B', fontSize: 12 }}
                       tickFormatter={(value) => `₹${value}`}
+                      ticks={[0, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000]}
+                      domain={[0, 'dataMax + 1000']}
                     />
                     <Tooltip 
                       formatter={(value: any) => value !== undefined && value !== null ? `₹${Number(value).toFixed(2)}` : ''}
                       contentStyle={{
-                        backgroundColor: '#FFF0F3',
+                        backgroundColor: '#F3F4F6',
                         border: '1px solid #E5E7EB',
                         borderRadius: '8px',
-                        color: '#610027'
+                        color: '#1F2937'
                       }}
                     />
                     <Bar 
                       dataKey="sales" 
-                      fill="#912B48"
+                      fill="#4B5563"
                       radius={[8, 8, 0, 0]}
                       animationBegin={0}
                       animationDuration={800}
@@ -541,8 +604,7 @@ export default function ReportsPage() {
                       {salesByCategory.summary
                         .sort((a, b) => b.total_sales - a.total_sales)
                         .map((entry, index) => {
-                          // Use theme colors: deep burgundy, medium-dark red, dusty rose, light pink
-                          const colors = ['#610027', '#912B48', '#B45A69', '#FFF0F3']
+                          const colors = ['#1F2937', '#374151', '#4B5563', '#6B7280']
                           return <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
                         })}
                     </Bar>
@@ -615,4 +677,3 @@ export default function ReportsPage() {
     </div>
   )
 }
-

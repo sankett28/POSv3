@@ -13,6 +13,7 @@
 import { useState, useEffect } from 'react'
 import { Theme, applyTheme, fetchTheme, saveTheme, validateTheme, resetTheme } from '@/lib/theme'
 import Button from './Button'
+import { SliderPicker } from 'react-color'
 
 interface ValidationResult {
   is_valid: boolean
@@ -207,16 +208,15 @@ export default function ThemeEditor() {
     setValidation(null)
     setMessage(null)
   }
+  
 
   const colorSlots: Array<{ key: keyof Theme; label: string; description: string }> = [
     { key: 'primary', label: 'Primary', description: 'Main brand color for CTAs and key elements' },
     { key: 'secondary', label: 'Secondary', description: 'Secondary buttons and less prominent elements' },
     { key: 'background', label: 'Background', description: 'Main background color' },
-    { key: 'foreground', label: 'Foreground', description: 'Primary text color' },
+   
     { key: 'accent', label: 'Accent', description: 'Accent color for highlights' },
-    { key: 'danger', label: 'Danger', description: 'Error and danger states' },
-    { key: 'success', label: 'Success', description: 'Success states' },
-    { key: 'warning', label: 'Warning', description: 'Warning states' },
+   
   ]
 
   if (isLoading && !theme.primary) {
@@ -230,6 +230,8 @@ export default function ThemeEditor() {
         <p className="text-secondary-text mb-6">
           Customize your business theme colors. Changes are previewed live.
         </p>
+
+        <SliderPicker color={"#fff"} onChangeComplete={(color) => console.log('color from picker', color)} />
 
         {/* Color Pickers */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">

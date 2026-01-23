@@ -9,7 +9,7 @@ export function FinalCta() {
           Ready to Transform Your Business?
         </h2>
         <p className="text-xl mb-8 max-w-3xl mx-auto text-coffee-100">
-          Join thousands of businesses that trust Lichi POS to power their operations. Get started today with our 14-day free trial.
+          Join thousands of businesses that trust Garlic POS to power their operations. Get started today with our 14-day free trial.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link href="/signup">

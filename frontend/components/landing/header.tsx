@@ -6,7 +6,7 @@ export function Header() {
     <header className="fixed w-full bg-white/80 backdrop-blur-sm z-50 border-b border-gray-100">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         <Link href="/" className="flex items-center space-x-2">
-          <span className="text-2xl font-bold text-coffee-brown">Lichi</span>
+          <span className="text-2xl font-bold text-coffee-brown">Garlic</span>
         </Link>
         <nav className="hidden md:flex items-center space-x-8">
           <Link href="#features" className="text-gray-700 hover:text-coffee-brown transition-colors">

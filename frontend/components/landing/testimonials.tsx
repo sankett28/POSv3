@@ -4,7 +4,7 @@ const testimonials = [
   {
     name: "Sarah Johnson",
     role: "Cafe Owner, The Daily Grind",
-    content: "Lichi POS has completely transformed how we run our cafe. The interface is so intuitive that our staff learned it in minutes.",
+    content: "Garlic POS has completely transformed how we run our cafe. The interface is so intuitive that our staff learned it in minutes.",
     rating: 5
   },
   {
@@ -16,7 +16,7 @@ const testimonials = [
   {
     name: "Emily Rodriguez",
     role: "Bakery Owner, Sweet Delights",
-    content: "Switching to Lichi was the best decision we made. The customer support is exceptional and the system just works.",
+    content: "Switching to Garlic was the best decision we made. The customer support is exceptional and the system just works.",
     rating: 5
   }
 ];

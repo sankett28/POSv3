@@ -23,14 +23,14 @@ const benefits = [
   }
 ];
 
-export function WhyLichy() {
+export function WhyGarlic() {
   return (
     <section className="py-20 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="lg:grid lg:grid-cols-2 lg:gap-16 items-center">
           <div className="mb-12 lg:mb-0">
             <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl mb-6">
-              Why Choose Lichi POS?
+              Why Choose Garlic POS?
             </h2>
             <p className="text-lg text-gray-600 mb-8">
               We've built a modern, intuitive point of sale system that helps you run your business more efficiently.
@@ -56,7 +56,7 @@ export function WhyLichy() {
               <div className="flex items-center justify-center h-full p-8 text-center">
                 <div>
                   <h3 className="text-xl font-bold text-coffee-brown mb-2">See It In Action</h3>
-                  <p className="text-gray-600 mb-4">Schedule a demo to see how Lichi can transform your business</p>
+                  <p className="text-gray-600 mb-4">Schedule a demo to see how Garlic can transform your business</p>
                   <button className="bg-coffee-brown text-white px-6 py-3 rounded-lg font-medium hover:bg-coffee-brown/90 transition-colors">
                     Request Demo
                   </button>

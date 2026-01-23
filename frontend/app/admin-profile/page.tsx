@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   UserCircle,
   Settings,
@@ -18,21 +18,85 @@ import {
   X,
   Camera,
 } from 'lucide-react'
+import { Skeleton } from '@/components/ui/Skeleton'
 
 export default function AdminProfilePage() {
   const [isEditing, setIsEditing] = useState(false)
+  const [isLoading, setIsLoading] = useState(true) // ← added for skeleton demo
   const [profileData, setProfileData] = useState({
     name: 'Admin User',
     email: 'admin@retailboss.com',
     phone: '+91 98765 43210',
-    storeName: 'Lichi Cafe',
+    storeName: 'Garlic Cafe',
     address: '123 Main Street, City, State - 123456',
     role: 'Administrator',
     joinDate: 'January 2024',
   })
 
+  // Simulate loading (you can replace with real fetch if needed)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false)
+    }, 1200) // fake delay — remove or adjust as needed
+
+    return () => clearTimeout(timer)
+  }, [])
+
   const handleSave = () => setIsEditing(false)
   const handleCancel = () => setIsEditing(false)
+
+  if (isLoading) {
+    return (
+      <div className="max-w-7xl mx-auto">
+        {/* Header skeleton */}
+        <div className="mb-8 space-y-2">
+          <Skeleton className="h-10 w-64" />
+          <Skeleton className="h-5 w-96" />
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Profile Card skeleton */}
+          <div>
+            <div className="bg-white shadow-md border border-border rounded-2xl p-6 text-center space-y-4">
+              <div className="relative inline-block mx-auto">
+                <Skeleton className="w-28 h-28 rounded-full" />
+                <Skeleton className="absolute bottom-0 right-0 w-9 h-9 rounded-full" />
+              </div>
+              <Skeleton className="h-7 w-48 mx-auto" />
+              <Skeleton className="h-5 w-32 mx-auto" />
+              <Skeleton className="h-6 w-40 mx-auto rounded-xl" />
+              <Skeleton className="h-5 w-56 mx-auto" />
+            </div>
+          </div>
+
+          {/* Details skeleton */}
+          <div className="lg:col-span-2">
+            <div className="bg-white shadow-md border border-border rounded-2xl p-6 space-y-6">
+              <div className="flex justify-between items-center mb-6">
+                <Skeleton className="h-8 w-56" />
+                <Skeleton className="h-10 w-36 rounded-xl" />
+              </div>
+
+              <div className="space-y-5">
+                {[...Array(5)].map((_, i) => (
+                  <div key={i}>
+                    <Skeleton className="h-5 w-32 mb-1" />
+                    <Skeleton className="h-11 w-full rounded-xl" />
+                  </div>
+                ))}
+
+                {/* Address textarea skeleton */}
+                <div>
+                  <Skeleton className="h-5 w-24 mb-1" />
+                  <Skeleton className="h-24 w-full rounded-xl" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="max-w-7xl mx-auto">
@@ -47,13 +111,12 @@ export default function AdminProfilePage() {
         </p>
       </div>
 
-
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Profile Card */}
         <div>
           <div className="bg-white shadow-md border border-border rounded-2xl p-6 text-center">
             <div className="relative inline-block mb-4">
-              <div className="w-28 h-28 rounded-full bg-linear-to-br from-[#912B48] to-[#B45A69] text-white flex items-center justify-center shadow-lg">
+              <div className="w-28 h-28 rounded-full bg-primary text-text-inverse flex items-center justify-center shadow-lg">
                 <UserCircle className="w-16 h-16" />
               </div>
               {isEditing && (

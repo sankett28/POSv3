@@ -1,17 +1,26 @@
 'use client'
 
-import { Inter } from 'next/font/google'
+import { Sora, Manrope } from 'next/font/google'
 import { usePathname } from 'next/navigation'
 import { useEffect } from 'react'
 import './globals.css'
 import Sidebar from '@/components/layout/Sidebar'
 import { initializeTheme } from '@/lib/theme'
 import { Toaster } from '@/components/ui/toast'
+import Footer from '@/components/ui/Footer'
 
-const inter = Inter({
+const sora = Sora({
   subsets: ['latin'],
   display: 'swap',
   preload: true,
+  variable: '--font-sora',
+})
+
+const manrope = Manrope({
+  subsets: ['latin'],
+  display: 'swap',
+  preload: true,
+  variable: '--font-manrope',
 })
 
 export default function RootLayout({
@@ -50,10 +59,10 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full">
       <head>
-        <title>Lichi - Cafe POS System</title>
-        <meta name="description" content="Lichi - Modern cafe management and POS system" />
+        <title>Garlic - Cafe POS System</title>
+        <meta name="description" content="Garlic - Modern cafe management and POS system" />
       </head>
-      <body className={`${inter.className} h-full bg-app-background antialiased`}>
+      <body className={`${manrope.variable} ${sora.variable} font-sans h-full bg-app-background antialiased`}>
         {showSidebar ? (
           <div className="relative flex min-h-screen w-full">
             {/* Sidebar - fixed on large screens, overlay or hidden on mobile */}
@@ -62,8 +71,8 @@ export default function RootLayout({
             </div>
 
             {/* Main content area */}
-            <div className="flex-1  ml-0 transition-all duration-300">
-              <main className="min-h-screen  px-4 py-5 sm:px-6 lg:px-8">
+            <div className="flex-1 ml-0 transition-all duration-300">
+              <main className="min-h-screen px-4 py-5 sm:px-6 lg:px-8">
                 {children}
               </main>
             </div>
@@ -71,6 +80,9 @@ export default function RootLayout({
         ) : (
           children
         )}
+        
+        {/* Footer on all pages */}
+        <Footer />
         <Toaster />
       </body>
     </html>

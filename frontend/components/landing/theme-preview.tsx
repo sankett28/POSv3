@@ -24,7 +24,7 @@ export function ThemePreview() {
                   className="text-2xl font-bold mb-4"
                   style={{ color: 'var(--theme-foreground)' }}
                 >
-                  Lichi POS Dashboard
+                  Garlic POS Dashboard
                 </h3>
                 <p 
                   className="max-w-2xl mx-auto"

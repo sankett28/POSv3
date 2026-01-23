@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react'
 import { api } from '@/lib/api'
 import { Search, Plus, Minus, Trash2, CheckCircle, Wallet, Smartphone, CreditCard, PackageOpen } from 'lucide-react'
-import Image from 'next/image' // Import Next.js Image component
+import Image from 'next/image'
+import { Skeleton } from '@/components/ui/Skeleton'
 
 interface Category {
   id: string
@@ -19,18 +20,16 @@ interface TaxGroup {
   is_tax_inclusive: boolean
 }
 
-// Replace lines 21-26
 interface Product {
   id: string
   name: string
   selling_price: number
-  tax_group_id?: string; // This should be present if assigned in backend
-  tax_group?: TaxGroup;  // Add tax group data
+  tax_group_id?: string
+  tax_group?: TaxGroup
   category_id?: string
   category_name?: string
   is_active: boolean
 }
-
 
 interface BillItem {
   product_id: string
@@ -71,7 +70,6 @@ export default function OrdersPage() {
     loadData()
   }, [])
 
-  // Prevent body scroll when modal is open
   useEffect(() => {
     if (showOrderSuccessModal) {
       document.body.style.overflow = 'hidden'
@@ -109,7 +107,6 @@ export default function OrdersPage() {
 
       const activeProducts = productsData.filter((p: Product) => p.is_active)
       
-      // Enrich products with category names and tax group data
       const enrichedProducts = activeProducts.map((p: any) => {
         const category = categoriesData.find((c: Category) => c.id === p.category_id)
         const taxGroup = taxGroupsData.find((tg: TaxGroup) => tg.id === p.tax_group_id)
@@ -123,7 +120,8 @@ export default function OrdersPage() {
       setProducts(enrichedProducts)
       setCategories(categoriesData.filter((c: Category) => c.is_active))
     } catch (error) {
-      console.error('Error loading data:', JSON.stringify(error, null, 2))    } finally {
+      console.error('Error loading data:', JSON.stringify(error, null, 2))
+    } finally {
       setLoading(false)
     }
   }
@@ -212,7 +210,6 @@ export default function OrdersPage() {
     setBillItems(billItems.filter((item) => item.product_id !== productId))
   }
 
-  // Tax preview calculation function (for display only - backend does actual calculation)
   const calculateTaxPreview = (
     unitPrice: number,
     quantity: number,
@@ -240,31 +237,27 @@ export default function OrdersPage() {
     let total: number
 
     if (taxGroup.is_tax_inclusive) {
-      // Price includes tax - extract tax
       total = unitPrice * quantity
       const rateMultiplier = 1 + (taxGroup.total_rate / 100)
       taxable_value = total / rateMultiplier
       tax_amount = total - taxable_value
     } else {
-      // Price excludes tax - add tax
       taxable_value = unitPrice * quantity
       tax_amount = taxable_value * (taxGroup.total_rate / 100)
       total = taxable_value + tax_amount
     }
 
-    // Round to 2 decimal places
     taxable_value = Math.round(taxable_value * 100) / 100
     tax_amount = Math.round(tax_amount * 100) / 100
     total = Math.round(total * 100) / 100
 
-    // Split CGST/SGST
     let cgst = 0
     let sgst = 0
     if (taxGroup.split_type === 'GST_50_50') {
       cgst = Math.round((tax_amount / 2) * 100) / 100
-      sgst = tax_amount - cgst  // Ensure they sum to tax_amount
+      sgst = tax_amount - cgst
     } else {
-      cgst = tax_amount  // No split - all goes to CGST
+      cgst = tax_amount
     }
 
     return {
@@ -276,12 +269,10 @@ export default function OrdersPage() {
     }
   }
 
-  // Calculate totals from preview values
   const subtotal = billItems.reduce((sum, item) => sum + (item.preview_taxable_value || item.subtotal), 0)
   const totalTax = billItems.reduce((sum, item) => sum + (item.preview_tax_amount || 0), 0)
-  // Derive balanced CGST/SGST from total tax (matching backend logic)
   const totalCGST = Math.round((totalTax / 2) * 100) / 100
-  const totalSGST = totalTax - totalCGST  // Ensure exact balance
+  const totalSGST = totalTax - totalCGST
   const grandTotal = billItems.reduce((sum, item) => sum + (item.preview_total || item.subtotal), 0)
 
   const getCurrentDate = () => {
@@ -295,11 +286,9 @@ export default function OrdersPage() {
     })
   }
 
-  // Function to get specific description for each food item
   const getProductDescription = (productName: string, categoryName?: string) => {
     const name = productName.toLowerCase()
     
-    // Dosa varieties
     if (name.includes('ghee pudi masala') || name.includes('ghee pudimasala')) {
       return 'Crispy dosa spread with spicy pudi powder and ghee, served with chutney and sambar'
     }
@@ -328,22 +317,18 @@ export default function OrdersPage() {
       return 'Extra thin and crispy dosa, light as paper, served with traditional accompaniments'
     }
     
-    // Idli varieties
     if (name.includes('idli')) {
       return 'Soft and fluffy steamed rice cakes, served with coconut chutney and sambar'
     }
     
-    // Uttapam varieties
     if (name.includes('uttapam')) {
       return 'Thick pancake topped with vegetables, cooked to perfection on both sides'
     }
     
-    // Vada varieties
     if (name.includes('vada')) {
       return 'Crispy fried lentil donuts, golden brown and served with chutney and sambar'
     }
     
-    // Beverages
     if (name.includes('coffee')) {
       return 'Freshly brewed South Indian filter coffee with perfect blend of milk and decoction'
     }
@@ -360,7 +345,6 @@ export default function OrdersPage() {
       return 'Thick and creamy milkshake blended with ice cream and fresh ingredients'
     }
     
-    // Snacks
     if (name.includes('samosa')) {
       return 'Crispy fried pastry filled with spiced potatoes and peas, served hot'
     }
@@ -371,7 +355,6 @@ export default function OrdersPage() {
       return 'Round crispy snack with spiced potato filling, perfect tea-time companion'
     }
     
-    // Burgers and fast food
     if (name.includes('burger')) {
       return 'Delicious burger with fresh vegetables, sauces and perfectly cooked patty'
     }
@@ -382,7 +365,6 @@ export default function OrdersPage() {
       return 'Fresh sandwich with vegetables, cheese and special sauces, grilled to perfection'
     }
     
-    // Default descriptions based on category
     if (categoryName) {
       const cat = categoryName.toLowerCase()
       if (cat.includes('dosa')) {
@@ -454,7 +436,7 @@ export default function OrdersPage() {
             body {
               font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
               padding: 30px 15px;
-              background: var(--warm-cream); /* Light Pink */
+              background: var(--warm-cream);
               line-height: 1.5;
             }
             .invoice-container {
@@ -462,8 +444,8 @@ export default function OrdersPage() {
               margin: 0 auto;
               background: white;
               padding: 40px;
-              box-shadow: 0 4px 12px rgba(0,0,0,0.1); /* Soft shadows */
-              border-radius: 16px; /* rounded-2xl */
+              box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+              border-radius: 16px;
             }
             .header {
               display: flex;
@@ -481,33 +463,16 @@ export default function OrdersPage() {
             .logo-text {
               font-size: 24px;
               font-weight: 700;
-              color: var(--primary-text); /* Lichy Deep Burgundy */
+              color: #333;
               margin: 0;
               letter-spacing: -0.2px;
-              display: inline-block;
-            }
-            .logo-dot {
-              display: inline-block;
-              width: 6px;
-              height: 6px;
-              background: #FFBB94; /* Cream */
-              border-radius: 50%;
-              margin-left: 1px;
-              vertical-align: top;
-              margin-top: 2px;
-            }
-            .logo-accent {
-              display: inline-block;
-              width: 16px;
-              height: 16px;
-              color: #FB9590; /* Soft Pink */
-              margin-left: 4px;
-              vertical-align: middle;
+              display: inline-flex;
+              align-items: center;
             }
             .header-left-content h1 {
               font-size: 24px;
               font-weight: 600;
-              color: var(--primary-text); /* Lichy Deep Burgundy */
+              color: var(--primary-text);
               margin: 0 0 2px 0;
               letter-spacing: -0.2px;
             }
@@ -518,9 +483,9 @@ export default function OrdersPage() {
               font-weight: 400;
             }
             .invoice-number-box {
-              background: var(--warm-cream); /* Light Pink */
+              background: var(--warm-cream);
               padding: 8px 12px;
-              border-radius: 8px; /* rounded-xl */
+              border-radius: 8px;
               border: 1px solid var(--border);
               text-align: right;
             }
@@ -535,7 +500,7 @@ export default function OrdersPage() {
             .invoice-number-box p:last-child {
               font-size: 16px;
               font-weight: 600;
-              color: var(--primary-text); /* Lichy Deep Wine */
+              color: var(--primary-text);
               margin: 0;
               letter-spacing: 0.2px;
             }
@@ -566,7 +531,7 @@ export default function OrdersPage() {
             .detail-item p:last-child {
               font-size: 14px;
               font-weight: 500;
-              color: var(--primary-text); /* Lichy Deep Wine */
+              color: var(--primary-text);
               margin: 0;
             }
             .table-section {
@@ -575,7 +540,7 @@ export default function OrdersPage() {
             .table-title {
               font-size: 15px;
               font-weight: 600;
-              color: var(--primary-text); /* Lichy Deep Wine */
+              color: var(--primary-text);
               margin-bottom: 10px;
               padding-bottom: 6px;
               border-bottom: 1px solid var(--border);
@@ -586,7 +551,7 @@ export default function OrdersPage() {
               margin-bottom: 0;
             }
             thead {
-              background: var(--warm-cream); /* Light Pink */
+              background: var(--warm-cream);
               color: #555;
             }
             thead tr {
@@ -609,7 +574,7 @@ export default function OrdersPage() {
               transition: background 0.1s;
             }
             tbody tr:hover {
-              background: var(--warm-cream); /* Light Pink */
+              background: var(--warm-cream);
             }
             tbody tr:last-child {
               border-bottom: none;
@@ -617,7 +582,7 @@ export default function OrdersPage() {
             td {
               padding: 12px;
               font-size: 12px;
-              color: var(--primary-text); /* Lichy Deep Wine */
+              color: var(--primary-text);
             }
             td:first-child {
               font-weight: 500;
@@ -628,12 +593,12 @@ export default function OrdersPage() {
             }
             td:nth-child(4) {
               font-weight: 500;
-              color: var(--primary-text); /* Lichy Deep Wine */
+              color: var(--primary-text);
             }
             .totals-section {
-              background: var(--warm-cream); /* Light Pink */
+              background: var(--warm-cream);
               padding: 18px 22px;
-              border-radius: 8px; /* rounded-xl */
+              border-radius: 8px;
               border: 1px solid var(--border);
               margin-top: 20px;
             }
@@ -659,7 +624,7 @@ export default function OrdersPage() {
               font-weight: 500;
             }
             .total-row span:last-child {
-              color: var(--primary-text); /* Lichy Deep Wine */
+              color: var(--primary-text);
               font-weight: 600;
             }
             .total-row:last-child {
@@ -667,12 +632,12 @@ export default function OrdersPage() {
               font-weight: 700;
               padding-top: 10px;
               margin-top: 5px;
-              border-top: 1px solid var(--coffee-brown); /* Lichy Primary Rose */
+              border-top: 1px solid var(--coffee-brown);
               margin-bottom: 0;
               padding-bottom: 0;
             }
             .total-row:last-child span {
-              color: var(--primary-text); /* Lichy Deep Wine */
+              color: var(--primary-text);
             }
             .footer {
               margin-top: 35px;
@@ -718,11 +683,7 @@ export default function OrdersPage() {
               <div class="header-left">
                 <div class="header-left-content">
                   <h1>
-                    <span class="logo-text">Lich<span class="logo-dot"></span>i</span>
-                    <svg class="logo-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/>
-                      <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 11"/>
-                    </svg>
+                    <span class="logo-text">Garlic</span>
                   </h1>
                   <p>Your Daily Dose of Delight</p>
                 </div>
@@ -825,66 +786,76 @@ export default function OrdersPage() {
 
   return (
     <div className="mx-auto">
-        <h1 className="text-3xl font-bold text-primary-text mb-1">Orders</h1>
-        <p className="text-sm text-primary-text/60 mb-6">Create orders, add items, and complete billing.</p>
-          {/* <button className='bg-primary hover:bg-interactive-hover text-white rounded-2xl p-6'>
-            test 
-          </button>
-          <button className='bg-secondary hover:bg-interactive-hover text-black rounded-2xl p-6'>
-            test 2
-          </button>
-           <button className='bg-accent hover:bg-interactive-hover text-foreground rounded-2xl p-6'>
-            test 3
-          </button> */}
-        <div className="flex items-start gap-6">
-<div className="w-full flex flex-col gap-6">
-          {/* Left Sidebar: Categories */}
-          <div className="flex flex-col items-start gap-2 ">
+      <h1 className="text-3xl font-bold text-primary-text mb-1">Orders</h1>
+      <p className="text-sm text-primary-text/60 mb-6">Create orders, add items, and complete billing.</p>
+
+      <div className="flex items-start gap-6">
+        <div className="w-full flex flex-col gap-6">
+          {/* Categories */}
+          <div className="flex flex-col items-start gap-2">
             <h3 className="font-bold text-primary-text mb-4 text-xl">Categories</h3>
-            <div className=" flex items-center w-full gap-2 flex-wrap">
-              <button
-                onClick={() => setSelectedCategory(null)}
-                className={`w-fit text-left px-6 py-3 rounded-full font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring-3 outline-hidden ${selectedCategory === null
-                    ? 'bg-primary text-white shadow-md'
-                    : 'bg-white text-primary-text hover:bg-brand-dusty-rose/10 border border-gray-300'
-                }`}
-              >
-                All
-              </button>
-              {categories.map((category) => (
+            {loading ? (
+              <div className="flex flex-wrap gap-2">
+                {[...Array(8)].map((_, i) => (
+                  <Skeleton key={i} className="h-12 w-28 rounded-full" />
+                ))}
+              </div>
+            ) : (
+              <div className="flex items-center w-full gap-2 flex-wrap">
                 <button
-                  key={category.id}
-                  onClick={() => setSelectedCategory(category.id)}
-                  className={`w-fit text-left px-6 my-1 white py-3 rounded-full font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring-3 outline-hidden ${selectedCategory === category.id
-                    ? 'bg-primary text-white shadow-md'
-                    : 'bg-white text-primary-text hover:bg-brand-dusty-rose/10 border border-gray-300'
+                  onClick={() => setSelectedCategory(null)}
+                  className={`w-fit text-left px-6 py-3 rounded-full font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring-3 outline-hidden ${
+                    selectedCategory === null
+                      ? 'bg-primary text-white shadow-md'
+                      : 'bg-white text-primary-text hover:bg-brand-dusty-rose/10 border border-gray-300'
                   }`}
                 >
-                  {category.name}
+                  All
                 </button>
-              ))}
-            </div>
+                {categories.map((category) => (
+                  <button
+                    key={category.id}
+                    onClick={() => setSelectedCategory(category.id)}
+                    className={`w-fit text-left px-6 my-1 py-3 rounded-full font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring-3 outline-hidden ${
+                      selectedCategory === category.id
+                        ? 'bg-primary text-white shadow-md'
+                        : 'bg-white text-primary-text hover:bg-brand-dusty-rose/10 border border-gray-300'
+                    }`}
+                  >
+                    {category.name}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
-          {/* Center: Menu Items */}
+          {/* Menu Items Section */}
           <div className="flex flex-col gap-4 p-6">
             <div className="mb-6">
-              <div className="relative">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-text w-5 h-5" />
-                <input
-                  type="text"
-                  placeholder="Search menu items..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 border border-border rounded-xl focus:outline-hidden focus:ring-2 focus:ring-coffee-brown focus:border-coffee-brown bg-white hover:bg-warm-cream/10 transition-all duration-200 text-primary-text placeholder-muted-text"
-                />
-              </div>
+              {loading ? (
+                <Skeleton className="h-12 w-full rounded-xl" />
+              ) : (
+                <div className="relative">
+                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-text w-5 h-5" />
+                  <input
+                    type="text"
+                    placeholder="Search menu items..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full pl-12 pr-4 py-3 border border-border rounded-xl focus:outline-hidden focus:ring-2 focus:ring-coffee-brown focus:border-coffee-brown bg-white hover:bg-warm-cream/10 transition-all duration-200 text-primary-text placeholder-muted-text"
+                  />
+                </div>
+              )}
             </div>
 
             {loading ? (
-              <div className="text-center text-gray-500 py-8">Loading menu items...</div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[...Array(12)].map((_, i) => (
+                  <Skeleton key={i} className="w-full h-[280px] rounded-2xl" />
+                ))}
+              </div>
             ) : (
-              <div className="flex flex-col max-h-[75vh] overflow-auto">
+              <div className="flex flex-col max-h-[75vh] shadow p-6 overflow-auto">
                 {categories.map((category) => {
                   const categoryProducts = productsByCategory[category.id] || []
                   if (categoryProducts.length === 0 || (selectedCategory && selectedCategory !== category.id)) return null
@@ -896,13 +867,9 @@ export default function OrdersPage() {
                         {categoryProducts.map((product) => (
                           <div
                             key={product.id}
-                            className="group relative w-full bg-white rounded-2xl shadow-sm border border-border
-                                       hover:shadow-lg hover:border-coffee-brown transition-all duration-200
-                                       overflow-hidden p-5 flex gap-5"
+                            className="group relative w-full bg-white rounded-2xl shadow-sm border border-border hover:shadow-lg hover:border-coffee-brown transition-all duration-200 overflow-hidden p-5 flex gap-5"
                           >
-                            {/* Left Section: Image with Quantity Controls Below */}
                             <div className="flex flex-col items-center gap-3">
-                              {/* Product Image Container with Grey Background */}
                               <div className="w-32 h-32 shrink-0 flex items-center justify-center overflow-hidden bg-gray-100 rounded-2xl">
                                 {(() => {
                                   const categoryLower = product.category_name?.toLowerCase() || ''
@@ -914,7 +881,6 @@ export default function OrdersPage() {
                                         alt={product.name}
                                         width={128}
                                         height={128}
-                                        objectFit="cover"
                                         className="w-full h-full object-cover"
                                         priority
                                       />
@@ -927,7 +893,6 @@ export default function OrdersPage() {
                                         alt={product.name}
                                         width={128}
                                         height={128}
-                                        objectFit="cover"
                                         className="w-full h-full object-cover"
                                         priority
                                       />
@@ -940,7 +905,6 @@ export default function OrdersPage() {
                                         alt={product.name}
                                         width={128}
                                         height={128}
-                                        objectFit="cover"
                                         className="w-full h-full object-cover"
                                         priority
                                       />
@@ -953,7 +917,6 @@ export default function OrdersPage() {
                                         alt={product.name}
                                         width={128}
                                         height={128}
-                                        objectFit="cover"
                                         className="w-full h-full object-cover"
                                         priority
                                       />
@@ -964,7 +927,6 @@ export default function OrdersPage() {
                                 })()}
                               </div>
                               
-                              {/* Quantity Controls Below Image */}
                               <div className="flex items-center gap-4 bg-gray-50 rounded-full px-4 py-2.5 border border-gray-200">
                                 <button
                                   onClick={(e) => {
@@ -994,24 +956,20 @@ export default function OrdersPage() {
                                 </button>
                               </div>
                             </div>
-                            {/* Right Section: Name, Price, Description, Add to Cart */}
+
                             <div className="flex-1 flex flex-col gap-3">
-                              {/* Product Name and Price on Same Line */}
                               <div className="flex items-start justify-between gap-3">
                                 <h3 className="font-semibold text-primary-text text-lg leading-tight">{product.name}</h3>
                                 <p className="text-coffee-brown font-semibold text-lg whitespace-nowrap">₹{product.selling_price.toFixed(2)}</p>
                               </div>
 
-                              {/* Description */}
                               <p className="text-sm text-muted-text/70 leading-relaxed flex-1">
                                 {getProductDescription(product.name, product.category_name)}
                               </p>
 
-                              {/* Add to Cart Button */}
                               <button
                                 onClick={() => addToBill(product)}
-                                className="w-full bg-primary text-text-inverse py-2.5 px-4 rounded-full font-medium text-sm
-                                           hover:bg-interactive-hover hover:text-text-inverse transition-all duration-200 hover:shadow-md"
+                                className="w-full bg-primary text-text-inverse py-2.5 px-4 rounded-full font-medium text-sm hover:bg-interactive-hover hover:text-text-inverse transition-all duration-200 hover:shadow-md"
                               >
                                 Add to Cart
                               </button>
@@ -1023,7 +981,6 @@ export default function OrdersPage() {
                   )
                 })}
 
-                {/* Uncategorized Items */}
                 {(!selectedCategory || selectedCategory === null) && uncategorizedProducts.length > 0 && (
                   <div>
                     <h4 className="font-bold text-primary-text mb-4 text-xl">Other Items</h4>
@@ -1031,13 +988,9 @@ export default function OrdersPage() {
                       {uncategorizedProducts.map((product) => (
                         <div
                           key={product.id}
-                          className="group relative w-full bg-white rounded-2xl shadow-sm border border-border
-                                     hover:shadow-lg hover:border-coffee-brown transition-all duration-200
-                                     overflow-hidden p-5 flex gap-5"
+                          className="group relative w-full bg-white rounded-2xl shadow-sm border border-border hover:shadow-lg hover:border-coffee-brown transition-all duration-200 overflow-hidden p-5 flex gap-5"
                         >
-                          {/* Left Section: Image with Quantity Controls Below */}
                           <div className="flex flex-col items-center gap-3">
-                            {/* Product Image Container with Grey Background */}
                             <div className="w-32 h-32 shrink-0 flex items-center justify-center overflow-hidden bg-gray-100 rounded-2xl">
                               {(() => {
                                 const categoryLower = product.category_name?.toLowerCase() || ''
@@ -1049,7 +1002,6 @@ export default function OrdersPage() {
                                       alt={product.name}
                                       width={128}
                                       height={128}
-                                      objectFit="cover"
                                       className="w-full h-full object-cover"
                                       priority
                                     />
@@ -1062,7 +1014,6 @@ export default function OrdersPage() {
                                       alt={product.name}
                                       width={128}
                                       height={128}
-                                      objectFit="cover"
                                       className="w-full h-full object-cover"
                                       priority
                                     />
@@ -1075,7 +1026,6 @@ export default function OrdersPage() {
                                       alt={product.name}
                                       width={128}
                                       height={128}
-                                      objectFit="cover"
                                       className="w-full h-full object-cover"
                                       priority
                                     />
@@ -1088,7 +1038,6 @@ export default function OrdersPage() {
                                       alt={product.name}
                                       width={128}
                                       height={128}
-                                      objectFit="cover"
                                       className="w-full h-full object-cover"
                                       priority
                                     />
@@ -1099,7 +1048,6 @@ export default function OrdersPage() {
                               })()}
                             </div>
                             
-                            {/* Quantity Controls Below Image */}
                             <div className="flex items-center gap-4 bg-gray-50 rounded-full px-4 py-2.5 border border-gray-200">
                               <button
                                 onClick={(e) => {
@@ -1130,24 +1078,19 @@ export default function OrdersPage() {
                             </div>
                           </div>
 
-                          {/* Right Section: Name, Price, Description, Add to Cart */}
                           <div className="flex-1 flex flex-col gap-3">
-                            {/* Product Name and Price on Same Line */}
                             <div className="flex items-start justify-between gap-3">
                               <h3 className="font-semibold text-primary-text text-lg leading-tight">{product.name}</h3>
                               <p className="text-coffee-brown font-semibold text-lg whitespace-nowrap">₹{product.selling_price.toFixed(2)}</p>
                             </div>
 
-                            {/* Description */}
                             <p className="text-sm text-muted-text/70 leading-relaxed flex-1">
                               {getProductDescription(product.name, product.category_name)}
                             </p>
 
-                            {/* Add to Cart Button */}
                             <button
                               onClick={() => addToBill(product)}
-                              className="w-full bg-coffee-brown/10 text-coffee-brown py-2.5 px-4 rounded-full font-medium text-sm
-                                         hover:bg-coffee-brown hover:text-white transition-all duration-200 hover:shadow-md"
+                              className="w-full bg-coffee-brown/10 text-coffee-brown py-2.5 px-4 rounded-full font-medium text-sm hover:bg-coffee-brown hover:text-white transition-all duration-200 hover:shadow-md"
                             >
                               Add to Cart
                             </button>
@@ -1160,280 +1103,262 @@ export default function OrdersPage() {
               </div>
             )}
           </div>
-
-</div>
-
-          {/* Right: Order Summary */}
-          <div className="w-150 rounded-2xl shadow-md p-6 border border-border sticky top-4">
-            <div className="flex justify-between items-center mb-4 pb-4 border-b border-border">
-              <h3 className="text-xl font-bold text-primary-text">Current Order</h3>
-              <button
-                onClick={() => setBillItems([])}
-                className="text-sm  hover:bg-primary rounded-xl px-4 py-2 transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
-              >
-                Clear
-              </button>
-            </div>
-
-            <div className="mb-4">
-              {billItems.length === 0 ? (
-                <div className="text-center text-muted-text py-8">
-                  <PackageOpen className="w-12 h-12 mx-auto mb-4" />
-                  <p className="text-sm">Add items to start order</p>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  {billItems.map((item) => {
-                    const productImage = products.find(p => p.id === item.product_id)
-                    const itemIsDosaOrUttapam = productImage?.category_name?.toLowerCase().includes('dosa') || productImage?.category_name?.toLowerCase().includes('uttapam')
-
-                    return (
-                      <div key={item.product_id} className="flex gap-3 py-3 border-b border-border last:border-b-0 transition-all duration-200 ease-in-out hover:bg-warm-cream/10 rounded-md px-2">
-                        {/* Left: Image */}
-                        <div className="shrink-0">
-                          <div className="h-16 w-16 flex items-center justify-center rounded-md overflow-hidden bg-warm-cream/20">
-                            {(() => {
-                              const categoryLower = productImage?.category_name?.toLowerCase() || ''
-                              if (categoryLower.includes('idli')) {
-                                return (
-                                  <Image
-                                    key={item.product_id + "-summary-idli"}
-                                    src="/images/menu_items/idli.png"
-                                    alt={item.product_name}
-                                    width={64}
-                                    height={64}
-                                    objectFit="cover"
-                                    className="rounded-md"
-                                    priority
-                                  />
-                                )
-                              } else if (categoryLower.includes('dosa') || categoryLower.includes('uttapam')) {
-                                return (
-                                  <Image
-                                    key={item.product_id + "-summary-dosa"}
-                                    src="/images/menu_items/dosa.jpeg"
-                                    alt={item.product_name}
-                                    width={64}
-                                    height={64}
-                                    objectFit="cover"
-                                    className="rounded-md"
-                                    priority
-                                  />
-                                )
-                              } else if (categoryLower.includes('snack') || categoryLower === 'other snacks' || categoryLower === 'snacks') {
-                                return (
-                                  <Image
-                                    key={item.product_id + "-summary-snack"}
-                                    src="/images/menu_items/snacks.png"
-                                    alt={item.product_name}
-                                    width={64}
-                                    height={64}
-                                    objectFit="cover"
-                                    className="rounded-md"
-                                    priority
-                                  />
-                                )
-                              } else if (categoryLower.includes('beverage') || categoryLower === 'beverages') {
-                                return (
-                                  <Image
-                                    key={item.product_id + "-summary-beverage"}
-                                    src="/images/menu_items/beverages.png"
-                                    alt={item.product_name}
-                                    width={64}
-                                    height={64}
-                                    objectFit="cover"
-                                    className="rounded-md"
-                                    priority
-                                  />
-                                )
-                              } else {
-                                return <span className="text-xl">☕</span>
-                              }
-                            })()}
-                          </div>
-                        </div>
-
-                        {/* Right: Name, GST, Controls, Total */}
-                        <div className="flex-1 min-w-0 flex flex-col gap-2">
-                          {/* Product Name */}
-                          <div className="font-semibold text-sm text-text-dark">{item.product_name}</div>
-                          
-                          {/* GST Details */}
-                          {(item.preview_tax_amount || 0) > 0 && item.tax_group && (
-                            <div className="flex flex-col gap-0.5">
-                              {item.tax_group.split_type === 'GST_50_50' ? (
-                                <>
-                                  <div className="text-xs text-secondary-text">
-                                    CGST: ₹{(item.preview_cgst || 0).toFixed(2)}
-                                  </div>
-                                  <div className="text-xs text-secondary-text">
-                                    SGST: ₹{(item.preview_sgst || 0).toFixed(2)}
-                                  </div>
-                                </>
-                              ) : (
-                                <div className="text-xs text-secondary-text">
-                                  Tax: ₹{(item.preview_tax_amount || 0).toFixed(2)}
-                                </div>
-                              )}
-                              {item.tax_group.is_tax_inclusive && (
-                                <div className="text-xs text-blue-600">(Tax Inclusive)</div>
-                              )}
-                            </div>
-                          )}
-
-                          {/* Quantity Controls and Total */}
-                          <div className="flex items-center w-fit">
-                            <div className="flex items-center gap-2">
-                              <button
-                                onClick={() => updateQuantity(item.product_id, -1)}
-                                className="p-1.5 rounded-full bg-white text-primary-text hover:bg-warm-cream/20 transition-all duration-200 ease-in-out active:scale-[0.9] border border-border"
-                              >
-                                <Minus className="w-4 h-4" />
-                              </button>
-                              <span className="font-bold text-sm text-text-dark w-10 text-center">{item.quantity}</span>
-                              <button
-                                onClick={() => updateQuantity(item.product_id, 1)}
-                                className="p-1.5 rounded-full bg-white text-primary-text hover:bg-warm-cream/20 transition-all duration-200 ease-in-out active:scale-[0.9] border border-border"
-                              >
-                                <Plus className="w-4 h-4" />
-                              </button>
-                              <button
-                                onClick={() => removeItem(item.product_id)}
-                                className="p-1.5 rounded-full bg-warm-cream/20 text-error hover:bg-coffee-brown/20 transition-all duration-200 ease-in-out active:scale-[0.9] ml-1"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
-                            </div>
-                            <div className="font-bold text-sm text-text-dark">
-                              ₹{(item.preview_total || item.subtotal).toFixed(2)}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              )}
-            </div>
-
-            <div className="space-y-2 mb-4 pt-4 border-t border-border">
-              <div className="flex justify-between text-sm text-secondary-text">
-                <span>Subtotal</span>
-                <span>₹{subtotal.toFixed(2)}</span>
-              </div>
-              {totalTax > 0 && (
-                <>
-                  {totalCGST > 0 && totalSGST > 0 ? (
-                    <>
-                      <div className="flex justify-between text-sm text-secondary-text">
-                        <span>CGST</span>
-                        <span>₹{totalCGST.toFixed(2)}</span>
-                      </div>
-                      <div className="flex justify-between text-sm text-secondary-text">
-                        <span>SGST</span>
-                        <span>₹{totalSGST.toFixed(2)}</span>
-                      </div>
-                    </>
-                  ) : (
-                    <div className="flex justify-between text-sm text-secondary-text">
-                      <span>Tax (GST)</span>
-                      <span>₹{totalTax.toFixed(2)}</span>
-                    </div>
-                  )}
-                </>
-              )}
-            </div>
-
-            <div className="flex justify-between items-center mb-6 pt-4 border-t-2 border-coffee-brown">
-              <span className="text-lg font-bold text-primary-text">Total</span>
-              <span className="text-lg font-bold text-coffee-brown">₹{grandTotal.toFixed(2)}</span>
-            </div>
-
-            <div className="grid grid-cols-3 gap-3 mb-6">
-              <button
-                onClick={() => setPaymentMethod('CASH')}
-                className={`flex flex-col items-center justify-center p-4 rounded-xl border border-border transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring-3 outline-hidden ${
-                  paymentMethod === 'CASH'
-                    ? 'bg-primary text-white shadow-md'
-                    : 'bg-white text-primary-text hover:bg-brand-dusty-rose/10'
-                }`}
-              >
-                <Wallet className="w-6 h-6 mb-2" />
-                <span className="text-sm font-medium">Cash</span>
-              </button>
-              <button
-                onClick={() => setPaymentMethod('UPI')}
-                className={`flex flex-col items-center justify-center p-4 rounded-xl border border-border transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring-3 outline-hidden ${
-                  paymentMethod === 'UPI'
-                    ? 'bg-primary text-white shadow-md'
-                    : 'bg-white text-primary-text hover:bg-brand-dusty-rose/10'
-                }`}
-              >
-                <Smartphone className="w-6 h-6 mb-2" />
-                <span className="text-sm font-medium">UPI</span>
-              </button>
-              <button
-                onClick={() => setPaymentMethod('CARD')}
-                className={`flex flex-col items-center justify-center p-4 rounded-xl border border-border transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring-3 outline-hidden ${
-                  paymentMethod === 'CARD'
-                    ? 'bg-primary text-white shadow-md'
-                    : 'bg-white text-primary-text hover:bg-brand-dusty-rose/10'
-                }`}
-              >
-                <CreditCard className="w-6 h-6 mb-2" />
-                <span className="text-sm font-medium">Card</span>
-              </button>
-            </div>
-
-            <button
-              onClick={handleCompleteBill}
-              disabled={billItems.length === 0}
-              className="w-full bg-primary text-white py-3 px-4 rounded-xl font-semibold hover:bg-interactive-hover
-                         transition-all duration-200 ease-in-out
-                         hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]
-                         focus-visible:ring-3 outline-hidden disabled:opacity-50 disabled:cursor-not-allowed text-lg flex items-center justify-center gap-2"
-            >
-              <CheckCircle className="w-5 h-5" />
-              Complete Order
-            </button>
-          </div>
         </div>
 
-        {showOrderSuccessModal && billDetails && (
-          <div 
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 print:hidden transition-opacity duration-300 ease-in-out opacity-100"
-            onClick={() => setShowOrderSuccessModal(false)}
-          >
-            <div 
-              className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-sm text-center transform scale-100 transition-all duration-300 ease-in-out hover:scale-[1.02] active:scale-[0.98]"
-              onClick={(e) => e.stopPropagation()}
+        {/* Right: Order Summary */}
+        <div className="w-150  overflow-auto rounded-2xl shadow-md p-6 border border-border sticky top-4">
+          <div className="flex justify-between items-center mb-4 pb-4 border-b border-border">
+            <h3 className="text-xl font-bold text-primary-text">Current Order</h3>
+            <button
+              onClick={() => setBillItems([])}
+              className="text-sm hover:bg-primary rounded-xl px-4 py-2 transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
             >
-              <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-              <h2 className="text-2xl font-bold text-primary-text mb-2">Order Completed!</h2>
-              <p className="text-gray-700 mb-1">Bill Number: <span className="font-semibold">{billDetails.invoice_number}</span></p>
-              <p className="text-gray-700 mb-4">Total Amount: <span className="font-bold text-xl text-coffee-brown">₹{billDetails.total.toFixed(2)}</span></p>
-              <div className="flex justify-center gap-4 mt-6">
-                <button
-                  onClick={handlePrintInvoice}
-                  className="bg-coffee-brown text-white py-3 px-6 rounded-xl font-semibold hover:bg-brand-dusty-rose
-                             transition-all duration-200 ease-in-out
-                             hover:scale-[1.05] hover:shadow-lg active:scale-[0.95]"
-                >
-                  Print Invoice
-                </button>
-                <button
-                  onClick={() => setShowOrderSuccessModal(false)}
-                  className="bg-gray-300 text-primary-text py-3 px-6 rounded-xl font-semibold
-                             transition-all duration-200 ease-in-out
-                             hover:scale-[1.05] hover:shadow-lg active:scale-[0.95]"
-                >
-                  Close
-                </button>
+              Clear
+            </button>
+          </div>
+
+          <div className="mb-4">
+            {billItems.length === 0 ? (
+              <div className="text-center text-muted-text py-8">
+                <PackageOpen className="w-12 h-12 mx-auto mb-4" />
+                <p className="text-sm">Add items to start order</p>
               </div>
+            ) : (
+              <div className="space-y-2 max-h-[600px] overflow-auto">
+                {billItems.map((item) => {
+                  const productImage = products.find(p => p.id === item.product_id)
+                  const itemIsDosaOrUttapam = productImage?.category_name?.toLowerCase().includes('dosa') || productImage?.category_name?.toLowerCase().includes('uttapam')
+
+                  return (
+                    <div key={item.product_id} className="flex gap-3 py-3 border-b border-border last:border-b-0 transition-all duration-200 ease-in-out hover:bg-warm-cream/10 rounded-md px-2">
+                      <div className="shrink-0">
+                        <div className="h-16 w-16 flex items-center justify-center rounded-md overflow-hidden bg-warm-cream/20">
+                          {(() => {
+                            const categoryLower = productImage?.category_name?.toLowerCase() || ''
+                            if (categoryLower.includes('idli')) {
+                              return (
+                                <Image
+                                  key={item.product_id + "-summary-idli"}
+                                  src="/images/menu_items/idli.png"
+                                  alt={item.product_name}
+                                  width={64}
+                                  height={64}
+                                  className="rounded-md"
+                                  priority
+                                />
+                              )
+                            } else if (categoryLower.includes('dosa') || categoryLower.includes('uttapam')) {
+                              return (
+                                <Image
+                                  key={item.product_id + "-summary-dosa"}
+                                  src="/images/menu_items/dosa.jpeg"
+                                  alt={item.product_name}
+                                  width={64}
+                                  height={64}
+                                  className="rounded-md"
+                                  priority
+                                />
+                              )
+                            } else if (categoryLower.includes('snack') || categoryLower === 'other snacks' || categoryLower === 'snacks') {
+                              return (
+                                <Image
+                                  key={item.product_id + "-summary-snack"}
+                                  src="/images/menu_items/snacks.png"
+                                  alt={item.product_name}
+                                  width={64}
+                                  height={64}
+                                  className="rounded-md"
+                                  priority
+                                />
+                              )
+                            } else if (categoryLower.includes('beverage') || categoryLower === 'beverages') {
+                              return (
+                                <Image
+                                  key={item.product_id + "-summary-beverage"}
+                                  src="/images/menu_items/beverages.png"
+                                  alt={item.product_name}
+                                  width={64}
+                                  height={64}
+                                  className="rounded-md"
+                                  priority
+                                />
+                              )
+                            } else {
+                              return <span className="text-xl">☕</span>
+                            }
+                          })()}
+                        </div>
+                      </div>
+
+                      <div className="flex-1 min-w-0 flex flex-col gap-2">
+                        <div className="font-semibold text-sm text-text-dark">{item.product_name}</div>
+                        
+                        {(item.preview_tax_amount || 0) > 0 && item.tax_group && (
+                          <div className="flex flex-col gap-0.5">
+                            {item.tax_group.split_type === 'GST_50_50' ? (
+                              <>
+                                <div className="text-xs text-secondary-text">
+                                  CGST: ₹{(item.preview_cgst || 0).toFixed(2)}
+                                </div>
+                                <div className="text-xs text-secondary-text">
+                                  SGST: ₹{(item.preview_sgst || 0).toFixed(2)}
+                                </div>
+                              </>
+                            ) : (
+                              <div className="text-xs text-secondary-text">
+                                Tax: ₹{(item.preview_tax_amount || 0).toFixed(2)}
+                              </div>
+                            )}
+                            {item.tax_group.is_tax_inclusive && (
+                              <div className="text-xs text-blue-600">(Tax Inclusive)</div>
+                            )}
+                          </div>
+                        )}
+
+                        <div className="flex items-center w-fit">
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => updateQuantity(item.product_id, -1)}
+                              className="p-1.5 rounded-full bg-white text-primary-text hover:bg-warm-cream/20 transition-all duration-200 ease-in-out active:scale-[0.9] border border-border"
+                            >
+                              <Minus className="w-4 h-4" />
+                            </button>
+                            <span className="font-bold text-sm text-text-dark w-10 text-center">{item.quantity}</span>
+                            <button
+                              onClick={() => updateQuantity(item.product_id, 1)}
+                              className="p-1.5 rounded-full bg-white text-primary-text hover:bg-warm-cream/20 transition-all duration-200 ease-in-out active:scale-[0.9] border border-border"
+                            >
+                              <Plus className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => removeItem(item.product_id)}
+                              className="p-1.5 rounded-full bg-warm-cream/20 text-error hover:bg-coffee-brown/20 transition-all duration-200 ease-in-out active:scale-[0.9] ml-1"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                          <div className="font-bold text-sm text-text-dark">
+                            ₹{(item.preview_total || item.subtotal).toFixed(2)}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+
+          <div className="space-y-2 mb-4 pt-4 border-t border-border">
+            <div className="flex justify-between text-sm text-secondary-text">
+              <span>Subtotal</span>
+              <span>₹{subtotal.toFixed(2)}</span>
+            </div>
+            {totalTax > 0 && (
+              <>
+                {totalCGST > 0 && totalSGST > 0 ? (
+                  <>
+                    <div className="flex justify-between text-sm text-secondary-text">
+                      <span>CGST</span>
+                      <span>₹{totalCGST.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm text-secondary-text">
+                      <span>SGST</span>
+                      <span>₹{totalSGST.toFixed(2)}</span>
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex justify-between text-sm text-secondary-text">
+                    <span>Tax (GST)</span>
+                    <span>₹{totalTax.toFixed(2)}</span>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+
+          <div className="flex justify-between items-center mb-6 pt-4 border-t-2 border-coffee-brown">
+            <span className="text-lg font-bold text-primary-text">Total</span>
+            <span className="text-lg font-bold text-coffee-brown">₹{grandTotal.toFixed(2)}</span>
+          </div>
+
+          <div className="grid grid-cols-3 gap-3 mb-6">
+            <button
+              onClick={() => setPaymentMethod('CASH')}
+              className={`flex flex-col items-center justify-center p-4 rounded-xl border border-border transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring-3 outline-hidden ${
+                paymentMethod === 'CASH'
+                  ? 'bg-primary text-white shadow-md'
+                  : 'bg-white text-primary-text hover:bg-brand-dusty-rose/10'
+              }`}
+            >
+              <Wallet className="w-6 h-6 mb-2" />
+              <span className="text-sm font-medium">Cash</span>
+            </button>
+            <button
+              onClick={() => setPaymentMethod('UPI')}
+              className={`flex flex-col items-center justify-center p-4 rounded-xl border border-border transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring-3 outline-hidden ${
+                paymentMethod === 'UPI'
+                  ? 'bg-primary text-white shadow-md'
+                  : 'bg-white text-primary-text hover:bg-brand-dusty-rose/10'
+              }`}
+            >
+              <Smartphone className="w-6 h-6 mb-2" />
+              <span className="text-sm font-medium">UPI</span>
+            </button>
+            <button
+              onClick={() => setPaymentMethod('CARD')}
+              className={`flex flex-col items-center justify-center p-4 rounded-xl border border-border transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring-3 outline-hidden ${
+                paymentMethod === 'CARD'
+                  ? 'bg-primary text-white shadow-md'
+                  : 'bg-white text-primary-text hover:bg-brand-dusty-rose/10'
+              }`}
+            >
+              <CreditCard className="w-6 h-6 mb-2" />
+              <span className="text-sm font-medium">Card</span>
+            </button>
+          </div>
+
+          <button
+            onClick={handleCompleteBill}
+            disabled={billItems.length === 0}
+            className="w-full bg-primary text-white py-3 px-4 rounded-xl font-semibold hover:bg-interactive-hover transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring-3 outline-hidden disabled:opacity-50 disabled:cursor-not-allowed text-lg flex items-center justify-center gap-2"
+          >
+            <CheckCircle className="w-5 h-5" />
+            Complete Order
+          </button>
+        </div>
+      </div>
+
+      {showOrderSuccessModal && billDetails && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 print:hidden transition-opacity duration-300 ease-in-out opacity-100"
+          onClick={() => setShowOrderSuccessModal(false)}
+        >
+          <div 
+            className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-sm text-center transform scale-100 transition-all duration-300 ease-in-out hover:scale-[1.02] active:scale-[0.98]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-primary-text mb-2">Order Completed!</h2>
+            <p className="text-gray-700 mb-1">Bill Number: <span className="font-semibold">{billDetails.invoice_number}</span></p>
+            <p className="text-gray-700 mb-4">Total Amount: <span className="font-bold text-xl text-coffee-brown">₹{billDetails.total.toFixed(2)}</span></p>
+            <div className="flex justify-center gap-4 mt-6">
+              <button
+                onClick={handlePrintInvoice}
+                className="bg-coffee-brown text-white py-3 px-6 rounded-xl font-semibold hover:bg-brand-dusty-rose transition-all duration-200 ease-in-out hover:scale-[1.05] hover:shadow-lg active:scale-[0.95]"
+              >
+                Print Invoice
+              </button>
+              <button
+                onClick={() => setShowOrderSuccessModal(false)}
+                className="bg-gray-300 text-primary-text py-3 px-6 rounded-xl font-semibold transition-all duration-200 ease-in-out hover:scale-[1.05] hover:shadow-lg active:scale-[0.95]"
+              >
+                Close
+              </button>
             </div>
           </div>
-        )}
-
+        </div>
+      )}
     </div>
   )
 }

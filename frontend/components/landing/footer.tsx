@@ -57,7 +57,7 @@ export function Footer() {
           ))}
         </div>
         <p className="mt-8 text-center text-base text-gray-400">
-          &copy; {new Date().getFullYear()} Lichi POS. All rights reserved.
+          &copy; {new Date().getFullYear()} Garlic POS. All rights reserved.
         </p>
       </div>
     </footer>
