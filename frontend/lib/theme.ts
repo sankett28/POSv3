@@ -150,6 +150,14 @@ export async function fetchTheme(): Promise<Theme> {
  */
 export async function initializeTheme(): Promise<void> {
   try {
+    // Check if user is authenticated before fetching
+    const token = localStorage.getItem('access_token');
+    
+    if (!token) {
+      console.log('ℹ️ Not authenticated. Using default theme.');
+      return;
+    }
+    
     const theme = await fetchTheme();
     
     // Only apply if theme has at least one color defined
@@ -166,9 +174,9 @@ export async function initializeTheme(): Promise<void> {
     if (errorMessage.includes('404')) {
       // User hasn't completed onboarding yet - this is expected
       console.log('ℹ️ No business found (onboarding not completed). Using default theme.');
-    } else if (errorMessage.includes('401') || errorMessage.includes('Unauthorized')) {
-      // User not logged in - this is expected for public pages
-      console.log('ℹ️ Not authenticated. Using default theme.');
+    } else if (errorMessage.includes('401') || errorMessage.includes('403') || errorMessage.includes('Unauthorized') || errorMessage.includes('Forbidden')) {
+      // User not logged in or token expired - this is expected for public pages
+      console.log('ℹ️ Not authenticated or token expired. Using default theme.');
     } else {
       // Other errors (network, server, etc.)
       console.warn('⚠️ Failed to load custom theme, using defaults:', errorMessage);

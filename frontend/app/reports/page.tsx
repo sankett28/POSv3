@@ -2,9 +2,10 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { api } from '@/lib/api'
-import { BarChart3, IndianRupee, TrendingUp, FileText, Download } from 'lucide-react'
+import { IndianRupee, TrendingUp, FileText, Download } from 'lucide-react'
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { Skeleton } from '@/components/ui/Skeleton'
+import { generateChartColors } from '@/lib/colorUtils'
 
 interface BillItem {
   id: string
@@ -166,6 +167,15 @@ export default function ReportsPage() {
       year: 'numeric'
     })
   }
+
+  // Generate dynamic colors for charts based on primary color
+  const paymentMethodColors = useMemo(() => {
+    return generateChartColors(Object.keys(paymentMethodBreakdown).length)
+  }, [paymentMethodBreakdown])
+
+  const categoryColors = useMemo(() => {
+    return generateChartColors(salesByCategory?.summary.length || 0)
+  }, [salesByCategory?.summary.length])
 
   const exportToExcel = useCallback(async () => {
     const XLSX = await import('xlsx')
@@ -498,23 +508,9 @@ export default function ReportsPage() {
                       animationDuration={800}
                       animationEasing="ease-out"
                     >
-                      {Object.entries(paymentMethodBreakdown).map((entry, index) => {
-                        const method = entry[0].toLowerCase()
-                        let color = '#4B5563'
-                        
-                        if (method === 'card') {
-                          color = '#6B7280'
-                        } else if (method === 'cash') {
-                          color = '#374151'
-                        } else if (method === 'upi') {
-                          color = '#1F2937'
-                        } else {
-                          const fallbackColors = ['#1F2937', '#374151', '#4B5563', '#6B7280']
-                          color = fallbackColors[index % fallbackColors.length]
-                        }
-                        
-                        return <Cell key={`cell-${index}`} fill={color} />
-                      })}
+                      {Object.entries(paymentMethodBreakdown).map((_, index) => (
+                        <Cell key={`cell-${index}`} fill={paymentMethodColors[index]} />
+                      ))}
                     </Pie>
                     <Tooltip 
                       formatter={(value: any) => value !== undefined && value !== null ? `₹${Number(value).toFixed(2)}` : ''}
@@ -559,7 +555,7 @@ export default function ReportsPage() {
             <h2 className="text-xl font-bold text-primary-text mb-6">Sales by Category</h2>
             {salesByCategory && salesByCategory.summary.length > 0 ? (
               <div>
-                <ResponsiveContainer width="100%" height={300}>
+                <ResponsiveContainer width="100%" height={400}>
                   <BarChart
                     data={salesByCategory.summary
                       .sort((a, b) => b.total_sales - a.total_sales)
@@ -572,11 +568,11 @@ export default function ReportsPage() {
                     <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
                     <XAxis 
                       dataKey="name" 
-                      angle={-35}
+                      angle={0}
                       textAnchor="end"
                       height={100}
                       interval={0}
-                      tick={{ fill: '#6B6B6B', fontSize: 11 }}
+                      tick={{ fill: '#6B6B6B', fontSize: 8 }}
                     />
                     <YAxis 
                       tick={{ fill: '#6B6B6B', fontSize: 12 }}
@@ -595,7 +591,7 @@ export default function ReportsPage() {
                     />
                     <Bar 
                       dataKey="sales" 
-                      fill="#4B5563"
+                      fill={categoryColors[0] || '#912b48'}
                       radius={[8, 8, 0, 0]}
                       animationBegin={0}
                       animationDuration={800}
@@ -603,10 +599,9 @@ export default function ReportsPage() {
                     >
                       {salesByCategory.summary
                         .sort((a, b) => b.total_sales - a.total_sales)
-                        .map((entry, index) => {
-                          const colors = ['#1F2937', '#374151', '#4B5563', '#6B7280']
-                          return <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
-                        })}
+                        .map((_, index) => (
+                          <Cell key={`cell-${index}`} fill={categoryColors[index]} />
+                        ))}
                     </Bar>
                   </BarChart>
                 </ResponsiveContainer>

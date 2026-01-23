@@ -38,6 +38,7 @@ export default function RootLayout({
 
   // Initialize theme on app bootstrap
   useEffect(() => {
+    // Initialize theme immediately
     initializeTheme()
     
     // Listen for theme updates from other tabs/windows
@@ -47,6 +48,15 @@ export default function RootLayout({
         // Reload theme when another tab saves changes
         initializeTheme()
       }
+      
+      // Reinitialize theme when user logs in (access_token is set)
+      if (e.key === 'access_token' && e.newValue) {
+        console.log('🔄 User logged in, loading theme...')
+        // Small delay to ensure token is fully set
+        setTimeout(() => {
+          initializeTheme()
+        }, 100)
+      }
     }
     
     window.addEventListener('storage', handleStorageChange)
@@ -55,6 +65,17 @@ export default function RootLayout({
       window.removeEventListener('storage', handleStorageChange)
     }
   }, [])
+  
+  // Reinitialize theme when navigating to authenticated pages
+  useEffect(() => {
+    if (showSidebar) {
+      // User is on an authenticated page, ensure theme is loaded
+      const token = localStorage.getItem('access_token')
+      if (token) {
+        initializeTheme()
+      }
+    }
+  }, [showSidebar, pathname])
 
   return (
     <html lang="en" className="h-full">

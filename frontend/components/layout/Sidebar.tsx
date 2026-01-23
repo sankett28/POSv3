@@ -14,7 +14,7 @@ const navItems = [
   { href: '/menu', label: 'Menu', icon: UtensilsCrossed },
   { href: '/transactions', label: 'Transactions', icon: FileText },
   { href: '/reports', label: 'Reports', icon: BarChart3 },
-  { href: '/settings/taxes', label: 'Settings', icon: Settings },
+  { href: '/settings', label: 'Settings', icon: Settings },
   { href: '/admin-profile', label: 'Profile', icon: User },
 ]
 
