@@ -218,7 +218,7 @@ export default function AdminProfilePage() {
                     onChange={(e) =>
                       setProfileData({ ...profileData, address: e.target.value })
                     }
-                    className="w-full px-4 py-2.5 sm:py-3 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-coffee-brown focus:border-coffee-brown bg-white hover:bg-warm-cream/10 transition-all duration-200 text-primary-text placeholder-muted-text text-sm sm:text-base resize-y min-h-[80px]"
+                    className="w-full px-4 py-2.5 sm:py-3 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-coffee-brown focus:border-coffee-brown bg-white hover:bg-warm-cream/10 transition-all duration-200 text-primary-text placeholder-muted-text text-sm sm:text-base resize-y min-h-20"
                   />
                 ) : (
                   <div className="flex gap-3 px-4 py-2.5 sm:py-3 bg-warm-cream/20 rounded-xl text-primary-text border border-border text-sm sm:text-base">

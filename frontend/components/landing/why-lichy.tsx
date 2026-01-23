@@ -39,7 +39,7 @@ export function WhyGarlic() {
             <div className="space-y-6">
               {benefits.map((benefit, index) => (
                 <div key={index} className="flex items-start">
-                  <div className="flex-shrink-0 mt-1">
+                  <div className="shrink-0 mt-1">
                     {benefit.icon}
                   </div>
                   <div className="ml-4">

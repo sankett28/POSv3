@@ -132,7 +132,7 @@ function Sidebar() {
               )}
             >
               <div className={cn(
-                'flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl transition-colors',
+                'shrink-0 w-10 h-10 flex items-center justify-center rounded-xl transition-colors',
                 isActive ? 'bg-white/15' : 'bg-warm-cream group-hover:bg-card-background/50'
               )}>
                 <Icon className={cn(
@@ -153,7 +153,7 @@ function Sidebar() {
           onClick={logout}
           className="group w-full flex items-center px-3 py-2.5 rounded-xl text-sm font-medium text-primary-text hover:bg-brand-dusty-rose/10 hover:text-coffee-brown transition-colors"
         >
-          <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl bg-warm-cream group-hover:bg-card-background/50 transition-colors">
+          <div className="shrink-0 w-10 h-10 flex items-center justify-center rounded-xl bg-warm-cream group-hover:bg-card-background/50 transition-colors">
             <LogOut className="w-5 h-5 text-primary-text group-hover:text-coffee-brown" />
           </div>
           <span className="ml-3 text-sm font-medium">Logout</span>

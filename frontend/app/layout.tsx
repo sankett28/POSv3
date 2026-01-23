@@ -38,15 +38,18 @@ export default function RootLayout({
 
   // Initialize theme on app bootstrap
   useEffect(() => {
-    // Initialize theme immediately
-    initializeTheme()
+    // Skip theme fetching on public pages (landing, auth, onboarding)
+    const isPublicPage = isAuthPage || isLandingPage || isOnboardingPage
+    
+    // Initialize theme immediately (skip fetch on public pages)
+    initializeTheme(isPublicPage)
     
     // Listen for theme updates from other tabs/windows
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === 'theme-updated') {
         console.log('🔄 Theme updated in another tab, reloading...')
-        // Reload theme when another tab saves changes
-        initializeTheme()
+        // Reload theme when another tab saves changes (don't skip on public pages here)
+        initializeTheme(false)
       }
       
       // Reinitialize theme when user logs in (access_token is set)
@@ -54,7 +57,7 @@ export default function RootLayout({
         console.log('🔄 User logged in, loading theme...')
         // Small delay to ensure token is fully set
         setTimeout(() => {
-          initializeTheme()
+          initializeTheme(false)
         }, 100)
       }
     }
@@ -64,7 +67,7 @@ export default function RootLayout({
     return () => {
       window.removeEventListener('storage', handleStorageChange)
     }
-  }, [])
+  }, [isAuthPage, isLandingPage, isOnboardingPage])
   
   // Reinitialize theme when navigating to authenticated pages
   useEffect(() => {
@@ -72,7 +75,7 @@ export default function RootLayout({
       // User is on an authenticated page, ensure theme is loaded
       const token = localStorage.getItem('access_token')
       if (token) {
-        initializeTheme()
+        initializeTheme(false)
       }
     }
   }, [showSidebar, pathname])

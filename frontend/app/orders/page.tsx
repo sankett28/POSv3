@@ -851,7 +851,7 @@ export default function OrdersPage() {
             {loading ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {[...Array(12)].map((_, i) => (
-                  <Skeleton key={i} className="w-full h-[280px] rounded-2xl" />
+                  <Skeleton key={i} className="w-full h-70 rounded-2xl" />
                 ))}
               </div>
             ) : (
@@ -927,6 +927,7 @@ export default function OrdersPage() {
                                 })()}
                               </div>
                               
+                              {/* Quantity Controls Below Image */}
                               <div className="flex items-center gap-4 bg-gray-50 rounded-full px-4 py-2.5 border border-gray-200">
                                 <button
                                   onClick={(e) => {
@@ -1124,7 +1125,7 @@ export default function OrdersPage() {
                 <p className="text-sm">Add items to start order</p>
               </div>
             ) : (
-              <div className="space-y-2 max-h-[600px] overflow-auto">
+              <div className="space-y-2 max-h-150 overflow-auto">
                 {billItems.map((item) => {
                   const productImage = products.find(p => p.id === item.product_id)
                   const itemIsDosaOrUttapam = productImage?.category_name?.toLowerCase().includes('dosa') || productImage?.category_name?.toLowerCase().includes('uttapam')
@@ -1247,7 +1248,6 @@ export default function OrdersPage() {
                 })}
               </div>
             )}
-          </div>
 
           <div className="space-y-2 mb-4 pt-4 border-t border-border">
             <div className="flex justify-between text-sm text-secondary-text">
@@ -1327,6 +1327,7 @@ export default function OrdersPage() {
             Complete Order
           </button>
         </div>
+      </div>
       </div>
 
       {showOrderSuccessModal && billDetails && (

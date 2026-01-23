@@ -62,9 +62,9 @@
 :root {
   /* User Theme Tokens - Default Values */
   --theme-primary: #912b48;
-  --theme-secondary: #ffffff;
+  --theme-secondary: #d47691;
   --theme-background: #ffffff;
-  --theme-foreground: #610027;
+  --theme-foreground: #000000;
   --theme-accent: #b45a69;
   --theme-danger: #ef4444;
   --theme-success: #22c55e;

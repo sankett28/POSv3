@@ -146,10 +146,17 @@ export async function fetchTheme(): Promise<Theme> {
  * 
  * Call this once on app initialization (e.g., in root layout useEffect).
  * 
+ * @param skipFetch - If true, skip fetching theme (useful for public pages)
  * @returns Promise that resolves when theme is applied (or fails gracefully)
  */
-export async function initializeTheme(): Promise<void> {
+export async function initializeTheme(skipFetch: boolean = false): Promise<void> {
   try {
+    // Skip fetching on public pages (landing, auth, onboarding)
+    if (skipFetch) {
+      console.log('ℹ️ Skipping theme fetch for public page. Using default theme.');
+      return;
+    }
+    
     // Check if user is authenticated before fetching
     const token = localStorage.getItem('access_token');
     

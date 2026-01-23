@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import clsx from 'clsx';
 import Modal from '@/components/ui/Modal';
-import ThemeEditor from '@/components/ui/ThemeEditor';
+import OnboardingThemeEditor from '@/components/ui/OnboardingThemeEditor';
 import { submitOnboarding, OnboardingPayload } from '@/lib/api/onboarding';
+import { Theme } from '@/lib/theme';
 
 type BusinessType = 'cafe' | 'restaurant' | 'cloud-kitchen' | null;
 type Revenue = 'less-10l' | '10l-50l' | '50l-2cr' | '2cr-plus' | 'not-sure' | null;
@@ -43,6 +43,18 @@ export default function OnboardingPage() {
   const [themeMode, setThemeMode] = useState<ThemeMode>('light');
   const [primaryColor, setPrimaryColor] = useState('#1f2937');
   const [isGenerating, setIsGenerating] = useState(false);
+  
+  // Theme state for onboarding
+  const [onboardingTheme, setOnboardingTheme] = useState<Theme>({
+    primary: '#912b48',
+    secondary: '#ffffff',
+    background: '#fff0f3',
+    foreground: '#610027',
+    accent: '#b45a69',
+    danger: '#ef4444',
+    success: '#22c55e',
+    warning: '#f59e0b',
+  });
 
   // Shared styles
   const cardStyle = {
@@ -213,21 +225,6 @@ export default function OnboardingPage() {
     primaryColor,
   ]);
 
-  // Apply theme changes live
-  useEffect(() => {
-    if (step === 4) {
-      document.documentElement.style.setProperty('--theme-primary', primaryColor);
-      document.documentElement.style.setProperty(
-        '--background',
-        themeMode === 'light' ? '#ffffff' : '#0a0a0a'
-      );
-      document.documentElement.style.setProperty(
-        '--foreground',
-        themeMode === 'light' ? '#1f2937' : '#f8fafc'
-      );
-    }
-  }, [primaryColor, themeMode, step]);
-
   const handleNext = () => {
     if (step < 5) {
       setStep(step + 1);
@@ -266,8 +263,7 @@ export default function OnboardingPage() {
         websiteUrl,
         brandPrompt,
         brandingChoice,
-        themeMode,
-        primaryColor,
+        onboardingTheme,
       });
 
       // Prepare onboarding payload with proper field names matching backend schema (snake_case)
@@ -294,12 +290,16 @@ export default function OnboardingPage() {
         brand_prompt: brandPrompt ? brandPrompt.trim() : undefined,
         branding_choice: brandingChoice || undefined,
         
-        // Theme (optional - backend will apply defaults)
+        // Theme (use onboardingTheme state if manual choice, otherwise use defaults)
         theme_mode: themeMode || undefined,
-        primary_color: primaryColor || undefined,
-        secondary_color: '#ffffff',
-        background_color: themeMode === 'light' ? '#ffffff' : '#0a0a0a',
-        foreground_color: themeMode === 'light' ? '#000000' : '#ffffff',
+        primary_color: onboardingTheme.primary || undefined,
+        secondary_color: onboardingTheme.secondary || undefined,
+        background_color: onboardingTheme.background || undefined,
+        foreground_color: onboardingTheme.foreground || undefined,
+        accent_color: onboardingTheme.accent || undefined,
+        danger_color: onboardingTheme.danger || undefined,
+        success_color: onboardingTheme.success || undefined,
+        warning_color: onboardingTheme.warning || undefined,
       };
 
       console.log('Payload being sent to API:', payload);
@@ -1716,14 +1716,17 @@ export default function OnboardingPage() {
                 textAlign: 'center'
               }}>Step 5 of 5</div>
             </div>
-            {/* Reuse the full ThemeEditor UI, like in Settings → Theme */}
+            {/* Use the onboarding-specific theme editor */}
             <div style={{
               background: '#ffffff',
               borderRadius: '0.5rem',
               border: '1px solid #e0e0e0',
               boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)'
             }}>
-              <ThemeEditor />
+              <OnboardingThemeEditor 
+                initialTheme={onboardingTheme}
+                onThemeChange={(theme) => setOnboardingTheme(theme)}
+              />
             </div>
             <div style={{ marginTop: '1rem', display: 'flex', justifyContent: 'space-between', gap: '0.75rem' }}>
               <button 

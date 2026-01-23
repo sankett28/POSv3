@@ -111,6 +111,22 @@ async def create_onboarding(
             await _rollback_business(db, business_id)
             raise
         
+        # Step 4: Update user.onboarding_completed = True
+        try:
+            logger.info(f"Updating onboarding_completed for user {user_id}")
+            db.table('users').update({
+                'onboarding_completed': True
+            }).eq('id', user_id).execute()
+            logger.info(f"User {user_id} onboarding_completed set to True")
+        except Exception as user_update_error:
+            logger.error(f"User update failed: {user_update_error}")
+            # Rollback: Delete the business (CASCADE will delete related records)
+            await _rollback_business(db, business_id)
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to update user onboarding status"
+            )
+        
         logger.info(f"Onboarding completed successfully for business {business_id}")
         
         return OnboardingResponse(
