@@ -1,0 +1,10 @@
+category_name,item_name,price,tax_group_code,is_active
+Beverages,Coffee,50.00,GST_5,true
+Beverages,Tea,30.00,GST_5,true
+Beverages,Cold Coffee,80.00,GST_12,true
+Food,Pizza,200.00,GST_12,true
+Food,Burger,150.00,GST_12,true
+Food,Pasta,180.00,GST_12,true
+Desserts,Ice Cream,60.00,GST_5,true
+Desserts,Cake,120.00,GST_12,true
+

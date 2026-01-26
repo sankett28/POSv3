@@ -5,6 +5,7 @@ import { api } from '@/lib/api'
 import {
   Plus,
   Edit,
+  Trash2,
   X,
   AlertTriangle,
   CheckCircle,
@@ -94,6 +95,19 @@ export default function TaxSettingsPage() {
     setSuccess(null)
   }
 
+  const handleDelete = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this tax group?')) return
+    setError(null)
+    setSuccess(null)
+    try {
+      await api.deleteTaxGroup(id)
+      setSuccess('Tax group deleted successfully')
+      loadTaxGroups()
+    } catch (err: any) {
+      setError(err?.response?.data?.detail || 'Failed to delete tax group')
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
@@ -123,26 +137,25 @@ export default function TaxSettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F5F3EE] p-4 pb-16 sm:p-8">
-      <div className="max-w-7xl mx-auto">
+    <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-2xl sm:text-[32px] font-bold text-[#3E2C24] mb-1">
+          <h1 className="text-2xl sm:text-[32px] font-bold text-primary-text mb-1">
             Tax Settings
           </h1>
-          <p className="text-[#6B6B6B]">
+          <p className="text-primary-text/60">
             Manage tax groups for GST-compliant billing
           </p>
         </div>
 
         {/* Warning Banner */}
-        <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-6 flex items-start gap-3">
-          <AlertTriangle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+        <div className="bg-warm-cream border border-[#B45A69] rounded-xl p-4 mb-6 flex items-start gap-3">
+          <AlertTriangle className="w-5 h-5 text-coffee-brown shrink-0 mt-0.5" />
           <div className="flex-1">
-            <p className="text-sm font-semibold text-yellow-800 mb-1">
+            <p className="text-sm font-semibold text-primary-text mb-1">
               Important: Tax Group Changes
             </p>
-            <p className="text-sm text-yellow-700">
+            <p className="text-sm text-primary-text">
               Changing tax groups does <strong>not</strong> affect past bills. Historical bills
               preserve their tax snapshots for audit compliance. Only new bills will use updated
               tax group configurations. Please consult your accountant before modifying taxes.
@@ -169,7 +182,7 @@ export default function TaxSettingsPage() {
         <div className="mb-6">
           <button
             onClick={handleCreate}
-            className="bg-[#3E2C24] text-white px-6 py-3 rounded-xl font-semibold
+            className="bg-brand-deep-burgundy text-white px-6 py-3 rounded-xl font-semibold hover:bg-coffee-brown
                      transition-all duration-200 ease-in-out
                      hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]
                      flex items-center gap-2"
@@ -182,76 +195,90 @@ export default function TaxSettingsPage() {
         {/* Tax Groups List */}
         {loading ? (
           <div className="bg-white rounded-2xl shadow-md p-12 text-center">
-            <div className="w-12 h-12 border-4 border-[#3E2C24] border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-            <p className="text-[#6B6B6B]">Loading tax groups...</p>
+            <div className="w-12 h-12 border-4 border-coffee-brown border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+            <p className="text-secondary-text">Loading tax groups...</p>
           </div>
         ) : (
-          <div className="bg-white rounded-2xl shadow-md overflow-hidden">
+          <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-border">
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-[#FAF7F2] border-b border-[#E5E7EB]">
+                <thead className="bg-linear-to-r from-brand-dusty-rose/25 to-brand-dusty-rose/15 border-b-2 border-brand-dusty-rose/30">
                   <tr>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider">
+                    <th className="px-6 py-4 text-left text-xs font-extrabold text-primary-text uppercase tracking-wider">
                       Name
                     </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider">
+                    <th className="px-6 py-4 text-left text-xs font-extrabold text-primary-text uppercase tracking-wider">
                       Rate & Split
                     </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider">
+                    <th className="px-6 py-4 text-left text-xs font-extrabold text-primary-text uppercase tracking-wider">
                       Pricing Type
                     </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider">
+                    <th className="px-6 py-4 text-left text-xs font-extrabold text-primary-text uppercase tracking-wider">
                       Status
                     </th>
-                    <th className="px-6 py-4 text-right text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider">
+                    <th className="px-6 py-4 text-right text-xs font-extrabold text-primary-text uppercase tracking-wider">
                       Actions
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#E5E7EB]">
+                <tbody className="divide-y divide-[#E5E7EB]/50">
                   {taxGroups.length === 0 ? (
                     <tr>
-                      <td colSpan={5} className="px-6 py-12 text-center text-[#6B6B6B]">
-                        No tax groups found. Create one to get started.
+                      <td colSpan={5} className="px-6 py-12 text-center text-secondary-text bg-warm-cream/5">
+                        <p className="text-sm font-medium">No tax groups found. Create one to get started.</p>
                       </td>
                     </tr>
                   ) : (
-                    taxGroups.map((group) => (
-                      <tr key={group.id} className="hover:bg-[#FAF7F2] transition-colors">
+                    taxGroups.map((group, index) => (
+                      <tr 
+                        key={group.id} 
+                        className={`transition-all duration-300 ease-in-out hover:bg-linear-to-r hover:from-warm-cream/30 hover:to-warm-cream/10 hover:shadow-xs ${
+                          index % 2 === 0 ? 'bg-white' : 'bg-warm-cream/5'
+                        }`}
+                      >
                         <td className="px-6 py-4">
-                          <div className="font-semibold text-[#1F1F1F]">{group.name}</div>
+                          <div className="font-bold text-primary-text text-sm">{group.name}</div>
                         </td>
                         <td className="px-6 py-4">
-                          <div className="text-sm text-[#6B6B6B]">
+                          <div className="text-sm text-secondary-text font-medium">
                             {formatGSTPreview(group)}
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                          <span className={`px-3 py-1.5 rounded-full text-xs font-bold shadow-xs ${
                             group.is_tax_inclusive
-                              ? 'bg-blue-100 text-blue-800'
-                              : 'bg-green-100 text-green-800'
+                              ? 'bg-linear-to-r from-blue-100 to-blue-50 text-blue-800 border border-blue-200'
+                              : 'bg-linear-to-r from-green-100 to-green-50 text-green-800 border border-green-200'
                           }`}>
                             {group.is_tax_inclusive ? 'Inclusive' : 'Exclusive'}
                           </span>
                         </td>
                         <td className="px-6 py-4">
-                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                          <span className={`px-3 py-1.5 rounded-full text-xs font-bold shadow-xs ${
                             group.is_active
-                              ? 'bg-green-100 text-green-800'
-                              : 'bg-gray-100 text-gray-800'
+                              ? 'bg-linear-to-r from-green-100 to-green-50 text-green-700 border border-green-200'
+                              : 'bg-linear-to-r from-gray-100 to-gray-50 text-gray-700 border border-gray-200'
                           }`}>
                             {group.is_active ? 'Active' : 'Inactive'}
                           </span>
                         </td>
                         <td className="px-6 py-4 text-right">
-                          <button
-                            onClick={() => handleEdit(group)}
-                            className="text-[#3E2C24] hover:text-[#C89B63] transition-colors p-2"
-                            title="Edit tax group"
-                          >
-                            <Edit className="w-5 h-5" />
-                          </button>
+                          <div className="flex justify-end gap-2">
+                            <button
+                              onClick={() => handleEdit(group)}
+                              className="p-2 rounded-lg text-primary-text hover:text-coffee-brown hover:bg-warm-cream/30 transition-all duration-200 ease-in-out hover:scale-110 active:scale-95 shadow-xs hover:shadow-md"
+                              title="Edit tax group"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => handleDelete(group.id)}
+                              className="p-2 rounded-lg text-coffee-brown hover:text-primary-text hover:bg-red-50 transition-all duration-200 ease-in-out hover:scale-110 active:scale-95 shadow-xs hover:shadow-md"
+                              title="Delete tax group"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))
@@ -282,13 +309,13 @@ export default function TaxSettingsPage() {
               className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="p-6 border-b border-[#E5E7EB] flex items-center justify-between">
-                <h2 className="text-xl font-bold text-[#3E2C24]">
+              <div className="p-6 border-b border-border flex items-center justify-between">
+                <h2 className="text-xl font-bold text-primary-text">
                   {editingGroup ? 'Edit Tax Group' : 'Create Tax Group'}
                 </h2>
                 <button
                   onClick={() => setShowForm(false)}
-                  className="text-[#6B6B6B] hover:text-[#3E2C24] transition-colors"
+                  className="text-secondary-text hover:text-primary-text transition-colors"
                 >
                   <X className="w-6 h-6" />
                 </button>
@@ -297,7 +324,7 @@ export default function TaxSettingsPage() {
               <form onSubmit={handleSubmit} className="p-6 space-y-6">
                 {/* Name */}
                 <div>
-                  <label className="block text-sm font-semibold text-[#3E2C24] mb-2">
+                  <label className="block text-sm font-semibold text-primary-text mb-2">
                     Tax Group Name *
                   </label>
                   <input
@@ -305,14 +332,14 @@ export default function TaxSettingsPage() {
                     required
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl border border-[#E5E7EB] focus:outline-none focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63] bg-[#FAF7F2] text-[#1F1F1F] placeholder-[#9CA3AF]"
+                    className="w-full px-4 py-3 rounded-xl border border-border focus:outline-hidden focus:ring-2 focus:ring-coffee-brown focus:border-coffee-brown bg-white hover:bg-warm-cream/10 text-primary-text placeholder-muted-text"
                     placeholder="e.g., GST 18%"
                   />
                 </div>
 
                 {/* Total Rate */}
                 <div>
-                  <label className="block text-sm font-semibold text-[#3E2C24] mb-2">
+                  <label className="block text-sm font-semibold text-primary-text mb-2">
                     Total Tax Rate (%) *
                   </label>
                   <input
@@ -323,26 +350,26 @@ export default function TaxSettingsPage() {
                     step="0.01"
                     value={formData.total_rate}
                     onChange={(e) => setFormData({ ...formData, total_rate: parseFloat(e.target.value) || 0 })}
-                    className="w-full px-4 py-3 rounded-xl border border-[#E5E7EB] focus:outline-none focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63] bg-[#FAF7F2] text-[#1F1F1F] placeholder-[#9CA3AF]"
+                    className="w-full px-4 py-3 rounded-xl border border-border focus:outline-hidden focus:ring-2 focus:ring-coffee-brown focus:border-coffee-brown bg-white hover:bg-warm-cream/10 text-primary-text placeholder-muted-text"
                     placeholder="0.00"
                   />
                 </div>
 
                 {/* Split Type */}
                 <div>
-                  <label className="block text-sm font-semibold text-[#3E2C24] mb-2">
+                  <label className="block text-sm font-semibold text-primary-text mb-2">
                     Split Type *
                   </label>
                   <select
                     value={formData.split_type}
                     onChange={(e) => setFormData({ ...formData, split_type: e.target.value as 'GST_50_50' | 'NO_SPLIT' })}
-                    className="w-full px-4 py-3 rounded-xl border border-[#E5E7EB] focus:outline-none focus:ring-2 focus:ring-[#C89B63] focus:border-[#C89B63] bg-[#FAF7F2] text-[#1F1F1F] placeholder-[#9CA3AF]"
+                    className="w-full px-4 py-3 rounded-xl border border-border focus:outline-hidden focus:ring-2 focus:ring-coffee-brown focus:border-coffee-brown bg-white hover:bg-warm-cream/10 text-primary-text placeholder-muted-text"
                   >
                     <option value="GST_50_50">GST 50/50 (CGST + SGST)</option>
                     <option value="NO_SPLIT">No Split</option>
                   </select>
-                  <p className="mt-2 text-xs text-[#6B6B6B] flex items-start gap-2">
-                    <Info className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                  <p className="mt-2 text-xs text-secondary-text flex items-start gap-2">
+                    <Info className="w-4 h-4 shrink-0 mt-0.5" />
                     <span>
                       GST 50/50 splits tax into Central GST (CGST) and State GST (SGST) equally.
                       No Split keeps all tax in a single component.
@@ -357,13 +384,13 @@ export default function TaxSettingsPage() {
                       type="checkbox"
                       checked={formData.is_tax_inclusive}
                       onChange={(e) => setFormData({ ...formData, is_tax_inclusive: e.target.checked })}
-                      className="w-5 h-5 rounded border-[#C89B63] text-[#3E2C24] focus:ring-[#3E2C24]"
+                      className="w-5 h-5 rounded-sm border-coffee-brown text-primary-text focus:ring-coffee-brown accent-[#912B48]"
                     />
-                    <span className="text-sm font-semibold text-[#6B6B6B]">
+                    <span className="text-sm font-semibold text-secondary-text">
                       Tax Inclusive Pricing
                     </span>
                   </label>
-                  <p className="mt-2 text-xs text-[#6B6B6B] ml-8">
+                  <p className="mt-2 text-xs text-secondary-text ml-8">
                     When enabled, the product price includes tax. Tax will be extracted from the price.
                     When disabled, tax will be added to the product price.
                   </p>
@@ -376,31 +403,31 @@ export default function TaxSettingsPage() {
                       type="checkbox"
                       checked={formData.is_active}
                       onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-                      className="w-5 h-5 rounded border-[#C89B63] text-[#3E2C24] focus:ring-[#3E2C24]"
+                      className="w-5 h-5 rounded-sm border-coffee-brown text-primary-text focus:ring-coffee-brown accent-[#912B48]"
                     />
-                    <span className="text-sm font-semibold text-[#6B6B6B]">
+                    <span className="text-sm font-semibold text-secondary-text">
                       Active
                     </span>
                   </label>
-                  <p className="mt-2 text-xs text-[#6B6B6B] ml-8">
+                  <p className="mt-2 text-xs text-secondary-text ml-8">
                     Only active tax groups can be assigned to products.
                   </p>
                 </div>
 
                 {/* Form Actions */}
-                <div className="flex gap-4 pt-4 border-t border-[#E5E7EB]">
+                <div className="flex gap-4 pt-4 border-t border-border">
                   <button
                     type="button"
                     onClick={() => setShowForm(false)}
-                    className="flex-1 px-6 py-3 rounded-xl border border-[#3E2C24] text-[#3E2C24] font-semibold
-                             hover:bg-[#FAF7F2] transition-colors"
+                    className="flex-1 px-6 py-3 rounded-xl border border-coffee-brown text-primary-text font-semibold
+                             hover:bg-warm-cream/20 transition-colors"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="flex-1 px-6 py-3 rounded-xl bg-[#3E2C24] text-white font-semibold
-                             hover:bg-[#2A1F1A] transition-colors"
+                    className="flex-1 px-6 py-3 rounded-xl bg-coffee-brown text-white font-semibold
+                             hover:bg-brand-dusty-rose transition-colors"
                   >
                     {editingGroup ? 'Update' : 'Create'}
                   </button>
@@ -409,7 +436,6 @@ export default function TaxSettingsPage() {
             </div>
           </div>
         )}
-      </div>
     </div>
   )
 }

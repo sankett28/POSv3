@@ -10,56 +10,63 @@ interface MenuTableProps {
 
 export default function MenuTable({ categoryName, products, handleEditItem, handleDeactivateItem }: MenuTableProps) {
   return (
-    <div className="bg-white rounded-2xl shadow-md border border-[#E5E7EB]">
-      <div className="p-6 border-b border-[#E5E7EB]">
-        <h3 className="text-xl font-bold text-[#3E2C24]">{categoryName}</h3>
+    <div className="bg-white rounded-2xl shadow-lg border border-border overflow-hidden">
+      <div className="p-6 border-b border-border bg-linear-to-r from-white to-warm-cream/10">
+        <h3 className="text-xl font-bold text-primary-text">{categoryName}</h3>
       </div>
       <div className="overflow-x-auto">
         <div className="min-w-full leading-normal">
-          <div className="bg-[#FAF7F2] grid grid-cols-[2.5fr_1fr_2fr_1fr_0.8fr] sm:grid-cols-[2.5fr_1fr_2fr_1fr_0.8fr] px-4 py-3 text-sm font-medium text-[#6B6B6B] uppercase tracking-wider rounded-t-2xl">
-            <span>Item</span>
-            <span>Price</span>
-            <span>Tax Group</span>
-            <span>Status</span>
-            <span className="text-right">Actions</span>
+          <div className="bg-linear-to-r from-brand-dusty-rose/25 to-brand-dusty-rose/15 grid grid-cols-[2.5fr_1fr_2fr_1fr_0.8fr] sm:grid-cols-[2.5fr_1fr_2fr_1fr_0.8fr] px-6 py-4 text-sm font-bold text-primary-text uppercase tracking-wider border-b-2 border-brand-dusty-rose/30">
+            <span className="font-extrabold">Item</span>
+            <span className="font-extrabold">Price</span>
+            <span className="font-extrabold">Tax Group</span>
+            <span className="font-extrabold">Status</span>
+            <span className="text-right font-extrabold">Actions</span>
           </div>
           <div>
             {products.length === 0 ? (
-              <div className="px-4 py-8 text-center text-[#9CA3AF]">
-                No items in this category.
+              <div className="px-6 py-12 text-center text-muted-text bg-warm-cream/5">
+                <p className="text-sm font-medium">No items in this category.</p>
               </div>
             ) : (
-              products.map((product) => (
-                <div key={product.id} className="grid grid-cols-[2.5fr_1fr_2fr_1fr_0.8fr] sm:grid-cols-[2.5fr_1fr_2fr_1fr_0.8fr] px-4 py-3 items-center border-t border-[#E5E7EB] transition-all duration-200 ease-in-out hover:bg-[#FAF7F2]">
-                  <span className="font-medium text-[#1F1F1F] truncate">{product.name}</span>
-                  <span className="text-[#1F1F1F]">₹{product.selling_price.toFixed(2)}</span>
-                  <span className="text-[#6B6B6B] truncate">
+              products.map((product, index) => (
+                <div 
+                  key={product.id} 
+                  className={`grid grid-cols-[2.5fr_1fr_2fr_1fr_0.8fr] sm:grid-cols-[2.5fr_1fr_2fr_1fr_0.8fr] px-6 py-4 items-center border-b border-border/50 transition-all duration-300 ease-in-out hover:bg-linear-to-r hover:from-warm-cream/30 hover:to-warm-cream/10 hover:shadow-xs hover:border-brand-dusty-rose/20 ${
+                    index % 2 === 0 ? 'bg-white' : 'bg-warm-cream/5'
+                  }`}
+                >
+                  <span className="font-semibold text-primary-text truncate text-sm">{product.name}</span>
+                  <span className="text-primary-text font-medium">₹{product.selling_price.toFixed(2)}</span>
+                  <span className="text-secondary-text truncate text-sm">
                     {product.tax_group ? (
                       <>{product.tax_group.name} {product.tax_group.is_tax_inclusive ? '(Inclusive)' : '(Exclusive)'}</>
                     ) : (
-                      'No Tax'
+                      <span className="text-muted-text italic">No Tax</span>
                     )}
                   </span>
                   <span>
-                    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                    <span className={`px-3 py-1.5 rounded-full text-xs font-bold shadow-xs ${
                       product.is_active
-                        ? 'bg-green-100 text-green-700'
-                        : 'bg-red-100 text-red-700'
+                        ? 'bg-linear-to-r from-green-100 to-green-50 text-green-700 border border-green-200'
+                        : 'bg-linear-to-r from-red-100 to-red-50 text-red-700 border border-red-200'
                     }`}>
                       {product.is_active ? 'Active' : 'Inactive'}
                     </span>
                   </span>
-                  <div className="flex justify-end gap-3 flex-shrink-0">
+                  <div className="flex justify-end gap-3 shrink-0">
                     <button
                       onClick={(e) => { e.stopPropagation(); handleEditItem(product); }}
-                      className="text-[#3E2C24] hover:text-[#C89B63] transition-all duration-200 ease-in-out hover:scale-[1.05] active:scale-[0.95]"
+                      className="p-2 rounded-lg text-primary-text hover:text-coffee-brown hover:bg-warm-cream/30 transition-all duration-200 ease-in-out hover:scale-110 active:scale-95 shadow-xs hover:shadow-md"
+                      title="Edit item"
                     >
                       <Edit className="w-4 h-4" />
                     </button>
                     {product.is_active && (
                       <button
                         onClick={(e) => { e.stopPropagation(); handleDeactivateItem(product.id); }}
-                        className="text-[#F4A261] hover:text-[#E08F50] transition-all duration-200 ease-in-out hover:scale-[1.05] active:scale-[0.95]"
+                        className="p-2 rounded-lg text-coffee-brown hover:text-primary-text hover:bg-red-50 transition-all duration-200 ease-in-out hover:scale-110 active:scale-95 shadow-xs hover:shadow-md"
+                        title="Delete item"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>

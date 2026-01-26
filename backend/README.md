@@ -104,6 +104,38 @@ See http://localhost:8000/docs for interactive API documentation.
 pytest app/tests/
 ```
 
+## Deployment
+
+### Docker
+
+Build and test the Docker image locally:
+
+```bash
+# Build image
+docker build -t pos-backend .
+
+# Run container
+docker run -p 8000:8000 \
+  -e SUPABASE_URL=your-supabase-url \
+  -e SUPABASE_SERVICE_ROLE_KEY=your-key \
+  -e CORS_ORIGINS=http://localhost:3000 \
+  pos-backend
+```
+
+### GCP Cloud Run
+
+For detailed deployment instructions to Google Cloud Platform, see [DEPLOYMENT.md](./DEPLOYMENT.md).
+
+Quick deploy:
+
+```bash
+# Linux/Mac
+./deploy.sh YOUR_PROJECT_ID
+
+# Windows PowerShell
+.\deploy.ps1 -ProjectId YOUR_PROJECT_ID
+```
+
 ## Development
 
 ### Code Style

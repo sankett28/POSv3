@@ -391,6 +391,10 @@ class ApiClient {
     return response.data
   }
 
+  async deleteTaxGroup(id: string) {
+    await this.client.delete(`/tax-groups/${id}`)
+  }
+
   // Reports endpoints
   async getTaxSummary(startDate: string, endDate: string) {
     const response = await this.client.get(`/reports/tax-summary?start_date=${startDate}&end_date=${endDate}`)
@@ -400,6 +404,40 @@ class ApiClient {
   async getSalesByCategory(startDate: string, endDate: string) {
     const response = await this.client.get(`/reports/sales-by-category?start_date=${startDate}&end_date=${endDate}`)
     return response.data
+  }
+
+  // Admin endpoints
+  async importMenu(file: File) {
+    const formData = new FormData()
+    formData.append("file", file)
+    
+    const response = await this.client.post('/admin/menu/import', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
+    return response.data
+  }
+
+  // Generic HTTP methods for custom endpoints
+  async post<T = any>(url: string, data?: any, config?: any) {
+    const response = await this.client.post<T>(url, data, config)
+    return response
+  }
+
+  async get<T = any>(url: string, config?: any) {
+    const response = await this.client.get<T>(url, config)
+    return response
+  }
+
+  async put<T = any>(url: string, data?: any, config?: any) {
+    const response = await this.client.put<T>(url, data, config)
+    return response
+  }
+
+  async delete<T = any>(url: string, config?: any) {
+    const response = await this.client.delete<T>(url, config)
+    return response
   }
 }
 
