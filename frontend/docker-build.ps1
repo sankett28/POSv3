@@ -14,7 +14,7 @@ Write-Host "Supabase URL: $supabaseUrl" -ForegroundColor Cyan
 Write-Host "Supabase Anon Key: ${supabaseAnonKey.Substring(0, 20)}..." -ForegroundColor Cyan
 
 # Build Docker image
-docker build -t sankett2811/posv3-frontend:v2 `
+docker build -t sankett2811/posv3-frontend:latest `
   --build-arg NEXT_PUBLIC_API_BASE_URL=$apiBaseUrl `
   --build-arg NEXT_PUBLIC_SUPABASE_URL=$supabaseUrl `
   --build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY=$supabaseAnonKey `
@@ -22,9 +22,11 @@ docker build -t sankett2811/posv3-frontend:v2 `
 
 if ($LASTEXITCODE -eq 0) {
     Write-Host "`n✅ Docker image built successfully!" -ForegroundColor Green
-    Write-Host "Image: sankett2811/posv3-frontend:v2" -ForegroundColor Cyan
+    Write-Host "Image: sankett2811/posv3-frontend:latest" -ForegroundColor Cyan
     Write-Host "`nTo run the container:" -ForegroundColor Yellow
-    Write-Host "docker run -p 3000:3000 sankett2811/posv3-frontend:v2" -ForegroundColor White
+    Write-Host "docker run -p 3000:3000 sankett2811/posv3-frontend:latest" -ForegroundColor White
+    Write-Host "`nTo push to Docker Hub:" -ForegroundColor Yellow
+    Write-Host "docker push sankett2811/posv3-frontend:latest" -ForegroundColor White
 } else {
     Write-Host "`n❌ Docker build failed!" -ForegroundColor Red
     exit 1

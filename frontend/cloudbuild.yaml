@@ -1,0 +1,46 @@
+steps:
+  # Build the container image with build args
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/posv3-frontend:$SHORT_SHA'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/posv3-frontend:latest'
+      - '--build-arg'
+      - 'NEXT_PUBLIC_API_BASE_URL=https://posv3-614312738437.asia-southeast1.run.app'
+      - '--build-arg'
+      - 'NEXT_PUBLIC_SUPABASE_URL=https://jegyibzpezsielknpejv.supabase.co'
+      - '--build-arg'
+      - 'NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImplZ3lpYnpwZXpzaWVsa25wZWp2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc4Mzc2NjYsImV4cCI6MjA4MzQxMzY2Nn0.tBLkbqWPe77usiAedLy6JjZBBhWRUgU2OKRDeA90JJ4'
+      - '.'
+  
+  # Push the container image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/posv3-frontend:$SHORT_SHA']
+  
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/posv3-frontend:latest']
+  
+  # Deploy to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'posv3-frontend'
+      - '--image'
+      - 'gcr.io/$PROJECT_ID/posv3-frontend:$SHORT_SHA'
+      - '--region'
+      - 'asia-southeast1'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+      - '--port'
+      - '3000'
+      - '--memory'
+      - '512Mi'
+
+images:
+  - 'gcr.io/$PROJECT_ID/posv3-frontend:$SHORT_SHA'
+  - 'gcr.io/$PROJECT_ID/posv3-frontend:latest'

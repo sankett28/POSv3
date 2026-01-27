@@ -100,7 +100,7 @@ async def create_onboarding(
                 theme_mode=request.theme_mode or 'light',  # Default to light mode
                 primary_color=request.primary_color or '#912b48',  # Default primary color
                 secondary_color=request.secondary_color or '#ffffff',
-                background_color=request.background_color or '#fff0f3',
+                background_color=request.background_color or '#ffffff',  # Changed from #fff0f3 to #ffffff
                 foreground_color=request.foreground_color or '#610027',
                 accent_color=request.accent_color or '#b45a69',
                 danger_color=request.danger_color or '#ef4444',

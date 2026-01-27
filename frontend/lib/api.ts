@@ -1,6 +1,39 @@
 import axios, { AxiosInstance, AxiosError } from 'axios'
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'
+// Get API base URL from environment variable
+// In production, this MUST be set during build time
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
+
+// Strict validation: fail loudly if missing in production
+if (!API_BASE_URL) {
+  const errorMsg = '❌ CRITICAL: NEXT_PUBLIC_API_BASE_URL is not set! This must be provided at Docker build time.';
+  console.error(errorMsg);
+  
+  // In production, NEVER allow fallback - throw immediately
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error(errorMsg);
+  }
+  
+  // In development, allow localhost fallback
+  if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+    throw new Error(errorMsg);
+  }
+}
+
+// Use the env var, or fallback to localhost ONLY in development
+const FINAL_API_BASE_URL = API_BASE_URL || (process.env.NODE_ENV === 'development' ? 'http://localhost:8000' : '')
+
+// Fail if still empty (should never happen after above checks)
+if (!FINAL_API_BASE_URL) {
+  throw new Error('❌ FATAL: API_BASE_URL is empty after validation. Build is misconfigured.');
+}
+
+console.log('🔧 API Configuration:', {
+  nodeEnv: process.env.NODE_ENV,
+  envVar: process.env.NEXT_PUBLIC_API_BASE_URL,
+  finalUrl: FINAL_API_BASE_URL,
+  hostname: typeof window !== 'undefined' ? window.location.hostname : 'server',
+});
 
 class ApiClient {
   private client: AxiosInstance
@@ -9,7 +42,7 @@ class ApiClient {
 
   constructor() {
     this.client = axios.create({
-      baseURL: `${API_BASE_URL}/api/v1`,
+      baseURL: `${FINAL_API_BASE_URL}/api/v1`,
       headers: {
         'Content-Type': 'application/json',
       },

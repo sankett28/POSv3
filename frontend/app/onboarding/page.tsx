@@ -48,8 +48,8 @@ export default function OnboardingPage() {
   const [onboardingTheme, setOnboardingTheme] = useState<Theme>({
     primary: '#912b48',
     secondary: '#ffffff',
-    background: '#fff0f3',
-    foreground: '#610027',
+    background: '#ffffff',
+    foreground: '#000000',  // Changed from #610027 to #000000 (black)
     accent: '#b45a69',
     danger: '#ef4444',
     success: '#22c55e',
@@ -1457,10 +1457,11 @@ export default function OnboardingPage() {
                 lineHeight: '1.5',
                 fontWeight: '400'
               }}>
-                Let us match your brand automatically
+                Customize your theme colors
               </p>
             </div>
 
+            {/* COMMENTED OUT: Website URL and Brand Prompt fields
             <div style={{
               position: 'relative',
               border: '1.5px solid #e0e0e0',
@@ -1617,6 +1618,7 @@ export default function OnboardingPage() {
                 OR
               </span>
             </div>
+            */}
 
             <button
               onClick={() => {
@@ -1629,17 +1631,17 @@ export default function OnboardingPage() {
                 borderRadius: '1.5rem',
                 fontSize: '0.9375rem',
                 fontWeight: '600',
-                background: 'transparent',
-                color: '#1a1a1a',
-                border: '1.5px solid #e0e0e0',
+                background: '#1a1a1a',
+                color: '#ffffff',
+                border: 'none',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease',
                 fontFamily: 'inherit'
               }}
-              onMouseEnter={(e) => e.currentTarget.style.background = '#f5f5f5'}
-              onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+              onMouseEnter={(e) => e.currentTarget.style.background = '#000000'}
+              onMouseLeave={(e) => e.currentTarget.style.background = '#1a1a1a'}
             >
-              Choose Manually
+              Customize Theme Colors
             </button>
 
             <button
@@ -1664,6 +1666,7 @@ export default function OnboardingPage() {
               Skip for Now
             </button>
 
+            {/* COMMENTED OUT: Examples section
             <div style={{ 
               marginTop: '1.5rem',
               padding: '1rem',
@@ -1677,6 +1680,7 @@ export default function OnboardingPage() {
               <p style={{ marginBottom: '0.25rem' }}>• "Modern minimalist restaurant, white and black"</p>
               <p>• "Vibrant colorful bakery with pastel tones"</p>
             </div>
+            */}
           </div>
         )}
 
