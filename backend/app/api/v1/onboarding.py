@@ -101,7 +101,7 @@ async def create_onboarding(
                 primary_color=request.primary_color or '#912b48',  # Default primary color
                 secondary_color=request.secondary_color or '#ffffff',
                 background_color=request.background_color or '#ffffff',  # Changed from #fff0f3 to #ffffff
-                foreground_color=request.foreground_color or '#610027',
+                foreground_color=request.foreground_color or '#000000',  # Changed from #610027 to #000000 (black)
                 accent_color=request.accent_color or '#b45a69',
                 danger_color=request.danger_color or '#ef4444',
                 success_color=request.success_color or '#22c55e',
