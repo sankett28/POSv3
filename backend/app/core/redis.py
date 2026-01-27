@@ -7,6 +7,7 @@ from app.core.logging import logger
 def create_redis_client() -> redis.Redis:
     """
     Create Redis client from REDIS_URL environment variable.
+    Supports both local Redis and Upstash Redis (with TLS).
     
     Returns:
         redis.Redis: Configured Redis client with decode_responses=True
@@ -20,9 +21,11 @@ def create_redis_client() -> redis.Redis:
         True
     """
     try:
+        # Upstash Redis requires SSL/TLS (rediss://)
         client = redis.Redis.from_url(
             settings.redis_url,
-            decode_responses=True
+            decode_responses=True,
+            ssl_cert_reqs=None  # Required for Upstash Redis TLS connection
         )
         logger.info(f"Redis client created from URL: {settings.redis_url}")
         return client

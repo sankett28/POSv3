@@ -20,6 +20,10 @@ class Settings(BaseSettings):
     # Redis configuration (required - must be set in .env)
     redis_url: str
     
+    # Upstash Redis REST API (optional - for HTTP-based access)
+    upstash_redis_rest_url: Optional[str] = None
+    upstash_redis_rest_token: Optional[str] = None
+    
     # Service charge default configuration
     default_service_charge_enabled: bool = True
     default_service_charge_rate: float = 10.0
