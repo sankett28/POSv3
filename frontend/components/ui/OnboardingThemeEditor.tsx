@@ -8,17 +8,25 @@
  * Features:
  * - Color pickers for primary semantic slots
  * - Live preview (applies theme before saving)
- * - No validation (validation happens on backend during onboarding submission)
+ * - Validation support (calls backend validation endpoint)
  * - Returns theme data to parent component
  */
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Theme, applyTheme } from '@/lib/theme'
+import { Theme, applyTheme, validateTheme } from '@/lib/theme'
+import Button from './Button'
 
 interface OnboardingThemeEditorProps {
   onThemeChange?: (theme: Theme) => void
   initialTheme?: Theme
+}
+
+interface ValidationResult {
+  is_valid: boolean
+  errors: string[]
+  warnings: string[]
+  contrast_ratios: Record<string, number>
 }
 
 export default function OnboardingThemeEditor({ 
@@ -36,6 +44,21 @@ export default function OnboardingThemeEditor({
     warning: '#f59e0b',
   })
 
+  const [originalTheme, setOriginalTheme] = useState<Theme>(initialTheme || {
+    primary: '#912b48',
+    secondary: '#ffffff',
+    background: '#fff0f3',
+    foreground: '#610027',
+    accent: '#b45a69',
+    danger: '#ef4444',
+    success: '#22c55e',
+    warning: '#f59e0b',
+  })
+
+  const [validation, setValidation] = useState<ValidationResult | null>(null)
+  const [isValidating, setIsValidating] = useState(false)
+  const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
+
   // Apply theme changes live
   useEffect(() => {
     applyTheme(theme)
@@ -49,6 +72,49 @@ export default function OnboardingThemeEditor({
   const handleColorChange = (slot: keyof Theme, value: string) => {
     const updatedTheme = { ...theme, [slot]: value }
     setTheme(updatedTheme)
+    
+    // Clear previous validation when colors change
+    setValidation(null)
+    setMessage(null)
+  }
+
+  const handleValidate = async () => {
+    setIsValidating(true)
+    setMessage(null)
+    
+    try {
+      const result = await validateTheme(theme)
+      setValidation(result)
+      
+      if (result.is_valid) {
+        setMessage({ type: 'success', text: 'Theme is valid! ✓' })
+      } else {
+        setMessage({ type: 'error', text: 'Theme has validation errors' })
+      }
+    } catch (error: any) {
+      console.error('Validation error:', error)
+      setMessage({ type: 'error', text: 'Failed to validate theme. Please try again.' })
+    } finally {
+      setIsValidating(false)
+    }
+  }
+
+  const handleSaveTheme = () => {
+    // For onboarding, we don't actually save to backend here
+    // The theme will be saved as part of onboarding completion
+    // This button just confirms the selection and updates the parent
+    setOriginalTheme(theme)
+    setMessage({ type: 'success', text: '✓ Theme saved! It will be applied when you complete onboarding.' })
+    
+    if (onThemeChange) {
+      onThemeChange(theme)
+    }
+  }
+
+  const handleResetChanges = () => {
+    setTheme(originalTheme)
+    setValidation(null)
+    setMessage(null)
   }
 
   const handleResetToDefaults = () => {
@@ -63,6 +129,8 @@ export default function OnboardingThemeEditor({
       warning: '#f59e0b',
     }
     setTheme(defaults)
+    setValidation(null)
+    setMessage(null)
   }
 
   const colorSlots: Array<{ key: keyof Theme; label: string; description: string }> = [
@@ -128,14 +196,93 @@ export default function OnboardingThemeEditor({
         ))}
       </div>
 
-      {/* Reset Button */}
-      <div className="flex justify-end">
-        <button
+      {/* Validation Results */}
+      {validation && (
+        <div className="space-y-3">
+          {validation.errors.length > 0 && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+              <h3 className="font-semibold text-red-800 mb-2">Validation Errors:</h3>
+              <ul className="list-disc list-inside space-y-1 text-sm text-red-700">
+                {validation.errors.map((error, i) => (
+                  <li key={i}>{error}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+          
+          {validation.warnings.length > 0 && (
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+              <h3 className="font-semibold text-yellow-800 mb-2">Warnings:</h3>
+              <ul className="list-disc list-inside space-y-1 text-sm text-yellow-700">
+                {validation.warnings.map((warning, i) => (
+                  <li key={i}>{warning}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+          
+          {validation.is_valid && (
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+              <h3 className="font-semibold text-green-800 mb-2">✓ Theme is valid</h3>
+              <div className="text-sm text-green-700 space-y-1">
+                <p>Contrast ratios:</p>
+                <ul className="list-disc list-inside ml-4">
+                  {Object.entries(validation.contrast_ratios).map(([key, ratio]) => (
+                    <li key={key}>
+                      {key.replace('_', ' / ')}: {ratio.toFixed(2)}:1
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Message */}
+      {message && (
+        <div className={`p-4 rounded-lg ${
+          message.type === 'success' 
+            ? 'bg-green-50 text-green-800 border border-green-200' 
+            : 'bg-red-50 text-red-800 border border-red-200'
+        }`}>
+          {message.text}
+        </div>
+      )}
+
+      {/* Action Buttons */}
+      <div className="flex flex-wrap gap-3">
+        <Button
+          onClick={handleValidate}
+          disabled={isValidating}
+          className="bg-black hover:bg-gray-900 text-white px-6 py-3 rounded-lg font-semibold"
+        >
+          {isValidating ? 'Validating...' : 'Validate'}
+        </Button>
+        
+        <Button
+          onClick={handleSaveTheme}
+          disabled={isValidating}
+          className="bg-black hover:bg-gray-900 text-white px-6 py-3 rounded-lg font-semibold"
+        >
+          Save Theme
+        </Button>
+        
+        <Button
+          onClick={handleResetChanges}
+          disabled={isValidating}
+          className="bg-black hover:bg-gray-900 text-white px-6 py-3 rounded-lg font-semibold"
+        >
+          Reset Changes
+        </Button>
+        
+        <Button
           onClick={handleResetToDefaults}
+          disabled={isValidating}
           className="bg-black hover:bg-gray-900 text-white px-6 py-3 rounded-lg font-semibold"
         >
           Reset to Defaults
-        </button>
+        </Button>
       </div>
     </div>
   )

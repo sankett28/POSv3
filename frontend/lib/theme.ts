@@ -106,7 +106,12 @@ export function resetTheme(): void {
  */
 export async function fetchTheme(): Promise<Theme> {
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+    const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+    
+    if (!apiUrl) {
+      console.error('❌ NEXT_PUBLIC_API_BASE_URL is not set!');
+      throw new Error('API URL not configured. Check build environment variables.');
+    }
     
     // Get auth token from localStorage
     const token = localStorage.getItem('access_token');
@@ -202,7 +207,11 @@ export async function initializeTheme(skipFetch: boolean = false): Promise<void>
  */
 export async function saveTheme(theme: Theme): Promise<any> {
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+    const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+    
+    if (!apiUrl) {
+      throw new Error('API URL not configured. Check build environment variables.');
+    }
     
     // Get auth token from localStorage
     const token = localStorage.getItem('access_token');
@@ -262,7 +271,11 @@ export async function validateTheme(theme: Theme): Promise<{
   contrast_ratios: Record<string, number>;
 }> {
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+    const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+    
+    if (!apiUrl) {
+      throw new Error('API URL not configured. Check build environment variables.');
+    }
     
     // Get auth token from localStorage
     const token = localStorage.getItem('access_token');

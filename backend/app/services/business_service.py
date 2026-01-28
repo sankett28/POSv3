@@ -19,7 +19,7 @@ class BusinessService:
         Initialize business service.
         
         Args:
-            supabase: Supabase client instance (with service role)
+            supabase: Supabase client instance (typically service role for backend operations)
         """
         self.supabase = supabase
     

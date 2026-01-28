@@ -507,7 +507,7 @@ export default function MenuPage() {
             className={`px-4 sm:px-5 py-2 rounded-full font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring-3 outline-none text-sm sm:text-base ${
               selectedCategory === null
                 ? 'bg-primary text-white shadow-md'
-                : 'bg-white text-primary-text hover:bg-primary/10 border border-border'
+                : 'bg-white text-primary-text hover:bg-brand-dusty-rose/10 border border-gray-300'
             }`}
           >
             All
@@ -521,8 +521,8 @@ export default function MenuPage() {
                 onClick={() => setSelectedCategory(category.id)}
                 className={`px-4 sm:px-5 py-2 rounded-full font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring-3 outline-none text-sm sm:text-base ${
                   selectedCategory === category.id
-                    ? 'bg-brand-deep-burgundy text-white shadow-md'
-                    : 'bg-white text-primary-text hover:bg-primary/10 border border-border'
+                    ? 'bg-primary text-white shadow-md'
+                    : 'bg-white text-primary-text hover:bg-brand-dusty-rose/10 border border-gray-300'
                 }`}
               >
                 {category.name}

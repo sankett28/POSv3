@@ -1332,7 +1332,7 @@ export default function OrdersPage() {
 
       {showOrderSuccessModal && billDetails && (
         <div 
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 print:hidden transition-opacity duration-300 ease-in-out opacity-100"
+          className="fixed inset-0 bg-black/10 backdrop-blur-sm bg-opacity-50 flex items-center justify-center p-4 print:hidden transition-opacity duration-300 ease-in-out opacity-100"
           onClick={() => setShowOrderSuccessModal(false)}
         >
           <div 

@@ -5,7 +5,7 @@ Handles complete onboarding flow: business creation, configuration, and theme se
 """
 from fastapi import APIRouter, Depends, HTTPException, status
 from supabase import Client
-from app.core.database import get_supabase
+from app.core.database import get_supabase, get_user_context_supabase
 from app.core.logging import logger
 from app.api.v1.auth import get_current_user_id
 from app.schemas.onboarding import OnboardingRequest, OnboardingResponse
@@ -26,24 +26,30 @@ async def create_onboarding(
     """
     Process complete onboarding submission with atomic transaction handling.
     
-    Creates business, configuration, and theme records atomically.
+    Creates business, configuration, and theme records atomically using service role client.
+    The service role client bypasses RLS policies, which is appropriate for onboarding
+    since we're creating records on behalf of the authenticated user.
+    
     If any step fails, rolls back by deleting the created business (CASCADE deletes related records).
     
     Args:
         request: Onboarding data from frontend
         user_id: Authenticated user ID from JWT token
-        db: Supabase client instance
+        db: Supabase service role client instance
     
     Returns:
         OnboardingResponse with success status and business_id
     
     Raises:
-        HTTPException: 400 for validation errors, 403 for permission errors, 500 for server errors
+        HTTPException: 400 for validation errors, 401 for auth errors, 
+                      403 for permission errors, 500 for server errors
     """
     business_id = None
     
     try:
-        # Initialize services
+        # Initialize services with service role client
+        # Service role bypasses RLS, which is appropriate for onboarding
+        # since we're creating records on behalf of the authenticated user
         business_service = BusinessService(db)
         config_service = ConfigurationService(db)
         theme_service = ThemeService(supabase=db)
@@ -94,8 +100,8 @@ async def create_onboarding(
                 theme_mode=request.theme_mode or 'light',  # Default to light mode
                 primary_color=request.primary_color or '#912b48',  # Default primary color
                 secondary_color=request.secondary_color or '#ffffff',
-                background_color=request.background_color or '#fff0f3',
-                foreground_color=request.foreground_color or '#610027',
+                background_color=request.background_color or '#ffffff',  # Changed from #fff0f3 to #ffffff
+                foreground_color=request.foreground_color or '#000000',  # Changed from #610027 to #000000 (black)
                 accent_color=request.accent_color or '#b45a69',
                 danger_color=request.danger_color or '#ef4444',
                 success_color=request.success_color or '#22c55e',
@@ -157,7 +163,15 @@ async def create_onboarding(
         
         # Check if it's an RLS policy violation
         error_str = str(e).lower()
-        if 'policy' in error_str or '403' in error_str or 'permission' in error_str:
+        if 'policy' in error_str or 'row-level security' in error_str or 'rls' in error_str:
+            logger.warning(f"RLS policy violation for user {user_id}: {e}")
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Permission denied: Row-Level Security policy violation. Please ensure you are authenticated and authorized."
+            )
+        
+        # Check for other permission errors
+        if '403' in error_str or 'permission' in error_str or 'forbidden' in error_str:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Permission denied. Please ensure you are authenticated and authorized."

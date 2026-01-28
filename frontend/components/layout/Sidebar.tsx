@@ -25,7 +25,7 @@ function MobileHeader({ onMenuClick }: { onMenuClick: () => void }) {
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Logo size="md" showAccent={true} />
-          <span className="text-sm text-coffee-brown font-medium">Cafe Management</span>
+          <span className="text-sm text-Primary font-medium">POS</span>
         </div>
         <button
           onClick={onMenuClick}
@@ -89,19 +89,19 @@ function Sidebar() {
       {/* Sidebar */}
       <aside 
         className={cn(
-          'fixed lg:sticky top-0 left-0 z-40 w-64 h-screen bg-gradient-to-b from-card-background to-warm-cream/95 backdrop-blur-sm',
+          'fixed lg:sticky top-0 left-0 z-40 w-64 h-screen bg-linear-to-b from-card-background to-warm-cream/95 backdrop-blur-sm',
           'border-r border-border/10 shadow-xl transition-all duration-300 ease-in-out transform',
           'flex flex-col',
           isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
         )}
       >
         {/* Sidebar Header */}
-        <div className="px-4 py-6 border-b border-border/10 bg-gradient-to-r from-card-background to-warm-cream/80">
+        <div className="px-4 py-6 border-b border-border/10 bg-linear-to-r from-card-background to-warm-cream/80">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Logo size="lg" showAccent={true} />
               <div className="hidden lg:flex flex-col">
-                <span className="text-sm font-medium text-coffee-brown">Cafe Management</span>
+                <span className="font-medium text-coffee-brown">POS</span>
               </div>
             </div>
             <button 

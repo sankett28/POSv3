@@ -1,0 +1,129 @@
+================================================================================
+PRODUCTION LOCALHOST BUG - ROOT CAUSE ANALYSIS & FIX
+================================================================================
+
+INCIDENT: Frontend calling localhost:8000 in production after redeploy
+
+ROOT CAUSE:
+-----------
+1. Next.js bakes NEXT_PUBLIC_* env vars into JS bundle at BUILD TIME
+2. Docker image was built WITHOUT --build-arg flags
+3. process.env.NEXT_PUBLIC_API_BASE_URL was undefined at build time
+4. Code had fallback: API_BASE_URL || 'http://localhost:8000'
+5. localhost:8000 got hardcoded into production JS bundle
+6. Cloud Run runtime env vars were ignored (too late - already built)
+
+SYMPTOMS:
+---------
+- Frontend calling http://localhost:8000 in production
+- Browser asking permission to connect to local network devices
+- CORS errors / network failures
+- Backend never receiving requests
+- 404 errors (misleading - backend was fine, frontend wasn't calling it)
+
+FILES FIXED:
+------------
+1. lib/api.ts
+   - Removed dangerous fallback: || 'http://localhost:8000'
+   - Added strict validation: throw error if missing in production
+   - Only allow localhost in NODE_ENV=development
+
+2. lib/theme.ts
+   - Removed localhost fallback in fetchTheme()
+   - Removed conditional return {} for missing env
+   - Now throws error if NEXT_PUBLIC_API_BASE_URL missing
+
+3. lib/supabase.ts
+   - Added production validation for Supabase env vars
+   - Throws error in production if missing
+
+4. next.config.js
+   - Added webpack hook to validate env vars at build time
+   - Build fails immediately if NEXT_PUBLIC_* vars missing
+   - Logs env vars for visibility
+
+5. Dockerfile
+   - Added pre-build validation (checks all ARGs are set)
+   - Added build-time logging (prints env vars)
+   - Added post-build scanning (scans .next/static for localhost)
+   - Build fails if localhost detected in output
+   - All validation happens BEFORE image is created
+
+NEW FILES CREATED:
+------------------
+1. docker-build-production.ps1
+   - Safe build script with all required --build-arg flags
+   - Validates URLs before building
+   - Prevents localhost in production builds
+   - Clear success/failure messages
+
+2. verify-build.ps1
+   - Post-build verification tool
+   - Extracts .next from image and scans for localhost
+   - Confirms production URL is baked in
+   - Prevents bad deploys
+
+3. PRODUCTION-BUILD-GUIDE.md
+   - Complete deployment documentation
+   - Troubleshooting guide
+   - Environment variable reference
+
+4. LOCALHOST-FIX-SUMMARY.txt
+   - This file - incident report
+
+VALIDATION LAYERS:
+------------------
+Layer 1: Dockerfile ARG validation (pre-build)
+Layer 2: next.config.js webpack hook (during build)
+Layer 3: Dockerfile localhost scanning (post-build)
+Layer 4: Runtime validation in api.ts (production only)
+Layer 5: verify-build.ps1 script (optional manual check)
+
+CORRECT BUILD COMMAND:
+----------------------
+docker build --no-cache \
+  --build-arg NEXT_PUBLIC_API_BASE_URL=https://posv3-614312738437.asia-southeast1.run.app \
+  --build-arg NEXT_PUBLIC_SUPABASE_URL=https://jegyibzpezsielknpejv.supabase.co \
+  --build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY=<key> \
+  -t sankett2811/posv3-frontend:v3 \
+  .
+
+Or use: .\docker-build-production.ps1
+
+WHAT HAPPENS NOW:
+-----------------
+✅ Build fails if env vars missing (no silent fallback)
+✅ Build fails if localhost detected in output
+✅ Runtime throws error if env vars missing in production
+✅ No localhost calls in production (impossible)
+✅ No browser "local network" permission popup
+✅ Clear error messages instead of silent failures
+✅ Safe redeploys (validation prevents bad builds)
+
+DEVELOPMENT UNCHANGED:
+----------------------
+✅ .env.local still works for local dev
+✅ localhost allowed in NODE_ENV=development
+✅ No impact on dev workflow
+
+TESTING CHECKLIST:
+------------------
+[ ] Build image with docker-build-production.ps1
+[ ] Run verify-build.ps1 to confirm no localhost leaks
+[ ] Push to Docker Hub
+[ ] Deploy to Cloud Run
+[ ] Test login on production URL
+[ ] Check browser DevTools - confirm requests go to Cloud Run backend
+[ ] Confirm no CORS errors
+[ ] Confirm no "local network" permission popup
+[ ] Test full user flow
+
+PREVENTION:
+-----------
+- Always use docker-build-production.ps1 for production builds
+- Never build without --build-arg flags
+- Run verify-build.ps1 before pushing to Docker Hub
+- Cloud Run env vars are NOT used for NEXT_PUBLIC_* (by design)
+
+INCIDENT CLOSED: All localhost fallbacks removed, strict validation added.
+================================================================================

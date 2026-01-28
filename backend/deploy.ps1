@@ -1,21 +1,24 @@
 # GCP Cloud Run Deployment Script for PowerShell
 # Usage: .\deploy.ps1 [PROJECT_ID] [REGION]
+# Environment variables should be pre-configured in GCP Cloud Run Console
 
 param(
     [string]$ProjectId = $env:GOOGLE_CLOUD_PROJECT,
-    [string]$Region = "us-central1"
+    [string]$Region = "asia-southeast1",
+    [string]$ServiceName = "posv3"
 )
 
 if (-not $ProjectId) {
     Write-Host "Error: Please provide your GCP Project ID" -ForegroundColor Red
-    Write-Host "Usage: .\deploy.ps1 -ProjectId YOUR_PROJECT_ID [-Region us-central1]" -ForegroundColor Yellow
+    Write-Host "Usage: .\deploy.ps1 -ProjectId YOUR_PROJECT_ID [-Region asia-southeast1]" -ForegroundColor Yellow
     Write-Host "Or set GOOGLE_CLOUD_PROJECT environment variable" -ForegroundColor Yellow
     exit 1
 }
 
-Write-Host "🚀 Deploying to GCP Cloud Run..." -ForegroundColor Green
+Write-Host "🚀 Deploying Backend to GCP Cloud Run..." -ForegroundColor Green
 Write-Host "Project ID: $ProjectId" -ForegroundColor Cyan
 Write-Host "Region: $Region" -ForegroundColor Cyan
+Write-Host "Service: $ServiceName" -ForegroundColor Cyan
 Write-Host ""
 
 # Set project
@@ -24,14 +27,20 @@ gcloud config set project $ProjectId
 
 # Build and push image
 Write-Host "📦 Building and pushing Docker image..." -ForegroundColor Yellow
-gcloud builds submit --tag "gcr.io/$ProjectId/pos-backend"
+gcloud builds submit --tag "gcr.io/$ProjectId/$ServiceName-backend"
 
-# Deploy to Cloud Run
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "❌ Build failed!" -ForegroundColor Red
+    exit 1
+}
+
+# Deploy to Cloud Run (uses existing environment variables from GCP)
 Write-Host "🚀 Deploying to Cloud Run..." -ForegroundColor Yellow
-Write-Host "⚠️  Note: You'll need to set environment variables manually or use secrets" -ForegroundColor Yellow
+Write-Host "ℹ️  Using environment variables already configured in GCP Cloud Run" -ForegroundColor Cyan
 Write-Host ""
-gcloud run deploy pos-backend `
-  --image "gcr.io/$ProjectId/pos-backend" `
+
+gcloud run deploy $ServiceName `
+  --image "gcr.io/$ProjectId/$ServiceName-backend" `
   --platform managed `
   --region $Region `
   --allow-unauthenticated `
@@ -41,23 +50,41 @@ gcloud run deploy pos-backend `
   --min-instances 0 `
   --max-instances 10
 
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "❌ Deployment failed!" -ForegroundColor Red
+    exit 1
+}
+
 # Get service URL
+Write-Host ""
 Write-Host "🔍 Getting service URL..." -ForegroundColor Yellow
-$serviceUrl = gcloud run services describe pos-backend `
+$serviceUrl = gcloud run services describe $ServiceName `
   --region $Region `
   --format 'value(status.url)'
 
 Write-Host ""
-Write-Host "✅ Deployment complete!" -ForegroundColor Green
+Write-Host "✅ Backend Deployment Complete!" -ForegroundColor Green
 Write-Host "Service URL: $serviceUrl" -ForegroundColor Cyan
 Write-Host ""
-Write-Host "📝 Next steps:" -ForegroundColor Yellow
-Write-Host "1. Set environment variables:"
-Write-Host "   gcloud run services update pos-backend --region $Region --set-env-vars 'SUPABASE_URL=...,SUPABASE_SERVICE_ROLE_KEY=...,CORS_ORIGINS=...'"
+Write-Host "🧪 Testing deployment..." -ForegroundColor Yellow
+Write-Host "Health check: $serviceUrl/health" -ForegroundColor Cyan
+
+# Test health endpoint
+try {
+    $response = Invoke-WebRequest -Uri "$serviceUrl/health" -UseBasicParsing -TimeoutSec 10
+    if ($response.StatusCode -eq 200) {
+        Write-Host "✅ Health check passed!" -ForegroundColor Green
+        Write-Host "Response: $($response.Content)" -ForegroundColor Cyan
+    }
+} catch {
+    Write-Host "⚠️  Health check failed. Service may still be starting..." -ForegroundColor Yellow
+    Write-Host "Please check: $serviceUrl/health" -ForegroundColor Cyan
+}
+
 Write-Host ""
-Write-Host "2. Or use secrets (recommended):"
-Write-Host "   See DEPLOYMENT.md for instructions"
+Write-Host "📝 Notes:" -ForegroundColor Yellow
+Write-Host "- Environment variables are managed in GCP Cloud Run Console" -ForegroundColor White
+Write-Host "- To update env vars: Go to Cloud Run Console → Select service → Edit & Deploy New Revision" -ForegroundColor White
+Write-Host "- API Documentation: $serviceUrl/docs" -ForegroundColor White
 Write-Host ""
-Write-Host "3. Test your deployment:"
-Write-Host "   curl $serviceUrl/health"
 
