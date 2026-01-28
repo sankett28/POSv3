@@ -36,8 +36,8 @@ export default function OnboardingThemeEditor({
   const [theme, setTheme] = useState<Theme>(initialTheme || {
     primary: '#912b48',
     secondary: '#ffffff',
-    background: '#fff0f3',
-    foreground: '#610027',
+    background: '#ffffff',
+    foreground: '#000000',
     accent: '#b45a69',
     danger: '#ef4444',
     success: '#22c55e',
@@ -47,8 +47,8 @@ export default function OnboardingThemeEditor({
   const [originalTheme, setOriginalTheme] = useState<Theme>(initialTheme || {
     primary: '#912b48',
     secondary: '#ffffff',
-    background: '#fff0f3',
-    foreground: '#610027',
+    background: '#ffffff',
+    foreground: '#000000',
     accent: '#b45a69',
     danger: '#ef4444',
     success: '#22c55e',
@@ -121,8 +121,8 @@ export default function OnboardingThemeEditor({
     const defaults: Theme = {
       primary: '#912b48',
       secondary: '#ffffff',
-      background: '#fff0f3',
-      foreground: '#610027',
+      background: '#ffffff',
+      foreground: '#000000',
       accent: '#b45a69',
       danger: '#ef4444',
       success: '#22c55e',

@@ -45,6 +45,8 @@ export default function OnboardingPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   
   // Theme state for onboarding
+  // Default colors: white background (#ffffff) and black text (#000000)
+  // These defaults are intentionally set to provide clean, accessible starting colors
   const [onboardingTheme, setOnboardingTheme] = useState<Theme>({
     primary: '#912b48',
     secondary: '#ffffff',
