@@ -7,6 +7,7 @@ import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Toolti
 import { Skeleton } from '@/components/ui/Skeleton'
 import { generateChartColors } from '@/lib/colorUtils'
 
+
 interface BillItem {
   id: string
   product_name: string
@@ -16,6 +17,7 @@ interface BillItem {
   tax_amount: number
   line_total: number
 }
+
 
 interface Bill {
   id: string
@@ -28,6 +30,7 @@ interface Bill {
   items: BillItem[]
 }
 
+
 interface TaxSummaryItem {
   tax_rate_snapshot: number
   tax_group_name?: string
@@ -37,6 +40,7 @@ interface TaxSummaryItem {
   total_tax: number
   item_count: number
 }
+
 
 interface TaxSummary {
   start_date: string
@@ -48,11 +52,13 @@ interface TaxSummary {
   grand_total_tax: number
 }
 
+
 interface CategorySalesItem {
   category_name: string
   total_sales: number
   item_count: number
 }
+
 
 interface SalesByCategory {
   start_date: string
@@ -60,6 +66,7 @@ interface SalesByCategory {
   summary: CategorySalesItem[]
   grand_total_sales: number
 }
+
 
 export default function ReportsPage() {
   const [bills, setBills] = useState<Bill[]>([])
@@ -79,9 +86,11 @@ export default function ReportsPage() {
     }
   })
 
+
   useEffect(() => {
     loadData()
   }, [])
+
 
   const loadTaxSummary = useCallback(async () => {
     try {
@@ -100,6 +109,7 @@ export default function ReportsPage() {
     }
   }, [dateRange.start, dateRange.end])
 
+
   const loadSalesByCategory = useCallback(async () => {
     try {
       const data = await api.getSalesByCategory(dateRange.start, dateRange.end)
@@ -117,12 +127,14 @@ export default function ReportsPage() {
     }
   }, [dateRange.start, dateRange.end])
 
+
   useEffect(() => {
     if (dateRange.start && dateRange.end) {
       loadTaxSummary()
       loadSalesByCategory()
     }
   }, [dateRange.start, dateRange.end, loadTaxSummary, loadSalesByCategory])
+
 
   const loadData = async () => {
     try {
@@ -135,6 +147,7 @@ export default function ReportsPage() {
     }
   }
 
+
   const filteredBills = useMemo(() => {
     return bills.filter((bill) => {
       const billDate = new Date(bill.created_at).toISOString().split('T')[0]
@@ -142,9 +155,11 @@ export default function ReportsPage() {
     })
   }, [bills, dateRange.start, dateRange.end])
 
+
   const totalSales = useMemo(() => {
     return filteredBills.reduce((sum, bill) => sum + bill.total_amount, 0)
   }, [filteredBills])
+
 
   const transactionCount = filteredBills.length
   
@@ -152,12 +167,14 @@ export default function ReportsPage() {
   const totalCGST = taxSummary?.grand_total_cgst || 0
   const totalSGST = taxSummary?.grand_total_sgst || 0
 
+
   const paymentMethodBreakdown = useMemo(() => {
     return filteredBills.reduce((acc, bill) => {
       acc[bill.payment_method] = (acc[bill.payment_method] || 0) + bill.total_amount
       return acc
     }, {} as Record<string, number>)
   }, [filteredBills])
+
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
@@ -168,14 +185,17 @@ export default function ReportsPage() {
     })
   }
 
+
   // Generate dynamic colors for charts based on primary color
   const paymentMethodColors = useMemo(() => {
     return generateChartColors(Object.keys(paymentMethodBreakdown).length)
   }, [paymentMethodBreakdown])
 
+
   const categoryColors = useMemo(() => {
     return generateChartColors(salesByCategory?.summary.length || 0)
   }, [salesByCategory?.summary.length])
+
 
   const exportToExcel = useCallback(async () => {
     const XLSX = await import('xlsx')
@@ -189,6 +209,7 @@ export default function ReportsPage() {
       hour: '2-digit', 
       minute: '2-digit' 
     })
+
 
     const summaryData = [
       ['Garlic Cafe - Sales Report'],
@@ -208,6 +229,7 @@ export default function ReportsPage() {
     summarySheet['!cols'] = [{ wch: 25 }, { wch: 15 }]
     XLSX.utils.book_append_sheet(workbook, summarySheet, 'Summary')
 
+
     if (Object.keys(paymentMethodBreakdown).length > 0) {
       const paymentData = [
         ['Payment Methods'],
@@ -223,6 +245,7 @@ export default function ReportsPage() {
       paymentSheet['!cols'] = [{ wch: 20 }, { wch: 15 }]
       XLSX.utils.book_append_sheet(workbook, paymentSheet, 'Payment Methods')
     }
+
 
     if (salesByCategory && salesByCategory.summary.length > 0) {
       const categoryData = [
@@ -241,6 +264,7 @@ export default function ReportsPage() {
       categorySheet['!cols'] = [{ wch: 30 }, { wch: 15 }]
       XLSX.utils.book_append_sheet(workbook, categorySheet, 'Sales by Category')
     }
+
 
     if (taxSummary && taxSummary.summary.length > 0) {
       const taxData = [
@@ -277,12 +301,15 @@ export default function ReportsPage() {
       XLSX.utils.book_append_sheet(workbook, taxSheet, 'Tax Summary')
     }
 
+
     const startDateStr = dateRange.start.replace(/-/g, '')
     const endDateStr = dateRange.end.replace(/-/g, '')
     const filename = `Garlic_Report_${startDateStr}_to_${endDateStr}.xlsx`
 
+
     XLSX.writeFile(workbook, filename)
   }, [dateRange.start, dateRange.end, totalSales, totalTax, totalCGST, totalSGST, transactionCount, paymentMethodBreakdown, salesByCategory, taxSummary])
+
 
   if (loading) {
     return (
@@ -300,6 +327,7 @@ export default function ReportsPage() {
           </div>
         </div>
 
+
         {/* Stats cards skeleton */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           {[...Array(3)].map((_, i) => (
@@ -314,6 +342,7 @@ export default function ReportsPage() {
             </div>
           ))}
         </div>
+
 
         {/* Charts skeleton */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
@@ -332,6 +361,7 @@ export default function ReportsPage() {
             </div>
           ))}
         </div>
+
 
         {/* Tax summary table skeleton */}
         <div className="bg-white rounded-2xl shadow-lg p-6 border border-border">
@@ -375,6 +405,7 @@ export default function ReportsPage() {
     )
   }
 
+
   return (
     <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-end mb-6">
@@ -417,6 +448,7 @@ export default function ReportsPage() {
           </div>
         </div>
 
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="bg-white rounded-2xl shadow-md p-6 border border-border">
             <div className="flex items-center justify-between">
@@ -429,6 +461,7 @@ export default function ReportsPage() {
               </div>
             </div>
           </div>
+
 
           <div className="bg-white rounded-2xl shadow-md p-6 border border-border">
             <div className="flex items-center justify-between">
@@ -447,6 +480,7 @@ export default function ReportsPage() {
             </div>
           </div>
 
+
           <div className="bg-white rounded-2xl shadow-md p-6 border border-border">
             <div className="flex items-center justify-between">
               <div>
@@ -459,6 +493,7 @@ export default function ReportsPage() {
             </div>
           </div>
         </div>
+
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           {/* Payment Methods Pie Chart */}
@@ -550,6 +585,7 @@ export default function ReportsPage() {
             )}
           </div>
 
+
           {/* Sales by Category Bar Chart */}
           <div className="bg-white rounded-2xl shadow-md p-6 border border-border">
             <h2 className="text-xl font-bold text-primary-text mb-6">Sales by Category</h2>
@@ -621,6 +657,7 @@ export default function ReportsPage() {
             )}
           </div>
         </div>
+
 
         {/* Tax Summary by Tax Rate */}
         {taxSummary && taxSummary.summary.length > 0 && (

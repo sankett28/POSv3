@@ -1,11 +1,13 @@
 'use client'
 
+
 import { useState, useCallback } from 'react'
 import { usePathname } from 'next/navigation'
 import { logout } from '@/lib/auth'
 import { Bell, LogOut, MessageCircle, Settings, User, X, ReceiptText, UtensilsCrossed, FileText, BarChart3 } from 'lucide-react'
 import Link from 'next/link'
 import Logo from '@/components/ui/Logo'
+
 
 // Navigation items
 const navItems = [
@@ -15,38 +17,45 @@ const navItems = [
   { name: 'Reports', href: '/reports', icon: BarChart3 },
 ]
 
+
 export default function Header() {
   const pathname = usePathname()
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+
 
   // Performance: Memoize logout handler to prevent recreation
   const handleLogout = useCallback(() => {
     logout()
   }, [])
 
+
   // Performance: Memoize profile dropdown toggle handler
   const handleProfileDropdownToggle = useCallback(() => {
     setIsProfileDropdownOpen(prev => !prev)
   }, [])
+
 
   // Performance: Memoize profile dropdown close handler
   const handleProfileDropdownClose = useCallback(() => {
     setIsProfileDropdownOpen(false)
   }, [])
 
+
   // Performance: Memoize mobile menu close handler
   const handleMobileMenuClose = useCallback(() => {
     setIsMobileMenuOpen(false)
   }, [])
 
+
   return (
-    <header className="sticky top-0 z-50 bg-white/90 backdrop-blur supports-backdrop-filter:bg-white/75 border-b border-border shadow-sm">
+    <header className="sticky top-0 z-50 bg-white border-b border-border shadow-sm">
       <div className="h-18 px-4 sm:px-6 flex items-center gap-4">
         {/* Logo */}
         <Link href="/orders" className="flex items-center">
           <Logo size="md" showAccent={true} />
         </Link>
+
 
         {/* Middle section: Navigation Tabs */}
         <nav className="hidden md:flex grow justify-center">
@@ -70,6 +79,7 @@ export default function Header() {
           </ul>
         </nav>
 
+
         {/* Right section: Actions */}
         <div className="relative flex items-center gap-2">
           <button 
@@ -86,6 +96,7 @@ export default function Header() {
             <Bell className="w-5 h-5 text-primary-text" />
           </button>
 
+
           <button
             onClick={handleProfileDropdownToggle}
             className="w-10 h-10 rounded-xl bg-warm-cream border border-border flex items-center justify-center hover:bg-card-background transition-colors"
@@ -93,6 +104,7 @@ export default function Header() {
           >
             <User className="w-5 h-5 text-primary-text" />
           </button>
+
 
           {isProfileDropdownOpen && (
             <div className="absolute right-0 top-12 w-52 bg-card-background rounded-2xl shadow-lg border border-border p-2 z-50">
@@ -125,6 +137,7 @@ export default function Header() {
           )}
         </div>
       </div>
+
 
       {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (

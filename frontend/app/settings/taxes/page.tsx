@@ -1,5 +1,6 @@
 'use client'
 
+
 import { useState, useEffect } from 'react'
 import { api } from '@/lib/api'
 import {
@@ -14,6 +15,7 @@ import {
 } from 'lucide-react'
 import { Skeleton } from '@/components/ui/Skeleton'
 
+
 interface TaxGroup {
   id: string
   name: string
@@ -24,6 +26,7 @@ interface TaxGroup {
   created_at: string
   updated_at: string
 }
+
 
 export default function TaxSettingsPage() {
   const [taxGroups, setTaxGroups] = useState<TaxGroup[]>([])
@@ -40,9 +43,11 @@ export default function TaxSettingsPage() {
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
 
+
   useEffect(() => {
     loadTaxGroups()
   }, [])
+
 
   useEffect(() => {
     if (showForm) {
@@ -55,6 +60,7 @@ export default function TaxSettingsPage() {
     }
   }, [showForm])
 
+
   const loadTaxGroups = async () => {
     try {
       setLoading(true)
@@ -66,6 +72,7 @@ export default function TaxSettingsPage() {
       setLoading(false)
     }
   }
+
 
   const handleCreate = () => {
     setEditingGroup(null)
@@ -81,6 +88,7 @@ export default function TaxSettingsPage() {
     setSuccess(null)
   }
 
+
   const handleEdit = (group: TaxGroup) => {
     setEditingGroup(group)
     setFormData({
@@ -95,6 +103,7 @@ export default function TaxSettingsPage() {
     setSuccess(null)
   }
 
+
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this tax group?')) return
     setError(null)
@@ -108,10 +117,12 @@ export default function TaxSettingsPage() {
     }
   }
 
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
     setSuccess(null)
+
 
     try {
       if (editingGroup) {
@@ -128,6 +139,7 @@ export default function TaxSettingsPage() {
     }
   }
 
+
   const formatGSTPreview = (group: TaxGroup) => {
     if (group.split_type === 'GST_50_50') {
       const halfRate = group.total_rate / 2
@@ -135,6 +147,7 @@ export default function TaxSettingsPage() {
     }
     return `${group.total_rate}% (No split)`
   }
+
 
   if (loading) {
     return (
@@ -145,11 +158,13 @@ export default function TaxSettingsPage() {
           <Skeleton className="h-4 sm:h-5 w-64 sm:w-96" />
         </div>
 
+
         {/* Warning banner + messages + button skeleton */}
         <div className="space-y-6">
           <Skeleton className="h-24 sm:h-28 w-full rounded-xl" />
           <Skeleton className="h-16 w-full rounded-xl" />
           <Skeleton className="h-11 sm:h-12 w-56 rounded-xl" />
+
 
           {/* Table skeleton */}
           <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-border">
@@ -206,6 +221,7 @@ export default function TaxSettingsPage() {
     )
   }
 
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
       {/* Header */}
@@ -217,6 +233,7 @@ export default function TaxSettingsPage() {
           Manage tax groups for GST-compliant billing
         </p>
       </div>
+
 
       {/* Warning Banner */}
       <div className="bg-warm-cream border border-border-emphasis rounded-xl p-4 sm:p-5 mb-6 flex flex-col sm:flex-row items-start gap-3 sm:gap-4">
@@ -233,6 +250,7 @@ export default function TaxSettingsPage() {
         </div>
       </div>
 
+
       {/* Success/Error Messages */}
       {success && (
         <div className="bg-green-50 border border-green-200 rounded-xl p-4 sm:p-5 mb-6 flex items-center gap-3 sm:gap-4 text-sm sm:text-base">
@@ -241,12 +259,14 @@ export default function TaxSettingsPage() {
         </div>
       )}
 
+
       {error && (
         <div className="bg-red-50 border border-red-200 rounded-xl p-4 sm:p-5 mb-6 flex items-center gap-3 sm:gap-4 text-sm sm:text-base">
           <XCircle className="w-5 h-5 sm:w-6 sm:h-6 text-red-600 shrink-0" />
           <p className="text-red-800">{error}</p>
         </div>
       )}
+
 
       {/* Create Button */}
       <div className="mb-6">
@@ -261,6 +281,7 @@ export default function TaxSettingsPage() {
           Create Tax Group
         </button>
       </div>
+
 
       {/* Tax Groups List */}
       <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-border">
@@ -352,6 +373,7 @@ export default function TaxSettingsPage() {
         </div>
       </div>
 
+
       {/* Create/Edit Form Modal */}
       {showForm && (
         <div 
@@ -384,6 +406,7 @@ export default function TaxSettingsPage() {
               </button>
             </div>
 
+
             <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-5 sm:space-y-6">
               {/* Name */}
               <div>
@@ -399,6 +422,7 @@ export default function TaxSettingsPage() {
                   placeholder="e.g., GST 18%"
                 />
               </div>
+
 
               {/* Total Rate */}
               <div>
@@ -417,6 +441,7 @@ export default function TaxSettingsPage() {
                   placeholder="0.00"
                 />
               </div>
+
 
               {/* Split Type */}
               <div>
@@ -440,6 +465,7 @@ export default function TaxSettingsPage() {
                 </p>
               </div>
 
+
               {/* Tax Inclusive */}
               <div>
                 <label className="flex items-center gap-2.5 sm:gap-3 cursor-pointer">
@@ -459,6 +485,7 @@ export default function TaxSettingsPage() {
                 </p>
               </div>
 
+
               {/* Active Status */}
               <div>
                 <label className="flex items-center gap-2.5 sm:gap-3 cursor-pointer">
@@ -476,6 +503,7 @@ export default function TaxSettingsPage() {
                   Only active tax groups can be assigned to products.
                 </p>
               </div>
+
 
               {/* Form Actions */}
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4 sm:pt-5 border-t border-border">

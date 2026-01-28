@@ -785,26 +785,251 @@ export default function OrdersPage() {
   const uncategorizedProducts = filteredProducts.filter(p => !p.category_id)
 
   return (
-    <div className="mx-auto">
-      <h1 className="text-3xl font-bold text-primary-text mb-1">Orders</h1>
-      <p className="text-sm text-primary-text/60 mb-6">Create orders, add items, and complete billing.</p>
+    <div className="mx-auto overflow-x-hidden">
+      <h1 className="text-2xl sm:text-3xl font-bold text-primary-text mb-1">Orders</h1>
+      <p className="text-sm text-primary-text/60 mb-4 sm:mb-6">Create orders, add items, and complete billing.</p>
 
-      <div className="flex items-start gap-6">
-        <div className="w-full flex flex-col gap-6">
+      <div className="flex flex-col xl:flex-row items-start gap-4 xl:gap-6">
+        {/* Mobile/Tablet Cart - Shows above products on small screens */}
+        <div className="xl:hidden w-full bg-white rounded-2xl shadow-md p-4 sm:p-6 border border-border">
+          <div className="flex justify-between items-center mb-4 pb-4 border-b border-border">
+            <h3 className="text-lg sm:text-xl font-bold text-primary-text">Current Order</h3>
+            <button
+              onClick={() => setBillItems([])}
+              className="text-xs sm:text-sm text-primary hover:bg-primary hover:text-white rounded-xl px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
+            >
+              Clear
+            </button>
+          </div>
+
+          <div className="mb-4">
+            {billItems.length === 0 ? (
+              <div className="text-center text-muted-text py-6 sm:py-8">
+                <PackageOpen className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-3 sm:mb-4" />
+                <p className="text-xs sm:text-sm">Add items to start order</p>
+              </div>
+            ) : (
+              <div className="space-y-2 max-h-64 sm:max-h-80 overflow-auto">
+                {billItems.map((item) => {
+                  const productImage = products.find(p => p.id === item.product_id)
+
+                  return (
+                    <div key={item.product_id} className="flex gap-2 sm:gap-3 py-2 sm:py-3 border-b border-border last:border-b-0 transition-all duration-200 ease-in-out hover:bg-warm-cream/10 rounded-md px-2">
+                      <div className="shrink-0">
+                        <div className="h-12 w-12 sm:h-16 sm:w-16 flex items-center justify-center rounded-md overflow-hidden bg-warm-cream/20">
+                          {(() => {
+                            const categoryLower = productImage?.category_name?.toLowerCase() || ''
+                            if (categoryLower.includes('idli')) {
+                              return (
+                                <Image
+                                  key={item.product_id + "-summary-idli"}
+                                  src="/images/menu_items/idli.png"
+                                  alt={item.product_name}
+                                  width={64}
+                                  height={64}
+                                  className="rounded-md"
+                                  priority
+                                />
+                              )
+                            } else if (categoryLower.includes('dosa') || categoryLower.includes('uttapam')) {
+                              return (
+                                <Image
+                                  key={item.product_id + "-summary-dosa"}
+                                  src="/images/menu_items/dosa.jpeg"
+                                  alt={item.product_name}
+                                  width={64}
+                                  height={64}
+                                  className="rounded-md"
+                                  priority
+                                />
+                              )
+                            } else if (categoryLower.includes('snack') || categoryLower === 'other snacks' || categoryLower === 'snacks') {
+                              return (
+                                <Image
+                                  key={item.product_id + "-summary-snack"}
+                                  src="/images/menu_items/snacks.png"
+                                  alt={item.product_name}
+                                  width={64}
+                                  height={64}
+                                  className="rounded-md"
+                                  priority
+                                />
+                              )
+                            } else if (categoryLower.includes('beverage') || categoryLower === 'beverages') {
+                              return (
+                                <Image
+                                  key={item.product_id + "-summary-beverage"}
+                                  src="/images/menu_items/beverages.png"
+                                  alt={item.product_name}
+                                  width={64}
+                                  height={64}
+                                  className="rounded-md"
+                                  priority
+                                />
+                              )
+                            } else {
+                              return <span className="text-lg sm:text-xl">☕</span>
+                            }
+                          })()}
+                        </div>
+                      </div>
+
+                      <div className="flex-1 min-w-0 flex flex-col gap-1 sm:gap-2">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="font-semibold text-xs sm:text-sm text-text-dark truncate">{item.product_name}</div>
+                          <div className="font-bold text-xs sm:text-sm text-text-dark whitespace-nowrap">
+                            ₹{(item.preview_total || item.subtotal).toFixed(2)}
+                          </div>
+                        </div>
+                        
+                        {(item.preview_tax_amount || 0) > 0 && item.tax_group && (
+                          <div className="flex flex-col gap-0.5">
+                            {item.tax_group.split_type === 'GST_50_50' ? (
+                              <>
+                                <div className="text-xs text-secondary-text">
+                                  CGST: ₹{(item.preview_cgst || 0).toFixed(2)}
+                                </div>
+                                <div className="text-xs text-secondary-text">
+                                  SGST: ₹{(item.preview_sgst || 0).toFixed(2)}
+                                </div>
+                              </>
+                            ) : (
+                              <div className="text-xs text-secondary-text">
+                                Tax: ₹{(item.preview_tax_amount || 0).toFixed(2)}
+                              </div>
+                            )}
+                            {item.tax_group.is_tax_inclusive && (
+                              <div className="text-xs text-blue-600">(Tax Inclusive)</div>
+                            )}
+                          </div>
+                        )}
+
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => updateQuantity(item.product_id, -1)}
+                            className="p-1.5 rounded-full bg-white text-primary-text hover:bg-warm-cream/20 transition-all duration-200 ease-in-out active:scale-[0.9] border border-border min-w-[36px] min-h-[36px] flex items-center justify-center"
+                            aria-label="Decrease quantity"
+                          >
+                            <Minus className="w-3 h-3 sm:w-4 sm:h-4" />
+                          </button>
+                          <span className="font-bold text-xs sm:text-sm text-text-dark w-8 text-center">{item.quantity}</span>
+                          <button
+                            onClick={() => updateQuantity(item.product_id, 1)}
+                            className="p-1.5 rounded-full bg-white text-primary-text hover:bg-warm-cream/20 transition-all duration-200 ease-in-out active:scale-[0.9] border border-border min-w-[36px] min-h-[36px] flex items-center justify-center"
+                            aria-label="Increase quantity"
+                          >
+                            <Plus className="w-3 h-3 sm:w-4 sm:h-4" />
+                          </button>
+                          <button
+                            onClick={() => removeItem(item.product_id)}
+                            className="p-1.5 rounded-full bg-warm-cream/20 text-error hover:bg-coffee-brown/20 transition-all duration-200 ease-in-out active:scale-[0.9] ml-1 min-w-[36px] min-h-[36px] flex items-center justify-center"
+                            aria-label="Remove item"
+                          >
+                            <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+
+            <div className="space-y-2 mb-4 pt-4 border-t border-border">
+              <div className="flex justify-between text-xs sm:text-sm text-secondary-text">
+                <span>Subtotal</span>
+                <span>₹{subtotal.toFixed(2)}</span>
+              </div>
+              {totalTax > 0 && (
+                <>
+                  {totalCGST > 0 && totalSGST > 0 ? (
+                    <>
+                      <div className="flex justify-between text-xs sm:text-sm text-secondary-text">
+                        <span>CGST</span>
+                        <span>₹{totalCGST.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between text-xs sm:text-sm text-secondary-text">
+                        <span>SGST</span>
+                        <span>₹{totalSGST.toFixed(2)}</span>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="flex justify-between text-xs sm:text-sm text-secondary-text">
+                      <span>Tax (GST)</span>
+                      <span>₹{totalTax.toFixed(2)}</span>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+
+            <div className="flex justify-between items-center mb-4 sm:mb-6 pt-4 border-t-2 border-coffee-brown">
+              <span className="text-base sm:text-lg font-bold text-primary-text">Total</span>
+              <span className="text-base sm:text-lg font-bold text-coffee-brown">₹{grandTotal.toFixed(2)}</span>
+            </div>
+
+            <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-4 sm:mb-6">
+              <button
+                onClick={() => setPaymentMethod('CASH')}
+                className={`flex flex-col items-center justify-center p-3 sm:p-4 rounded-xl border border-border transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring-3 outline-hidden min-h-[60px] ${
+                  paymentMethod === 'CASH'
+                    ? 'bg-primary text-white shadow-md'
+                    : 'bg-white text-primary-text hover:bg-brand-dusty-rose/10'
+                }`}
+              >
+                <Wallet className="w-5 h-5 sm:w-6 sm:h-6 mb-1 sm:mb-2" />
+                <span className="text-xs sm:text-sm font-medium">Cash</span>
+              </button>
+              <button
+                onClick={() => setPaymentMethod('UPI')}
+                className={`flex flex-col items-center justify-center p-3 sm:p-4 rounded-xl border border-border transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring-3 outline-hidden min-h-[60px] ${
+                  paymentMethod === 'UPI'
+                    ? 'bg-primary text-white shadow-md'
+                    : 'bg-white text-primary-text hover:bg-brand-dusty-rose/10'
+                }`}
+              >
+                <Smartphone className="w-5 h-5 sm:w-6 sm:h-6 mb-1 sm:mb-2" />
+                <span className="text-xs sm:text-sm font-medium">UPI</span>
+              </button>
+              <button
+                onClick={() => setPaymentMethod('CARD')}
+                className={`flex flex-col items-center justify-center p-3 sm:p-4 rounded-xl border border-border transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring-3 outline-hidden min-h-[60px] ${
+                  paymentMethod === 'CARD'
+                    ? 'bg-primary text-white shadow-md'
+                    : 'bg-white text-primary-text hover:bg-brand-dusty-rose/10'
+                }`}
+              >
+                <CreditCard className="w-5 h-5 sm:w-6 sm:h-6 mb-1 sm:mb-2" />
+                <span className="text-xs sm:text-sm font-medium">Card</span>
+              </button>
+            </div>
+
+            <button
+              onClick={handleCompleteBill}
+              disabled={billItems.length === 0}
+              className="w-full bg-primary text-white py-3 px-4 rounded-xl font-semibold hover:bg-interactive-hover transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring-3 outline-hidden disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base flex items-center justify-center gap-2 min-h-[48px]"
+            >
+              <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5" />
+              Complete Order
+            </button>
+          </div>
+        </div>
+
+        <div className="w-full flex flex-col gap-4 sm:gap-6">
           {/* Categories */}
           <div className="flex flex-col items-start gap-2">
-            <h3 className="font-bold text-primary-text mb-4 text-xl">Categories</h3>
+            <h3 className="font-bold text-primary-text mb-2 sm:mb-4 text-lg sm:text-xl">Categories</h3>
             {loading ? (
               <div className="flex flex-wrap gap-2">
                 {[...Array(8)].map((_, i) => (
-                  <Skeleton key={i} className="h-12 w-28 rounded-full" />
+                  <Skeleton key={i} className="h-10 sm:h-12 w-24 sm:w-28 rounded-full" />
                 ))}
               </div>
             ) : (
-              <div className="flex items-center w-full gap-2 flex-wrap">
+              <div className="flex md:flex-wrap overflow-x-auto md:overflow-x-visible w-full gap-2 pb-2 md:pb-0 snap-x snap-mandatory md:snap-none scrollbar-hide">
                 <button
                   onClick={() => setSelectedCategory(null)}
-                  className={`w-fit text-left px-6 py-3 rounded-full font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring-3 outline-hidden ${
+                  className={`shrink-0 md:shrink snap-start text-left px-4 sm:px-6 py-2 sm:py-3 rounded-full font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring-3 outline-hidden text-sm sm:text-base ${
                     selectedCategory === null
                       ? 'bg-primary text-white shadow-md'
                       : 'bg-white text-primary-text hover:bg-brand-dusty-rose/10 border border-gray-300'
@@ -816,7 +1041,7 @@ export default function OrdersPage() {
                   <button
                     key={category.id}
                     onClick={() => setSelectedCategory(category.id)}
-                    className={`w-fit text-left px-6 my-1 py-3 rounded-full font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring-3 outline-hidden ${
+                    className={`shrink-0 md:shrink snap-start text-left px-4 sm:px-6 py-2 sm:py-3 rounded-full font-medium transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] focus-visible:ring-3 outline-hidden text-sm sm:text-base ${
                       selectedCategory === category.id
                         ? 'bg-primary text-white shadow-md'
                         : 'bg-white text-primary-text hover:bg-brand-dusty-rose/10 border border-gray-300'
@@ -830,47 +1055,47 @@ export default function OrdersPage() {
           </div>
 
           {/* Menu Items Section */}
-          <div className="flex flex-col gap-4 p-6">
-            <div className="mb-6">
+          <div className="flex flex-col gap-4 p-2 sm:p-6">
+            <div className="mb-4 sm:mb-6">
               {loading ? (
-                <Skeleton className="h-12 w-full rounded-xl" />
+                <Skeleton className="h-10 sm:h-12 w-full rounded-xl" />
               ) : (
                 <div className="relative">
-                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-text w-5 h-5" />
+                  <Search className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 text-muted-text w-4 h-4 sm:w-5 sm:h-5" />
                   <input
                     type="text"
                     placeholder="Search menu items..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 border border-border rounded-xl focus:outline-hidden focus:ring-2 focus:ring-coffee-brown focus:border-coffee-brown bg-white hover:bg-warm-cream/10 transition-all duration-200 text-primary-text placeholder-muted-text"
+                    className="w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-2 sm:py-3 text-sm sm:text-base border border-border rounded-xl focus:outline-hidden focus:ring-2 focus:ring-coffee-brown focus:border-coffee-brown bg-white hover:bg-warm-cream/10 transition-all duration-200 text-primary-text placeholder-muted-text"
                   />
                 </div>
               )}
             </div>
 
             {loading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
                 {[...Array(12)].map((_, i) => (
-                  <Skeleton key={i} className="w-full h-70 rounded-2xl" />
+                  <Skeleton key={i} className="w-full h-64 sm:h-70 rounded-2xl" />
                 ))}
               </div>
             ) : (
-              <div className="flex flex-col max-h-[75vh] shadow p-6 overflow-auto">
+              <div className="flex flex-col max-h-[75vh] shadow p-2 sm:p-6 overflow-auto">
                 {categories.map((category) => {
                   const categoryProducts = productsByCategory[category.id] || []
                   if (categoryProducts.length === 0 || (selectedCategory && selectedCategory !== category.id)) return null
 
                   return (
                     <div key={category.id}>
-                      <h4 className="font-bold text-primary-text mb-4 text-xl">{category.name}</h4>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+                      <h4 className="font-bold text-primary-text mb-3 sm:mb-4 text-lg sm:text-xl">{category.name}</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4 p-2 sm:p-4">
                         {categoryProducts.map((product) => (
                           <div
                             key={product.id}
-                            className="group relative w-full bg-white rounded-2xl shadow-sm border border-border hover:shadow-lg hover:border-coffee-brown transition-all duration-200 overflow-hidden p-5 flex gap-5"
+                            className="group relative w-full bg-white rounded-2xl shadow-sm border border-border hover:shadow-lg hover:border-coffee-brown transition-all duration-200 overflow-hidden p-4 sm:p-5 flex flex-col md:flex-row gap-4 sm:gap-5"
                           >
-                            <div className="flex flex-col items-center gap-3">
-                              <div className="w-32 h-32 shrink-0 flex items-center justify-center overflow-hidden bg-gray-100 rounded-2xl">
+                            <div className="flex flex-row md:flex-col items-center gap-3 w-full md:w-auto">
+                              <div className="w-24 h-24 sm:w-32 sm:h-32 shrink-0 flex items-center justify-center overflow-hidden bg-gray-100 rounded-2xl">
                                 {(() => {
                                   const categoryLower = product.category_name?.toLowerCase() || ''
                                   if (categoryLower.includes('idli')) {
@@ -928,7 +1153,7 @@ export default function OrdersPage() {
                               </div>
                               
                               {/* Quantity Controls Below Image */}
-                              <div className="flex items-center gap-4 bg-gray-50 rounded-full px-4 py-2.5 border border-gray-200">
+                              <div className="flex items-center gap-2 sm:gap-4 bg-gray-50 rounded-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-200">
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation()
@@ -939,11 +1164,12 @@ export default function OrdersPage() {
                                       removeItem(product.id)
                                     }
                                   }}
-                                  className="p-1 rounded-full hover:bg-gray-200 transition-all duration-200"
+                                  className="p-1.5 sm:p-1 rounded-full hover:bg-gray-200 transition-all duration-200 min-w-[44px] min-h-[44px] md:min-w-0 md:min-h-0 flex items-center justify-center"
+                                  aria-label="Decrease quantity"
                                 >
-                                  <Minus className="w-5 h-5 text-primary-text" />
+                                  <Minus className="w-4 h-4 sm:w-5 sm:h-5 text-primary-text" />
                                 </button>
-                                <span className="font-semibold text-primary-text min-w-6 text-center text-base">
+                                <span className="font-semibold text-primary-text min-w-6 text-center text-sm sm:text-base">
                                   {billItems.find(i => i.product_id === product.id)?.quantity || 0}
                                 </span>
                                 <button
@@ -951,26 +1177,28 @@ export default function OrdersPage() {
                                     e.stopPropagation()
                                     addToBill(product)
                                   }}
-                                  className="p-1 rounded-full hover:bg-gray-200 transition-all duration-200"
+                                  className="p-1.5 sm:p-1 rounded-full hover:bg-gray-200 transition-all duration-200 min-w-[44px] min-h-[44px] md:min-w-0 md:min-h-0 flex items-center justify-center"
+                                  aria-label="Increase quantity"
                                 >
-                                  <Plus className="w-5 h-5 text-primary-text" />
+                                  <Plus className="w-4 h-4 sm:w-5 sm:h-5 text-primary-text" />
                                 </button>
                               </div>
                             </div>
 
-                            <div className="flex-1 flex flex-col gap-3">
-                              <div className="flex items-start justify-between gap-3">
-                                <h3 className="font-semibold text-primary-text text-lg leading-tight">{product.name}</h3>
-                                <p className="text-coffee-brown font-semibold text-lg whitespace-nowrap">₹{product.selling_price.toFixed(2)}</p>
+                            <div className="flex-1 flex flex-col gap-2 sm:gap-3 min-w-0">
+                              <div className="flex items-start justify-between gap-2 sm:gap-3">
+                                <h3 className="font-semibold text-primary-text text-base sm:text-lg leading-tight break-words">{product.name}</h3>
+                                <p className="text-coffee-brown font-semibold text-base sm:text-lg whitespace-nowrap">₹{product.selling_price.toFixed(2)}</p>
                               </div>
 
-                              <p className="text-sm text-muted-text/70 leading-relaxed flex-1">
+                              <p className="text-xs sm:text-sm text-muted-text/70 leading-relaxed flex-1 break-words">
                                 {getProductDescription(product.name, product.category_name)}
                               </p>
 
                               <button
                                 onClick={() => addToBill(product)}
-                                className="w-full bg-primary text-text-inverse py-2.5 px-4 rounded-full font-medium text-sm hover:bg-interactive-hover hover:text-text-inverse transition-all duration-200 hover:shadow-md"
+                                className="w-full bg-primary text-text-inverse py-2 sm:py-2.5 px-3 sm:px-4 rounded-full font-medium text-xs sm:text-sm hover:bg-interactive-hover hover:text-text-inverse transition-all duration-200 hover:shadow-md min-h-[44px] md:min-h-0"
+                                aria-label={`Add ${product.name} to cart`}
                               >
                                 Add to Cart
                               </button>
@@ -984,15 +1212,15 @@ export default function OrdersPage() {
 
                 {(!selectedCategory || selectedCategory === null) && uncategorizedProducts.length > 0 && (
                   <div>
-                    <h4 className="font-bold text-primary-text mb-4 text-xl">Other Items</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+                    <h4 className="font-bold text-primary-text mb-3 sm:mb-4 text-lg sm:text-xl">Other Items</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4 p-2 sm:p-4">
                       {uncategorizedProducts.map((product) => (
                         <div
                           key={product.id}
-                          className="group relative w-full bg-white rounded-2xl shadow-sm border border-border hover:shadow-lg hover:border-coffee-brown transition-all duration-200 overflow-hidden p-5 flex gap-5"
+                          className="group relative w-full bg-white rounded-2xl shadow-sm border border-border hover:shadow-lg hover:border-coffee-brown transition-all duration-200 overflow-hidden p-4 sm:p-5 flex flex-col md:flex-row gap-4 sm:gap-5"
                         >
-                          <div className="flex flex-col items-center gap-3">
-                            <div className="w-32 h-32 shrink-0 flex items-center justify-center overflow-hidden bg-gray-100 rounded-2xl">
+                          <div className="flex flex-row md:flex-col items-center gap-3 w-full md:w-auto">
+                            <div className="w-24 h-24 sm:w-32 sm:h-32 shrink-0 flex items-center justify-center overflow-hidden bg-gray-100 rounded-2xl">
                               {(() => {
                                 const categoryLower = product.category_name?.toLowerCase() || ''
                                 if (categoryLower.includes('idli')) {
@@ -1049,7 +1277,7 @@ export default function OrdersPage() {
                               })()}
                             </div>
                             
-                            <div className="flex items-center gap-4 bg-gray-50 rounded-full px-4 py-2.5 border border-gray-200">
+                            <div className="flex items-center gap-2 sm:gap-4 bg-gray-50 rounded-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-200">
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation()
@@ -1060,11 +1288,12 @@ export default function OrdersPage() {
                                     removeItem(product.id)
                                   }
                                 }}
-                                className="p-1 rounded-full hover:bg-gray-200 transition-all duration-200"
+                                className="p-1.5 sm:p-1 rounded-full hover:bg-gray-200 transition-all duration-200 min-w-[44px] min-h-[44px] md:min-w-0 md:min-h-0 flex items-center justify-center"
+                                aria-label="Decrease quantity"
                               >
-                                <Minus className="w-5 h-5 text-primary-text" />
+                                <Minus className="w-4 h-4 sm:w-5 sm:h-5 text-primary-text" />
                               </button>
-                              <span className="font-semibold text-primary-text min-w-6 text-center text-base">
+                              <span className="font-semibold text-primary-text min-w-6 text-center text-sm sm:text-base">
                                 {billItems.find(i => i.product_id === product.id)?.quantity || 0}
                               </span>
                               <button
@@ -1072,26 +1301,28 @@ export default function OrdersPage() {
                                   e.stopPropagation()
                                   addToBill(product)
                                 }}
-                                className="p-1 rounded-full hover:bg-gray-200 transition-all duration-200"
+                                className="p-1.5 sm:p-1 rounded-full hover:bg-gray-200 transition-all duration-200 min-w-[44px] min-h-[44px] md:min-w-0 md:min-h-0 flex items-center justify-center"
+                                aria-label="Increase quantity"
                               >
-                                <Plus className="w-5 h-5 text-primary-text" />
+                                <Plus className="w-4 h-4 sm:w-5 sm:h-5 text-primary-text" />
                               </button>
                             </div>
                           </div>
 
-                          <div className="flex-1 flex flex-col gap-3">
-                            <div className="flex items-start justify-between gap-3">
-                              <h3 className="font-semibold text-primary-text text-lg leading-tight">{product.name}</h3>
-                              <p className="text-coffee-brown font-semibold text-lg whitespace-nowrap">₹{product.selling_price.toFixed(2)}</p>
+                          <div className="flex-1 flex flex-col gap-2 sm:gap-3 min-w-0">
+                            <div className="flex items-start justify-between gap-2 sm:gap-3">
+                              <h3 className="font-semibold text-primary-text text-base sm:text-lg leading-tight break-words">{product.name}</h3>
+                              <p className="text-coffee-brown font-semibold text-base sm:text-lg whitespace-nowrap">₹{product.selling_price.toFixed(2)}</p>
                             </div>
 
-                            <p className="text-sm text-muted-text/70 leading-relaxed flex-1">
+                            <p className="text-xs sm:text-sm text-muted-text/70 leading-relaxed flex-1 break-words">
                               {getProductDescription(product.name, product.category_name)}
                             </p>
 
                             <button
                               onClick={() => addToBill(product)}
-                              className="w-full bg-coffee-brown/10 text-coffee-brown py-2.5 px-4 rounded-full font-medium text-sm hover:bg-coffee-brown hover:text-white transition-all duration-200 hover:shadow-md"
+                              className="w-full bg-coffee-brown/10 text-coffee-brown py-2 sm:py-2.5 px-3 sm:px-4 rounded-full font-medium text-xs sm:text-sm hover:bg-coffee-brown hover:text-white transition-all duration-200 hover:shadow-md min-h-[44px] md:min-h-0"
+                              aria-label={`Add ${product.name} to cart`}
                             >
                               Add to Cart
                             </button>
@@ -1106,8 +1337,8 @@ export default function OrdersPage() {
           </div>
         </div>
 
-        {/* Right: Order Summary */}
-        <div className="w-150  overflow-auto rounded-2xl shadow-md p-6 border border-border sticky top-4">
+        {/* Right: Order Summary - Hidden on mobile/tablet, visible on desktop */}
+        <div className="hidden xl:block w-150 overflow-auto rounded-2xl shadow-md p-6 border border-border sticky top-4">
           <div className="flex justify-between items-center mb-4 pb-4 border-b border-border">
             <h3 className="text-xl font-bold text-primary-text">Current Order</h3>
             <button
@@ -1332,7 +1563,7 @@ export default function OrdersPage() {
 
       {showOrderSuccessModal && billDetails && (
         <div 
-          className="fixed inset-0 bg-black/10 backdrop-blur-sm bg-opacity-50 flex items-center justify-center p-4 print:hidden transition-opacity duration-300 ease-in-out opacity-100"
+          className="fixed z-9999 inset-0 bg-black/10 backdrop-blur-sm bg-opacity-50 flex items-center justify-center p-4 print:hidden transition-opacity duration-300 ease-in-out opacity-100"
           onClick={() => setShowOrderSuccessModal(false)}
         >
           <div 

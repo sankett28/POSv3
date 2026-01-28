@@ -88,25 +88,27 @@ export default function RootLayout({
       </head>
       <body className={`${manrope.variable} ${sora.variable} font-sans h-full bg-app-background antialiased`}>
         {showSidebar ? (
-          <div className="relative flex min-h-screen w-full">
+          <div className="relative flex flex-col lg:flex-row min-h-screen w-full">
             {/* Sidebar - fixed on large screens, overlay or hidden on mobile */}
-            <div className="fixed inset-y-0 left-0 z-30 md:static md:z-auto">
+            <div id="app-sidebar" className="fixed inset-y-0 left-0 z-30 lg:static lg:z-auto transition-all duration-200">
               <Sidebar />
             </div>
 
-            {/* Main content area */}
-            <div className="flex-1 ml-0 transition-all duration-300">
-              <main className="min-h-screen px-4 py-5 sm:px-6 lg:px-8">
+            {/* Main content area with proper spacing for mobile header */}
+            <div id="app-main-content" className="flex-1 flex flex-col transition-all duration-200">
+              <main className="flex-1 pt-14 sm:pt-16 lg:pt-0 px-3 py-4 sm:px-4 sm:py-5 lg:px-6 lg:py-6 xl:px-8">
                 {children}
               </main>
+              <Footer />
             </div>
           </div>
         ) : (
-          children
+          <>
+            {children}
+            <Footer />
+          </>
         )}
         
-        {/* Footer on all pages */}
-        <Footer />
         <Toaster />
       </body>
     </html>

@@ -9,15 +9,49 @@ interface ModalProps {
 }
 
 function Modal({ isOpen, onClose, title, children }: ModalProps) {
-  // Performance: Memoize body overflow handling
+  // Performance: Memoize body overflow handling and blur effect
   useEffect(() => {
+    const sidebar = document.getElementById('app-sidebar')
+    const mainContent = document.getElementById('app-main-content')
+    
     if (isOpen) {
       document.body.style.overflow = 'hidden'
+      
+      // Apply blur effect to sidebar and main content
+      if (sidebar) {
+        sidebar.style.filter = 'blur(4px)'
+        sidebar.style.pointerEvents = 'none'
+      }
+      if (mainContent) {
+        mainContent.style.filter = 'blur(4px)'
+        mainContent.style.pointerEvents = 'none'
+      }
     } else {
       document.body.style.overflow = 'unset'
+      
+      // Remove blur effect
+      if (sidebar) {
+        sidebar.style.filter = 'none'
+        sidebar.style.pointerEvents = 'auto'
+      }
+      if (mainContent) {
+        mainContent.style.filter = 'none'
+        mainContent.style.pointerEvents = 'auto'
+      }
     }
+    
     return () => {
       document.body.style.overflow = 'unset'
+      
+      // Cleanup: Remove blur effect
+      if (sidebar) {
+        sidebar.style.filter = 'none'
+        sidebar.style.pointerEvents = 'auto'
+      }
+      if (mainContent) {
+        mainContent.style.filter = 'none'
+        mainContent.style.pointerEvents = 'auto'
+      }
     }
   }, [isOpen])
 
@@ -113,4 +147,3 @@ function Modal({ isOpen, onClose, title, children }: ModalProps) {
 
 // Performance: Memoize Modal to prevent unnecessary re-renders
 export default memo(Modal)
-
